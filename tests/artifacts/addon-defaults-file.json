@@ -1,0 +1,29 @@
+{
+  "date": "2026-10-13T21:13:35.019Z",
+  "reports": [
+    {
+      "name": "all nineteen requested defaults are registered and disabled",
+      "status": "PASS"
+    },
+    {
+      "name": "changing defaults does not write saved toggle choices",
+      "status": "PASS"
+    },
+    {
+      "name": "other original defaults remain enabled",
+      "status": "PASS"
+    },
+    {
+      "name": "the actual toggle panel displays nineteen unchecked options",
+      "status": "PASS"
+    },
+    {
+      "name": "explicit saved choices take precedence over defaults on reload",
+      "status": "PASS"
+    },
+    {
+      "name": "restore defaults also unchecks the requested nineteen",
+      "status": "PASS"
+    }
+  ]
+}

@@ -1,0 +1,147 @@
+{
+  "date": "2026-10-13T21:28:21.308603+00:00",
+  "checks": 969,
+  "passed": 969,
+  "failed": 0,
+  "suites": [
+    {
+      "suite": "rwd/http",
+      "report": "tests/artifacts/rwd-report-http.json",
+      "checks": 221,
+      "passed": 221,
+      "failed": []
+    },
+    {
+      "suite": "rwd/file",
+      "report": "tests/artifacts/rwd-report-file.json",
+      "checks": 221,
+      "passed": 221,
+      "failed": []
+    },
+    {
+      "suite": "ui-scale/http",
+      "report": "tests/artifacts/ui-scale-report-http.json",
+      "checks": 100,
+      "passed": 100,
+      "failed": []
+    },
+    {
+      "suite": "ui-scale/file",
+      "report": "tests/artifacts/ui-scale-report-file.json",
+      "checks": 100,
+      "passed": 100,
+      "failed": []
+    },
+    {
+      "suite": "gameplay/http",
+      "report": "tests/artifacts/gameplay-report-http.json",
+      "checks": 30,
+      "passed": 30,
+      "failed": []
+    },
+    {
+      "suite": "gameplay/file",
+      "report": "tests/artifacts/gameplay-report-file.json",
+      "checks": 30,
+      "passed": 30,
+      "failed": []
+    },
+    {
+      "suite": "account-gameplay/http",
+      "report": "tests/artifacts/account-gameplay-http.json",
+      "checks": 60,
+      "passed": 60,
+      "failed": []
+    },
+    {
+      "suite": "account-gameplay/file",
+      "report": "tests/artifacts/account-gameplay-file.json",
+      "checks": 60,
+      "passed": 60,
+      "failed": []
+    },
+    {
+      "suite": "companion-commands/http",
+      "report": "tests/artifacts/companion-commands-http.json",
+      "checks": 21,
+      "passed": 21,
+      "failed": []
+    },
+    {
+      "suite": "companion-commands/file",
+      "report": "tests/artifacts/companion-commands-file.json",
+      "checks": 21,
+      "passed": 21,
+      "failed": []
+    },
+    {
+      "suite": "game-tools/http",
+      "report": "tests/artifacts/game-tools-http.json",
+      "checks": 22,
+      "passed": 22,
+      "failed": []
+    },
+    {
+      "suite": "game-tools/file",
+      "report": "tests/artifacts/game-tools-file.json",
+      "checks": 22,
+      "passed": 22,
+      "failed": []
+    },
+    {
+      "suite": "addon-defaults/http",
+      "report": "tests/artifacts/addon-defaults-http.json",
+      "checks": 6,
+      "passed": 6,
+      "failed": []
+    },
+    {
+      "suite": "addon-defaults/file",
+      "report": "tests/artifacts/addon-defaults-file.json",
+      "checks": 6,
+      "passed": 6,
+      "failed": []
+    },
+    {
+      "suite": "pwa/http",
+      "report": "tests/artifacts/pwa-http.json",
+      "checks": 6,
+      "passed": 6,
+      "failed": []
+    },
+    {
+      "suite": "pwa/file",
+      "report": "tests/artifacts/pwa-file.json",
+      "checks": 2,
+      "passed": 2,
+      "failed": []
+    },
+    {
+      "suite": "visual-account-gameplay",
+      "report": "tests/artifacts/account-visual-report.json",
+      "checks": 13,
+      "passed": 13,
+      "failed": []
+    },
+    {
+      "suite": "visual-game-tools/http",
+      "report": "tests/artifacts/visual-game-tools-http.json",
+      "checks": 14,
+      "passed": 14,
+      "failed": []
+    },
+    {
+      "suite": "visual-game-tools/file",
+      "report": "tests/artifacts/visual-game-tools-file.json",
+      "checks": 14,
+      "passed": 14,
+      "failed": []
+    }
+  ],
+  "mirroredSourceFiles": 65,
+  "sourceHashesMatch": true,
+  "nativeCombatFunctionsMatch": true,
+  "unverified": [
+    "Installed desktop host; desktop bridge tested with a substitute only."
+  ]
+}

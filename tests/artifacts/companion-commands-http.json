@@ -1,0 +1,89 @@
+{
+  "date": "2026-10-13T21:21:39.549Z",
+  "reports": [
+    {
+      "name": "command UI and command interception are removed",
+      "status": "PASS"
+    },
+    {
+      "name": "pets automatically attack the original nearest or earliest target",
+      "status": "PASS"
+    },
+    {
+      "name": "summons retain their own automatic target selection",
+      "status": "PASS"
+    },
+    {
+      "name": "mercenary summons retain the original player target and aggregate attack",
+      "status": "PASS"
+    },
+    {
+      "name": "a defeated target causes automatic retargeting without guard mode",
+      "status": "PASS"
+    },
+    {
+      "name": "buff numbers appear in parentheses after the total on the same line",
+      "status": "PASS"
+    },
+    {
+      "name": "positive buffs use a plus sign in parentheses",
+      "status": "PASS"
+    },
+    {
+      "name": "live total defenses and equipment immunities stay accurate",
+      "status": "PASS"
+    },
+    {
+      "name": "the floating window has an accessible resize control",
+      "status": "PASS"
+    },
+    {
+      "name": "dragging the resize handle changes window width and height",
+      "status": "PASS"
+    },
+    {
+      "name": "resized window and fluid artwork survive live refresh",
+      "status": "PASS"
+    },
+    {
+      "name": "1330x900 100%: resized content fits and values never wrap",
+      "status": "PASS"
+    },
+    {
+      "name": "1330x900 75%: resized content fits and values never wrap",
+      "status": "PASS"
+    },
+    {
+      "name": "touch dragging resizes the floating window on a narrow screen",
+      "status": "PASS"
+    },
+    {
+      "name": "390x844 100%: resized content fits and values never wrap",
+      "status": "PASS"
+    },
+    {
+      "name": "390x844 75%: resized content fits and values never wrap",
+      "status": "PASS"
+    },
+    {
+      "name": "844x390 100%: resized content fits and values never wrap",
+      "status": "PASS"
+    },
+    {
+      "name": "844x390 75%: resized content fits and values never wrap",
+      "status": "PASS"
+    },
+    {
+      "name": "pets still expose live status from the team menu",
+      "status": "PASS"
+    },
+    {
+      "name": "summons still expose live status from the team menu",
+      "status": "PASS"
+    },
+    {
+      "name": "no duplicate DOM ids or runtime errors",
+      "status": "PASS"
+    }
+  ]
+}

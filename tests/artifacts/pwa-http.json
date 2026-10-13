@@ -1,0 +1,29 @@
+{
+  "date": "2026-10-13T21:19:09.092Z",
+  "reports": [
+    {
+      "name": "original PWA modules and manifest are loaded",
+      "status": "PASS"
+    },
+    {
+      "name": "localhost registers the original service worker",
+      "status": "PASS"
+    },
+    {
+      "name": "original code cache contains the page and mirrored scripts",
+      "status": "PASS"
+    },
+    {
+      "name": "original image cache stores requested artwork",
+      "status": "PASS"
+    },
+    {
+      "name": "offline launch loads the original add-ons and local game",
+      "status": "PASS"
+    },
+    {
+      "name": "requested artwork remains available offline",
+      "status": "PASS"
+    }
+  ]
+}

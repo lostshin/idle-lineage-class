@@ -1,0 +1,50 @@
+{
+  "originalCommit": "b3fb21ce1960954adbbfcaa8f6dde9c8642d208b",
+  "checks": [
+    {
+      "file": "js/07-skills-cast.js",
+      "function": "summonAttack",
+      "matchesOriginal": true
+    },
+    {
+      "file": "js/07-skills-cast.js",
+      "function": "summonTick",
+      "matchesOriginal": true
+    },
+    {
+      "file": "js/22-pets.js",
+      "function": "_petPickTarget",
+      "matchesOriginal": true
+    },
+    {
+      "file": "js/22-pets.js",
+      "function": "petAttackOnce",
+      "matchesOriginal": true
+    },
+    {
+      "file": "js/22-pets.js",
+      "function": "petsTick",
+      "matchesOriginal": true
+    },
+    {
+      "file": "js/22-pets.js",
+      "function": "_petWanderStep",
+      "matchesOriginal": true
+    },
+    {
+      "file": "js/23-summons.js",
+      "function": "summonV2Tick",
+      "matchesOriginal": true
+    },
+    {
+      "file": "js/23-summons.js",
+      "function": "spiritAttackOnce",
+      "matchesOriginal": true
+    },
+    {
+      "file": "js/23-summons.js",
+      "function": "necroSkeletonTick",
+      "matchesOriginal": true
+    }
+  ]
+}

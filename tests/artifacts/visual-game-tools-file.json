@@ -1,0 +1,75 @@
+{
+  "date": "2026-10-13T21:19:07.122Z",
+  "reports": [
+    {
+      "name": "original search input filters the item list",
+      "status": "PASS",
+      "result": true
+    },
+    {
+      "name": "1330x900 100% party window is in bounds",
+      "status": "PASS",
+      "result": true
+    },
+    {
+      "name": "1330x900 100% one card contains total and shield benefit",
+      "status": "PASS",
+      "result": true
+    },
+    {
+      "name": "1330x900 75% party window is in bounds",
+      "status": "PASS",
+      "result": true
+    },
+    {
+      "name": "1330x900 75% one card contains total and shield benefit",
+      "status": "PASS",
+      "result": true
+    },
+    {
+      "name": "390x844 100% party window is in bounds",
+      "status": "PASS",
+      "result": true
+    },
+    {
+      "name": "390x844 100% one card contains total and shield benefit",
+      "status": "PASS",
+      "result": true
+    },
+    {
+      "name": "390x844 75% party window is in bounds",
+      "status": "PASS",
+      "result": true
+    },
+    {
+      "name": "390x844 75% one card contains total and shield benefit",
+      "status": "PASS",
+      "result": true
+    },
+    {
+      "name": "844x390 100% party window is in bounds",
+      "status": "PASS",
+      "result": true
+    },
+    {
+      "name": "844x390 100% one card contains total and shield benefit",
+      "status": "PASS",
+      "result": true
+    },
+    {
+      "name": "844x390 75% party window is in bounds",
+      "status": "PASS",
+      "result": true
+    },
+    {
+      "name": "844x390 75% one card contains total and shield benefit",
+      "status": "PASS",
+      "result": true
+    },
+    {
+      "name": "visual review has no runtime errors",
+      "status": "PASS",
+      "result": true
+    }
+  ]
+}

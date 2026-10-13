@@ -1,0 +1,889 @@
+{
+  "date": "2026-10-13T21:14:20.632Z",
+  "reports": [
+    {
+      "name": "320x640: home actions fit horizontally",
+      "status": "PASS"
+    },
+    {
+      "name": "320x640: touch home actions remain tappable",
+      "status": "PASS"
+    },
+    {
+      "name": "390x844: home actions fit horizontally",
+      "status": "PASS"
+    },
+    {
+      "name": "390x844: touch home actions remain tappable",
+      "status": "PASS"
+    },
+    {
+      "name": "768x1024: home actions fit horizontally",
+      "status": "PASS"
+    },
+    {
+      "name": "768x1024: touch home actions remain tappable",
+      "status": "PASS"
+    },
+    {
+      "name": "844x390: home actions fit horizontally",
+      "status": "PASS"
+    },
+    {
+      "name": "844x390: touch home actions remain tappable",
+      "status": "PASS"
+    },
+    {
+      "name": "1024x768: home actions fit horizontally",
+      "status": "PASS"
+    },
+    {
+      "name": "1024x768: touch home actions remain tappable",
+      "status": "PASS"
+    },
+    {
+      "name": "1199x800: home actions fit horizontally",
+      "status": "PASS"
+    },
+    {
+      "name": "1199x800: touch home actions remain tappable",
+      "status": "PASS"
+    },
+    {
+      "name": "1330x759: home actions fit horizontally",
+      "status": "PASS"
+    },
+    {
+      "name": "1330x759: touch home actions remain tappable",
+      "status": "PASS"
+    },
+    {
+      "name": "1440x900: home actions fit horizontally",
+      "status": "PASS"
+    },
+    {
+      "name": "1440x900: touch home actions remain tappable",
+      "status": "PASS"
+    },
+    {
+      "name": "1920x1080: home actions fit horizontally",
+      "status": "PASS"
+    },
+    {
+      "name": "1920x1080: touch home actions remain tappable",
+      "status": "PASS"
+    },
+    {
+      "name": "mobile: character slots and actions fit",
+      "status": "PASS"
+    },
+    {
+      "name": "mobile: creation controls fit",
+      "status": "PASS"
+    },
+    {
+      "name": "320x640: settings button is reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "320x640: mobile vitals remain visible",
+      "status": "PASS"
+    },
+    {
+      "name": "320x640: game columns fit horizontally",
+      "status": "PASS"
+    },
+    {
+      "name": "320x640: map and logs stay inside their column",
+      "status": "PASS"
+    },
+    {
+      "name": "320x640: map and lower panels do not overlap",
+      "status": "PASS"
+    },
+    {
+      "name": "320x640: setting labels remain readable",
+      "status": "PASS"
+    },
+    {
+      "name": "320x640: class-only potion rows stay hidden",
+      "status": "PASS"
+    },
+    {
+      "name": "320x640: percentage controls stay together",
+      "status": "PASS"
+    },
+    {
+      "name": "320x640: settings have no horizontal overflow",
+      "status": "PASS"
+    },
+    {
+      "name": "320x640: ability button is reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "320x640: ability window fits its tab",
+      "status": "PASS"
+    },
+    {
+      "name": "320x640: skill tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "320x640: items tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "320x640: weapons tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "320x640: armors tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "320x640: equip tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "320x640: audit tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "320x640: clan tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "320x640: pvp tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "320x640: item dialog fits and close is reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "320x640: warehouse fits and close is reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "320x640: collection dialog fits",
+      "status": "PASS"
+    },
+    {
+      "name": "390x844: settings button is reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "390x844: mobile vitals remain visible",
+      "status": "PASS"
+    },
+    {
+      "name": "390x844: game columns fit horizontally",
+      "status": "PASS"
+    },
+    {
+      "name": "390x844: map and logs stay inside their column",
+      "status": "PASS"
+    },
+    {
+      "name": "390x844: map and lower panels do not overlap",
+      "status": "PASS"
+    },
+    {
+      "name": "390x844: setting labels remain readable",
+      "status": "PASS"
+    },
+    {
+      "name": "390x844: class-only potion rows stay hidden",
+      "status": "PASS"
+    },
+    {
+      "name": "390x844: percentage controls stay together",
+      "status": "PASS"
+    },
+    {
+      "name": "390x844: settings have no horizontal overflow",
+      "status": "PASS"
+    },
+    {
+      "name": "390x844: ability button is reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "390x844: ability window fits its tab",
+      "status": "PASS"
+    },
+    {
+      "name": "390x844: skill tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "390x844: items tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "390x844: weapons tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "390x844: armors tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "390x844: equip tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "390x844: audit tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "390x844: clan tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "390x844: pvp tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "390x844: item dialog fits and close is reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "390x844: warehouse fits and close is reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "390x844: collection dialog fits",
+      "status": "PASS"
+    },
+    {
+      "name": "768x1024: settings button is reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "768x1024: mobile vitals remain visible",
+      "status": "PASS"
+    },
+    {
+      "name": "768x1024: game columns fit horizontally",
+      "status": "PASS"
+    },
+    {
+      "name": "768x1024: map and logs stay inside their column",
+      "status": "PASS"
+    },
+    {
+      "name": "768x1024: map and lower panels do not overlap",
+      "status": "PASS"
+    },
+    {
+      "name": "768x1024: setting labels remain readable",
+      "status": "PASS"
+    },
+    {
+      "name": "768x1024: class-only potion rows stay hidden",
+      "status": "PASS"
+    },
+    {
+      "name": "768x1024: percentage controls stay together",
+      "status": "PASS"
+    },
+    {
+      "name": "768x1024: settings have no horizontal overflow",
+      "status": "PASS"
+    },
+    {
+      "name": "768x1024: ability button is reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "768x1024: ability window fits its tab",
+      "status": "PASS"
+    },
+    {
+      "name": "768x1024: skill tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "768x1024: items tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "768x1024: weapons tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "768x1024: armors tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "768x1024: equip tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "768x1024: audit tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "768x1024: clan tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "768x1024: pvp tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "768x1024: item dialog fits and close is reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "768x1024: warehouse fits and close is reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "768x1024: collection dialog fits",
+      "status": "PASS"
+    },
+    {
+      "name": "844x390: settings button is reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "844x390: mobile vitals remain visible",
+      "status": "PASS"
+    },
+    {
+      "name": "844x390: game columns fit horizontally",
+      "status": "PASS"
+    },
+    {
+      "name": "844x390: map and logs stay inside their column",
+      "status": "PASS"
+    },
+    {
+      "name": "844x390: map and lower panels do not overlap",
+      "status": "PASS"
+    },
+    {
+      "name": "844x390: setting labels remain readable",
+      "status": "PASS"
+    },
+    {
+      "name": "844x390: class-only potion rows stay hidden",
+      "status": "PASS"
+    },
+    {
+      "name": "844x390: percentage controls stay together",
+      "status": "PASS"
+    },
+    {
+      "name": "844x390: settings have no horizontal overflow",
+      "status": "PASS"
+    },
+    {
+      "name": "844x390: ability button is reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "844x390: ability window fits its tab",
+      "status": "PASS"
+    },
+    {
+      "name": "844x390: skill tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "844x390: items tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "844x390: weapons tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "844x390: armors tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "844x390: equip tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "844x390: audit tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "844x390: clan tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "844x390: pvp tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "844x390: item dialog fits and close is reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "844x390: warehouse fits and close is reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "844x390: collection dialog fits",
+      "status": "PASS"
+    },
+    {
+      "name": "1024x768: settings button is reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "1024x768: mobile vitals remain visible",
+      "status": "PASS"
+    },
+    {
+      "name": "1024x768: game columns fit horizontally",
+      "status": "PASS"
+    },
+    {
+      "name": "1024x768: map and logs stay inside their column",
+      "status": "PASS"
+    },
+    {
+      "name": "1024x768: map and lower panels do not overlap",
+      "status": "PASS"
+    },
+    {
+      "name": "1024x768: setting labels remain readable",
+      "status": "PASS"
+    },
+    {
+      "name": "1024x768: class-only potion rows stay hidden",
+      "status": "PASS"
+    },
+    {
+      "name": "1024x768: percentage controls stay together",
+      "status": "PASS"
+    },
+    {
+      "name": "1024x768: settings have no horizontal overflow",
+      "status": "PASS"
+    },
+    {
+      "name": "1024x768: ability button is reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "1024x768: ability window fits its tab",
+      "status": "PASS"
+    },
+    {
+      "name": "1024x768: skill tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "1024x768: items tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "1024x768: weapons tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "1024x768: armors tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "1024x768: equip tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "1024x768: audit tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "1024x768: clan tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "1024x768: pvp tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "1024x768: item dialog fits and close is reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "1024x768: warehouse fits and close is reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "1024x768: collection dialog fits",
+      "status": "PASS"
+    },
+    {
+      "name": "1199x800: settings button is reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "1199x800: mobile vitals remain visible",
+      "status": "PASS"
+    },
+    {
+      "name": "1199x800: game columns fit horizontally",
+      "status": "PASS"
+    },
+    {
+      "name": "1199x800: map and logs stay inside their column",
+      "status": "PASS"
+    },
+    {
+      "name": "1199x800: map and lower panels do not overlap",
+      "status": "PASS"
+    },
+    {
+      "name": "1199x800: setting labels remain readable",
+      "status": "PASS"
+    },
+    {
+      "name": "1199x800: class-only potion rows stay hidden",
+      "status": "PASS"
+    },
+    {
+      "name": "1199x800: percentage controls stay together",
+      "status": "PASS"
+    },
+    {
+      "name": "1199x800: settings have no horizontal overflow",
+      "status": "PASS"
+    },
+    {
+      "name": "1199x800: ability button is reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "1199x800: ability window fits its tab",
+      "status": "PASS"
+    },
+    {
+      "name": "1199x800: skill tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "1199x800: items tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "1199x800: weapons tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "1199x800: armors tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "1199x800: equip tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "1199x800: audit tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "1199x800: clan tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "1199x800: pvp tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "1199x800: item dialog fits and close is reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "1199x800: warehouse fits and close is reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "1199x800: collection dialog fits",
+      "status": "PASS"
+    },
+    {
+      "name": "1330x759: settings button is reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "1330x759: mobile vitals remain visible",
+      "status": "PASS"
+    },
+    {
+      "name": "1330x759: game columns fit horizontally",
+      "status": "PASS"
+    },
+    {
+      "name": "1330x759: map and logs stay inside their column",
+      "status": "PASS"
+    },
+    {
+      "name": "1330x759: map and lower panels do not overlap",
+      "status": "PASS"
+    },
+    {
+      "name": "1330x759: setting labels remain readable",
+      "status": "PASS"
+    },
+    {
+      "name": "1330x759: class-only potion rows stay hidden",
+      "status": "PASS"
+    },
+    {
+      "name": "1330x759: percentage controls stay together",
+      "status": "PASS"
+    },
+    {
+      "name": "1330x759: settings have no horizontal overflow",
+      "status": "PASS"
+    },
+    {
+      "name": "1330x759: ability button is reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "1330x759: ability window fits its tab",
+      "status": "PASS"
+    },
+    {
+      "name": "1330x759: skill tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "1330x759: items tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "1330x759: weapons tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "1330x759: armors tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "1330x759: equip tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "1330x759: audit tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "1330x759: clan tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "1330x759: pvp tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "1330x759: item dialog fits and close is reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "1330x759: warehouse fits and close is reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "1330x759: collection dialog fits",
+      "status": "PASS"
+    },
+    {
+      "name": "1440x900: settings button is reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "1440x900: mobile vitals remain visible",
+      "status": "PASS"
+    },
+    {
+      "name": "1440x900: game columns fit horizontally",
+      "status": "PASS"
+    },
+    {
+      "name": "1440x900: map and logs stay inside their column",
+      "status": "PASS"
+    },
+    {
+      "name": "1440x900: map and lower panels do not overlap",
+      "status": "PASS"
+    },
+    {
+      "name": "1440x900: setting labels remain readable",
+      "status": "PASS"
+    },
+    {
+      "name": "1440x900: class-only potion rows stay hidden",
+      "status": "PASS"
+    },
+    {
+      "name": "1440x900: percentage controls stay together",
+      "status": "PASS"
+    },
+    {
+      "name": "1440x900: settings have no horizontal overflow",
+      "status": "PASS"
+    },
+    {
+      "name": "1440x900: ability button is reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "1440x900: ability window fits its tab",
+      "status": "PASS"
+    },
+    {
+      "name": "1440x900: skill tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "1440x900: items tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "1440x900: weapons tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "1440x900: armors tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "1440x900: equip tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "1440x900: audit tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "1440x900: clan tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "1440x900: pvp tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "1440x900: item dialog fits and close is reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "1440x900: warehouse fits and close is reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "1440x900: collection dialog fits",
+      "status": "PASS"
+    },
+    {
+      "name": "1920x1080: settings button is reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "1920x1080: mobile vitals remain visible",
+      "status": "PASS"
+    },
+    {
+      "name": "1920x1080: game columns fit horizontally",
+      "status": "PASS"
+    },
+    {
+      "name": "1920x1080: map and logs stay inside their column",
+      "status": "PASS"
+    },
+    {
+      "name": "1920x1080: map and lower panels do not overlap",
+      "status": "PASS"
+    },
+    {
+      "name": "1920x1080: setting labels remain readable",
+      "status": "PASS"
+    },
+    {
+      "name": "1920x1080: class-only potion rows stay hidden",
+      "status": "PASS"
+    },
+    {
+      "name": "1920x1080: percentage controls stay together",
+      "status": "PASS"
+    },
+    {
+      "name": "1920x1080: settings have no horizontal overflow",
+      "status": "PASS"
+    },
+    {
+      "name": "1920x1080: ability button is reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "1920x1080: ability window fits its tab",
+      "status": "PASS"
+    },
+    {
+      "name": "1920x1080: skill tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "1920x1080: items tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "1920x1080: weapons tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "1920x1080: armors tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "1920x1080: equip tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "1920x1080: audit tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "1920x1080: clan tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "1920x1080: pvp tab fits",
+      "status": "PASS"
+    },
+    {
+      "name": "1920x1080: item dialog fits and close is reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "1920x1080: warehouse fits and close is reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "1920x1080: collection dialog fits",
+      "status": "PASS"
+    },
+    {
+      "name": "settings edits save and reload",
+      "status": "PASS"
+    },
+    {
+      "name": "no browser runtime errors",
+      "status": "PASS"
+    },
+    {
+      "name": "file URL: original settings and game load",
+      "status": "PASS"
+    }
+  ]
+}

@@ -1,0 +1,125 @@
+{
+  "date": "2026-10-13T21:16:38.858Z",
+  "reports": [
+    {
+      "name": "weapons: one-click sort entry is visible",
+      "status": "PASS"
+    },
+    {
+      "name": "weapons: action labels fit on one line",
+      "status": "PASS"
+    },
+    {
+      "name": "weapons: sort orders items without losing them",
+      "status": "PASS"
+    },
+    {
+      "name": "weapons: enhanced-item threshold is available",
+      "status": "PASS"
+    },
+    {
+      "name": "weapons: threshold includes strengthened items and preserves higher/locked items",
+      "status": "PASS"
+    },
+    {
+      "name": "armors: one-click sort entry is visible",
+      "status": "PASS"
+    },
+    {
+      "name": "armors: action labels fit on one line",
+      "status": "PASS"
+    },
+    {
+      "name": "armors: sort orders items without losing them",
+      "status": "PASS"
+    },
+    {
+      "name": "armors: enhanced-item threshold is available",
+      "status": "PASS"
+    },
+    {
+      "name": "armors: threshold includes strengthened items and preserves higher/locked items",
+      "status": "PASS"
+    },
+    {
+      "name": "existing autosell rule respects strengthened-item threshold and locks",
+      "status": "PASS"
+    },
+    {
+      "name": "teammate name has an inspect entry",
+      "status": "PASS"
+    },
+    {
+      "name": "inspector shows active buff and timed debuff",
+      "status": "PASS"
+    },
+    {
+      "name": "town teammate is shown as ready",
+      "status": "PASS"
+    },
+    {
+      "name": "inspector shows effective AC including team aura and disease",
+      "status": "PASS"
+    },
+    {
+      "name": "inspector updates without reopening",
+      "status": "PASS"
+    },
+    {
+      "name": "expired effects disappear",
+      "status": "PASS"
+    },
+    {
+      "name": "downed teammate remains inspectable",
+      "status": "PASS"
+    },
+    {
+      "name": "removed teammate does not leave stale stats",
+      "status": "PASS"
+    },
+    {
+      "name": "Escape closes inspector and returns focus",
+      "status": "PASS"
+    },
+    {
+      "name": "inspector closes",
+      "status": "PASS"
+    },
+    {
+      "name": "pet: live defenses and health are inspectable",
+      "status": "PASS"
+    },
+    {
+      "name": "summon: live defenses and health are inspectable",
+      "status": "PASS"
+    },
+    {
+      "name": "guard: live defenses and health are inspectable",
+      "status": "PASS"
+    },
+    {
+      "name": "1330x759 100%: teammate details fit",
+      "status": "PASS"
+    },
+    {
+      "name": "390x844 100%: teammate details fit",
+      "status": "PASS"
+    },
+    {
+      "name": "390x844 75%: teammate details fit",
+      "status": "PASS"
+    },
+    {
+      "name": "844x390 75%: teammate details fit",
+      "status": "PASS"
+    },
+    {
+      "name": "combat continues while teammate details are open",
+      "status": "PASS"
+    },
+    {
+      "name": "no runtime errors",
+      "status": "PASS"
+    }
+  ]
+}

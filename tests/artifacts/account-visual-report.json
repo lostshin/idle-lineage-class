@@ -1,0 +1,70 @@
+{
+  "date": "2026-10-13T21:18:28.704Z",
+  "reports": [
+    {
+      "name": "already named legacy role gets one free rename",
+      "status": "PASS",
+      "result": true
+    },
+    {
+      "name": "mobile 100% account preview fits",
+      "status": "PASS",
+      "result": true
+    },
+    {
+      "name": "mobile 100% rename fits",
+      "status": "PASS",
+      "result": true
+    },
+    {
+      "name": "mobile 75% account preview fits",
+      "status": "PASS",
+      "result": true
+    },
+    {
+      "name": "mobile 75% rename fits",
+      "status": "PASS",
+      "result": true
+    },
+    {
+      "name": "shield Buff ability card shows AC -2",
+      "status": "PASS",
+      "result": true
+    },
+    {
+      "name": "total ability card matches live AC",
+      "status": "PASS",
+      "result": true
+    },
+    {
+      "name": "1330x900 100% floating close remains visible",
+      "status": "PASS",
+      "result": true
+    },
+    {
+      "name": "1330x900 75% floating close remains visible",
+      "status": "PASS",
+      "result": true
+    },
+    {
+      "name": "390x844 100% floating close remains visible",
+      "status": "PASS",
+      "result": true
+    },
+    {
+      "name": "390x844 75% floating close remains visible",
+      "status": "PASS",
+      "result": true
+    },
+    {
+      "name": "844x390 75% floating close remains visible",
+      "status": "PASS",
+      "result": true
+    },
+    {
+      "name": "no visual QA runtime errors",
+      "status": "PASS",
+      "result": true
+    }
+  ]
+}

@@ -1,0 +1,396 @@
+{
+  "source": "https://pp771007.github.io/idle-lineage-class/",
+  "commit": "5f00f4a86389aaa7309c24d7a7c1ab060c47b500",
+  "files": [
+    {
+      "path": "afk-toggles.js",
+      "sha256": "feb1f5d3cfb34675faa2826037a25f35db1cfd97ff0b3885faa321db4ce1f315",
+      "actual": "feb1f5d3cfb34675faa2826037a25f35db1cfd97ff0b3885faa321db4ce1f315",
+      "status": "PASS"
+    },
+    {
+      "path": "afk-lzcache.js",
+      "sha256": "97c5052e4d3d17db7841fdf0a66758263dacbd6869d2a83f7d010eb63f0cc060",
+      "actual": "97c5052e4d3d17db7841fdf0a66758263dacbd6869d2a83f7d010eb63f0cc060",
+      "status": "PASS"
+    },
+    {
+      "path": "afk-clanroster.js",
+      "sha256": "57ca5de9032e81bd253e70ae733c3f937fcf99465b2c9518bfcaf8eed4fdb112",
+      "actual": "57ca5de9032e81bd253e70ae733c3f937fcf99465b2c9518bfcaf8eed4fdb112",
+      "status": "PASS"
+    },
+    {
+      "path": "afk-allyslim.js",
+      "sha256": "c4899c933bec3d9d857f7f839e54b6e1710a2ed4b580d1076e65653808ab265d",
+      "actual": "c4899c933bec3d9d857f7f839e54b6e1710a2ed4b580d1076e65653808ab265d",
+      "status": "PASS"
+    },
+    {
+      "path": "afk-ui.js",
+      "sha256": "9307c7dda97d48eab084ea1a1ad4f2c1953f79d6e3014e5da800429d9e3d58af",
+      "actual": "9307c7dda97d48eab084ea1a1ad4f2c1953f79d6e3014e5da800429d9e3d58af",
+      "status": "PASS"
+    },
+    {
+      "path": "afk-extradata.js",
+      "sha256": "fe68db6e9e8f4be8d42e4f09c2c9418b23732689974bacd2f34c140452e297d7",
+      "actual": "fe68db6e9e8f4be8d42e4f09c2c9418b23732689974bacd2f34c140452e297d7",
+      "status": "PASS"
+    },
+    {
+      "path": "afk-dex.js",
+      "sha256": "51229046e48c57f71021be52c2a9e2f57752e0b461c920552abcb62141ec98e0",
+      "actual": "51229046e48c57f71021be52c2a9e2f57752e0b461c920552abcb62141ec98e0",
+      "status": "PASS"
+    },
+    {
+      "path": "afk-wiki.js",
+      "sha256": "9d90fdc7c73e2ea9b266aa1104f2632d677a609f9c16d0f4a995e3ebaaf53c23",
+      "actual": "9d90fdc7c73e2ea9b266aa1104f2632d677a609f9c16d0f4a995e3ebaaf53c23",
+      "status": "PASS"
+    },
+    {
+      "path": "afk-storage.js",
+      "sha256": "db58fa6793182ced7eb35c537c90cb18e8116e96bde941b0c03f5538409759fb",
+      "actual": "db58fa6793182ced7eb35c537c90cb18e8116e96bde941b0c03f5538409759fb",
+      "status": "PASS"
+    },
+    {
+      "path": "afk-quotawarn.js",
+      "sha256": "450a384d648cefbe94346df51c69f4501bc68b7ef81a12046aeef55440e0c73a",
+      "actual": "450a384d648cefbe94346df51c69f4501bc68b7ef81a12046aeef55440e0c73a",
+      "status": "PASS"
+    },
+    {
+      "path": "afk-diag.js",
+      "sha256": "526c972b274315e35639f4cd44286217255c12b6410e3991eb9ef97a39ac8c7b",
+      "actual": "526c972b274315e35639f4cd44286217255c12b6410e3991eb9ef97a39ac8c7b",
+      "status": "PASS"
+    },
+    {
+      "path": "afk-powersave.js",
+      "sha256": "8fde5a6830d7c4d19b5ce6824ffabf16d9c376479a40a2c089dcb46cdb0c3837",
+      "actual": "8fde5a6830d7c4d19b5ce6824ffabf16d9c376479a40a2c089dcb46cdb0c3837",
+      "status": "PASS"
+    },
+    {
+      "path": "afk-statpts.js",
+      "sha256": "b3562ef6f762bd20aa79d345f7236e7277b23e3814553af482ca1b02f875fcd4",
+      "actual": "b3562ef6f762bd20aa79d345f7236e7277b23e3814553af482ca1b02f875fcd4",
+      "status": "PASS"
+    },
+    {
+      "path": "afk-autobuy.js",
+      "sha256": "0b3c6ef1f6b43507e3744633980d9ecfda8a8b435585008c3c5b65f03cbb730a",
+      "actual": "0b3c6ef1f6b43507e3744633980d9ecfda8a8b435585008c3c5b65f03cbb730a",
+      "status": "PASS"
+    },
+    {
+      "path": "afk-training.js",
+      "sha256": "db73253c4b72048eda832a2018987cd11ed6de95ab9b5786401b39695677a87d",
+      "actual": "db73253c4b72048eda832a2018987cd11ed6de95ab9b5786401b39695677a87d",
+      "status": "PASS"
+    },
+    {
+      "path": "afk-junkmgr.js",
+      "sha256": "48da09305a1871c6182c6c39763a7c34646b1b392406c72992cd77a8e02764de",
+      "actual": "48da09305a1871c6182c6c39763a7c34646b1b392406c72992cd77a8e02764de",
+      "status": "PASS"
+    },
+    {
+      "path": "afk-mercguard.js",
+      "sha256": "47275ae7f4e559ced3d5d7b24a250987b81dfcc12280f542fcbd97a477449a56",
+      "actual": "47275ae7f4e559ced3d5d7b24a250987b81dfcc12280f542fcbd97a477449a56",
+      "status": "PASS"
+    },
+    {
+      "path": "afk-squadsync.js",
+      "sha256": "5c9844945e351fd32cd7cc369770fa6881e52779a5744f17d9aea425bb3b109d",
+      "actual": "5c9844945e351fd32cd7cc369770fa6881e52779a5744f17d9aea425bb3b109d",
+      "status": "PASS"
+    },
+    {
+      "path": "afk-relicbatch.js",
+      "sha256": "d06c9a449778ba9323525c72b34aa0654ab7e784cfa6d6a19a349c4f99ffd5d4",
+      "actual": "d06c9a449778ba9323525c72b34aa0654ab7e784cfa6d6a19a349c4f99ffd5d4",
+      "status": "PASS"
+    },
+    {
+      "path": "afk-bmprice.js",
+      "sha256": "e9aaaa06777776dee37dcbbac4127b2cebedf77319c2160f20f34461c144674a",
+      "actual": "e9aaaa06777776dee37dcbbac4127b2cebedf77319c2160f20f34461c144674a",
+      "status": "PASS"
+    },
+    {
+      "path": "afk-bossavoid.js",
+      "sha256": "6caed21cf66f3ec21d94082a6ddd0fa6ebea6153e52d420cd5a143276b58ece4",
+      "actual": "6caed21cf66f3ec21d94082a6ddd0fa6ebea6153e52d420cd5a143276b58ece4",
+      "status": "PASS"
+    },
+    {
+      "path": "afk-bossring.js",
+      "sha256": "53e6885a8b51534f19cd6542b4a775d358693c54af67e66d0595bf30ab914d8b",
+      "actual": "53e6885a8b51534f19cd6542b4a775d358693c54af67e66d0595bf30ab914d8b",
+      "status": "PASS"
+    },
+    {
+      "path": "afk-itemsearch.js",
+      "sha256": "e0b00b61b402dedc127ca87248e2d877859de6b36230a53300d2e3d77ca61f17",
+      "actual": "e0b00b61b402dedc127ca87248e2d877859de6b36230a53300d2e3d77ca61f17",
+      "status": "PASS"
+    },
+    {
+      "path": "afk-invlist.js",
+      "sha256": "4a5a02a4f3481a2dfa9a4fb36728090aabca030279e9d89842b89e5b1feee40b",
+      "actual": "4a5a02a4f3481a2dfa9a4fb36728090aabca030279e9d89842b89e5b1feee40b",
+      "status": "PASS"
+    },
+    {
+      "path": "afk-npclabel.js",
+      "sha256": "bfbcb41d356a716b651bc29485f8b3e1efcb703133fcfcf72f14aae0849ab75e",
+      "actual": "bfbcb41d356a716b651bc29485f8b3e1efcb703133fcfcf72f14aae0849ab75e",
+      "status": "PASS"
+    },
+    {
+      "path": "afk-mobname.js",
+      "sha256": "807ec4cd7482338532c668a4c2ffa57abf1ecd1711e17490a3bfd57e3d117826",
+      "actual": "807ec4cd7482338532c668a4c2ffa57abf1ecd1711e17490a3bfd57e3d117826",
+      "status": "PASS"
+    },
+    {
+      "path": "afk-trackinfo.js",
+      "sha256": "2afc83949400b3f7d174f43a2b078037f48d963d2de9764ee7bd7c4b6f22fc2a",
+      "actual": "2afc83949400b3f7d174f43a2b078037f48d963d2de9764ee7bd7c4b6f22fc2a",
+      "status": "PASS"
+    },
+    {
+      "path": "afk-trackmaps.js",
+      "sha256": "84f835107bb7e5e6de60349c9cfe812331e59db7288878f862679d3bef12befa",
+      "actual": "84f835107bb7e5e6de60349c9cfe812331e59db7288878f862679d3bef12befa",
+      "status": "PASS"
+    },
+    {
+      "path": "afk-relicguard.js",
+      "sha256": "ff25ab39c330f2174356b8839b48045bdeacfa78dce3542b1836c39baef5e99b",
+      "actual": "ff25ab39c330f2174356b8839b48045bdeacfa78dce3542b1836c39baef5e99b",
+      "status": "PASS"
+    },
+    {
+      "path": "afk-wpnfix.js",
+      "sha256": "836fc169c48a939c8ebd8f4ed266bc98f399d9e7b8d9bd8c13b34b3ce39d5515",
+      "actual": "836fc169c48a939c8ebd8f4ed266bc98f399d9e7b8d9bd8c13b34b3ce39d5515",
+      "status": "PASS"
+    },
+    {
+      "path": "afk-enhtarget.js",
+      "sha256": "69f5c8ceb8a0eb50838fd45bb15645f3f59ceeda9289f3b01fd4a81e6c1942fd",
+      "actual": "69f5c8ceb8a0eb50838fd45bb15645f3f59ceeda9289f3b01fd4a81e6c1942fd",
+      "status": "PASS"
+    },
+    {
+      "path": "afk-retrial.js",
+      "sha256": "8fe3b6ad0fd656f2ed503c543d3e87cab89cd05559ba32b22a4f7c72e31cd6e4",
+      "actual": "8fe3b6ad0fd656f2ed503c543d3e87cab89cd05559ba32b22a4f7c72e31cd6e4",
+      "status": "PASS"
+    },
+    {
+      "path": "afk-attrbatch.js",
+      "sha256": "499133ae0190e61d29f0fc4da2520bdf5d0a4f0a946d32d3cb3f3bbbed0182b1",
+      "actual": "499133ae0190e61d29f0fc4da2520bdf5d0a4f0a946d32d3cb3f3bbbed0182b1",
+      "status": "PASS"
+    },
+    {
+      "path": "afk-cursebatch.js",
+      "sha256": "5ededab1ee531b5377b56a5051297016cce85aea1cd078aaa627bc6aecbc5726",
+      "actual": "5ededab1ee531b5377b56a5051297016cce85aea1cd078aaa627bc6aecbc5726",
+      "status": "PASS"
+    },
+    {
+      "path": "afk-locksafe.js",
+      "sha256": "e7a6ebf51caeac1e5b673edc9d8d21d559fef08dc822e1771f837637f665e5df",
+      "actual": "e7a6ebf51caeac1e5b673edc9d8d21d559fef08dc822e1771f837637f665e5df",
+      "status": "PASS"
+    },
+    {
+      "path": "afk-buyercompat.js",
+      "sha256": "e1d93819532ff6a7a40ce9d6ce1f3eb4e4e4e3a512ead5c2a0bc469a5175094c",
+      "actual": "e1d93819532ff6a7a40ce9d6ce1f3eb4e4e4e3a512ead5c2a0bc469a5175094c",
+      "status": "PASS"
+    },
+    {
+      "path": "afk-traditional.js",
+      "sha256": "6f62eb0b39a33dc2ef36676282b250b69eb5887f427a02952d4348fee815b730",
+      "actual": "6f62eb0b39a33dc2ef36676282b250b69eb5887f427a02952d4348fee815b730",
+      "status": "PASS"
+    },
+    {
+      "path": "afk-warehouse.js",
+      "sha256": "8ec3a0f435ac8ba810ae722297c00606e5eb819007fafb24b6b31d9b5ff0dbc6",
+      "actual": "8ec3a0f435ac8ba810ae722297c00606e5eb819007fafb24b6b31d9b5ff0dbc6",
+      "status": "PASS"
+    },
+    {
+      "path": "afk-dograce.js",
+      "sha256": "6cdbdcfe8334cfc48aed364121e0504bf47bb19d82d087f759eacf96e6e68d60",
+      "actual": "6cdbdcfe8334cfc48aed364121e0504bf47bb19d82d087f759eacf96e6e68d60",
+      "status": "PASS"
+    },
+    {
+      "path": "afk-pwa.js",
+      "sha256": "b6674413dc89ca61467fe872c5f91577bea546a35d8c75e0d7b7dcd25ab82366",
+      "actual": "b6674413dc89ca61467fe872c5f91577bea546a35d8c75e0d7b7dcd25ab82366",
+      "status": "PASS"
+    },
+    {
+      "path": "afk-sw.js",
+      "sha256": "6a1669d3ffffd6655fd1ea546103b8708af067cfb4262578b3264e77d8b51462",
+      "actual": "6a1669d3ffffd6655fd1ea546103b8708af067cfb4262578b3264e77d8b51462",
+      "status": "PASS"
+    },
+    {
+      "path": "sw.js",
+      "sha256": "2e68c6e88c9f511a0fd6dfa02d28afa000d0031cf4ad2c70bd1ebfaa03d7055a",
+      "actual": "2e68c6e88c9f511a0fd6dfa02d28afa000d0031cf4ad2c70bd1ebfaa03d7055a",
+      "status": "PASS"
+    },
+    {
+      "path": "manifest.webmanifest",
+      "sha256": "98b130a0f1bf1bac6b9fdc8104759ec35072a43912ccc872e803df598dade823",
+      "actual": "98b130a0f1bf1bac6b9fdc8104759ec35072a43912ccc872e803df598dade823",
+      "status": "PASS"
+    },
+    {
+      "path": "pwa-icon-192.png",
+      "sha256": "f35e7d6125d54cf270030c2bbde9084aff5d2dc42855d5cd991d03406035a946",
+      "actual": "f35e7d6125d54cf270030c2bbde9084aff5d2dc42855d5cd991d03406035a946",
+      "status": "PASS"
+    },
+    {
+      "path": "pwa-icon-512.png",
+      "sha256": "bfe5519f018f540bf22ba0df113c660d6445b70e137356a0a4dc8ec066b53694",
+      "actual": "bfe5519f018f540bf22ba0df113c660d6445b70e137356a0a4dc8ec066b53694",
+      "status": "PASS"
+    },
+    {
+      "path": "pwa-icon-maskable.png",
+      "sha256": "98ecc83ddc0049d19b76c20e00e999e6c42801171a540797c5bb21ac13654b75",
+      "actual": "98ecc83ddc0049d19b76c20e00e999e6c42801171a540797c5bb21ac13654b75",
+      "status": "PASS"
+    },
+    {
+      "path": "assets-manifest.json",
+      "sha256": "f6c4a44c8c4a07f94fed588e74d2d024713d80f2128d517e8f62e02d4a72cb2d",
+      "actual": "f6c4a44c8c4a07f94fed588e74d2d024713d80f2128d517e8f62e02d4a72cb2d",
+      "status": "PASS"
+    },
+    {
+      "path": "anim-manifest.json",
+      "sha256": "bbbc982ef350eddb48fec2f174d722598321773ce80741a51efc5eb6c45fc87a",
+      "actual": "bbbc982ef350eddb48fec2f174d722598321773ce80741a51efc5eb6c45fc87a",
+      "status": "PASS"
+    },
+    {
+      "path": "afk-mobile.js",
+      "sha256": "e3a5444e652ca6cadf601097bfeae958d1710c0f8ce021beaefb9dd03fdf2b59",
+      "actual": "e3a5444e652ca6cadf601097bfeae958d1710c0f8ce021beaefb9dd03fdf2b59",
+      "status": "PASS"
+    },
+    {
+      "path": "afk-eqlist.js",
+      "sha256": "961af5300b79e1f24e6bc1140db90c469981877b130ae3b3a5ab8e762295755e",
+      "actual": "961af5300b79e1f24e6bc1140db90c469981877b130ae3b3a5ab8e762295755e",
+      "status": "PASS"
+    },
+    {
+      "path": "afk-npclist.js",
+      "sha256": "3f65625de5fe2c5b771f166b000a760a3d649bb33e640758f5a408fe51c1d810",
+      "actual": "3f65625de5fe2c5b771f166b000a760a3d649bb33e640758f5a408fe51c1d810",
+      "status": "PASS"
+    },
+    {
+      "path": "afk-mapbar.js",
+      "sha256": "35c2504cb43cf71ad7667d38fb1727de3f94e43edb2f643473ef0d72375590f2",
+      "actual": "35c2504cb43cf71ad7667d38fb1727de3f94e43edb2f643473ef0d72375590f2",
+      "status": "PASS"
+    },
+    {
+      "path": "afk-battlehud.js",
+      "sha256": "ba0bc3e100e62245def604c4070a66776d70f83a58cda843168ef9f94eb0c568",
+      "actual": "ba0bc3e100e62245def604c4070a66776d70f83a58cda843168ef9f94eb0c568",
+      "status": "PASS"
+    },
+    {
+      "path": "afk-nozoom.js",
+      "sha256": "c1586fe7c799efaf858ba400b92a44af27f1747552b55dcc657ca559692567aa",
+      "actual": "c1586fe7c799efaf858ba400b92a44af27f1747552b55dcc657ca559692567aa",
+      "status": "PASS"
+    },
+    {
+      "path": "afk-statusicon.js",
+      "sha256": "9d68288411de2ad25eefcb17dd89cfc326d8f3734f92e3b375763ebb54fb38db",
+      "actual": "9d68288411de2ad25eefcb17dd89cfc326d8f3734f92e3b375763ebb54fb38db",
+      "status": "PASS"
+    },
+    {
+      "path": "afk-battlebuffs.js",
+      "sha256": "90233dcfe74407ad2154974b300405aab392e28bfaa0b86c8a99576c4cd3243f",
+      "actual": "90233dcfe74407ad2154974b300405aab392e28bfaa0b86c8a99576c4cd3243f",
+      "status": "PASS"
+    },
+    {
+      "path": "afk-skillbar.js",
+      "sha256": "6217154fbd80795b3366405f711ea298ca006b081541cadbf91e6ae8d1dec4ef",
+      "actual": "6217154fbd80795b3366405f711ea298ca006b081541cadbf91e6ae8d1dec4ef",
+      "status": "PASS"
+    },
+    {
+      "path": "afk-petui.js",
+      "sha256": "4ceb829d4cbe7a38d538d2cac419181f3fad4421a0b828758d427e7a4326b40c",
+      "actual": "4ceb829d4cbe7a38d538d2cac419181f3fad4421a0b828758d427e7a4326b40c",
+      "status": "PASS"
+    },
+    {
+      "path": "afk-backnav.js",
+      "sha256": "44bd32c799d22aff1af8c078ffca73bac825d4ddacc0900874a7e39298a1b93c",
+      "actual": "44bd32c799d22aff1af8c078ffca73bac825d4ddacc0900874a7e39298a1b93c",
+      "status": "PASS"
+    },
+    {
+      "path": "afk-loadslots.js",
+      "sha256": "df163320371a0426af5c09d407baef5c6d4987e6b4322e2b01c9d62fd96632fa",
+      "actual": "df163320371a0426af5c09d407baef5c6d4987e6b4322e2b01c9d62fd96632fa",
+      "status": "PASS"
+    },
+    {
+      "path": "afk-statlist.js",
+      "sha256": "58b360ed83889c58c5d650e1cc23816eaf47a177734bd67b36587609ed548f73",
+      "actual": "58b360ed83889c58c5d650e1cc23816eaf47a177734bd67b36587609ed548f73",
+      "status": "PASS"
+    },
+    {
+      "path": "afk-sellguard.js",
+      "sha256": "9646b6b46673763cf963c42146963d71fa16c50afe551914603d235c3ea2a1f9",
+      "actual": "9646b6b46673763cf963c42146963d71fa16c50afe551914603d235c3ea2a1f9",
+      "status": "PASS"
+    },
+    {
+      "path": "afk-touchtip.js",
+      "sha256": "cde210c5f169ba271e079fa0252ef8a9f2dc1fd594cda0811fa81e3a1152c9e2",
+      "actual": "cde210c5f169ba271e079fa0252ef8a9f2dc1fd594cda0811fa81e3a1152c9e2",
+      "status": "PASS"
+    },
+    {
+      "path": "afk-ancdrop.js",
+      "sha256": "8f33ee03b02f87bbfe896f56a696b0d15708b34d3657a9f515f0dde2b4dd2117",
+      "actual": "8f33ee03b02f87bbfe896f56a696b0d15708b34d3657a9f515f0dde2b4dd2117",
+      "status": "PASS"
+    },
+    {
+      "path": "afk-relicaffix.js",
+      "sha256": "1e654b2d31612c68775c1d02e77cb6293e50566b84915694c2f842f9c9ea849c",
+      "actual": "1e654b2d31612c68775c1d02e77cb6293e50566b84915694c2f842f9c9ea849c",
+      "status": "PASS"
+    }
+  ]
+}

@@ -1,0 +1,405 @@
+{
+  "date": "2026-10-13T21:25:48.713Z",
+  "reports": [
+    {
+      "name": "setting exists with 75–100 range and defaults to 100",
+      "status": "PASS"
+    },
+    {
+      "name": "keyboard adjusts scale immediately and persists device preference",
+      "status": "PASS"
+    },
+    {
+      "name": "scale does not change character settings or progress",
+      "status": "PASS"
+    },
+    {
+      "name": "320x640 75%: game viewport fits",
+      "status": "PASS"
+    },
+    {
+      "name": "320x640 75%: scale control remains readable and reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "320x640 75%: item dialog closes within viewport",
+      "status": "PASS"
+    },
+    {
+      "name": "320x640 75%: equipment keeps artwork ratio and tab access",
+      "status": "PASS"
+    },
+    {
+      "name": "320x640 85%: game viewport fits",
+      "status": "PASS"
+    },
+    {
+      "name": "320x640 85%: scale control remains readable and reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "320x640 85%: item dialog closes within viewport",
+      "status": "PASS"
+    },
+    {
+      "name": "320x640 85%: equipment keeps artwork ratio and tab access",
+      "status": "PASS"
+    },
+    {
+      "name": "320x640 100%: game viewport fits",
+      "status": "PASS"
+    },
+    {
+      "name": "320x640 100%: scale control remains readable and reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "320x640 100%: item dialog closes within viewport",
+      "status": "PASS"
+    },
+    {
+      "name": "320x640 100%: equipment keeps artwork ratio and tab access",
+      "status": "PASS"
+    },
+    {
+      "name": "390x844 75%: game viewport fits",
+      "status": "PASS"
+    },
+    {
+      "name": "390x844 75%: scale control remains readable and reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "390x844 75%: item dialog closes within viewport",
+      "status": "PASS"
+    },
+    {
+      "name": "390x844 75%: equipment keeps artwork ratio and tab access",
+      "status": "PASS"
+    },
+    {
+      "name": "390x844 85%: game viewport fits",
+      "status": "PASS"
+    },
+    {
+      "name": "390x844 85%: scale control remains readable and reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "390x844 85%: item dialog closes within viewport",
+      "status": "PASS"
+    },
+    {
+      "name": "390x844 85%: equipment keeps artwork ratio and tab access",
+      "status": "PASS"
+    },
+    {
+      "name": "390x844 100%: game viewport fits",
+      "status": "PASS"
+    },
+    {
+      "name": "390x844 100%: scale control remains readable and reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "390x844 100%: item dialog closes within viewport",
+      "status": "PASS"
+    },
+    {
+      "name": "390x844 100%: equipment keeps artwork ratio and tab access",
+      "status": "PASS"
+    },
+    {
+      "name": "768x1024 75%: game viewport fits",
+      "status": "PASS"
+    },
+    {
+      "name": "768x1024 75%: scale control remains readable and reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "768x1024 75%: item dialog closes within viewport",
+      "status": "PASS"
+    },
+    {
+      "name": "768x1024 75%: equipment keeps artwork ratio and tab access",
+      "status": "PASS"
+    },
+    {
+      "name": "768x1024 85%: game viewport fits",
+      "status": "PASS"
+    },
+    {
+      "name": "768x1024 85%: scale control remains readable and reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "768x1024 85%: item dialog closes within viewport",
+      "status": "PASS"
+    },
+    {
+      "name": "768x1024 85%: equipment keeps artwork ratio and tab access",
+      "status": "PASS"
+    },
+    {
+      "name": "768x1024 100%: game viewport fits",
+      "status": "PASS"
+    },
+    {
+      "name": "768x1024 100%: scale control remains readable and reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "768x1024 100%: item dialog closes within viewport",
+      "status": "PASS"
+    },
+    {
+      "name": "768x1024 100%: equipment keeps artwork ratio and tab access",
+      "status": "PASS"
+    },
+    {
+      "name": "844x390 75%: game viewport fits",
+      "status": "PASS"
+    },
+    {
+      "name": "844x390 75%: scale control remains readable and reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "844x390 75%: item dialog closes within viewport",
+      "status": "PASS"
+    },
+    {
+      "name": "844x390 75%: equipment keeps artwork ratio and tab access",
+      "status": "PASS"
+    },
+    {
+      "name": "844x390 85%: game viewport fits",
+      "status": "PASS"
+    },
+    {
+      "name": "844x390 85%: scale control remains readable and reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "844x390 85%: item dialog closes within viewport",
+      "status": "PASS"
+    },
+    {
+      "name": "844x390 85%: equipment keeps artwork ratio and tab access",
+      "status": "PASS"
+    },
+    {
+      "name": "844x390 100%: game viewport fits",
+      "status": "PASS"
+    },
+    {
+      "name": "844x390 100%: scale control remains readable and reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "844x390 100%: item dialog closes within viewport",
+      "status": "PASS"
+    },
+    {
+      "name": "844x390 100%: equipment keeps artwork ratio and tab access",
+      "status": "PASS"
+    },
+    {
+      "name": "1024x768 75%: game viewport fits",
+      "status": "PASS"
+    },
+    {
+      "name": "1024x768 75%: scale control remains readable and reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "1024x768 75%: item dialog closes within viewport",
+      "status": "PASS"
+    },
+    {
+      "name": "1024x768 75%: equipment keeps artwork ratio and tab access",
+      "status": "PASS"
+    },
+    {
+      "name": "1024x768 85%: game viewport fits",
+      "status": "PASS"
+    },
+    {
+      "name": "1024x768 85%: scale control remains readable and reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "1024x768 85%: item dialog closes within viewport",
+      "status": "PASS"
+    },
+    {
+      "name": "1024x768 85%: equipment keeps artwork ratio and tab access",
+      "status": "PASS"
+    },
+    {
+      "name": "1024x768 100%: game viewport fits",
+      "status": "PASS"
+    },
+    {
+      "name": "1024x768 100%: scale control remains readable and reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "1024x768 100%: item dialog closes within viewport",
+      "status": "PASS"
+    },
+    {
+      "name": "1024x768 100%: equipment keeps artwork ratio and tab access",
+      "status": "PASS"
+    },
+    {
+      "name": "1330x759 75%: game viewport fits",
+      "status": "PASS"
+    },
+    {
+      "name": "1330x759 75%: scale control remains readable and reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "1330x759 75%: item dialog closes within viewport",
+      "status": "PASS"
+    },
+    {
+      "name": "1330x759 75%: equipment keeps artwork ratio and tab access",
+      "status": "PASS"
+    },
+    {
+      "name": "1330x759 85%: game viewport fits",
+      "status": "PASS"
+    },
+    {
+      "name": "1330x759 85%: scale control remains readable and reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "1330x759 85%: item dialog closes within viewport",
+      "status": "PASS"
+    },
+    {
+      "name": "1330x759 85%: equipment keeps artwork ratio and tab access",
+      "status": "PASS"
+    },
+    {
+      "name": "1330x759 100%: game viewport fits",
+      "status": "PASS"
+    },
+    {
+      "name": "1330x759 100%: scale control remains readable and reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "1330x759 100%: item dialog closes within viewport",
+      "status": "PASS"
+    },
+    {
+      "name": "1330x759 100%: equipment keeps artwork ratio and tab access",
+      "status": "PASS"
+    },
+    {
+      "name": "1920x1080 75%: game viewport fits",
+      "status": "PASS"
+    },
+    {
+      "name": "1920x1080 75%: scale control remains readable and reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "1920x1080 75%: item dialog closes within viewport",
+      "status": "PASS"
+    },
+    {
+      "name": "1920x1080 75%: equipment keeps artwork ratio and tab access",
+      "status": "PASS"
+    },
+    {
+      "name": "1920x1080 85%: game viewport fits",
+      "status": "PASS"
+    },
+    {
+      "name": "1920x1080 85%: scale control remains readable and reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "1920x1080 85%: item dialog closes within viewport",
+      "status": "PASS"
+    },
+    {
+      "name": "1920x1080 85%: equipment keeps artwork ratio and tab access",
+      "status": "PASS"
+    },
+    {
+      "name": "1920x1080 100%: game viewport fits",
+      "status": "PASS"
+    },
+    {
+      "name": "1920x1080 100%: scale control remains readable and reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "1920x1080 100%: item dialog closes within viewport",
+      "status": "PASS"
+    },
+    {
+      "name": "1920x1080 100%: equipment keeps artwork ratio and tab access",
+      "status": "PASS"
+    },
+    {
+      "name": "VFX anchor coordinates remain aligned while UI is scaled",
+      "status": "PASS"
+    },
+    {
+      "name": "custom dropdown aligns with its scaled trigger",
+      "status": "PASS"
+    },
+    {
+      "name": "tooltip follows pointer in screen coordinates",
+      "status": "PASS"
+    },
+    {
+      "name": "warehouse drag follows pointer while scaled",
+      "status": "PASS"
+    },
+    {
+      "name": "reset button restores exactly 100%",
+      "status": "PASS"
+    },
+    {
+      "name": "preference reloads before entering a character",
+      "status": "PASS"
+    },
+    {
+      "name": "home actions stay in viewport at stored scale",
+      "status": "PASS"
+    },
+    {
+      "name": "write failure is visible; current scale remains applied",
+      "status": "PASS"
+    },
+    {
+      "name": "invalid saved preference uses 100%",
+      "status": "PASS"
+    },
+    {
+      "name": "values outside supported range are clamped",
+      "status": "PASS"
+    },
+    {
+      "name": "desktop storage bridge saves and reloads scale",
+      "status": "PASS"
+    },
+    {
+      "name": "desktop stored scale applies",
+      "status": "PASS"
+    },
+    {
+      "name": "no browser runtime errors",
+      "status": "PASS"
+    }
+  ]
+}

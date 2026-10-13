@@ -1,0 +1,93 @@
+{
+  "date": "2026-10-13T21:19:00.487Z",
+  "reports": [
+    {
+      "name": "all mirrored files match the pinned published source hashes",
+      "status": "PASS"
+    },
+    {
+      "name": "original modules are loaded and rewritten tools are absent",
+      "status": "PASS"
+    },
+    {
+      "name": "original enhancement toggle adds +13 to +15 once and restores +12 when disabled",
+      "status": "PASS"
+    },
+    {
+      "name": "original barrier refill buys five additional scrolls below three",
+      "status": "PASS"
+    },
+    {
+      "name": "original refill skips insufficient funds and a stock of three",
+      "status": "PASS"
+    },
+    {
+      "name": "traditional mode uses original per-slot settings and gainItem hook",
+      "status": "PASS"
+    },
+    {
+      "name": "original avoid lists keep empty-list semantics and isolate maps",
+      "status": "PASS"
+    },
+    {
+      "name": "original relic guard excludes relics from select-all and permits deliberate selection",
+      "status": "PASS"
+    },
+    {
+      "name": "original inventory search filters displayed items without changing inventory",
+      "status": "PASS"
+    },
+    {
+      "name": "original drop lookup renders real item details",
+      "status": "PASS"
+    },
+    {
+      "name": "original wiki opens and searches its own content",
+      "status": "PASS"
+    },
+    {
+      "name": "original training picker exposes five slots, world, MP and skeleton options",
+      "status": "PASS"
+    },
+    {
+      "name": "original training enters the real battle scene and measures damage",
+      "status": "PASS"
+    },
+    {
+      "name": "training exit restores the map and does not grant loot or experience",
+      "status": "PASS"
+    },
+    {
+      "name": "original race places a persisted ticket and refuses unaffordable bets",
+      "status": "PASS"
+    },
+    {
+      "name": "original race settles winners once after the result phase",
+      "status": "PASS"
+    },
+    {
+      "name": "original race has eight dogs and the U-shaped track",
+      "status": "PASS"
+    },
+    {
+      "name": "legacy role preferences migrate without rewriting role saves or existing add-on preferences",
+      "status": "PASS"
+    },
+    {
+      "name": "account export keeps original role preferences and tickets",
+      "status": "PASS"
+    },
+    {
+      "name": "account import cannot reopen previously claimed tickets",
+      "status": "PASS"
+    },
+    {
+      "name": "weapon correction obeys the original add-on switch",
+      "status": "PASS"
+    },
+    {
+      "name": "no uncaught runtime errors",
+      "status": "PASS"
+    }
+  ]
+}
