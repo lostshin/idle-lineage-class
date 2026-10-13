@@ -436,7 +436,7 @@ function _mobAtkSfxNum(name) {   // 解析怪名→攻擊音編號（精確→�
     _mobAtkResolveCache[name] = v;
     return v;
 }
-function _sfxPlayPool(poolKey, vol) {   // 直接播放指定 pool key（不查 SFX_DEFS、不額外節流；節流由呼叫端負責）
+function _sfxPlayPool(poolKey, vol) {
     if (typeof catchupActive === 'function' && catchupActive()) return false;
     var arr = _sfxPool[poolKey]; if (!arr || !arr.length) return false;
     try {

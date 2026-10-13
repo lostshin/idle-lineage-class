@@ -380,10 +380,10 @@ function _cddKey(e) { if (e.key === 'Escape') _cddClose(); }
 //    或倉庫面板自身(interaction-content=overflow-y-auto·是 select 的祖先)捲動，都不再誤關下拉，
 //    彈出層只是黏著 select 移動。只有 select 被移除(面板重繪)或整個捲出畫面時才關閉。
 function _cddPositionPop(pop, r) {
-    pop.style.left = r.left + 'px'; pop.style.top = (r.bottom + 2) + 'px'; pop.style.minWidth = r.width + 'px';
+    pop.style.left = screenToUiPx(r.left); pop.style.top = screenToUiPx(r.bottom + 2); pop.style.minWidth = screenToUiPx(r.width);
     var pr = pop.getBoundingClientRect();
-    if (pr.bottom > window.innerHeight - 4) pop.style.top = Math.max(4, r.top - pr.height - 2) + 'px';   // 下方不足→往上開
-    if (pr.right > window.innerWidth - 4) pop.style.left = Math.max(4, window.innerWidth - pr.width - 4) + 'px';   // 右側超出→靠右
+    if (pr.bottom > window.innerHeight - 4) pop.style.top = screenToUiPx(Math.max(4, r.top - pr.height - 2));   // 下方不足→往上開
+    if (pr.right > window.innerWidth - 4) pop.style.left = screenToUiPx(Math.max(4, window.innerWidth - pr.width - 4));   // 右側超出→靠右
 }
 function _cddScroll() {
     if (!_cddSel) return;
@@ -402,7 +402,7 @@ function openCustomSelectPopup(sel) {
     var r = sel.getBoundingClientRect();
     var pop = document.createElement('div');
     pop.id = 'cdd-pop'; pop.className = 'cdd-pop';
-    pop.style.minWidth = r.width + 'px';
+    pop.style.minWidth = screenToUiPx(r.width);
     Array.prototype.forEach.call(sel.options, function (o, idx) {
         var row = document.createElement('div');
         row.className = 'cdd-opt' + (o.disabled ? ' cdd-disabled' : '') + (idx === sel.selectedIndex ? ' cdd-sel' : '');
@@ -1022,7 +1022,7 @@ function doBianAttr(slotKey, ele) {
         } else {
             logSys(`<span class="text-slate-400">碧恩：魔法刻印沒有回應……${oldMagic ? '原有附加魔法保持不變，' : ''}僅消耗 1 張 ${cfg.n}。</span>`);
         }
-        calcStats(); updateUI(); renderTabs(true); saveGame();
+    calcStats(); updateUI(); renderTabs(true); saveGame();
         let _e5 = document.getElementById('interaction-content'); if (_e5) renderBianAttr(_e5);
         return;
     }

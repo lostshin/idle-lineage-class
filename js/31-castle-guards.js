@@ -343,7 +343,7 @@ function renderGuardTeamHTML() {
             let hpPct = Math.max(0, Math.min(100, Math.floor((s.hp || 0) / Math.max(1, s.mhp || 1) * 100)));
             let reviveSec = s._downed && s._reviveAt ? Math.max(0, Math.ceil((s._reviveAt - now) / 1000)) : 0;
             return `<div class="bg-slate-800/80 border border-cyan-800 rounded px-2 py-1 text-xs flex items-center gap-2">
-                <span class="text-cyan-300 font-bold shrink-0 overflow-hidden text-ellipsis whitespace-nowrap" style="width:5.5rem;">${s.form}</span>
+                ${partyNameButton('guard', s.uid, s.form, 'text-cyan-300 font-bold')}
                 <div class="bar-bg flex-1 !h-3">
                     <div class="bar-fill ${s._downed ? 'bg-slate-600' : 'bg-red-600'}" style="width:${hpPct}%;"></div>
                     <div class="bar-text text-white" style="font-size:10px;line-height:12px;">${s._downed ? '復活 ' + reviveSec + 's' : (s.hp || 0) + '/' + (s.mhp || 0)}</div>

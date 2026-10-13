@@ -915,6 +915,7 @@ function updateLoadInfo(){
     const base = (sum && sum.base) || {};
     const empty = !sum;
     set('load-info-name', empty ? '' : (sum.name || '未命名'));
+    const renameButton = document.getElementById('load-btn-rename'); if (renameButton) renameButton.disabled = empty;
     set('load-info-pledge', empty ? '' : ({ tros:'特羅斯', esti:'依詩蒂' }[sum.pledge] || sum.pledge || '-'));
     set('load-info-class', empty ? '' : sum.cls);
     set('load-info-alignment', empty ? '' : (sum.classic ? '經典' : '一般'));
@@ -1282,7 +1283,7 @@ function startGame() {
     player.cls = curCreate.cls;
     player.bloodPledge = null;   // 血盟改由同模式王族花費金幣創立，不再於創角時自動加入。
     player.classicMode = !!(document.getElementById('create-classic-toggle') && document.getElementById('create-classic-toggle').checked);   // 🎮 經典模式：依創角開關決定（此角色永久生效）；🏛️v3.0.83 傳統模式已取消（traditionalMode 由 SAVE_DEFAULTS 恆 false）
-    player.name = null;   // 預設未取名，狀態欄顯示「點擊取名」，玩家可點擊命名
+    player.name = null; player.renameCount = 0;   // Name is managed on the character selection page.
     player.enSeed = 'es' + uid() + uid();   // 🎲 強化決定論種子（創角產生一次、存進存檔永久固定）：讓強化成敗由種子決定、不可用 save/load 刷
     player._roleEpoch = _roleEpoch();        // 🛡️ 角色世代：刪除後舊分頁不得把同欄位的舊角色寫回
     if (typeof clanSyncCurrentPlayer === 'function') clanSyncCurrentPlayer();   // 同模式已有血盟時，新角色自動成為成員。
@@ -1521,6 +1522,7 @@ function saveGame() {
     // 收集目前的自動化設定 UI 狀態（🛡️ 僅在 UI 已同步時重建；否則沿用記憶體中既有 config）
     if (_uiConfigReady) {
     player.config = {
+        ...(player.config || {}),
         setPot: document.getElementById('set-pot').value,
         setHpPot: document.getElementById('set-hp-pot').value,
         setAutoBuyPot: document.getElementById('set-auto-buy-pot').checked,
@@ -1723,7 +1725,8 @@ function loadGame() {
         }
         if(!player.charmed && player.buffs) player.buffs.sk_charm = 0;
         if(player.bloodPledge === undefined) player.bloodPledge = null;   // 相容舊存檔：血盟陣營（null/esti/tros）
-        if(player.name === undefined) player.name = null;   // 相容舊存檔：未取名則狀態欄顯示「點擊取名」
+        if(player.name === undefined) player.name = null;
+        player.renameCount = Math.max(0, Math.floor(Number(player.renameCount) || 0));   // Missing rename history grants one free change.
         delete player.blessings;      // 舊版血盟祝福已移除；新版血盟 Buff 不使用角色 blessings。
         delete player.blessingAuto;
         // 🔥 v3.0.78 試煉接取制：初始化任務狀態；幻術士/戰士/龍騎士 50 級試煉原以 demonTempleOpen 為唯一狀態 → 統一遷移為 trialStage=2（最終兌換階段·一次性）
@@ -1937,6 +1940,7 @@ function loadGame() {
         _roleSessionHeartbeat();   // 立即登記，不等待第一個 2 秒心跳
         // 自然恢復（每 16 秒）已由主迴圈 tick() 內的 state.ticks % 160 統一驅動，不再額外 setInterval。
         // 計時器統一由 startGameTimers() 註冊（內含去重），含每 5 分鐘自動存檔。
+        if (typeof restoreAccountParty === 'function') restoreAccountParty();
         startGameTimers();
         logSys(`===== 歡迎回來 =====`);
         if (_masteryRepair && _masteryRepair.reset) {

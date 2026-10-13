@@ -1740,8 +1740,8 @@ function _mountPvpKillWhisperMenu(menu, ev) {
     let x = ev && Number.isFinite(ev.clientX) ? ev.clientX : Math.round(window.innerWidth / 2);
     let y = ev && Number.isFinite(ev.clientY) ? ev.clientY : Math.round(window.innerHeight / 2);
     let rect = menu.getBoundingClientRect();
-    menu.style.left = Math.max(8, Math.min(x, window.innerWidth - rect.width - 8)) + 'px';
-    menu.style.top = Math.max(8, Math.min(y + 8, window.innerHeight - rect.height - 8)) + 'px';
+    menu.style.left = screenToUiPx(Math.max(8, Math.min(x, window.innerWidth - rect.width - 8)));
+    menu.style.top = screenToUiPx(Math.max(8, Math.min(y + 8, window.innerHeight - rect.height - 8)));
     _pvpKillWhisperMenu = menu;
     setTimeout(() => {
         if (_pvpKillWhisperMenu !== menu) return;
@@ -2991,7 +2991,7 @@ function qiguWeaponProc(target, wpn) {
         label = '心靈破壞';
     } else return;
     dmg = Math.max(1, Math.floor(dmg * fragileMult(target) * illuLvMult(player) * enhanceWpnFinalMult(en, wpn)));   // 🔮 幻術士等級加成 ×(1+等級/50)；🔧 武器強化 +11~+20 最終倍率
-    target.curHp -= dmg; if (typeof terrorVisageOnDamage === 'function') terrorVisageOnDamage(target, dmg, 'magic'); target.justHit = 'magic'; mobWake(target);   // 🌅 巨大骷髏：奇古獸觸發法術視為魔法
+    dmg = (typeof window.__afkIlluWpnFix === 'function' && window.__afkIlluWpnFix()) ? illusionMagicDmg(dmg, true) : dmg;   /* 🔌 加掛版補丁:奇古獸內建魔法(幻影衝擊/心靈破壞)補上幻覺套裝 2/5 件 */ target.curHp -= dmg; if (typeof terrorVisageOnDamage === 'function') terrorVisageOnDamage(target, dmg, 'magic'); target.justHit = 'magic'; mobWake(target);   // 🌅 巨大骷髏：奇古獸觸發法術視為魔法
     logCombat(`<span class="font-bold" style="color:#a78bfa;text-shadow:0 0 6px #7c3aed;">【${label}】</span>對 <span class="${getMobColor(target.lv)}">${target.n}</span> 造成 ${dmg} 點傷害！`, cls);
     if (target.curHp <= 0) killMob(mapState.targetIdx); else renderMobs();
 }

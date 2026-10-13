@@ -311,7 +311,7 @@ player.inv.forEach(i => {
     let el = document.createElement('div'); 
     // className 這裡移除了 isDisabled 相關的判定，讓所有項目都可以互動
     el.className = `list-item tip-host text-base ${itemBg} rounded mb-1 ${i.lock ? 'border-red-900 border-2' : ''}`;
-    el.setAttribute('data-tip-uid', i.uid); el.setAttribute('data-tip-src', 'inv');   // 🖱️ hover 即時顯示完整物品資訊 tooltip（同技能·取代原生 title 慢速提示）
+    el.setAttribute('data-inventory-uid',i.uid); el.setAttribute('data-tip-uid', i.uid); el.setAttribute('data-tip-src', 'inv');   // 🖱️ hover 即時顯示完整物品資訊 tooltip（同技能·取代原生 title 慢速提示）
     if (i.lock) el.classList.add('classic-item-locked');
     else if (i.junk) el.classList.add('classic-item-junk');
     
@@ -1701,7 +1701,7 @@ function runQuickEnhance(type) {
             let r = _quickEnhanceUnit(d, entry.en || 0, goal, scrollStacks, st.useBless);   // 🌟 st.useBless＝使用祝福卷（強化成敗為即時擲骰）
             usedTotal += r.used;
             if (r.destroyed) { destroyed++; continue; }   // 爆裝：不保留
-            if (r.en >= goal) reached++; else partial++;  // 抵達 or 卷軸不足停在中途
+            if (r.en >= Math.min(goal, enhanceCap(d))) reached++; else partial++;  // 抵達 or 卷軸不足停在中途
             survivors.push({ ...entry, cnt: 1, uid: uid(), en: r.en, lock: false });
         }
     });
@@ -1733,6 +1733,8 @@ function runQuickEnhance(type) {
 //    保留供日後出現 type:'misc'/藥水卷軸類的 noJunk 物品使用。
 function _qjCanSelect(d, i, type) {
     if (!d || i.lock || d.noJunk) return false;   // 🎴 noJunk(收集冊等)不納入快速廢品
+    const limit = quickJunk[type].maxEnhance;
+    if ((d.type === 'wpn' || d.type === 'arm' || d.type === 'acc') && limit != null && limit !== 'all' && (Number(i.en) || 0) > Number(limit)) return false;
     if (type === 'wpn') return d.type === 'wpn';
     if (type === 'arm') return d.type === 'arm' || d.type === 'acc';
     return d.type !== 'wpn' && d.type !== 'arm' && d.type !== 'acc';
@@ -1751,7 +1753,7 @@ function buildQuickHeader(type) {
     hdr.className = 'sticky top-0 z-10 bg-slate-800 pb-2';   // 🔧 遮擋條改用與框底色(.panel=#1e293b=slate-800)相同色→融入面板不突兀；仍為不透明：滾動時物品不會從按鈕上/下方透出
     // 🔧 表頭上緣亦覆蓋容器的 12px 上內距(p-3)：往上拉時 sticky 黏在裁切邊(top/margin-top:-12)、paddingTop:12 維持按鈕原位 → 物品也不會從按鈕「上方」透出（滾動後＝滾動前）。用 inline style（Tailwind CDN JIT 不保證新 class 即時生成）
     hdr.style.top = '-12px'; hdr.style.marginTop = '-12px'; hdr.style.paddingTop = '12px';
-    if (jnk.active) {   // 快速廢品進行中：取消／確認／全選（無數值選擇）
+    if (jnk.active) {   // Batch marking; the enhancement filter applies to this selection only.
         let eligible = _qjEligibleItems(type);
         let allSel = eligible.length > 0 && eligible.every(i => jnk.sel[i.uid]);
         let someSel = eligible.some(i => jnk.sel[i.uid]);
@@ -1760,11 +1762,18 @@ function buildQuickHeader(type) {
             <button onclick="runQuickJunk('${type}')" class="btn border-amber-600 bg-amber-800 hover:bg-amber-700 px-2 py-1 text-xs font-bold text-amber-100 rounded">確認</button>
             <label class="flex items-center gap-1 text-xs text-slate-300 cursor-pointer select-none whitespace-nowrap ml-auto"><input type="checkbox" ${allSel ? 'checked' : ''} onchange="quickJunkSelectAll('${type}', this.checked)"> 全選</label>
         </div>`;
-        let cb = hdr.querySelector('label input'); if (cb) cb.indeterminate = someSel && !allSel;
+        let cb = hdr.querySelector('label input'); if (cb) { cb.indeterminate = someSel && !allSel; cb.dataset.qjSelectAll = type; }
+        if (hasEnh) {
+            const limit = jnk.maxEnhance == null ? 'all' : String(jnk.maxEnhance);
+            const levels = Array.from({ length: 21 }, (_, n) => `<option value="${n}" ${limit === String(n) ? 'selected' : ''}>+${n} 以下</option>`).join('');
+            const filter = document.createElement('label'); filter.className = 'quick-junk-filter';
+            filter.innerHTML = `強化上限 <select id="quick-junk-max-${type}" onchange="setQuickJunkMax('${type}', this.value)"><option value="all" ${limit === 'all' ? 'selected' : ''}>全部</option>${levels}</select>`;
+            hdr.appendChild(filter);
+        }
         return hdr;
     }
     // 皆未啟用：顯示按鈕（武器/防具有強化＋廢品；道具僅廢品）
-    let btns = '';
+    let btns = `<button type="button" data-inventory-sort="${type}" onclick="sortInventoryNow()" class="flex-1 btn py-1.5 text-sm font-bold rounded">一鍵排列</button>`;
     if (hasEnh) btns += `<button onclick="toggleQuickEnhance('${type}')" class="flex-1 btn border-blue-700 bg-blue-900/70 hover:bg-blue-800 py-1.5 text-sm font-bold text-blue-200 rounded shadow">⚡ 快速強化</button>`;
     btns += `<button onclick="toggleQuickJunk('${type}')" class="flex-1 btn border-amber-700 bg-amber-900/60 hover:bg-amber-800 py-1.5 text-sm font-bold text-amber-200 rounded shadow">🗑️ 快速廢品</button>`;
     hdr.innerHTML = `<div class="flex gap-1">${btns}</div>`;
@@ -1773,7 +1782,7 @@ function buildQuickHeader(type) {
 // 啟用快速廢品：取消同分頁快速強化＋預先勾選「已是廢品」者（用戶要求：廢品一開始就是勾選中）
 function toggleQuickJunk(type) {
     if ((type === 'wpn' || type === 'arm') && quickEnh[type].active) { quickEnh[type].active = false; quickEnh[type].sel = {}; }
-    let st = quickJunk[type]; st.active = true; st.sel = {}; st.known = {};
+    let st = quickJunk[type]; st.active = true; st.sel = {}; st.known = {}; st.groups = {};
     _qjEligibleItems(type).forEach(i => { st.known[i.uid] = true; if (i.junk) st.sel[i.uid] = true; });   // 開啟當下：全部納入 known，已是廢品者預先勾選
     renderTabs(true);
 }
@@ -1782,11 +1791,29 @@ function toggleQuickJunk(type) {
 function _qjSync(type) {
     let st = quickJunk[type]; if (!st.active) return;
     if (!st.known) st.known = {};
-    _qjEligibleItems(type).forEach(i => { if (!st.known[i.uid]) { st.known[i.uid] = true; if (i.junk) st.sel[i.uid] = true; } });
+    _qjEligibleItems(type).forEach(i => { if (!st.known[i.uid]) { st.known[i.uid] = true; if (st.groups && st.groups[quickJunkGroupKey(i)] !== undefined) { if (st.groups[quickJunkGroupKey(i)]) st.sel[i.uid] = true; } else if (i.junk) st.sel[i.uid] = true; } });
+}
+function setQuickJunkMax(type, value) {
+    const st = quickJunk[type];
+    if (!st) return;
+    st.groups = {};
+    st.maxEnhance = value === 'all' ? 'all' : Math.max(0, Math.min(20, parseInt(value, 10) || 0));
+    st.sel = {}; st.known = {};
+    _qjSync(type); renderTabs(true);
 }
 function cancelQuickJunk(type) { let st = quickJunk[type]; st.active = false; st.sel = {}; st.known = {}; renderTabs(true); }
-function quickJunkSelectAll(type, checked) { let st = quickJunk[type]; st.sel = {}; if (checked) _qjEligibleItems(type).forEach(i => st.sel[i.uid] = true); renderTabs(true); }
-function toggleQuickJunkItem(type, uid) { let st = quickJunk[type]; if (st.sel[uid]) delete st.sel[uid]; else st.sel[uid] = true; renderTabs(true); }
+function quickJunkSelectAll(type, checked) { let st = quickJunk[type]; st.groups = {}; st.sel = {}; if (checked) _qjEligibleItems(type).forEach(i => st.sel[i.uid] = true); renderTabs(true); }
+function quickJunkGroupKey(item) { return itemSig({...item, en:0}) + (item.gw ? '|wish:' + item.uid : ''); }
+function toggleQuickJunkItem(type, uid) {
+    const st = quickJunk[type], item = player.inv.find(i => i.uid === uid);
+    if (!item || !_qjCanSelect(DB.items[item.id], item, type)) return;
+    const key = quickJunkGroupKey(item), group = _qjEligibleItems(type).filter(i => quickJunkGroupKey(i) === key);
+    const select = !group.every(i => st.sel[i.uid]);
+    if (!st.groups) st.groups = {};
+    st.groups[key] = select;
+    group.forEach(i => { if (select) st.sel[i.uid] = true; else delete st.sel[i.uid]; });
+    renderTabs(true);
+}
 // 確認：依勾選最終狀態設定每件 junk（勾＝廢品、未勾＝取消廢品），同步 junkPrefs（記憶/取消記憶）
 function runQuickJunk(type) {
     let st = quickJunk[type];
@@ -1897,14 +1924,26 @@ function inventoryQualityCmp(a,b){
     let ta=inventoryDef(a).cardTier||0,tb=inventoryDef(b).cardTier||0;if(ta!==tb)return tb-ta;
     return inventoryNameCmp(a,b);
 }
+function inventoryPriority(i,d) {
+    if(i.lock)return 0;
+    if(d.relic||d.legend)return 1;
+    if(i.seteff)return 2;
+    if(i.anc||i.attr||i.bless===true)return 3;
+    return 4;
+}
 const invSortCmp=function(a,b){
     let da=inventoryDef(a),db=inventoryDef(b),mode=inventorySortMode();
-    if(!!a.lock!==!!b.lock)return a.lock?-1:1; if(!!a.junk!==!!b.junk)return a.junk?1:-1;
     let ca=inventoryTypeRank(a,da),cb=inventoryTypeRank(b,db);if(ca!==cb)return ca-cb;
     let sa=inventorySubRank(a,da),sb=inventorySubRank(b,db);
     if(mode==='name'){let n=inventoryNameCmp(a,b);return n||inventoryQualityCmp(a,b);}
     if(mode==='quality'){let q=inventoryQualityCmp(a,b);return q||(sa-sb)||inventoryNameCmp(a,b);}
-    if(sa!==sb)return sa-sb; return inventoryQualityCmp(a,b);
+    let pa=inventoryPriority(a,da),pb=inventoryPriority(b,db);if(pa!==pb)return pa-pb;
+    if(!!a.junk!==!!b.junk)return a.junk?1:-1;
+    if(sa!==sb)return sa-sb;
+    let name=inventoryNameCmp(a,b);if(name)return name;
+    let id=String(a.id).localeCompare(String(b.id));if(id)return id;
+    let variant=quickJunkGroupKey(a).localeCompare(quickJunkGroupKey(b));if(variant)return variant;
+    return inventoryQualityCmp(a,b);
 };
 function setInventorySortMode(mode){
     if(!player||!['category','quality','name'].includes(mode))return;
@@ -1927,6 +1966,7 @@ function autoSortInventory() {
 // 🔧 v2.6.80 規則視窗「立即一鍵排列」：純排序＋提示·不 saveGame（避免把視窗草稿規則一併落地·排序結果隨其他存檔點落地）·視窗保持開啟
 function sortInventoryNow() {
     if (!player || !Array.isArray(player.inv)) return;
+    player[INV_SORT_MODE_KEY] = 'category';
     player.inv.sort(invSortCmp);
     if (typeof resetCatchupGainItemIndex === 'function') resetCatchupGainItemIndex();
     renderTabs(true);
@@ -2465,8 +2505,8 @@ function _mountPvpRevengeTauntMenu(menu, ev) {
     let x = ev && Number.isFinite(ev.clientX) ? ev.clientX : Math.round(window.innerWidth / 2);
     let y = ev && Number.isFinite(ev.clientY) ? ev.clientY : Math.round(window.innerHeight / 2);
     let rect = menu.getBoundingClientRect();
-    menu.style.left = Math.max(8, Math.min(x, window.innerWidth - rect.width - 8)) + 'px';
-    menu.style.top = Math.max(8, Math.min(y + 8, window.innerHeight - rect.height - 8)) + 'px';
+    menu.style.left = screenToUiPx(Math.max(8, Math.min(x, window.innerWidth - rect.width - 8)));
+    menu.style.top = screenToUiPx(Math.max(8, Math.min(y + 8, window.innerHeight - rect.height - 8)));
     _pvpRevengeTauntMenu = menu;
     setTimeout(() => {
         if (_pvpRevengeTauntMenu !== menu) return;
@@ -2605,7 +2645,7 @@ function renderSquadPanel() {
         + '||P:' + _pets.map(p => p.uid + ':' + p.lv + ':' + (p._downed ? 'D' : '') + ':' + Math.round(p.hp / Math.max(1, p.mhp) * 20) + ':' + Math.round(p.mp / Math.max(1, p.mmp) * 20) + ':' + Math.round((p.exp || 0) / Math.max(1, petExpReq(p.lv)) * 20) + ':' + (p.potPct || 0) + ':' + Math.ceil((p._reviveCd || 0) / 10)).join('|')
         + '||S:' + ((typeof summonTeamSignature === 'function') ? summonTeamSignature() : '')   // team 分頁：名單/倒地/等級＋寵物/召喚血量(5%階)變動才重建
         + '||G:' + ((typeof guardTeamSignature === 'function') ? guardTeamSignature() : '');   // 🏰 城堡護衛血量/倒地/復活倒數變動才重建
-    let sigSkill = _sigAllies + '||E:' + allies.map(a => a.elfEle || '').join(',');   // 🩹 v3.2.74 skill 分頁只看傭兵名單/等級→戰鬥中寵物/召喚掉血不重建·開啟的技能下拉不被關
+    let sigSkill = _sigAllies + '||E:' + allies.map(a => (a.elfEle || '')+':'+(a.skills||[]).join(',')+':'+Object.values(a.eq||{}).filter(Boolean).map(itemSig).join(',')).join('|');   // 🩹 v3.2.74 skill 分頁只看傭兵名單/等級→戰鬥中寵物/召喚掉血不重建·開啟的技能下拉不被關
     // 🧝 v3.8.5 追加 elfEle：來源妖精換屬性後 refreshAllyOnce 重建快照時名字/等級都沒變 → 簽章不動 → 技能下拉與自動維持勾選會停在舊屬性的清單（該隱藏的沒隱藏）
     let _squadRebuilt = false;
     if (sigTeam !== _squadSigTeam) {
@@ -2614,7 +2654,7 @@ function renderSquadPanel() {
             let s = a._slot;
             if (a._downed) {   // 🤝 Phase 3：倒地→灰顯卡片。返生術＝手動鈕（消耗MP·無冷卻立即）；復活卷軸＝v2.6.6 改自動（15秒冷卻結束身上有卷軸即自動使用），此處只顯示狀態文字（不可點）。每幀更新。
                 return `<div class="bg-slate-900/70 border border-red-900 rounded p-2 flex items-center justify-between gap-2" style="opacity:0.85;">
-                    <div class="text-sm"><span class="font-bold text-slate-400">${a._allyName}</span> <span class="text-slate-600 text-xs">Lv.${a.lv || 1}</span> <span class="text-red-400 font-bold">【倒地】</span></div>
+                    <div class="text-sm">${partyNameButton('ally', s, a._allyName, 'font-bold text-slate-400')} <span class="text-slate-600 text-xs">Lv.${a.lv || 1}</span> <span class="text-red-400 font-bold">【倒地】</span></div>
                     <div class="flex items-center gap-1 shrink-0">
                         <button id="squad-rez-${s}" class="py-1 px-2 text-xs font-bold rounded border whitespace-nowrap" style="background:#1e3a8a;border-color:#3b82f6;color:#bfdbfe;" onclick="reviveMercenary('${s}','rez')">返生術</button>
                         <span id="squad-revive-${s}" class="py-1 px-2 text-xs font-bold rounded border whitespace-nowrap" style="background:#3f1d1d;border-color:#7f1d1d;color:#fca5a5;cursor:default;" title="倒地 15 秒後，若身上有復活卷軸將自動使用。">卷軸</span>
@@ -2623,7 +2663,7 @@ function renderSquadPanel() {
             }
             return `<div class="bg-slate-800/60 border border-slate-600 rounded p-2 flex flex-col gap-1 ally-compact-card">
                 <div class="ally-compact-head text-sm">
-                    <span class="font-bold text-amber-200 ally-compact-name">${a._allyName}</span>
+                    ${partyNameButton('ally', s, a._allyName, 'font-bold text-amber-200 ally-compact-name')}
                     <span class="text-slate-400 text-xs whitespace-nowrap">Lv.${a.lv || 1}</span>
                     <div class="bar-bg ally-exp-bar"><div id="squad-exp-${s}" class="bar-fill bg-yellow-500" style="width:0%"></div><div id="squad-exp-txt-${s}" class="bar-text text-white">0%</div></div>
                 </div>

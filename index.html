@@ -14,9 +14,10 @@
     <title>放置天堂 - 日出之國</title>
     <link rel="icon" type="image/png" href="assets/favicon.png">   <!-- 🖼️ 瀏覽器分頁圖示(favicon)：把你的圖放到 assets/favicon.png 即生效；可改 href 路徑或副檔名(.ico/.svg) -->
 
-    <link rel="stylesheet" href="css/style.css?v=v3.8.6-npc-private-chat">
-    <link rel="stylesheet" href="css/floating-ui.css?v=v3.5.100-audit-tail">
-    <link rel="stylesheet" href="css/tailwind-built.css"><!-- 🔧 預編譯 Tailwind（取代執行期 JIT tailwind.js）：只含實際用到的 class，省 407KB runtime + 移除持續掃描 DOM 的成本。置於 style.css 之後以保留原 cascade（utility 平手時勝過自訂 class，與舊 JIT 注入順序一致） -->
+    <link rel="stylesheet" href="css/style.css?v=6fc6034784">
+    <link rel="stylesheet" href="css/floating-ui.css?v=bc8be4ac7f">
+    <link rel="stylesheet" href="css/tailwind-built.css?v=932535789f"><!-- 🔧 預編譯 Tailwind（取代執行期 JIT tailwind.js）：只含實際用到的 class，省 407KB runtime + 移除持續掃描 DOM 的成本。置於 style.css 之後以保留原 cascade（utility 平手時勝過自訂 class，與舊 JIT 注入順序一致） -->
+    <link rel="stylesheet" href="css/responsive.css?v=d50d4a9a6e">
 </head>
 <body class="h-screen w-screen overflow-hidden">
 
@@ -80,6 +81,9 @@
                 <button onclick="loadEnterSelected()" id="load-btn-enter" type="button" class="hidden">進入遊戲</button>
                 <button onclick="loadExportSelected()" id="load-btn-export" type="button" class="hidden">匯出進度</button>
                 <button onclick="loadDeleteSelected()" id="load-btn-delete" type="button" class="hidden" style="color:#e7a09a;border-color:rgba(151,61,52,.82);">刪除角色</button>
+                <button onclick="loadRenameSelected()" id="load-btn-rename" type="button">修改暱稱</button>
+                <button onclick="exportAccount()" id="load-btn-account-export" type="button">匯出帳號</button>
+                <button onclick="importAccount()" id="load-btn-account-import" type="button">匯入帳號</button>
                 <button onclick="loadBackToMenu()" id="load-btn-back" type="button">返回</button>
             </div>
           </div>
@@ -173,7 +177,7 @@
         <div id="col-left" class="w-[340px] flex flex-col gap-4">
             <!-- 新增了 id="status-panel"，並加入去底色與加深背景的樣式確保文字可讀 -->
             <div id="status-panel" class="panel bg-cover bg-top bg-no-repeat" style="background-blend-mode: multiply; background-color: rgba(30, 41, 59, 0.85);">
-                <div class="panel-header text-center flex justify-between bg-transparent border-b border-slate-700"><span class="flex items-center shrink-0"><span id="st-classname">職業</span><span id="classic-badge" class="hidden font-bold ml-1" style="color:#fbbf24;text-shadow:0 0 5px rgba(251,191,36,0.7);font-size:0.85rem;line-height:1;" title="經典模式（硬核）：死亡損失該等級 5% 最大經驗（不降等）、無祝福/精通/席琳；掉落率、經驗與金幣獲得與一般模式相同">⚔經典</span></span><span id="victory-badge" class="hidden font-bold" style="color:#fde68a;text-shadow:0 0 6px rgba(253,230,138,0.85);font-size:1.05rem;line-height:1;align-items:center;gap:0.15rem;white-space:nowrap;flex-shrink:0;" title="城主：血盟持有城堡，全商店 8 折、開放城堡"><img id="victory-badge-crown" src="assets/ui/castle-crown.gif?v=v3.6.36" alt="" draggable="false" style="width:16px;height:12px;object-fit:contain;image-rendering:pixelated;position:relative;top:-0.08em;filter:drop-shadow(0 1px 1px rgba(69,26,3,.95)) drop-shadow(0 0 3px rgba(250,204,21,.82));"><span id="victory-badge-text" style="line-height:1;">城主</span></span><span id="st-class" class="text-white text-lg font-bold cursor-pointer hover:bg-slate-700/50 rounded px-2 inline-block min-w-[2.5rem] text-right" title="點擊此處修改名稱" onclick="startEditName()"></span></div>
+                <div class="panel-header text-center flex justify-between bg-transparent border-b border-slate-700"><span class="flex items-center shrink-0"><span id="st-classname">職業</span><span id="classic-badge" class="hidden font-bold ml-1" style="color:#fbbf24;text-shadow:0 0 5px rgba(251,191,36,0.7);font-size:0.85rem;line-height:1;" title="經典模式（硬核）：死亡損失該等級 5% 最大經驗（不降等）、無祝福/精通/席琳；掉落率、經驗與金幣獲得與一般模式相同">⚔經典</span></span><span id="victory-badge" class="hidden font-bold" style="color:#fde68a;text-shadow:0 0 6px rgba(253,230,138,0.85);font-size:1.05rem;line-height:1;align-items:center;gap:0.15rem;white-space:nowrap;flex-shrink:0;" title="城主：血盟持有城堡，全商店 8 折、開放城堡"><img id="victory-badge-crown" src="assets/ui/castle-crown.gif?v=v3.6.36" alt="" draggable="false" style="width:16px;height:12px;object-fit:contain;image-rendering:pixelated;position:relative;top:-0.08em;filter:drop-shadow(0 1px 1px rgba(69,26,3,.95)) drop-shadow(0 0 3px rgba(250,204,21,.82));"><span id="victory-badge-text" style="line-height:1;">城主</span></span><span id="st-class" class="text-white text-lg font-bold px-2 inline-block min-w-[2.5rem] text-right" tabindex="-1"></span></div>
                 <div class="status-compact-body text-base">
                     <div class="status-level-row text-slate-400">
                         <span>等級</span><span class="text-white font-bold text-xl" id="st-lv">1</span>
@@ -393,31 +397,41 @@
                 <!-- 🔧 v2.6.74 自動化設定改「分頁內嵌」（原 v2.6.73 浮動視窗取消）：與 能力/技能 同框架，switchTab(automation) 切換；set-* 控制項恆在 DOM 供 saveGame/自動化讀取 -->
                 <div id="tab-automation" class="p-4 text-base overflow-y-auto h-full hidden">
                     <div class="bg-slate-800 p-3 rounded-lg border border-slate-700 flex flex-col gap-2">
-                        <div class="flex items-center gap-2 mb-2">
+                        <div class="automation-actions flex items-center gap-2 mb-2">
                             <button type="button" class="btn w-24 py-1 text-sm font-bold bg-slate-700 hover:bg-slate-600 border-slate-500 text-slate-100" onclick="returnToCharacterSelect()">回選角</button>
                             <label id="npc-language-setting" class="btn min-w-32 py-1 px-3 text-sm font-bold bg-slate-700 hover:bg-slate-600 border-slate-500 text-cyan-100 cursor-pointer flex items-center justify-center gap-2" title="本機 NPC AI 對話">
                                 <input type="checkbox" id="set-npc-language-on" class="w-4 h-4" onchange="setNpcLanguageEnabled(this.checked)">
                                 <span>NPC AI 對話</span>
                             </label>
                         </div>
-                        <div class="flex items-center justify-between gap-3">
+                        <div class="automation-ui-scale border-t border-slate-700 pt-2">
+                            <div class="automation-ui-scale-heading">
+                                <label for="set-ui-scale" class="text-sm font-bold text-slate-200">整體 UI 縮放</label>
+                                <output id="ui-scale-value" for="set-ui-scale" class="text-sm text-slate-300">100%</output>
+                                <button type="button" id="btn-ui-scale-reset" class="btn py-1 px-2 text-sm bg-slate-700 hover:bg-slate-600 border-slate-500" title="還原 UI 縮放至 100%">100%</button>
+                            </div>
+                            <input type="range" id="set-ui-scale" min="75" max="100" value="100" step="5" aria-describedby="ui-scale-hint ui-scale-status">
+                            <p id="ui-scale-hint" class="text-xs text-slate-400">75%～100%，此裝置共用，立即生效。</p>
+                            <p id="ui-scale-status" class="text-xs text-amber-200" role="status" aria-live="polite"></p>
+                        </div>
+                        <div class="automation-audio-row flex items-center justify-between gap-3">
                             <label class="cursor-pointer flex items-center gap-2"><input type="checkbox" id="set-sfx-on" class="w-4 h-4" onchange="try{setSfxOn(this.checked)}catch(e){}"><span class="text-sm text-amber-200 font-bold">🔊 戰鬥音效</span></label>
                             <input type="range" id="set-sfx-vol" min="0" max="100" value="50" step="5" class="flex-1 max-w-[150px]" oninput="try{setSfxVol(this.value)}catch(e){}" title="音效音量">
                         </div>
-                        <div class="flex items-center justify-between gap-3 border-t border-slate-700 pt-2">
+                        <div class="automation-audio-row flex items-center justify-between gap-3 border-t border-slate-700 pt-2">
                             <label class="cursor-pointer flex items-center gap-2"><input type="checkbox" id="set-bgm-on" class="w-4 h-4" onchange="try{setBgmOn(this.checked)}catch(e){}"><span class="text-sm text-sky-200 font-bold">🎵 背景音樂</span></label>
                             <input type="range" id="set-bgm-vol" min="0" max="100" value="35" step="5" class="flex-1 max-w-[150px]" oninput="try{setBgmVol(this.value)}catch(e){}" title="音樂音量">
                         </div>
                     </div>
                     <div class="bg-slate-800 p-3 rounded-lg border border-slate-700">
                         <div class="flex flex-col gap-2">
-                            <div class="flex justify-between items-center">
+                            <div class="automation-potion-row flex justify-between items-center">
                             <select id="set-pot" class="bg-slate-900 border border-slate-600 text-red-300 px-2 py-1 rounded text-sm w-28 outline-none" onchange="this.classList.remove('text-red-300', 'text-orange-300', 'text-white'); this.classList.add(this.value === 'potion_heal' ? 'text-red-300' : (this.value === 'potion_strong' ? 'text-orange-300' : 'text-white'));">
                             <option value="potion_heal" class="text-red-300">紅色藥水</option>
                             <option value="potion_strong" class="text-orange-300">橙色藥水</option>
                             <option value="potion_ult" class="text-white">白色藥水</option>
                         </select>
-                        <span class="text-sm">HP &lt; <input type="number" id="set-hp-pot" value="70" class="w-14 bg-slate-900 border border-slate-600 text-center text-white rounded">%</span>
+                        <span class="automation-percent text-sm">HP &lt; <input type="number" id="set-hp-pot" value="70" class="w-14 bg-slate-900 border border-slate-600 text-center text-white rounded">%</span>
                     </div>
                             <label class="cursor-pointer flex items-center gap-2 mt-1 border-t border-slate-700 pt-2"><input type="checkbox" id="set-auto-buy-pot" class="w-4 h-4"><span class="text-sm text-slate-300">藥水不足自動買至100</span></label>
                         </div>
@@ -425,19 +439,19 @@
                     
                     <div class="bg-slate-800 p-3 rounded-lg border border-slate-700">
                         <div class="text-sm text-slate-400 mb-3 border-b border-slate-700 pb-1">自動施放設定</div>
-                        <div class="flex justify-between items-center mb-2 text-sm"><span class="text-cyan-400 font-bold">攻擊技能</span><span>MP &gt; <input type="number" id="set-mp-atk" value="50" class="w-12 bg-slate-900 border text-center text-white rounded">%</span></div>
+                        <div class="automation-skill-threshold flex justify-between items-center mb-2 text-sm"><span class="text-cyan-400 font-bold">攻擊技能</span><span class="automation-percent">MP &gt; <input type="number" id="set-mp-atk" value="50" class="w-12 bg-slate-900 border text-center text-white rounded">%</span></div>
                         <select id="sel-atk-skill" class="w-full bg-slate-900 border text-cyan-300 px-2 py-2 mb-3 rounded text-sm"><option value="">無</option></select>
-                        <div class="flex justify-between items-center mb-2 text-sm"><span class="text-green-400 font-bold">治癒魔法</span><span>HP &lt; <input type="number" id="set-mp-heal" value="50" class="w-12 bg-slate-900 border text-center text-white rounded">%</span></div>
+                        <div class="automation-skill-threshold flex justify-between items-center mb-2 text-sm"><span class="text-green-400 font-bold">治癒魔法</span><span class="automation-percent">HP &lt; <input type="number" id="set-mp-heal" value="50" class="w-12 bg-slate-900 border text-center text-white rounded">%</span></div>
                         <select id="sel-heal-skill" class="w-full bg-slate-900 border text-green-300 px-2 py-2 rounded text-sm"><option value="">無</option></select>
-                        <div class="flex justify-between items-center mb-1 mt-3 text-sm border-t border-slate-700 pt-2"><span class="text-rose-400 font-bold">消耗HP技能</span><span>HP &gt; <input type="number" id="set-hp-skill" value="0" min="0" max="100" class="w-12 bg-slate-900 border text-center text-white rounded">%</span></div>
+                        <div class="automation-skill-threshold flex justify-between items-center mb-1 mt-3 text-sm border-t border-slate-700 pt-2"><span class="text-rose-400 font-bold">消耗HP技能</span><span class="automation-percent">HP &gt; <input type="number" id="set-hp-skill" value="0" min="0" max="100" class="w-12 bg-slate-900 border text-center text-white rounded">%</span></div>
                         <div id="ui-convert-row" class="hidden">
-                            <div class="flex justify-between items-center mb-2 mt-3 text-sm"><span class="text-cyan-400 font-bold">轉換魔法</span><span>HP &gt; <input type="number" id="set-hp-convert" value="50" class="w-12 bg-slate-900 border text-center text-white rounded">%</span></div>
+                            <div class="automation-skill-threshold flex justify-between items-center mb-2 mt-3 text-sm"><span class="text-cyan-400 font-bold">轉換魔法</span><span class="automation-percent">HP &gt; <input type="number" id="set-hp-convert" value="50" class="w-12 bg-slate-900 border text-center text-white rounded">%</span></div>
                             <select id="sel-convert-skill" class="w-full bg-slate-900 border text-cyan-300 px-2 py-2 rounded text-sm"><option value="">無</option></select>
                         </div>
                     </div>
 
                     <!-- 🧪 v3.3.15 藥水/卷軸：自動使用＝自動購買合併（勾選＝缺貨時自動買一瓶再用）；左右各一縮短高度 -->
-                    <div class="bg-slate-800 p-3 rounded-lg border border-slate-700 grid grid-cols-2 gap-x-3 gap-y-1.5 text-sm items-center">
+                    <div class="automation-buffs bg-slate-800 p-3 rounded-lg border border-slate-700 grid grid-cols-2 gap-x-3 gap-y-1.5 text-sm items-center">
                         <label class="cursor-pointer flex items-center gap-2"><input type="checkbox" id="set-haste" class="w-4 h-4"> <span class="text-green-300">自我加速藥水</span></label>
                         <label id="ui-brave-row" class="cursor-pointer flex items-center gap-2"><input type="checkbox" id="set-brave" class="w-4 h-4"> <span class="text-purple-300">勇敢藥水</span></label>
                         <label class="cursor-pointer flex items-center gap-2"><input type="checkbox" id="set-blue" class="w-4 h-4"> <span class="text-blue-300">藍色藥水</span></label>
@@ -462,9 +476,11 @@
     <div id="item-modal" class="hidden absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 flex gap-4 items-start">
         <div id="modal-compare" class="hidden panel border-slate-600 p-5 min-w-[280px] max-w-[340px] max-h-[80vh] overflow-y-auto shadow-[0_0_40px_rgba(0,0,0,0.8)]" style="background:#1e293b"></div>
         <div class="panel border-slate-500 p-6 min-w-[360px] shadow-[0_0_40px_rgba(0,0,0,0.8)]" style="background:#1e293b">
+            <div class="item-modal-body">
             <h3 id="modal-item-name" class="text-xl font-bold mb-3 border-b border-slate-600 pb-3 flex items-center justify-between"><span>物品名稱</span><span id="modal-lock-icon" class="text-lg">🔓</span><!-- 🗑️ v3.5.83 移除 onclick="toggleLockModal()"：該函式全專案未定義（開窗前 innerHTML 一律被覆寫，故從未真的觸發） --></h3>
             <p id="modal-item-desc" class="text-base text-slate-300 mb-6 min-h-[60px] leading-relaxed">物品說明</p>
             <div class="grid grid-cols-2 gap-3" id="modal-actions"></div>
+            </div>
             <button onclick="closeModal()" class="mt-5 w-full btn py-3 bg-slate-700 text-lg font-bold">關閉視窗</button>
         </div>
     </div>
@@ -550,38 +566,103 @@
     })();
     </script>
 
-    <script src="js/anim-manifest.js?v=v3.8.12-necro-relics"></script>
-    <script src="js/00-data.js?v=v3.8.34-merc-trial-class-loot"></script>
-<script src="js/01-drops-config.js?v=v3.8.26-flywing-relics"></script>
-<script src="js/02-stats-recompute.js?v=v3.8.26-flywing-relics"></script>
-    <script src="js/03-combat-core.js?v=v3.8.26-flywing-relics"></script>
-    <script src="js/04-combat-attack.js?v=v3.8.26-flywing-relics"></script>
-<script src="js/05-kill-progression.js?v=v3.8.34-merc-trial-class-loot"></script>
-    <script src="js/06-status-allies.js?v=v3.8.34-merc-trial-class-loot"></script>
-    <script src="js/07-skills-cast.js?v=v3.8.26-flywing-relics"></script>
-<script src="js/08-items-equip.js?v=v3.8.16-wis-regen-interval"></script>
-<script src="js/09-vfx-render.js?v=v3.8.32-merc-vfx-origin"></script>
-    <script src="js/10-ui-tabs.js?v=v3.8.14-merc-guild"></script>
-<script src="js/11-world-map.js?v=v3.8.17-item-stack-source"></script>
-<script src="js/12-npc-quests.js?v=v3.8.34-merc-trial-class-loot"></script>
-<script src="js/13-shop-save.js?v=v3.8.18-desktop-save-isolation"></script>
-<script src="js/14-craft-pandora.js?v=v3.8.17-item-stack-source"></script>
-<script src="js/15-cards.js?v=v3.7.66"></script>
-<script src="js/16-equip-book.js?v=v3.8.15-legacy-import-smooth"></script>
-<script src="js/18-misc-book.js?v=v3.8.15-legacy-import-smooth"></script>
-<script src="js/17-audio.js?v=v3.8.1-monia-sfx"></script>
-<script src="js/19-equipment-window.js?v=v3.7.57"></script>
-<script src="js/20-warehouse-window.js?v=v3.5.100-audit-tail"></script>
-<script src="js/21-relic-book.js?v=v3.8.15-legacy-import-smooth"></script>
-    <script src="js/23-summons.js?v=v3.8.23-sherine-set-rework"></script>
-    <script src="js/22-pets.js?v=v3.8.23-sherine-set-rework"></script>
-    <script src="js/24-pandora-relic-market.js?v=v3.7.70"></script>
-    <script src="js/25-clan-system.js?v=v3.8.7-social-private"></script>
-    <script src="js/26-world-channel.js?v=v3.8.13-private-bond"></script>
-<script src="js/28-pvp-arena.js?v=v3.7.89-stage33-host-sign"></script>
-<script src="js/29-siege-v2-data.js?v=v3.7.63-siege-v2"></script>
-<script src="js/30-siege-v2.js?v=v3.7.89-castle-ring-layout"></script>
-<script src="js/31-castle-guards.js?v=v3.8.23-sherine-set-rework"></script>
-<script src="js/32-threat.js?v=v3.8.23-sherine-set-rework"></script>
+    <script src="js/anim-manifest.js?v=14d284fa9f"></script>
+    <script src="js/00-data.js?v=81d761a1d1"></script>
+<script src="js/ui-scale.js?v=977e219542"></script>
+<script src="js/01-drops-config.js?v=20c8a87fe7"></script>
+<script src="js/02-stats-recompute.js?v=a4b3e03acd"></script>
+    <script src="js/03-combat-core.js?v=b7eaf51a8e"></script>
+    <script src="js/04-combat-attack.js?v=1ed0d2d6ad"></script>
+<script src="js/05-kill-progression.js?v=a6179bbdeb"></script>
+    <script src="js/06-status-allies.js?v=170600767e"></script>
+    <script src="js/07-skills-cast.js?v=863e84aa4a"></script>
+<script src="js/08-items-equip.js?v=e64597f71e"></script>
+<script src="js/09-vfx-render.js?v=898038aed5"></script>
+    <script src="js/effect-details.js?v=0a6d322416"></script>
+    <script src="js/party-inspector.js?v=54effb6a21"></script>
+    <script src="js/10-ui-tabs.js?v=94cc21a37c"></script>
+<script src="js/11-world-map.js?v=3e7045435f"></script>
+<script src="js/12-npc-quests.js?v=66c9490674"></script>
+<script src="js/13-shop-save.js?v=99c6c786db"></script>
+<script src="js/14-craft-pandora.js?v=c8394f39f0"></script>
+<script src="js/15-cards.js?v=42975a78a0"></script>
+<script src="js/16-equip-book.js?v=06993d3f55"></script>
+<script src="js/18-misc-book.js?v=9a4bbc3677"></script>
+<script src="js/17-audio.js?v=8b26455c32"></script>
+<script src="js/19-equipment-window.js?v=a1935e8610"></script>
+<script src="js/20-warehouse-window.js?v=3efb907c43"></script>
+<script src="js/21-relic-book.js?v=40aef7ae9b"></script>
+    <script src="js/23-summons.js?v=830dff6118"></script>
+    <script src="js/22-pets.js?v=c53a357920"></script>
+    <script src="js/24-pandora-relic-market.js?v=f4dc248558"></script>
+    <script src="js/25-clan-system.js?v=907d1120e5"></script>
+    <script src="js/26-world-channel.js?v=b7103157d3"></script>
+<script src="js/28-pvp-arena.js?v=1347b3bd93"></script>
+<script src="js/29-siege-v2-data.js?v=379d78bb1e"></script>
+<script src="js/30-siege-v2.js?v=09b50f9871"></script>
+<script src="js/31-castle-guards.js?v=bab8d99b15"></script>
+<script src="js/32-threat.js?v=2d4b566d70"></script>
+    <script src="js/account-transfer.js?v=5867d4642d"></script>
+    <!-- Add-on modules are byte-for-byte mirrors of the published pp771007 build. -->
+    <script src="afk-toggles.js?v=feb1f5d3cf"></script>
+    <script src="js/addon-defaults.js?v=c1955c2d20"></script>
+    <script src="afk-lzcache.js?v=97c5052e4d"></script>
+    <script src="afk-clanroster.js?v=57ca5de903"></script>
+    <script src="afk-allyslim.js?v=c4899c933b"></script>
+    <script src="afk-ui.js?v=9307c7dda9"></script>
+    <script src="afk-extradata.js?v=fe68db6e9e"></script>
+    <script src="afk-mobile.js?v=e3a5444e65"></script>
+    <script src="afk-backnav.js?v=44bd32c799"></script>
+    <script src="afk-battlehud.js?v=ba0bc3e100"></script>
+    <script src="afk-mapbar.js?v=35c2504cb4"></script>
+    <script src="afk-nozoom.js?v=c1586fe7c7"></script>
+    <script src="afk-statusicon.js?v=9d68288411"></script>
+    <script src="afk-petui.js?v=4ceb829d4c"></script>
+    <script src="afk-loadslots.js?v=df16332037"></script>
+    <script src="afk-dex.js?v=51229046e4"></script>
+    <script src="afk-wiki.js?v=9d90fdc7c7"></script>
+    <script src="afk-storage.js?v=db58fa6793"></script>
+    <script src="afk-quotawarn.js?v=450a384d64"></script>
+    <script src="afk-diag.js?v=526c972b27"></script>
+    <script src="afk-powersave.js?v=8fde5a6830"></script>
+    <script src="afk-statpts.js?v=b3562ef6f7"></script>
+    <script src="afk-statlist.js?v=58b360ed83"></script>
+    <script src="afk-autobuy.js?v=0b3c6ef1f6"></script>
+    <script src="afk-training.js?v=db73253c4b"></script>
+    <script src="afk-junkmgr.js?v=48da09305a"></script>
+    <script src="afk-mercguard.js?v=47275ae7f4"></script>
+    <script src="afk-squadsync.js?v=5c9844945e"></script>
+    <script src="afk-ancdrop.js?v=8f33ee03b0"></script>
+    <script src="afk-relicaffix.js?v=1e654b2d31"></script>
+    <script src="afk-relicbatch.js?v=d06c9a4497"></script>
+    <script src="afk-bmprice.js?v=e9aaaa0677"></script>
+    <script src="afk-bossavoid.js?v=6caed21cf6"></script>
+    <script src="afk-bossring.js?v=53e6885a8b"></script>
+    <script src="afk-itemsearch.js?v=e0b00b61b4"></script>
+    <script src="afk-invlist.js?v=4a5a02a4f3"></script>
+    <script src="afk-eqlist.js?v=961af5300b"></script>
+    <script src="afk-npclist.js?v=3f65625de5"></script>
+    <script src="afk-npclabel.js?v=bfbcb41d35"></script>
+    <script src="afk-mobname.js?v=807ec4cd74"></script>
+    <script src="afk-trackinfo.js?v=2afc839494"></script>
+    <script src="afk-trackmaps.js?v=84f835107b"></script>
+    <script src="afk-relicguard.js?v=ff25ab39c3"></script>
+    <script src="afk-wpnfix.js?v=836fc169c4"></script>
+    <script src="afk-enhtarget.js?v=69f5c8ceb8"></script>
+    <script src="afk-retrial.js?v=8fe3b6ad0f"></script>
+    <script src="afk-attrbatch.js?v=499133ae01"></script>
+    <script src="afk-cursebatch.js?v=5ededab1ee"></script>
+    <script src="afk-sellguard.js?v=9646b6b466"></script>
+    <script src="afk-battlebuffs.js?v=90233dcfe7"></script>
+    <script src="afk-skillbar.js?v=6217154fbd"></script>
+    <script src="afk-touchtip.js?v=cde210c5f1"></script>
+    <script src="afk-locksafe.js?v=e7a6ebf51c"></script>
+    <script src="afk-buyercompat.js?v=e1d9381953"></script>
+    <script src="afk-traditional.js?v=6f62eb0b39"></script>
+    <script src="afk-warehouse.js?v=8ec3a0f435"></script>
+    <script src="afk-dograce.js?v=6cdbdcfe83"></script>
+    <script src="afk-pwa.js?v=b6674413dc"></script>
+    <script src="afk-sw.js?v=6a1669d3ff"></script>
+    <script src="js/addon-integration.js?v=172ba397bf"></script>
 </body>
 </html>

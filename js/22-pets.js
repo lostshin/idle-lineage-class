@@ -1333,7 +1333,7 @@ function renderPetTeamHTML() {
         if (p._downed) {
             return `<div class="bg-slate-800/80 border border-red-800 rounded text-xs flex items-center gap-2" style="padding:3px 6px;">
                 <img src="${thumb}" alt="" style="width:26px;height:22px;object-fit:contain;image-rendering:pixelated;filter:grayscale(1);" onerror="this.style.display='none'">
-                <span class="flex-1" style="font-size:10px;line-height:1.3;"><span class="text-red-400 font-bold">🐾 ${p.form}</span> <span class="text-slate-400">Lv.${p.lv}·倒地</span><br>
+                <span class="flex-1" style="font-size:10px;line-height:1.3;">${partyNameButton('pet', p.uid, '🐾 '+p.form, 'text-red-400 font-bold')} <span class="text-slate-400">Lv.${p.lv}·倒地</span><br>
                 <span class="text-slate-400">${(p._reviveCd || 0) > 0 ? `卷軸復活倒數 ${Math.ceil(p._reviveCd / 10)} 秒` : '可用卷軸復活'}</span></span>
                 <span class="flex gap-1">
                     <button onclick="petRevive('${p.uid}','rez')" class="btn font-bold" style="padding:0 6px;font-size:10px;height:18px;background:linear-gradient(135deg,#065f46,#059669);color:#a7f3d0;border-color:#10b981;">返生術</button>
@@ -1344,7 +1344,7 @@ function renderPetTeamHTML() {
         return `<div class="bg-slate-800/80 border border-slate-600 rounded text-xs" style="padding:3px 6px;">
             <div class="flex items-center gap-2">
                 <img src="${thumb}" alt="" style="width:26px;height:22px;object-fit:contain;image-rendering:pixelated;" onerror="this.style.display='none'">
-                <span class="flex-1 min-w-0" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><span class="text-emerald-300 font-bold">🐾 ${p.form}</span> <span class="text-amber-300">Lv.${p.lv}</span> <span class="text-slate-400" style="font-size:10px;">EXP ${expPct}%</span></span>
+                <span class="flex-1 min-w-0" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${partyNameButton('pet', p.uid, '🐾 '+p.form, 'text-emerald-300 font-bold')} <span class="text-amber-300">Lv.${p.lv}</span> <span class="text-slate-400" style="font-size:10px;">EXP ${expPct}%</span></span>
                 <span class="text-slate-400 whitespace-nowrap" style="font-size:10px;">HP&lt;<input type="number" min="0" max="95" value="${p.potPct || 0}" onchange="petSetPotPct('${p.uid}',this.value)" class="w-11 bg-slate-900 border border-slate-600 rounded px-1 text-center" style="font-size:10px;height:16px;padding-top:0;padding-bottom:0;">%喝水</span>
             </div>
             <div class="compact-dual-vitals" style="margin-top:2px;">
@@ -1366,9 +1366,9 @@ function _pet8Probe(form, dir) {
     let out = { shadow: {} };
     let acts = ['walk', 'idle', 'attack', 'skill', 'hurt', 'death'];
     let pending = acts.length * 2;
-    let finish = () => { if (--pending > 0) return; _pet8Cache[key] = out.idle ? out : null; };
+    let finish = () => { if (--pending > 0) return; _pet8Cache[key] = (out.idle || out.walk) ? out : null; };
     let probeSeq = (target, k, pfx, minF) => {   // 🚀 v3.4.37 平行探測（滑動窗口·共用 js/09 _probeFramesWin）
-        _probeFramesWin(i => folder + pfx + i + '.png', PET_ANIM_MAXF, minF || 2, frames => { target[k] = frames; finish(); });
+        _probeFramesWin(i => folder + pfx + i + '.png', PET_ANIM_MAXF, minF || 2, frames => { target[k] = frames; if (target === out && (k === 'idle' || k === 'walk') && frames) { if (!out.idle) out.idle = frames; _pet8Cache[key] = out; } finish(); });
     };
     acts.forEach(a => { probeSeq(out, a, a + '_', a === 'hurt' ? 1 : 2); probeSeq(out.shadow, a, a + '_s_', 1); });
 }
@@ -1446,6 +1446,7 @@ function _petAnimApply() {
         if (!host || !layer) return;
         let outs = (typeof player !== 'undefined' && player && player.cls) ? petsOutList() : [];
         if (typeof summonRenderList === 'function') outs = outs.concat(summonRenderList());   // 🧙 v3.2.19 召喚物 v2 共用寵物圖層（同欄位協定：uid/form/_px/_py/_dir/_animAct/_downed）
+        if (typeof mercSummonVisualList === 'function') outs = outs.concat(mercSummonVisualList());
         if (typeof guardRenderList === 'function') outs = outs.concat(guardRenderList());   // 🏰 城堡護衛 v2 共用寵物圖層（同欄位協定·八方向 assets/anim/<form>/d<dir>）
         let show = _petInWild() && !(bv && bv.classList.contains('hidden'));
         // 清掉不在場的
@@ -1465,6 +1466,7 @@ function _petAnimApply() {
                 if (!a || a === 'probing') continue;
             } else p._dirLoaded = dir;
             let el = _petSpriteEl(layer, p);
+            if (p._mercVisual) el.dataset.mercSummon = p._mercVisual;
             el.style.left = (p._px * 100) + '%';
             el.style.top = (p._py * 100) + '%';
             // 動作選擇：倒地=death 末幀 hold；單次動作(attack/skill/hurt/death)播完回 walk/idle
@@ -1498,7 +1500,7 @@ function _petAnimApply() {
         }
     } catch (e) {}
 }
-setInterval(_petAnimApply, 1000 / PET_ANIM_FPS);
+setInterval(() => { _petAnimApply(); }, 1000 / PET_ANIM_FPS);   // 🔌 加掛版補丁:間接呼叫讓外掛(省電模式)wrapper 攔得住;直接傳參照會被捕死原函式
 
 // ---------- 十一、舊項圈系統存檔遷移（loadGame 掛點：js/13 呼叫 petMigrateLegacy）----------
 const _PET_LEGACY_COLLARS = { 'new_item_184': '杜賓狗', 'new_item_185': '狼', 'new_item_collar_husky': '哈士奇', 'new_item_238': '牧羊犬', 'new_collar_rabbit': '暴走兔', 'new_collar_fox': '狐狸', 'new_collar_beagle': '小獵犬', 'new_collar_stbernard': '聖伯納犬' };

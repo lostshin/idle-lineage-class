@@ -1629,7 +1629,7 @@ function pandoraTipMove(ev) {
     let r = el.getBoundingClientRect();
     if (x + r.width > window.innerWidth - 8)  x = Math.max(4, ev.clientX - r.width - 14);
     if (y + r.height > window.innerHeight - 8) y = Math.max(4, ev.clientY - r.height - 12);
-    el.style.left = x + 'px'; el.style.top = y + 'px';
+    el.style.left = screenToUiPx(x); el.style.top = screenToUiPx(y);
 }
 function pandoraTipHide() { let el = document.getElementById('pandora-tooltip'); if (el) el.style.display = 'none'; }
 
@@ -1744,33 +1744,6 @@ function buyPandoraItem(i) {
 
 
 /* ===== 玩家自訂名稱：點擊左上狀態欄名稱 → 輸入框 → 確認 ===== */
-function startEditName() {
-    if (window._editingName || !player.cls) return;
-    window._editingName = true;
-    let el = document.getElementById('st-class');
-    let cur = (player.name || '').replace(/"/g, '&quot;');
-    el.innerHTML = `<input id="name-edit-input" type="text" maxlength="12" value="${cur}" `
-        + `onclick="event.stopPropagation()" `
-        + `onkeydown="if(event.key==='Enter'){event.preventDefault();confirmEditName();}else if(event.key==='Escape'){cancelEditName();}" `
-        + `class="w-24 px-1 py-0.5 text-black text-sm rounded align-middle"> `
-        + `<button onclick="event.stopPropagation();confirmEditName()" class="text-green-400 font-bold align-middle">✓</button>`;
-    let input = document.getElementById('name-edit-input');
-    if (input) { input.focus(); input.select(); }
-}
-function confirmEditName() {
-    let input = document.getElementById('name-edit-input');
-    let v = input ? input.value.trim() : '';
-    v = v.replace(/[<>&"']/g, '');   // 🔧 過濾 HTML 特殊字元：名稱會以 innerHTML 呈現，避免自我注入標籤
-    player.name = v ? v.slice(0, 12) : null;   // 留空則回到未取名狀態（顯示「點擊取名」）
-    window._editingName = false;
-    updateUI();
-    saveGame();
-}
-function cancelEditName() {
-    window._editingName = false;
-    updateUI();
-}
-
 window.onload = () => {
     migrateSaves();
     try { _applyVfxPref(); } catch (e) {}   // 🎚️ 套用標題畫面的「戰鬥特效開關」偏好（持久化於 localStorage）
@@ -2037,12 +2010,12 @@ window.onload = () => {
             if(el._id !== id){ el.innerHTML = buildItemTipHTML(id); el._id = id; }
         }
         el.style.display = 'block';
-        let pad = 16, w = el.offsetWidth, h = el.offsetHeight;
+        let pad = 16, w = el.getBoundingClientRect().width, h = el.getBoundingClientRect().height;
         let x = e.clientX + pad, y = e.clientY + pad;
         if(x + w > window.innerWidth - 6) x = e.clientX - pad - w;
         if(y + h > window.innerHeight - 6) y = e.clientY - pad - h;
-        el.style.left = Math.max(4, x) + 'px';
-        el.style.top = Math.max(4, y) + 'px';
+        el.style.left = screenToUiPx(Math.max(4, x));
+        el.style.top = screenToUiPx(Math.max(4, y));
     });
     document.addEventListener('mousedown', hideTip);
 })();

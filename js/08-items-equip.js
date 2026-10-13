@@ -125,12 +125,18 @@ function gainItem(id, cnt=1, silent=false, forceNormal=false, affixOld=false, de
         if (_forceBless) bless = true;   // 🔧 v3.1.27 製作材料含祝福裝備→成品必定祝福（僅在此裝備詞綴分支·寵物白板 _noAffixCtx 已於上方擋掉）
     }
 
+    // 🔌 加掛版補丁：遺物詞綴鉤子（外掛 afk-relicaffix 提供；未載/未開→null＝完全同原版）
+    if (!forceNormal && !_noAffixCtx && typeof window.__afkRelicAffix === 'function') {
+        let _ra = window.__afkRelicAffix(d, id);
+        if (_ra) { bless = _ra.bless || false; anc = _ra.anc || false; attr = _ra.attr || false; }
+    }
+
     // 🔮 席琳套裝詞綴：⚠️v3.1.68 起「不再出現於裝備上」——原掉落擲骰(0.1%/0.5%/5%)與席琳製作(_forceSherineSet)附加皆停用。
     //   套裝效果改由「席琳遺骸」承載（gainSherineRemains·killMob 掉落／NPC 伊奧兌換／菈克希絲拆分）；
     //   既有裝備上的舊詞綴保留顯示（名稱前綴/資訊欄）但不再計入套裝件數（recomputeStats 只掃遺骸欄）。
     let seteff = false;
 
-    let _tEn = 0;   // 🏛️ v3.0.83 傳統模式已取消：掉落自帶強化值停用（任何來源恆 +0·手動強化照常）
+    let _tEn = (typeof window.__afkTradRollEn === 'function') ? (window.__afkTradRollEn(d, forceNormal, _noAffixCtx) || 0) : 0;   // 🔌 加掛版補丁：偽傳統(自動衝裝)自帶強化值鉤子（外掛 afk-traditional 提供；未載/未開→0）
     let _probe = { id: id, en: _tEn, bless: bless, anc: anc, attr: attr, seteff: seteff };
     // 🔒 v3.6.92 改為「併入鎖定堆疊」（用戶拍板·取代 v3.5.84 的分裂制）：鎖定的物品再次獲得→直接併同一格，
     //    整疊都受鎖定保護（＝要用就得先手動解鎖整疊）。同簽章永遠只有一格是本作現行不變量，
@@ -503,7 +509,7 @@ function batchUseItem(u) {
     renderTabs(); updateUI(); saveGame();
     if (!document.getElementById('item-modal').classList.contains('hidden')) closeModal();
 }
-function useItem(u, silent = false) {
+function useItem(u, silent = false, keepModal = false) {   // 🔌 加掛版補丁 keepModal:自動觸發(如外掛自動瞬移)非 silent 使用時,不關玩家開著的物品視窗
     let item = player.inv.find(i => i.uid === u);
     if (!item) return;
     if (player.dead) { if (!silent) logSys(`死亡狀態無法使用道具，請先復活。`); return; }   // 死亡(未復活前)鎖住手動使用
@@ -579,7 +585,7 @@ function useItem(u, silent = false) {
             let _seteff = _wand.seteff || false;
             item.cnt--; if (item.cnt <= 0) player.inv = player.inv.filter(i => i.uid !== item.uid);   // 消耗靈魂之球 ×1
             _wand.cnt--; if (_wand.cnt <= 0) player.inv = player.inv.filter(i => i.uid !== _wand.uid);   // 消耗失去魔力魔杖 ×1
-            let _tEn = 0;   // 🏛️ v3.0.83 傳統模式已取消：重獲魔力的魔杖恆 +0（沿用手動強化）
+            let _tEn = 0;   // 🏛️ v3.0.83 傳統模式已取消：掉落自帶強化值停用（任何來源恆 +0·手動強化照常）   // 🏛️ v3.0.83 傳統模式已取消：重獲魔力的魔杖恆 +0（沿用手動強化）
             invAddOrStack({ id:resultId, uid:uid(), cnt:1, en:_tEn, bless:false, anc:false, attr:false, seteff:_seteff, lock:false, junk:false });
             logSys(`<span class="c-legend font-bold">靈魂之球與${powerlessName}發出強烈的銀色光芒！</span><span class="text-amber-200">你獲得了 ${_tEn>0?('+'+_tEn+' '):''}${resultName}${_seteff ? `（<span class="c-sherine font-bold">${_seteff}</span>）` : ''}！</span>`);
             renderTabs(); updateUI(); saveGame();
@@ -740,7 +746,7 @@ function useItem(u, silent = false) {
         } else logSys(`你已經學過這個技能了。`);
     }
     updateUI();
-    if(!silent && document.getElementById('item-modal').classList.contains('hidden') === false && (d.type !== 'scroll' || d.eff === 'poly' || d.eff === 'magicbarrier' || d.eff === 'teleport_scroll')) {
+    if(!silent && !keepModal && document.getElementById('item-modal').classList.contains('hidden') === false && (d.type !== 'scroll' || d.eff === 'poly' || d.eff === 'magicbarrier' || d.eff === 'teleport_scroll')) {
         closeModal();
     }
 }
@@ -1267,33 +1273,33 @@ function renderStatusIconBar() {
     let bar=document.getElementById('status-icon-bar'); if(!bar||!player||!player.buffs)return;
     let rows=[],seen=new Set();
     // player.buffs 的數值單位就是「秒」，主迴圈每 10 tick（1 秒）扣 1；不可再除以 10。
-    let add=(name,seconds,label,icon,ally)=>{if(!name||seen.has(name))return;seen.add(name);let sec=Math.max(0,Math.ceil(Number(seconds)||0));rows.push({name,ticks:Number(seconds)||0,label:label||name,sec,icon:icon||name,ally:!!ally});};   // 🐾 v3.2.17 icon 參數：多狀態共用同一圖示檔（如 7 種誘捕）；🤝 ally 旗標：隊友提供的全隊光環（圖示加藍點區別）
-    if((player.buffs.sk_greater_haste||0)>0)add('加速術',player.buffs.sk_greater_haste,'強力加速術');   // 💨 v3.0.94 強力加速術優先：沿用加速術圖示·先登錄→seen 去重蓋掉下行的一般加速
-    if(player.buffs.haste>0||player._equipHaste)add('加速術',player.buffs.haste||0,'加速');
+    let add=(name,seconds,label,icon,ally,effectId)=>{if(!name||seen.has(name))return;seen.add(name);let sec=Math.max(0,Math.ceil(Number(seconds)||0));rows.push({name,ticks:Number(seconds)||0,label:label||name,sec,icon:icon||name,ally:!!ally,effectId:effectId||Object.keys(STATUS_ICON_SKILLS).find(k=>STATUS_ICON_SKILLS[k]===name)||({加速術:'haste',勇敢藥水:'brave',藍色藥水:'blue',慎重藥水:'cautious',精靈餅乾:'elfcookie',變形術:'poly'})[name]||name});};   // 🐾 v3.2.17 icon 參數：多狀態共用同一圖示檔（如 7 種誘捕）；🤝 ally 旗標：隊友提供的全隊光環（圖示加藍點區別）
+    if((player.buffs.sk_greater_haste||0)>0)add('加速術',player.buffs.sk_greater_haste,'強力加速術',null,false,'sk_greater_haste');   // 💨 v3.0.94 強力加速術優先：沿用加速術圖示·先登錄→seen 去重蓋掉下行的一般加速
+    if(player.buffs.haste>0||player._equipHaste)add('加速術',player.buffs.haste||0,'加速',null,false,player.buffs.haste>0?'haste':'equip-haste');
     if(player.buffs.brave>0)add('勇敢藥水',player.buffs.brave,'勇敢藥水');
     if(player.buffs.blue>0)add('藍色藥水',player.buffs.blue,'藍色藥水');
     if(player.buffs.cautious>0)add('慎重藥水',player.buffs.cautious,'慎重藥水');
     if(player.buffs.elfcookie>0)add('精靈餅乾',player.buffs.elfcookie,'精靈餅乾');
     // 🐾 v3.2.17 誘捕狀態（7 種·共用「誘捕」圖示·label 區分）：期間擊殺對應動物即捕獲
-    if(typeof PET_LURES!=='undefined')Object.keys(PET_LURES).forEach(k=>{if((player.buffs[k]||0)>0)add('誘捕|'+k,player.buffs[k],PET_LURES[k].n,'誘捕');});
+    if(typeof PET_LURES!=='undefined')Object.keys(PET_LURES).forEach(k=>{if((player.buffs[k]||0)>0)add('誘捕|'+k,player.buffs[k],PET_LURES[k].n,'誘捕',false,k);});
     if(player._setPoly||(player.buffs.poly>0&&player.poly))add('變形術',player.buffs.poly||0,'變身');
-    Object.keys(STATUS_ICON_SKILLS).forEach(id=>{if((player.buffs[id]||0)>0)add(STATUS_ICON_SKILLS[id],player.buffs[id],DB.skills[id]?DB.skills[id].n:STATUS_ICON_SKILLS[id]);});
+    Object.keys(STATUS_ICON_SKILLS).forEach(id=>{if((player.buffs[id]||0)>0)add(STATUS_ICON_SKILLS[id],player.buffs[id],DB.skills[id]?DB.skills[id].n:STATUS_ICON_SKILLS[id],null,false,id);});
     // 🤝 v3.5.36 全隊光環（大地祝福/灼熱武器/閃亮之盾等 TEAM_AURA_SKILLS）：玩家未自持 buff 但隊友維持中→也亮圖示（標「隊友提供」·倒數取隊友最長剩餘）。玩家自持時上方主迴圈已加(seen 去重)→此段只補「純受益」情形。TEAM_SHARE_BUFFS 類會給玩家自己一份 buff·已由主迴圈顯示故不列入。寵物/召喚無此圖示列不涵蓋。
-    if(typeof TEAM_AURA_SKILLS!=='undefined'&&typeof _teamAuraHas==='function'){TEAM_AURA_SKILLS.forEach(sid=>{if((player.buffs[sid]||0)>0||!STATUS_ICON_SKILLS[sid]||!_teamAuraHas(sid))return;let remain=0,al=player.allies||[];for(let i=0;i<al.length;i++){let a=al[i];if(a&&!a._downed&&a.buffs&&(a.buffs[sid]||0)>remain)remain=a.buffs[sid];}add(STATUS_ICON_SKILLS[sid],remain,(DB.skills[sid]?DB.skills[sid].n:STATUS_ICON_SKILLS[sid])+'（隊友提供）',STATUS_ICON_SKILLS[sid],true);});}
+    if(typeof TEAM_AURA_SKILLS!=='undefined'&&typeof _teamAuraHas==='function'){TEAM_AURA_SKILLS.forEach(sid=>{if((player.buffs[sid]||0)>0||!STATUS_ICON_SKILLS[sid]||!_teamAuraHas(sid))return;let remain=0,al=player.allies||[];for(let i=0;i<al.length;i++){let a=al[i];if(a&&!a._downed&&a.buffs&&(a.buffs[sid]||0)>remain)remain=a.buffs[sid];}add(STATUS_ICON_SKILLS[sid],remain,(DB.skills[sid]?DB.skills[sid].n:STATUS_ICON_SKILLS[sid])+'（隊友提供）',STATUS_ICON_SKILLS[sid],true,sid);});}
     // 持續治療不存於 player.buffs，而是以 0.1 秒 tick 記在 player.hots；換算成真正剩餘秒數後顯示。
-    [['sk_regen','體力回復術'],['sk_elf_lifebless','生命的祝福']].forEach(([id,name])=>{let h=player.hots&&player.hots[id];if(h&&h.ticksLeft>0){let remainTicks=Math.max(0,(h.ticksLeft-1)*(h.interval||0)+(h.cd||0));add(name,Math.ceil(remainTicks/10),DB.skills[id]?DB.skills[id].n:name);}});
+    [['sk_regen','體力回復術'],['sk_elf_lifebless','生命的祝福']].forEach(([id,name])=>{let h=player.hots&&player.hots[id];if(h&&h.ticksLeft>0){let remainTicks=Math.max(0,(h.ticksLeft-1)*(h.interval||0)+(h.cd||0));add(name,Math.ceil(remainTicks/10),DB.skills[id]?DB.skills[id].n:name,null,false,id);}});
     // 🌩️ v3.5.94 玩家異常狀態（PLAYER_DEBUFF_ICON 有對應美術者）也進圖示列，排在增益之後；沒對應圖的異常仍走 renderStatusEffects 的文字。
     // ⚠️ 單位陷阱：player.buffs 以「秒」計，player.statuses 卻以 tick(0.1秒) 計（js/03 tick() 開頭統一遞減）→ 這裡必須 /10 換算成秒才交給 add()，否則倒數會顯示成 10 倍。
-    if(player.statuses)Object.keys(PLAYER_DEBUFF_ICON).forEach(k=>{let t=player.statuses[k]||0;if(t>0)add(PLAYER_DEBUFF_ICON[k],t/10,'異常：'+(PLAYER_DEBUFF_NAME[k]||k));});
+    if(player.statuses)Object.keys(PLAYER_DEBUFF_ICON).forEach(k=>{let t=player.statuses[k]||0;if(t>0)add(PLAYER_DEBUFF_ICON[k],t/10,'異常：'+(PLAYER_DEBUFF_NAME[k]||k),null,false,k);});
     // 🔧 v2.7.5 合併 2683「狀態圖示狂閃修正」：renderStatusEffects 每 tick(0.1秒) 呼叫本函式；原本每次都重建整排 innerHTML→所有 <img> 反覆重新解碼/重繪而狂閃。
     //   改「簽章式重建」：sig 只含 狀態種類/順序，不含秒數→種類/順序不變時不重建 DOM，僅更新 title(圖片保持不動、不閃)。
     // 🔧 v2.7.9 用戶要求：移除圖示上的動態倒數文字(.status-icon-time 不再產生)——剩餘秒數只留 hover title 提示；sig 隨之不需 T/P 位。
     let sig=rows.map(x=>x.name+'|'+x.label).join('||');
     if(bar.dataset.statusSig!==sig){
         bar.dataset.statusSig=sig;
-        bar.innerHTML=rows.map((x,i)=>{let title=x.label+(x.ticks>0?'｜剩餘 '+x.sec+' 秒':'');return `<div class="status-icon${x.ally?' status-icon--ally':''}" data-status-index="${i}" title="${title}"><img src="assets/state-icons/${encodeURIComponent(x.icon||x.name)}.jpg" alt="${x.label}"></div>`;}).join('');
+        bar.innerHTML=rows.map((x,i)=>{let title=x.label+(x.ticks>0?'｜剩餘 '+x.sec+' 秒':'');return `<div class="status-icon${x.ally?' status-icon--ally':''}" data-status-index="${i}" tabindex="0" data-effect-id="${x.effectId}" data-effect-seconds="${x.ticks>0?x.sec:''}" data-effect-source="${x.ally?'隊友提供':'自身'}" aria-label="${title}"><img src="assets/state-icons/${encodeURIComponent(x.icon||x.name)}.jpg" alt="${x.label}"></div>`;}).join('');
     } else {
-        rows.forEach((x,i)=>{let icon=bar.querySelector(`[data-status-index="${i}"]`);if(!icon)return;icon.title=x.label+(x.ticks>0?'｜剩餘 '+x.sec+' 秒':'');});
+        rows.forEach((x,i)=>{let icon=bar.querySelector(`[data-status-index="${i}"]`);if(!icon)return;icon.dataset.effectSeconds=x.ticks>0?x.sec:'';icon.setAttribute('aria-label',x.label+(x.ticks>0?'｜剩餘 '+x.sec+' 秒':''));});
     }
 }
 
@@ -1435,7 +1441,7 @@ function _updateUIImpl() {
     if(document.getElementById('st-classname')) document.getElementById('st-classname').innerText = clsDisplayName;   // 🏅 精通徽記已移除，僅顯示職業名
     let _nameEl = document.getElementById('st-class');
     if(_nameEl) {
-        if(!window._editingName) _nameEl.innerText = (player.name || '');   // 未取名則不顯示任何文字（仍可點擊命名）
+        _nameEl.innerText = (player.name || '未命名');   // Nickname editing is available on the character selection page.
         if (typeof pvpAlignmentColor === 'function') {
             _nameEl.style.color = pvpAlignmentColor(player.alignmentValue);
             _nameEl.style.textShadow = '0 0 6px rgba(0,0,0,.75)';

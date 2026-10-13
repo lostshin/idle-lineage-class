@@ -431,6 +431,30 @@ function mercSummonList() {
     return out;
 }
 function summonV2Knows(skId) { skId = skId || 'sk_summon'; return ((player.skills || []).includes(skId) || (player.grantedSkills || []).includes(skId)); }   // 已習得（比照 castSkillInner 的 grantedSkills 旁路）
+// Multiple visual copies represent the existing aggregate actor; they never attack or take damage.
+const _mercSummonVisuals = new Map();
+function mercSummonVisualList() {
+    const rows = [], active = new Set();
+    for (const ally of player.allies || []) {
+        const actor = ally && !ally._downed && ally.summon;
+        if (!actor || actor._downed || !(actor.hp > 0)) continue;
+        const count = Math.max(1, Math.floor(actor._v2count || 1));
+        for (let i = 0; i < count; i++) {
+            const key = String(ally._slot) + ':' + actor.uid + ':' + i; active.add(key);
+            let visual = _mercSummonVisuals.get(key);
+            if (!visual) { visual = {uid:'merc-visual-' + key}; _mercSummonVisuals.set(key, visual); }
+            visual._mercVisual = String(ally._slot); visual.form = actor.form || actor._v2form || actor.n;
+            visual.formGfx = actor.formGfx || (actor.skId === 'sk_elf_summon' || actor.skId === 'sk_elf_summon2' ? (actor._king ? '強力' : '') + (SPIRIT_ELE_ZH[actor.ele] || '水') + '屬性精靈' : visual.form);
+            if (actor._animAct) visual._animAct = actor._animAct;
+            else if (visual._lastCd != null && actor.cd > visual._lastCd) visual._animAct = {k:'attack',t:Date.now()};
+            visual._lastCd = actor.cd;
+            visual._faceMobUid = actor._faceMobUid; visual._downed = false;
+            rows.push(visual);
+        }
+    }
+    for (const key of _mercSummonVisuals.keys()) if (!active.has(key)) _mercSummonVisuals.delete(key);
+    return rows;
+}
 function summonRenderList() {   // 供 js/22 寵物圖層渲染（含死亡殘影 2 秒）
     if (typeof player === 'undefined' || !player || !player.cls) return [];
     const now = Date.now();
@@ -730,7 +754,7 @@ function renderSummonTeamHTML() {
             let owner = s._necroSkeleton ? _necroOwnerByKey(s._necroOwnerKey) : null;
             let label = s._necroSkeleton && owner && owner !== player ? `${owner._allyName}·${s.form}` : s.form;
             return `<div class="bg-slate-800/80 border border-purple-800 rounded px-2 py-1 text-xs flex items-center gap-2">
-                <span class="text-purple-300 font-bold shrink-0 overflow-hidden text-ellipsis whitespace-nowrap" style="width:7rem;" title="${label} Lv.${s.lv || 1}">${label}</span>
+                ${partyNameButton('summon', s.uid, label, 'text-purple-300 font-bold')}
                 <div class="bar-bg flex-1 !h-3">
                     <div class="bar-fill bg-red-600" style="width:${hpPct}%;"></div>
                     <div class="bar-text text-white" style="font-size:10px;line-height:12px;">${s.hp || 0}/${s.mhp || 0}</div>
@@ -757,7 +781,7 @@ function renderMercSummonTeamHTML() {
             if (!s || !(s.mhp > 0) || s._downed || !(s.hp > 0)) continue;
             const hpPct = Math.max(0, Math.min(100, Math.floor((s.hp || 0) / Math.max(1, s.mhp || 1) * 100)));
             rows.push(`<div class="bg-slate-800/80 border border-purple-800 rounded px-2 py-1 text-xs flex items-center gap-2">
-                <span class="shrink-0 overflow-hidden text-ellipsis whitespace-nowrap" style="width:8rem;" title="${(a._allyName || '協力')} 的召喚物"><span class="text-emerald-300">${a._allyName || '協力'}</span><span class="text-slate-500">·</span><span class="text-purple-300 font-bold">${s.form || s.n || '召喚物'}</span></span>
+                ${partyNameButton('merc-summon', a._slot, (a._allyName || '協力')+'·'+(s.form || s.n || '召喚物'), 'text-purple-300 font-bold')}
                 <div class="bar-bg flex-1 !h-3">
                     <div class="bar-fill bg-red-600" style="width:${hpPct}%;"></div>
                     <div class="bar-text text-white" style="font-size:10px;line-height:12px;">${s.hp || 0}/${s.mhp || 0}</div>

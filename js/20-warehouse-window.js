@@ -41,10 +41,10 @@
         });
         handle.addEventListener('pointermove', function (event) {
             if (!drag || drag.id !== event.pointerId) return;
-            const maxX = Math.max(0, innerWidth - frame.offsetWidth);
-            const maxY = Math.max(0, innerHeight - frame.offsetHeight);
-            frame.style.left = Math.max(0, Math.min(maxX, event.clientX - drag.dx)) + 'px';
-            frame.style.top = Math.max(0, Math.min(maxY, event.clientY - drag.dy)) + 'px';
+            const maxX = Math.max(0, innerWidth - frame.getBoundingClientRect().width);
+            const maxY = Math.max(0, innerHeight - frame.getBoundingClientRect().height);
+            frame.style.left = screenToUiPx(Math.max(0, Math.min(maxX, event.clientX - drag.dx)));
+            frame.style.top = screenToUiPx(Math.max(0, Math.min(maxY, event.clientY - drag.dy)));
             frame.style.transform = 'none';
         });
         function stop(event) {

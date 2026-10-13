@@ -1426,8 +1426,8 @@ function openNpcClanMercyMenu(clanId, ev) {
     let x = ev && Number.isFinite(ev.clientX) ? ev.clientX : window.innerWidth / 2;
     let y = ev && Number.isFinite(ev.clientY) ? ev.clientY : window.innerHeight / 2;
     let rect = menu.getBoundingClientRect();
-    menu.style.left = Math.max(8, Math.min(x, window.innerWidth - rect.width - 8)) + 'px';
-    menu.style.top = Math.max(8, Math.min(y + 8, window.innerHeight - rect.height - 8)) + 'px';
+    menu.style.left = screenToUiPx(Math.max(8, Math.min(x, window.innerWidth - rect.width - 8)));
+    menu.style.top = screenToUiPx(Math.max(8, Math.min(y + 8, window.innerHeight - rect.height - 8)));
 }
 
 function _npcClanMercyWhisper(clan) {

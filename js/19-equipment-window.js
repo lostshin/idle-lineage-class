@@ -157,25 +157,20 @@
         if (!frame || !win || win.classList.contains('hidden')) return;
         const host = el('tab-content-panel');
         if (!host) return;
-        let hostRect = host.getBoundingClientRect();
         const maxFrameWidth = 366;
-        if (innerWidth <= 768) {
-            const mobileFrameWidth = Math.min(hostRect.width, maxFrameWidth);
+        if (innerWidth / getUiScale() <= 768) {
+            const mobileFrameWidth = Math.min(host.clientWidth, maxFrameWidth);
             const mobileHeight = Math.ceil(mobileFrameWidth * 408 / 183);
             host.style.setProperty('--equipment-panel-height', mobileHeight + 'px');
-            hostRect = host.getBoundingClientRect();
         }
         const frameWidth = Math.max(0, Math.min(
-            hostRect.width,
+            host.clientWidth,
             maxFrameWidth,
-            hostRect.height * 183 / 408
+            host.clientHeight * 183 / 408
         ));
-        win.style.left = hostRect.left + 'px';
-        win.style.top = hostRect.top + 'px';
-        win.style.right = 'auto';
-        win.style.bottom = 'auto';
-        win.style.width = hostRect.width + 'px';
-        win.style.height = hostRect.height + 'px';
+        win.style.inset = '0';
+        win.style.width = '100%';
+        win.style.height = '100%';
         frame.style.left = '50%';
         frame.style.top = '0';
         frame.style.setProperty('width', frameWidth + 'px', 'important');
@@ -195,24 +190,26 @@
         if (!win) return;
         const host = el('tab-content-panel');
         if (host) {
+            if (win.parentElement !== host) host.appendChild(win);
             host.classList.toggle('equipment-panel-host', visible);
-            if (!visible || innerWidth > 768) host.style.removeProperty('--equipment-panel-height');
-            else host.style.setProperty('--equipment-panel-height', Math.ceil(Math.min(host.getBoundingClientRect().width, 366) * 408 / 183) + 'px');
+            if (!visible || innerWidth / getUiScale() > 768) host.style.removeProperty('--equipment-panel-height');
+            else host.style.setProperty('--equipment-panel-height', Math.ceil(Math.min(host.clientWidth, 366) * 408 / 183) + 'px');
         }
         win.classList.add('equipment-window-embedded');
         win.classList.toggle('hidden', !visible);
         win.setAttribute('aria-hidden', visible ? 'false' : 'true');
         if (!visible) return;
-        if (innerWidth <= 768) {
+        if (innerWidth / getUiScale() <= 768) {
             const scroller = el('game-screen');
             if (scroller && host) {
                 const scrollerRect = scroller.getBoundingClientRect();
                 const hostRect = host.getBoundingClientRect();
-                if (hostRect.bottom > scrollerRect.bottom) scroller.scrollTop += hostRect.bottom - scrollerRect.bottom + 8;
-                if (hostRect.top < scrollerRect.top) scroller.scrollTop -= scrollerRect.top - hostRect.top + 8;
+                if (hostRect.bottom > scrollerRect.bottom) scroller.scrollTop += (hostRect.bottom - scrollerRect.bottom) / getUiScale() + 8;
+                if (hostRect.top < scrollerRect.top) scroller.scrollTop -= (scrollerRect.top - hostRect.top) / getUiScale() + 8;
             }
         }
         refreshEquipmentWindow();
+        fitEquipmentWindowToViewport();
         requestAnimationFrame(fitEquipmentWindowToViewport);
     };
 

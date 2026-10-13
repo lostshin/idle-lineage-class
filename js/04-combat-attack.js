@@ -618,7 +618,7 @@ function weaponSpellProc(target, attackHit, instOverride) {
                 _dd = Math.max(1, Math.floor(_dd * elementCounterMult(pt[2] || 'none', _dt.e)));
                 _tot += _dd;
             });
-            _dt.curHp -= _tot; _dt.justHit = 'fire'; mobWake(_dt); if (typeof playSpellFx === 'function') { try { playSpellFx(_pd.skn || '熾焰地裂術', _dt); } catch (e) {} }   // 🔥 v3.7.44 改播自有特效（原借用「地獄火」暫代）
+            _tot = (typeof window.__afkIlluWpnFix === 'function' && window.__afkIlluWpnFix()) ? illusionMagicDmg(_tot, true) : _tot;   /* 🔌 加掛版補丁:解除封印的巴風特魔杖(熾焰地裂術)補上幻覺套裝 2/5 件 */ _dt.curHp -= _tot; _dt.justHit = 'fire'; mobWake(_dt); if (typeof playSpellFx === 'function') { try { playSpellFx(_pd.skn || '熾焰地裂術', _dt); } catch (e) {} }   // 🔥 v3.7.44 改播自有特效（原借用「地獄火」暫代）
             logCombat(`<span class="font-bold" style="color:#fb923c;text-shadow:0 0 6px #ea580c;">【${_pd.skn}】</span>地火同崩，對 <span class="${getMobColor(_dt.lv)}">${_dt.n}</span> 造成 ${_tot} 點傷害。`, 'player-special');
             let _di2 = mapState.mobs.findIndex(m => m && m.uid === _dt.uid);
             if (_dt.curHp <= 0) { if (_di2 !== -1) killMob(_di2); } else if (!state.ff) renderMobs();
