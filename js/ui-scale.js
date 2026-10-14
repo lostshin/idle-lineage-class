@@ -7,7 +7,15 @@ function screenToUiPx(value) { return (value / getUiScale()) + 'px'; }
 
 (function () {
     const root = document.documentElement;
-    let migrated = _lsGet(UI_SCALE_MIGRATION_KEY) === '1';
+    // The file-store migration in 00-data copies missing keys from localStorage.
+    function readInitialPreference(key) {
+        try {
+            const store = window.fableStore;
+            if (store && (store.has(key) || store.has('__fs_migrated_v1'))) return store.get(key);
+            return localStorage.getItem(key);
+        } catch (e) { return null; }
+    }
+    let migrated = readInitialPreference(UI_SCALE_MIGRATION_KEY) === '1';
     function normalize(value) {
         const amount = value == null || String(value).trim() === '' ? NaN : Number(value);
         return Number.isFinite(amount) ? Math.max(60, Math.min(100, Math.round(amount / 5) * 5)) : 80;
@@ -26,14 +34,19 @@ function screenToUiPx(value) { return (value / getUiScale()) + 'px'; }
         root.style.setProperty('--ui-width', (root.clientWidth / scale) + 'px');
         root.style.setProperty('--ui-height', (root.clientHeight / scale) + 'px');
     }
-    function applyScale() {
+    function applyRootScale() {
         const scale = getUiScale();
         root.style.zoom = scale === 1 ? '' : String(scale);
         root.style.setProperty('--ui-scale-inverse', String(1 / scale));
         updateViewport();
         root.classList.toggle('ui-scale-active', scale !== 1);
-        document.getElementById('set-ui-scale').value = String(uiScalePercent);
-        document.getElementById('ui-scale-value').textContent = uiScalePercent + '%';
+    }
+    function applyScale() {
+        applyRootScale();
+        // Keep stored layout units intact; the existing 80% size is now labeled 100%.
+        const displayPercent = uiScalePercent / .8;
+        document.getElementById('set-ui-scale').value = String(displayPercent);
+        document.getElementById('ui-scale-value').textContent = displayPercent + '%';
         // Existing equipment fitting and town-label placement listen for resize.
         window.dispatchEvent(new Event('resize'));
     }
@@ -42,11 +55,18 @@ function screenToUiPx(value) { return (value / getUiScale()) + 'px'; }
         applyScale();
         return persistScale();
     };
-    const slider = document.getElementById('set-ui-scale');
-    slider.addEventListener('input', () => setUiScale(slider.value));
-    document.getElementById('btn-ui-scale-reset').addEventListener('click', () => setUiScale(80));
+    function initSettings() {
+        migrated = _lsGet(UI_SCALE_MIGRATION_KEY) === '1';
+        uiScalePercent = migrated ? normalize(_lsGet(UI_SCALE_KEY)) : 80;
+        const slider = document.getElementById('set-ui-scale');
+        slider.addEventListener('input', () => setUiScale(Number(slider.value) * .8));
+        document.getElementById('btn-ui-scale-reset').addEventListener('click', () => setUiScale(80));
+        applyScale();
+        if (!migrated) persistScale();
+    }
     window.addEventListener('resize', updateViewport);
-    uiScalePercent = migrated ? normalize(_lsGet(UI_SCALE_KEY)) : 80;
-    applyScale();
-    if (!migrated) persistScale();
+    uiScalePercent = migrated ? normalize(readInitialPreference(UI_SCALE_KEY)) : 80;
+    applyRootScale();
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initSettings);
+    else initSettings();
 })();

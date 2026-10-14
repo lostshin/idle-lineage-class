@@ -7,6 +7,7 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <script src="js/ui-scale.js?v=d4b17b239b"></script>
     <!-- 🗑️ v3.5.87 移除死的行動裝置偵測 IIFE：applyViewport 無任何分支（mobile 變數算了沒用）、
          DESIGN_W/isMobileDevice/window.__mobileScaling 全專案零呼叫；唯一實際效果 viewport-fit=cover 直接併入上方 meta。
          （width=1180 手機縮放已於桌機專注決策時移除·本作 desktop-only） -->
@@ -14,7 +15,7 @@
     <title>放置天堂 - 日出之國</title>
     <link rel="icon" type="image/png" href="assets/favicon.png">   <!-- 🖼️ 瀏覽器分頁圖示(favicon)：把你的圖放到 assets/favicon.png 即生效；可改 href 路徑或副檔名(.ico/.svg) -->
 
-    <link rel="stylesheet" href="css/style.css?v=6b56fa2b8e">
+    <link rel="stylesheet" href="css/style.css?v=fbd980ee90">
     <link rel="stylesheet" href="css/floating-ui.css?v=bc8be4ac7f">
     <link rel="stylesheet" href="css/tailwind-built.css?v=932535789f"><!-- 🔧 預編譯 Tailwind（取代執行期 JIT tailwind.js）：只含實際用到的 class，省 407KB runtime + 移除持續掃描 DOM 的成本。置於 style.css 之後以保留原 cascade（utility 平手時勝過自訂 class，與舊 JIT 注入順序一致） -->
     <link rel="stylesheet" href="css/responsive.css?v=609799732b">
@@ -48,8 +49,8 @@
                 <span class="login-credit-label">加掛模組</span><span class="login-credit-name">pp771007</span><a href="https://pp771007.github.io/idle-lineage-class/" target="_blank" rel="noopener">加掛版</a>
                 <span class="login-credit-label">本版本</span><span class="login-credit-name">lostshin <small>整合修改版</small></span><a href="https://github.com/lostshin/idle-lineage-class" target="_blank" rel="noopener">GitHub</a>
             </div>
-            <!-- 🏷️ 版本號（由 js/14 window.onload 依 FORK_VERSION 填入；此處 v2.4.0 僅為 JS 失效時的後備文字） -->
-            <div id="login-version" class="text-center text-sm text-slate-300 font-medium tracking-wide select-none">v2.4.0</div>
+            <!-- Version comes from FORK_VERSION; reserve its line while scripts load. -->
+            <div id="login-version" class="text-center text-sm text-slate-300 font-medium tracking-wide select-none">&nbsp;</div>
             <div id="login-disclaimer" class="text-center text-xs text-slate-400 leading-relaxed mx-auto">本遊戲為非官方免費同人作品，絕無營利意圖；遊戲內圖片與音樂版權歸原權利方 NCSOFT 所有，其餘程式為獨立開發，嚴禁商業販售。</div>
         </div>
       </div>
@@ -410,11 +411,11 @@
                         <div class="automation-ui-scale border-t border-slate-700 pt-2">
                             <div class="automation-ui-scale-heading">
                                 <label for="set-ui-scale" class="text-sm font-bold text-slate-200">UI 縮放</label>
-                                <output id="ui-scale-value" for="set-ui-scale" class="text-sm text-slate-300">80%</output>
-                                <button type="button" id="btn-ui-scale-reset" class="btn py-1 px-2 text-sm bg-slate-700 hover:bg-slate-600 border-slate-500" title="還原 UI 縮放至 80%">80%</button>
+                                <output id="ui-scale-value" for="set-ui-scale" class="text-sm text-slate-300">100%</output>
+                                <button type="button" id="btn-ui-scale-reset" class="btn py-1 px-2 text-sm bg-slate-700 hover:bg-slate-600 border-slate-500" title="還原 UI 縮放至 100%">100%</button>
                             </div>
-                            <input type="range" id="set-ui-scale" min="60" max="100" value="80" step="5" aria-describedby="ui-scale-hint ui-scale-status">
-                            <p id="ui-scale-hint" class="text-xs text-slate-400">60%～100%，中央為 80%；此裝置共用，立即生效。</p>
+                            <input type="range" id="set-ui-scale" min="75" max="125" value="100" step="6.25" aria-describedby="ui-scale-hint ui-scale-status">
+                            <p id="ui-scale-hint" class="text-xs text-slate-400">75%～125%，中央為 100%；此裝置共用，立即生效。</p>
                             <p id="ui-scale-status" class="text-xs text-amber-200" role="status" aria-live="polite"></p>
                         </div>
                         <div class="automation-audio-row flex items-center justify-between gap-3">
@@ -590,7 +591,6 @@
 
     <script src="js/anim-manifest.js?v=14d284fa9f"></script>
     <script src="js/00-data.js?v=5b30e05bfb"></script>
-<script src="js/ui-scale.js?v=030a9a700b"></script>
     <script src="js/game-layout.js?v=0c5d56ca90"></script>
 <script src="js/01-drops-config.js?v=a2874c759b"></script>
 <script src="js/02-stats-recompute.js?v=4bb09b45ab"></script>
