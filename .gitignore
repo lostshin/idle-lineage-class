@@ -1,0 +1,6 @@
+.DS_Store
+*.bak-*
+__pycache__/
+tmp/pdfs/
+tests/artifacts/synthetic-account-*.json
+tests/artifacts/*.log
