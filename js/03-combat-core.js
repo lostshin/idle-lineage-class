@@ -117,17 +117,20 @@ function weaponMagicDamageCoef(dStats, wpn, target, ele) {
     return magicDamageCoef(dStats, magicAttrDefense(target, ele), weaponMagicTier(wpn));
 }
 function _dpsReset() { _dps = { player: 0, summon: 0, pet: 0, allies: {} }; _dpsReactAllyAccum = 0; }
-function _dpsSnap() {   // 快照在場（未死）怪物 curHp（依索引；tick 內怪物陣列不位移→索引穩定）
+function _dpsSnap() {   // Keep numeric HP entries for consumers, paired with the original target objects.
     if (typeof mapState === 'undefined' || !mapState || !mapState.mobs) return null;
-    return mapState.mobs.map(m => (m && !m._dead) ? (m.curHp || 0) : null);
+    let snap = mapState.mobs.map(m => (m && !m._dead) ? (m.curHp || 0) : null);
+    Object.defineProperty(snap, 'targets', { value: mapState.mobs.slice() });
+    return snap;
 }
 function _dpsDealt(snap) {   // 與快照比對：加總掉血量（補血/再生→負值忽略；新生怪 snap=null 忽略；溢殺以 0 計）
     if (!snap || typeof mapState === 'undefined' || !mapState || !mapState.mobs) return 0;
-    let mobs = mapState.mobs, d = 0;
+    let d = 0;
     for (let i = 0; i < snap.length; i++) {
         if (snap[i] == null) continue;
-        let m = mobs[i];
-        let after = (m && !m._dead) ? Math.max(0, m.curHp || 0) : 0;
+        // Removing/replacing a slot is not damage. Real kills still leave the original HP at zero.
+        let m = snap.targets[i];
+        let after = Math.max(0, m.curHp || 0);
         let lost = snap[i] - after;
         if (lost > 0) d += lost;
     }

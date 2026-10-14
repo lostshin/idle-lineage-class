@@ -132,7 +132,7 @@ function threatCommitDiff(snap, ent) {
     for (let i = 0; i < snap.length; i++) {
         if (snap[i] == null) continue;
         let m = mobs[i];
-        if (!m || m._dead) continue;
+        if (!m || m._dead || m !== snap.targets[i]) continue;
         let lost = snap[i] - Math.max(0, m.curHp || 0);
         if (lost <= 0) continue;
         let amt = lost * mult;

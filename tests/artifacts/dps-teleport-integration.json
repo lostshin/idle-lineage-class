@@ -1,0 +1,49 @@
+{
+  "method": "Synthetic Node VM; native autoActions, useItem, doTeleport, DPS and threat modules; not browser E2E",
+  "reports": [
+    {
+      "name": "automatic boss avoidance consumes one native scroll but credits zero DPS",
+      "status": "PASS"
+    },
+    {
+      "name": "twenty consecutive boss escapes cannot inflate player damage",
+      "status": "PASS"
+    },
+    {
+      "name": "damage before teleport remains counted without adding remaining boss HP",
+      "status": "PASS"
+    },
+    {
+      "name": "same-slot replacement is not damage even when the new UID is reused",
+      "status": "PASS"
+    },
+    {
+      "name": "reordered living targets retain only their actual HP loss",
+      "status": "PASS"
+    },
+    {
+      "name": "a real overkill still counts only remaining HP after corpse removal",
+      "status": "PASS"
+    },
+    {
+      "name": "damage to a newly spawned target is not attributed to an earlier snapshot",
+      "status": "PASS"
+    },
+    {
+      "name": "healing is excluded from outgoing damage",
+      "status": "PASS"
+    },
+    {
+      "name": "stunned automatic escape neither consumes a scroll nor invents damage",
+      "status": "PASS"
+    },
+    {
+      "name": "an escaped boss cannot give its replacement phantom player threat",
+      "status": "PASS"
+    },
+    {
+      "name": "native same-target damage still creates real player threat",
+      "status": "PASS"
+    }
+  ]
+}
