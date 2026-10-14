@@ -537,6 +537,7 @@ function applyPlayerHitstun() {
 function tick() {
     if(!state.running || player.dead) return;
     state.ticks++;
+    companionHasteTick();
     // 🪄 吉爾塔斯魔杖：擊殺增益到期即重算，避免額外魔法點數停留在衍生能力中。
     // 🏺 v3.7.52 同型到期重算：_golemMrDebuffUntil（高崙印記 MR-100）／_fangFuryUntil（邪惡利牙攻速+30%）／_spellbladeUntil（魔劍士之刀施法增益）
     let _giltasWandExpired = [];

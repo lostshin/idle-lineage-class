@@ -120,7 +120,7 @@ function summonTick(sm, clearFn, owner) {
         logCombat(`<span class="text-purple-300">${sm.n}</span> 消失了。`, 'magic');
         clearFn(); return;
     }
-    if(--sm.cd <= 0) { sm.cd = sm.interval; summonAttack(sm, owner); }
+    if(--sm.cd <= 0) { sm.cd = sm.interval / companionHasteMult(sm); summonAttack(sm, owner); }
     // 高階召喚物技能固定間隔施放；召喚精通使間隔縮短15%。
     if(sm.proc) {
         let procCd = Math.max(1, Math.floor(sm.proc.cd * (isMageSummonMastered(sm, owner) ? 0.85 : 1)));

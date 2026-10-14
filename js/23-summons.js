@@ -353,7 +353,7 @@ function necroSkeletonTick() {
         s._atkCd = (s._atkCd != null ? s._atkCd : 5) - 1;
         if (s._atkCd > 0) continue;
         let d = _necroSkeletonDerive(s, owner);
-        s._atkCd = d.aspd;
+        s._atkCd = d.aspd / companionHasteMult(s);
         let t = (typeof _petPickTarget === 'function') ? _petPickTarget(s) : getTarget();
         if (!t) continue;
         if (typeof threatWrap === 'function') threatWrap(s, () => summonV2AttackOnce(s, d, t, owner));
@@ -409,11 +409,10 @@ function _spiritDerive(s) {
 }
 // 依實體所屬技能分派衍生數值（攻速/防禦；召喚術另含傷害）
 function _sumDeriveAny(s, owner) {
-    if (s && s._necroSkeleton) return _necroSkeletonDerive(s, owner);
-    if (s.skId === 'sk_zombie') return _zmbDerive(s, owner);
-    if (s.skId === 'sk_elf_summon' || s.skId === 'sk_elf_summon2') return _spiritDerive(s);
-    return _sumDerive(s, owner);   // 🧙 v3.2.24 單價恆定＝基準/cap·與在場隻數無關（_squadSize 已停用）
+    const d = s._necroSkeleton ? _necroSkeletonDerive(s,owner) : s.skId === 'sk_zombie' ? _zmbDerive(s,owner) : s.skId === 'sk_elf_summon' || s.skId === 'sk_elf_summon2' ? _spiritDerive(s) : _sumDerive(s,owner);
+    return {...d,aspd:d.aspd/companionHasteMult(s)};
 }
+
 const SUMMON_V2_SKILLS = ['sk_summon', 'sk_zombie', 'sk_elf_summon', 'sk_elf_summon2'];
 const SUMMON_V2_TITLES = { sk_summon: '召喚物', sk_zombie: '殭屍隨從', sk_elf_summon: '精靈', sk_elf_summon2: '精靈' };
 function summonV2ActiveSk() { return (player && player._summonV2Sk) || 'sk_summon'; }
@@ -443,7 +442,7 @@ function mercSummonVisualList() {
             const key = String(ally._slot) + ':' + actor.uid + ':' + i; active.add(key);
             let visual = _mercSummonVisuals.get(key);
             if (!visual) { visual = {uid:'merc-visual-' + key}; _mercSummonVisuals.set(key, visual); }
-            visual._mercVisual = String(ally._slot); visual.form = actor.form || actor._v2form || actor.n;
+            visual.buffs=actor.buffs; visual._mercVisual = String(ally._slot); visual.form = actor.form || actor._v2form || actor.n;
             visual.formGfx = actor.formGfx || (actor.skId === 'sk_elf_summon' || actor.skId === 'sk_elf_summon2' ? (actor._king ? '強力' : '') + (SPIRIT_ELE_ZH[actor.ele] || '水') + '屬性精靈' : visual.form);
             if (actor._animAct) visual._animAct = actor._animAct;
             else if (visual._lastCd != null && actor.cd > visual._lastCd) visual._animAct = {k:'attack',t:Date.now()};
@@ -781,7 +780,7 @@ function renderMercSummonTeamHTML() {
             if (!s || !(s.mhp > 0) || s._downed || !(s.hp > 0)) continue;
             const hpPct = Math.max(0, Math.min(100, Math.floor((s.hp || 0) / Math.max(1, s.mhp || 1) * 100)));
             rows.push(`<div class="bg-slate-800/80 border border-purple-800 rounded px-2 py-1 text-xs flex items-center gap-2">
-                ${partyNameButton('merc-summon', a._slot, (a._allyName || '協力')+'·'+(s.form || s.n || '召喚物'), 'text-purple-300 font-bold')}
+                ${partyNameButton('merc-summon', a._slot, (a._allyName || '協力')+(CLAN_CLASS_NAMES[a.cls]?'（'+CLAN_CLASS_NAMES[a.cls]+'）':'')+'·'+(s.form || s.n || '召喚物'), 'text-purple-300 font-bold')}
                 <div class="bar-bg flex-1 !h-3">
                     <div class="bar-fill bg-red-600" style="width:${hpPct}%;"></div>
                     <div class="bar-text text-white" style="font-size:10px;line-height:12px;">${s.hp || 0}/${s.mhp || 0}</div>

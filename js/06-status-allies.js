@@ -750,6 +750,17 @@ function buildAlly(slotN) {
     let p; try { p = JSON.parse(raw).p; } catch(e) { return null; }
     if (!p || !p.cls) return null;
     let ally = JSON.parse(JSON.stringify(p));   // 深拷貝，不動原存檔
+    // Project unclaimed earnings without writing or claiming the source role.
+    const pending = new Map(_mercLedgerRead().filter(r=>r && r.uid).map(r=>[r.uid,r]));
+    for (const r of _mercLedgerOutbox) if(r && r.uid && !pending.has(r.uid)) pending.set(r.uid,r);
+    ally.exp = Math.max(0,Number(ally.exp)||0);
+    for(const r of pending.values()) {
+        if(r.claimed || String(r.slot)!==slotN || r.cls!==ally.cls || (Date.now()-(r.ts||Date.now()))>=MERC_LEDGER_KEEP_UNCLAIMED) continue;
+        if(r.enSeed && ally.enSeed ? r.enSeed!==ally.enSeed : r.name && r.name!==(ally.name||'')) continue;
+        ally.exp += Math.max(0,Math.floor(Number(r.exp)||0));
+    }
+    while(ally.lv<100 && ally.exp>=getExpReq(ally.lv)){ally.exp-=getExpReq(ally.lv);ally.lv++;if(ally.lv>=50)ally.bonus=(ally.bonus||0)+1;}
+    if(ally.lv>=100)ally.exp=0;
     ally._mercPermanentPotions = true;   // 🤝 全職常駐加速；勇敢/餅乾/慎重依職業於 recomputeStats 套用
     // 安全防護：補齊 calcStats 會取用的欄位，並清掉協力者自身的召喚/夥伴；來源存檔仍在生效的卷軸變身則保留。
     ally.buffs = ally.buffs || {}; ally.statuses = ally.statuses || {}; ally.eq = ally.eq || {}; ally.skills = ally.skills || [];
@@ -782,7 +793,7 @@ function buildAlly(slotN) {
     ally._downed = false;   // 🤝 Phase 3：倒地旗標（curHp 歸零→true·停止行動/不被選為目標·須隊伍面板手動復活）
     ally._reviveCd = 0;   // 🤝 Phase 3：倒地後復活冷卻（ticks 倒數；倒地時設 150＝15秒·每 tick 於 alliesTick 遞減·存檔安全相對值）
     ally.statuses = {};   // 🤝 Phase4：招募即清空異常狀態（避免繼承來源存檔殘留的中毒/冰凍等）
-    ally.exp = 0;   // 🤝 當前等級的經驗進度（升級時歸零再累積）
+    // Source progress and pending ledger gains were projected before deriving stats.
     ally._expGained = 0;   // 🤝 受雇期間「賺到的經驗總量」（含已被即時升級消耗的）→ 解雇時 delta-merge 加回該存檔角色（多開安全）
     ally._alignmentDelta = 0;   // 🤝 受雇期間實際取得的性向差額；與經驗一起進待領帳本，避免直接覆寫來源角色存檔
     ally._atkSkill = (ally.config && ally.config.selAtkSkill) || '';   // 攻擊技能選擇（快照；法師施法 / 妖精三重矢）
@@ -2868,7 +2879,8 @@ function allyMaintainBuffs(ally) {
     for (let k in ally.buffs) { if (ally.buffs[k] > 0) { ally.buffs[k]--; if (ally.buffs[k] <= 0) { ally.buffs[k] = 0; changed = true; } } }   // 遞減；到期→需重算移除衍生值
     if (allyMaintainPoly(ally)) changed = true;   // 變身於同一秒完成續用，重算後不會出現一個 tick 的能力空窗
     let _ast = ally.statuses || {};
-    let _block = mapState.current.startsWith('town_') || _ast.silence > 0 || _ast.magicseal > 0 || _ast.stun > 0 || _ast.freeze > 0 || _ast.stone > 0 || _ast.paralyze > 0 || _ast.sleep > 0;   // 安全區／沉默／硬控時不施放（仍遞減）
+    let _inTown = mapState.current.startsWith('town_');
+    let _block = _ast.silence > 0 || _ast.magicseal > 0 || _ast.stun > 0 || _ast.freeze > 0 || _ast.stone > 0 || _ast.paralyze > 0 || _ast.sleep > 0;
     if (!_block && ally.skills && ally.skills.length) {
         for (let sid of ally.skills) {
             let sk = DB.skills[sid];
@@ -2904,8 +2916,8 @@ function allyMaintainBuffs(ally) {
             changed = true;
         }
     }
-    // 🩸 v2.6.25 傭兵召喚維持（造屍術/召喚術/精靈召喚·單一召喚·比照玩家 setupSummon·owner=ally）：安全區/硬控(_block)不召；已有存活召喚則不重召；否則扣MP召喚（優先分階召喚術 sk_summon）。buff 由上方遞減·到期(歸0)自動重召。召喚物 tick 於 alliesTick 驅動（輸出歸 _dps.summon·擊殺歸真隊長）。
-    if (!_block && ally.skills && ally.skills.length) {
+    // Summoning remains disabled in town; ordinary self-buffs use the same expiry checks everywhere.
+    if (!_block && !_inTown && ally.skills && ally.skills.length) {
         if (typeof necroBookEquipped === 'function' && necroBookEquipped(ally) && ally.summon && ally.summon.skId === 'sk_zombie') {
             ally.summon = null;
             ally.buffs.sk_zombie = 0;
@@ -2946,7 +2958,6 @@ function _shareBuffLegalForTarget(t, sk) {
 const _SHARE_HELM_EQUIV = { sk_dex_up: ['sk_helm_dex1'], sk_str_up: ['sk_helm_str3'], sk_haste_spell: ['sk_helm_dex2', 'sk_greater_haste'], sk_greater_haste: ['sk_helm_dex2', 'sk_haste_spell'] };
 function shareTeamBuffs(caster) {
     if (typeof TEAM_SHARE_BUFFS === 'undefined' || !caster || !caster.skills || !caster.buffs) return;
-    if (typeof mapState !== 'undefined' && mapState.current && mapState.current.startsWith('town_')) return;   // 安全區不施放
     let cst = caster.statuses || {};
     if (cst.silence > 0 || cst.magicseal > 0 || cst.stun > 0 || cst.freeze > 0 || cst.stone > 0 || cst.paralyze > 0 || cst.sleep > 0) return;   // 施法者硬控/沉默→不施放
     let team = [];
@@ -2976,6 +2987,7 @@ function shareTeamBuffs(caster) {
         }
         if (applied) { if (t === player) { try { if (typeof calcStats === 'function') calcStats(); } catch (e) {} } else { try { if (typeof _allyLevelRecompute === 'function') _allyLevelRecompute(t); } catch (e) {} } }
     }
+    shareCompanionHaste(caster);
 }
 // 🆕 v2.6.28 淨化共用（魔法相消術/聖潔之光/解毒術·玩家與傭兵共用）：施法者(自己)受硬控(石化/冰凍/暈眩/麻痺/沉睡)或沉默/魔封→無法施放；否則幫隊員解可解狀態。
 //    v2.6.29 改「一次只解一人·優先主要玩家」：teamCleanseOne 依 _dispelTeamMembers 順序(玩家排首→傭兵)找第一個有可解狀態者，只清除該一人的該類狀態並回傳被解者。
@@ -3385,6 +3397,21 @@ function refreshAllyOnce(slotN) {
         return { kind: 'dismiss', msg: `<span class="text-amber-300">存檔 ${slotN} 已無可用角色，隊員已解散。</span>${m ? ' ' + m : ''}` };
     }
     if (_pendingAlignment) fresh.alignmentValue = _effectiveAlignment;   // 帳本尚未由來源角色領取前，維持隊伍中已取得的性向效果
+    // Refresh equipment/progress without replacing live effects with stale source-save timers.
+    if (cur.buffs) {
+        fresh.buffs = {...cur.buffs};
+        for (let sid of Object.keys(fresh.buffs)) {
+            let sk = DB.skills[sid];
+            if (sk && (sk.summon || sk.cube || sk.stormInterval)) fresh.buffs[sid] = 0;
+        }
+        fresh.poly = cur.poly ? structuredClone(cur.poly) : null;
+        fresh._mercPolyAuto = !!cur._mercPolyAuto;
+        fresh._darkStealthCd = cur._darkStealthCd || 0;
+        fresh._waterVitalCd = cur._waterVitalCd || 0;
+        _allyLevelRecompute(fresh);
+        fresh.curHp = fresh.mhp;
+        fresh.mp = fresh.mmp;
+    }
     fresh._hiredAt = Number(cur._hiredAt) || 0;   // 🧑‍🤝‍🧑 v3.7.93 重建快照不能重設招募時刻，否則每次進安全區都會把自己的獨佔順位往後推
     let idx = player.allies.findIndex(a => a && a._slot === slotN);
     if (idx !== -1) player.allies[idx] = fresh; else player.allies.push(fresh);

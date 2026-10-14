@@ -149,7 +149,7 @@ function petDerive(p) {
         mr: Math.min(t === 2 ? 110 : g.mrCap, mr + (def.mrBonus || 0)) + (_ga ? (_ga.petMr || 0) : 0),
         mmpBonus: _gWis * 5,                                            // 精神：MP 上限 +5/點（regen/施放/顯示用有效上限）
         mpRegBonus: _gWis + (typeof petAuraSum === 'function' ? petAuraSum('petMpRAll') : 0),   // 精神：MP 恢復 +1/點；🏺 v3.7.20 蜥蜴領主的王冠：全寵物 MP 自然恢復 +5
-        atkItv: Math.max(3, Math.round(600 / def.apm)),                 // 攻擊間隔（ticks·600=每分鐘tick數）
+        atkItv: Math.max(3, Math.round(600 / def.apm) / companionHasteMult(p)),                 // 攻擊間隔（ticks·600=每分鐘tick數）
         castItv: def.capm > 0 ? Math.max(5, Math.round(600 / def.capm)) : 0,
         stunTicks: Math.round((def.stun || 0.58) * 10)
     };
@@ -406,7 +406,7 @@ function _petRosterResync() {
     //    後果最嚴重的是 _downed：配合上面 `if ((p.hp||0)<=0) p.hp = 1;` 的夾擠，一隻倒地的出戰寵物會在
     //    每次同步時免費原地復活（hp=1、無冷卻、無 MP 消耗、不需復活卷軸），順便清光身上所有異常狀態。
     let _rt = {};
-    try { (_petRoster || []).forEach(p => { if (p && p.uid) _rt[p.uid] = { _downed: p._downed, _reviveCd: p._reviveCd, _statuses: p._statuses, _px: p._px, _py: p._py }; }); } catch (e) {}
+    try { (_petRoster || []).forEach(p => { if (p && p.uid) _rt[p.uid] = { _downed: p._downed, _reviveCd: p._reviveCd, _statuses: p._statuses, buffs: p.buffs, _px: p._px, _py: p._py }; }); } catch (e) {}
     _petRosterKey = null;
     let list = petRoster();
     try { (list || []).forEach(p => { let s = p && p.uid ? _rt[p.uid] : null; if (!s) return; for (let k in s) if (s[k] !== undefined) p[k] = s[k]; }); } catch (e) {}
@@ -1402,7 +1402,7 @@ function _petWanderStep(p, host, hostRect) {
     // 位置以 0..1 正規化（x 4%~96%·y 55%~95% 地面帶）
     if (p._px == null) { p._px = 0.15 + Math.random() * 0.5; p._py = 0.6 + Math.random() * 0.3; p._wt = 0; }
     let alive = (typeof mapState !== 'undefined' && mapState.mobs) ? mapState.mobs.filter(m => m && m.curHp > 0) : [];
-    let speed = 0.06 / PET_ANIM_FPS;   // 每幀移動量（約 5%/秒）
+    let speed = 0.06 / PET_ANIM_FPS * companionHasteMult(p);   // 每幀移動量（約 5%/秒）
     if (alive.length && !p._downed) {
         // 交戰：走向目標怪（保持一小段距離）
         let tgt = alive.find(m => m.uid === p._faceMobUid) || alive[0];
