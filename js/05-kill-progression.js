@@ -142,7 +142,11 @@ function renderAuditTab() {
         });
     }
     if ((_dps.summon || 0) > 0) _dpsRows.push({ name: '召喚', dps: _dps.summon / _dpsSecs, color: '#c084fc' });   // 召喚＝紫（有輸出才顯示）
-    if ((_dps.pet || 0) > 0) _dpsRows.push({ name: '夥伴', dps: _dps.pet / _dpsSecs, color: '#4ade80' });        // 夥伴＝綠（有輸出才顯示）
+    const petRows = new Map(Object.entries(_dps.pets));
+    for (const pet of petsOutList()) if (!petRows.has(String(pet.uid))) petRows.set(String(pet.uid), {name:petDisplayName(pet),dmg:0});
+    for (const rec of petRows.values()) _dpsRows.push({name:'寵物·'+rec.name,dps:rec.dmg/_dpsSecs,color:'#4ade80'});
+    const unassignedPet = Math.max(0, (_dps.pet || 0) - Object.values(_dps.pets).reduce((n,rec)=>n+rec.dmg,0));
+    if (unassignedPet > 0) _dpsRows.push({name:'寵物·其他',dps:unassignedPet/_dpsSecs,color:'#4ade80'});
     let _dpsMax = Math.max(1, ..._dpsRows.map(r => r.dps));
     let _dpsHtml = _dpsRows.map(r => {
         let pct = Math.max(2, Math.round(r.dps / _dpsMax * 100));

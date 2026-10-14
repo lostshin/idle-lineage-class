@@ -175,7 +175,7 @@
         const frameWidth = Math.max(0, Math.min(
             host.clientWidth,
             maxFrameWidth,
-            host.clientHeight * 183 / 408
+            Math.max(0, host.clientHeight - 36) * 183 / 408
         ));
         win.style.inset = '0';
         win.style.width = '100%';
@@ -231,6 +231,12 @@
         if (!frame) return;
         const win = el('equipment-window');
         if (win) win.classList.add('equipment-window-embedded');
+        const contributions = document.createElement('details'); contributions.id = 'equipment-stat-contributions';
+        contributions.innerHTML = '<summary>裝備能力加成說明</summary><div></div>';
+        contributions.addEventListener('toggle', () => {
+            if (contributions.open) contributions.querySelector('div').innerHTML = equipmentContributionHtml(player,'player');
+        });
+        win.appendChild(contributions);
         const background = frame.querySelector('.equipment-window-bg');
         if (background) {
             background.onerror = function () {

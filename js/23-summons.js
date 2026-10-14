@@ -443,7 +443,7 @@ function mercSummonVisualList() {
             let visual = _mercSummonVisuals.get(key);
             if (!visual) { visual = {uid:'merc-visual-' + key}; _mercSummonVisuals.set(key, visual); }
             visual.buffs=actor.buffs; visual._mercVisual = String(ally._slot); visual.form = actor.form || actor._v2form || actor.n;
-            visual.formGfx = actor.formGfx || (actor.skId === 'sk_elf_summon' || actor.skId === 'sk_elf_summon2' ? (actor._king ? '強力' : '') + (SPIRIT_ELE_ZH[actor.ele] || '水') + '屬性精靈' : visual.form);
+            visual.formGfx = companionSpriteForm(actor);
             if (actor._animAct) visual._animAct = actor._animAct;
             else if (visual._lastCd != null && actor.cd > visual._lastCd) visual._animAct = {k:'attack',t:Date.now()};
             visual._lastCd = actor.cd;
@@ -751,7 +751,7 @@ function renderSummonTeamHTML() {
         const rows = list.map(s => {
             const hpPct = Math.max(0, Math.min(100, Math.floor((s.hp || 0) / Math.max(1, s.mhp || 1) * 100)));
             let owner = s._necroSkeleton ? _necroOwnerByKey(s._necroOwnerKey) : null;
-            let label = s._necroSkeleton && owner && owner !== player ? `${owner._allyName}·${s.form}` : s.form;
+            let label = summonDisplayName(s, owner || player);
             return `<div class="bg-slate-800/80 border border-purple-800 rounded px-2 py-1 text-xs flex items-center gap-2">
                 ${partyNameButton('summon', s.uid, label, 'text-purple-300 font-bold')}
                 <div class="bar-bg flex-1 !h-3">
@@ -780,7 +780,7 @@ function renderMercSummonTeamHTML() {
             if (!s || !(s.mhp > 0) || s._downed || !(s.hp > 0)) continue;
             const hpPct = Math.max(0, Math.min(100, Math.floor((s.hp || 0) / Math.max(1, s.mhp || 1) * 100)));
             rows.push(`<div class="bg-slate-800/80 border border-purple-800 rounded px-2 py-1 text-xs flex items-center gap-2">
-                ${partyNameButton('merc-summon', a._slot, (a._allyName || '協力')+(CLAN_CLASS_NAMES[a.cls]?'（'+CLAN_CLASS_NAMES[a.cls]+'）':'')+'·'+(s.form || s.n || '召喚物'), 'text-purple-300 font-bold')}
+                ${partyNameButton('merc-summon', a._slot, summonDisplayName(s, a), 'text-purple-300 font-bold')}
                 <div class="bar-bg flex-1 !h-3">
                     <div class="bar-fill bg-red-600" style="width:${hpPct}%;"></div>
                     <div class="bar-text text-white" style="font-size:10px;line-height:12px;">${s.hp || 0}/${s.mhp || 0}</div>

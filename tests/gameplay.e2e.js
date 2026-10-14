@@ -23,9 +23,9 @@ await page.evaluate(()=>{
 });
 for(const [tab,type] of [['weapons','wpn'],['armors','arm']]){
  await page.click(`[onclick="switchTab('${tab}', this)"]`);
- await check(`${tab}: one-click sort entry is visible`,()=>page.evaluate(type=>!!document.querySelector(`[data-inventory-sort="${type}"]`),type));
+ await check(`${tab}: organize menu entry is visible`,()=>page.evaluate(type=>!!document.querySelector(`[data-inventory-sort="${type}"]`),type));
  if(!options.baseline)await check(`${tab}: action labels fit on one line`,()=>page.evaluate(type=>Array.from(document.querySelector(`[data-inventory-sort="${type}"]`).parentElement.querySelectorAll('button')).every(b=>{const range=document.createRange();range.selectNodeContents(b);const rects=Array.from(range.getClientRects()).filter(r=>r.width>0);return Math.max(...rects.map(r=>r.top))-Math.min(...rects.map(r=>r.top))<5 && b.scrollWidth<=b.clientWidth+1;}),type));
- if(!options.baseline){await page.click(`[data-inventory-sort="${type}"]`);await check(`${tab}: sort orders items without losing them`,()=>page.evaluate(type=>{const wanted=type==='wpn'?['wpn-lock','wpn-high','wpn-three','wpn-low']:['arm-high','arm-two','arm-low'];const prefix=type==='wpn'?'wpn-':'arm-';return JSON.stringify(player.inv.filter(i=>i.uid.startsWith(prefix)).map(i=>i.uid))===JSON.stringify(wanted);},type));}
+ if(!options.baseline){await page.click(`[data-inventory-sort="${type}"]`);await page.click(`#tab-${tab} [data-sort="category"]`);await check(`${tab}: sort orders items without losing them`,()=>page.evaluate(type=>{const wanted=type==='wpn'?['wpn-lock','wpn-high','wpn-three','wpn-low']:['arm-high','arm-two','arm-low'];const prefix=type==='wpn'?'wpn-':'arm-';return JSON.stringify(player.inv.filter(i=>i.uid.startsWith(prefix)).map(i=>i.uid))===JSON.stringify(wanted);},type));}
  await page.click(`[onclick="toggleQuickJunk('${type}')"]`);
  await check(`${tab}: enhanced-item threshold is available`,()=>page.evaluate(type=>!!document.getElementById('quick-junk-max-'+type),type));
  if(!options.baseline){
@@ -63,7 +63,7 @@ if(!options.baseline){
  }
  await page.evaluate(()=>{_petRoster=[];player.summonsV2=[];player.guardsV2=[];});
  await page.evaluate(()=>{const doc=JSON.parse(_saveUnwrap(_lzGet('lineage_idle_save_2')).payload);doc.p.name='合成隊友';_lzSet('lineage_idle_save_2',_saveWrap(JSON.stringify(doc)));player.allies=[buildAlly('2')];renderSquadPanel();});
- for(const [width,height,scale] of [[1330,759,100],[390,844,100],[390,844,75],[844,390,75]]){
+ for(const [width,height,scale] of [[1330,759,100],[390,844,100],[390,844,75],[844,390,75]]){if(options.desktopOnly&&width<1200)continue;
   await page.cdp('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:1,mobile:width<=1024});await page.cdp('Emulation.setTouchEmulationEnabled',{enabled:width<=1024,maxTouchPoints:1});await page.evaluate(v=>setUiScale(v),scale);
   await inspect('ally','2');
   await check(`${width}x${height} ${scale}%: teammate details fit`,()=>page.evaluate(()=>{const r=document.getElementById('party-inspector').getBoundingClientRect();return r.left>=-1 && r.right<=innerWidth+1 && r.top>=-1 && r.bottom<=innerHeight+1 && getComputedStyle(document.getElementById('party-inspector')).position==='fixed';}));

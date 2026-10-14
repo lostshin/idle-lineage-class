@@ -963,7 +963,7 @@ function petAttackOnce(p, d, target, forceCrit, addDmg, skName) {
             markBossPhysicalHit(target);
             target.curHp -= dmg; if (typeof terrorVisageOnDamage === 'function') terrorVisageOnDamage(target, dmg, skName ? 'magic' : 'melee'); target.justHit = 'none'; mobWake(target);   // 🌅 巨大骷髏：寵物普攻＝近距離、寵物技能＝魔法
             let _pw = p && p.eq && p.eq.wpn ? DB.items[p.eq.wpn.id] : null;
-            if (_pw && _pw.petBleed && target.curHp > 0 && typeof applyBleed === 'function') applyBleed(target, dmg, 5, 'pet');   // 🏺 遺物 仿製小惡魔尖牙套：寵物一般攻擊命中造成出血；🎯 DPS 歸夥伴
+            if (_pw && _pw.petBleed && target.curHp > 0 && typeof applyBleed === 'function') applyBleed(target, dmg, 5, true, _dpsPetSrc(p));   // 🏺 遺物 仿製小惡魔尖牙套：寵物一般攻擊命中造成出血；🎯 DPS 歸夥伴
             _petAnimAct(p, 'attack', target.uid);
             logCombat(`寵物 [${p.form}] ${skName ? `<span class="text-pink-300 font-bold">${skName}</span> ` : ''}攻擊 <span class="${getMobColor(target.lv)}">${target.n}</span>，造成 ${dmg}${heavy ? '（重擊）' : ''} 點傷害！`, 'player-special');
             _petAfterDamage(target);
@@ -973,7 +973,7 @@ function petAttackOnce(p, d, target, forceCrit, addDmg, skName) {
             logCombat(`寵物 [${p.form}] 的攻擊未命中。`, 'miss');
         }
     } catch (e) {}
-    if (_snap && typeof _dpsDealt === 'function') { let _dd = _dpsDealt(_snap); if (_dd > 0) _dps.pet += _dd; }
+    if (_snap && typeof _dpsDealt === 'function') { let _dd = _dpsDealt(_snap); if (_dd > 0) _dpsAddPet(_dpsPetSrc(p), _dd); }
     _combatSrc = null;
 }
 function petDebuffChance(p, d, target, sk) {
@@ -1007,13 +1007,13 @@ function petCastSkill(p, d, target) {
             } else logCombat(`寵物 [${p.form}] 施放 <span class="text-pink-300 font-bold">${sk.n}</span>，但被抵抗了。（命中率 ${Math.round(ch)}%）`, 'miss');
         } else if (sk.kind === 'dot') {   // 🦎 v3.6.43 蜥蜴固定 DoT（必中·每秒 dps 點固定傷害·dur 秒）：burn=_burnDot／bleed=bleeds 層／poison=st.poison*（皆走既有 tick 管線·DPS 歸 'pet'）
             let _t = (sk.dur || 6) * 10, _dm = (sk.dps || 10) + Math.floor(Math.max(1, p.lv || 1) / 5);
-            if (sk.dot === 'burn') target._burnDot = { left: _t, dmg: _dm, tick: 10, src: 'pet' };
+            if (sk.dot === 'burn') target._burnDot = { left: _t, dmg: _dm, tick: 10, src: _dpsPetSrc(p) };
             else if (sk.dot === 'bleed') {
                 target.bleeds = target.bleeds || [];
                 target._bleedCap = Math.max(target._bleedCap || 0, 5);
                 while (target.bleeds.length >= target._bleedCap) target.bleeds.shift();
-                target.bleeds.push({ dmg: _dm, ticksLeft: _t });
-                target._bleedSrc = 'pet';
+                target.bleeds.push({ dmg: _dm, ticksLeft: _t, src: _dpsPetSrc(p) });
+                target._bleedSrc = _dpsPetSrc(p);
             } else if (sk.dot === 'poison') {
                 let st2 = target.st = target.st || newMobStatus();
                 st2.poison = Math.max(st2.poison || 0, _t);
@@ -1021,7 +1021,7 @@ function petCastSkill(p, d, target) {
                 st2.poisonStacks = Math.max(1, st2.poisonStacks || 0);
                 st2.poisonUnit = Math.max(st2.poisonUnit || 0, _dm);
                 st2.poisonDmg = st2.poisonUnit * st2.poisonStacks;
-                st2.poisonSrc = 'pet';
+                st2.poisonSrc = _dpsPetSrc(p);
             }
             mobWake(target);
             logCombat(`寵物 [${p.form}] 施放 <span class="text-pink-300 font-bold">${sk.n}</span>，<span class="${getMobColor(target.lv)}">${target.n}</span> 陷入${sk.dot === 'burn' ? '灼燒' : sk.dot === 'bleed' ? '出血' : '中毒'}！（每秒 ${_dm} 點·持續 ${sk.dur || 6} 秒）`, 'player-special');
@@ -1056,7 +1056,7 @@ function petCastSkill(p, d, target) {
             targets.forEach(m => _petAfterDamage(m));
         }
     } catch (e) {}
-    if (_snap && typeof _dpsDealt === 'function') { let _dd = _dpsDealt(_snap); if (_dd > 0) _dps.pet += _dd; }
+    if (_snap && typeof _dpsDealt === 'function') { let _dd = _dpsDealt(_snap); if (_dd > 0) _dpsAddPet(_dpsPetSrc(p), _dd); }
     _combatSrc = null;
     return true;
 }
@@ -1336,19 +1336,17 @@ function renderPetTeamHTML() {
         if (p._downed) {
             return `<div class="bg-slate-800/80 border border-red-800 rounded text-xs flex items-center gap-2" style="padding:3px 6px;">
                 <img src="${thumb}" alt="" style="width:26px;height:22px;object-fit:contain;image-rendering:pixelated;filter:grayscale(1);" onerror="this.style.display='none'">
-                <span class="flex-1" style="font-size:10px;line-height:1.3;">${partyNameButton('pet', p.uid, '🐾 '+p.form, 'text-red-400 font-bold')} <span class="text-slate-400">Lv.${p.lv}·倒地</span><br>
-                <span class="text-slate-400">${(p._reviveCd || 0) > 0 ? `卷軸復活倒數 ${Math.ceil(p._reviveCd / 10)} 秒` : '可用卷軸復活'}</span></span>
-                <span class="flex gap-1">
-                    <button onclick="petRevive('${p.uid}','rez')" class="btn font-bold" style="padding:0 6px;font-size:10px;height:18px;background:linear-gradient(135deg,#065f46,#059669);color:#a7f3d0;border-color:#10b981;">返生術</button>
-                    <button onclick="petRevive('${p.uid}','scroll')" class="btn font-bold" style="padding:0 6px;font-size:10px;height:18px;">卷軸</button>
-                </span>
+                <div>${partyNameButton('pet', p.uid, petDisplayName(p), 'text-red-400 font-bold')} <span class="text-slate-400">Lv.${p.lv}</span></div>
+                <div class="party-roster-recovery"><span data-party-down>倒地</span>
+                    <button onclick="petRevive('${p.uid}','rez')" class="btn font-bold" style="padding:0 3px;font-size:10px;height:18px;background:linear-gradient(135deg,#065f46,#059669);color:#a7f3d0;border-color:#10b981;">返生術</button>
+                    <button onclick="petRevive('${p.uid}','scroll')" class="btn font-bold" title="倒地 5 秒後可使用復活卷軸；倒數結束後，有卷軸時自動復活。" style="padding:0 3px;font-size:10px;height:18px;">${(p._reviveCd || 0) > 0 ? `自動 ${Math.ceil(p._reviveCd / 10)}s` : '卷軸'}</button>
+                </div>
             </div>`;
         }
         return `<div class="bg-slate-800/80 border border-slate-600 rounded text-xs" style="padding:3px 6px;">
             <div class="flex items-center gap-2">
                 <img src="${thumb}" alt="" style="width:26px;height:22px;object-fit:contain;image-rendering:pixelated;" onerror="this.style.display='none'">
                 <span class="flex-1 min-w-0" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${partyNameButton('pet', p.uid, '🐾 '+p.form, 'text-emerald-300 font-bold')} <span class="text-amber-300">Lv.${p.lv}</span> <span class="text-slate-400" style="font-size:10px;">EXP ${expPct}%</span></span>
-                <span class="text-slate-400 whitespace-nowrap" style="font-size:10px;">HP&lt;<input type="number" min="0" max="95" value="${p.potPct || 0}" onchange="petSetPotPct('${p.uid}',this.value)" class="w-11 bg-slate-900 border border-slate-600 rounded px-1 text-center" style="font-size:10px;height:16px;padding-top:0;padding-bottom:0;">%喝水</span>
             </div>
             <div class="compact-dual-vitals" style="margin-top:2px;">
                 <div class="bar-bg compact-team-bar" title="HP ${p.hp}/${_mhpE}"><div class="bar-fill" style="width:${hpPct}%;background:linear-gradient(90deg,#dc2626,#f87171);"></div><div class="bar-text text-white">${p.hp}/${_mhpE}</div></div>
@@ -1399,6 +1397,8 @@ function _petSpriteEl(layer, p) {
         el.appendChild(sh); el.appendChild(im);
         layer.appendChild(el);
     }
+    const owner = p._mercVisual ? (player.allies || []).find(a => String(a._slot) === p._mercVisual) : p._necroSkeleton ? _necroOwnerByKey(p._necroOwnerKey) || player : player;
+    el.querySelector('.pet-body').dataset.mapName = p._mercVisual ? summonDisplayName(owner.summon, owner) : p.skId || p._necroSkeleton ? summonDisplayName(p, owner) : p.city != null ? companionDisplayForm(p) : petDisplayName(p);
     return el;
 }
 function _petWanderStep(p, host, hostRect) {
@@ -1459,7 +1459,7 @@ function _petAnimApply() {
         for (let p of outs) {
             if (!p._downed) _petWanderStep(p, host, hostRect);   // 倒地/死亡殘影不再移動（v3.2.19 修：原本倒地仍會閒晃漂移）
             let dir = (p._dir != null) ? p._dir : 6;
-            let gfxForm = p.formGfx || p.form;   // 👑 v3.2.25 動態別名：顯示名≠圖檔資料夾（精靈王借用強力精靈圖·強力精靈改用一般精靈圖）
+            let gfxForm = companionSpriteForm(p);   // 👑 v3.2.25 動態別名：顯示名≠圖檔資料夾（精靈王借用強力精靈圖·強力精靈改用一般精靈圖）
             let a = _pet8Cache[gfxForm + '#' + dir];
             if (a === undefined) _pet8Probe(gfxForm, dir);
             if (!a || a === 'probing') {

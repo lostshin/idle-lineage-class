@@ -2,7 +2,7 @@
 // 以「HP-delta 歸因」量測各來源每秒輸出：在 tick 各攻擊階段前後快照在場怪 curHp，差值歸給該階段來源。
 // 來源：player（玩家·含自動施法/持續增益/中毒出血 DoT）、summon（玩家召喚/迷魅/幻術立方）、pet（寵物）、
 //       per-ally（每個傭兵獨立·key=存檔槽 _slot）。累積傷害÷觀測秒數＝DPS。換地圖/重置歸零（auditReset→_dpsReset），非存檔。
-let _dps = { player: 0, summon: 0, pet: 0, allies: {} };
+let _dps = { player: 0, summon: 0, pet: 0, pets: {}, allies: {} };
 let _dpsAllyTurn = false;   // alliesTick 逐傭兵量測期間為 true：令 _allyDamageMob 不重複計入（回合內輸出已被該傭兵 HP-delta 涵蓋），僅「反擊/居合」等回合外輸出才由 _allyDamageMob 直接歸因
 // 原版方向的魔法係數：1－屬性防禦＋3×max(1, INT提供SP＋道具SP)÷32。
 // Fable 的 INT 可超過原版上限，因此 INT 提供的 SP 封頂 33（等同原版 INT 45 → INT-12）。
@@ -116,7 +116,14 @@ function weaponMagicTier(wpn) {
 function weaponMagicDamageCoef(dStats, wpn, target, ele) {
     return magicDamageCoef(dStats, magicAttrDefense(target, ele), weaponMagicTier(wpn));
 }
-function _dpsReset() { _dps = { player: 0, summon: 0, pet: 0, allies: {} }; _dpsReactAllyAccum = 0; }
+function _dpsReset() { _dps = { player: 0, summon: 0, pet: 0, pets: {}, allies: {} }; _dpsReactAllyAccum = 0; }
+function _dpsPetSrc(pet) { return {petUid:String(pet.uid),name:petDisplayName(pet)}; }
+function _dpsAddPet(source, amount) {
+    if (!(amount > 0)) return;
+    _dps.pet += amount;
+    const row = _dps.pets[source.petUid] || (_dps.pets[source.petUid] = {name:source.name,dmg:0});
+    row.name = source.name; row.dmg += amount;
+}
 function _dpsSnap() {   // Keep numeric HP entries for consumers, paired with the original target objects.
     if (typeof mapState === 'undefined' || !mapState || !mapState.mobs) return null;
     let snap = mapState.mobs.map(m => (m && !m._dead) ? (m.curHp || 0) : null);
@@ -170,6 +177,7 @@ function _dpsAllyReactWrap(ally, fn) {   // 傭兵受擊 AoE 反應(爆彈花/�
 }
 function _dpsCreditDot(src, amt) {   // DoT 依施加者標記歸因：'player'/'pet'/'summon'/{slot,name}=傭兵；未標記(undefined)→玩家（相容舊 DoT）
     if (!(amt > 0)) return;
+    if (src?.petUid != null) { _dpsAddPet(src, amt); return; }
     if (src === 'pet') { _dps.pet += amt; return; }
     if (src === 'summon') { _dps.summon += amt; return; }
     if (src && typeof src === 'object' && src.slot != null) {

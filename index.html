@@ -17,7 +17,7 @@
     <link rel="stylesheet" href="css/style.css?v=6b56fa2b8e">
     <link rel="stylesheet" href="css/floating-ui.css?v=bc8be4ac7f">
     <link rel="stylesheet" href="css/tailwind-built.css?v=932535789f"><!-- 🔧 預編譯 Tailwind（取代執行期 JIT tailwind.js）：只含實際用到的 class，省 407KB runtime + 移除持續掃描 DOM 的成本。置於 style.css 之後以保留原 cascade（utility 平手時勝過自訂 class，與舊 JIT 注入順序一致） -->
-    <link rel="stylesheet" href="css/responsive.css?v=4db59c475a">
+    <link rel="stylesheet" href="css/responsive.css?v=609799732b">
 </head>
 <body class="h-screen w-screen overflow-hidden">
 
@@ -181,12 +181,10 @@
         <div id="col-left" class="w-[340px] flex flex-col gap-4">
             <!-- 新增了 id="status-panel"，並加入去底色與加深背景的樣式確保文字可讀 -->
             <div id="status-panel" class="panel bg-cover bg-top bg-no-repeat" style="background-blend-mode: multiply; background-color: rgba(30, 41, 59, 0.85);">
-                <div class="panel-header text-center flex justify-between bg-transparent border-b border-slate-700"><span class="flex items-center shrink-0"><span id="st-classname">職業</span><span id="classic-badge" class="hidden font-bold ml-1" style="color:#fbbf24;text-shadow:0 0 5px rgba(251,191,36,0.7);font-size:0.85rem;line-height:1;" title="經典模式（硬核）：死亡損失該等級 5% 最大經驗（不降等）、無祝福/精通/席琳；掉落率、經驗與金幣獲得與一般模式相同">⚔經典</span></span><span id="victory-badge" class="hidden font-bold" style="color:#fde68a;text-shadow:0 0 6px rgba(253,230,138,0.85);font-size:1.05rem;line-height:1;align-items:center;gap:0.15rem;white-space:nowrap;flex-shrink:0;" title="城主：血盟持有城堡，全商店 8 折、開放城堡"><img id="victory-badge-crown" src="assets/ui/castle-crown.gif?v=v3.6.36" alt="" draggable="false" style="width:16px;height:12px;object-fit:contain;image-rendering:pixelated;position:relative;top:-0.08em;filter:drop-shadow(0 1px 1px rgba(69,26,3,.95)) drop-shadow(0 0 3px rgba(250,204,21,.82));"><span id="victory-badge-text" style="line-height:1;">城主</span></span><span id="st-class" class="text-white text-lg font-bold px-2 inline-block min-w-[2.5rem] text-right" tabindex="-1"></span></div>
+                <div class="panel-header text-center flex justify-between bg-transparent border-b border-slate-700"><span class="flex items-center shrink-0"><span id="st-classname">職業</span><span id="classic-badge" class="hidden font-bold ml-1" style="color:#fbbf24;text-shadow:0 0 5px rgba(251,191,36,0.7);font-size:0.85rem;line-height:1;" title="經典模式（硬核）：死亡損失該等級 5% 最大經驗（不降等）、無祝福/精通/席琳；掉落率、經驗與金幣獲得與一般模式相同">⚔經典</span></span><span id="victory-badge" class="hidden font-bold" style="color:#fde68a;text-shadow:0 0 6px rgba(253,230,138,0.85);font-size:1.05rem;line-height:1;align-items:center;gap:0.15rem;white-space:nowrap;flex-shrink:0;" title="城主：血盟持有城堡，全商店 8 折、開放城堡"><img id="victory-badge-crown" src="assets/ui/castle-crown.gif?v=v3.6.36" alt="" draggable="false" style="width:16px;height:12px;object-fit:contain;image-rendering:pixelated;position:relative;top:-0.08em;filter:drop-shadow(0 1px 1px rgba(69,26,3,.95)) drop-shadow(0 0 3px rgba(250,204,21,.82));"><span id="victory-badge-text" style="line-height:1;">城主</span></span><span class="status-name-heading"><span id="st-class" class="text-white text-lg font-bold px-2 inline-block min-w-[2.5rem] text-right" tabindex="-1"></span><span id="st-status" class="party-roster-status"></span></span></div>
                 <div class="status-compact-body text-base">
-                    <div class="status-level-row text-slate-400">
-                        <span>等級</span><span class="text-white font-bold text-xl" id="st-lv">1</span>
-                    </div>
-                    <div class="status-defense-row">
+                    <div class="status-overview-row">
+                        <span class="status-stat"><span>等級</span><strong id="st-lv">1</strong></span>
                         <span class="status-stat"><span>AC</span><strong id="st-ac">10</strong></span>
                         <span class="status-stat"><span>MR</span><strong id="st-mr">0</strong></span>
                     </div>
@@ -412,11 +410,11 @@
                         <div class="automation-ui-scale border-t border-slate-700 pt-2">
                             <div class="automation-ui-scale-heading">
                                 <label for="set-ui-scale" class="text-sm font-bold text-slate-200">UI 縮放</label>
-                                <output id="ui-scale-value" for="set-ui-scale" class="text-sm text-slate-300">100%</output>
-                                <button type="button" id="btn-ui-scale-reset" class="btn py-1 px-2 text-sm bg-slate-700 hover:bg-slate-600 border-slate-500" title="還原 UI 縮放至 100%">100%</button>
+                                <output id="ui-scale-value" for="set-ui-scale" class="text-sm text-slate-300">80%</output>
+                                <button type="button" id="btn-ui-scale-reset" class="btn py-1 px-2 text-sm bg-slate-700 hover:bg-slate-600 border-slate-500" title="還原 UI 縮放至 80%">80%</button>
                             </div>
-                            <input type="range" id="set-ui-scale" min="75" max="100" value="100" step="5" aria-describedby="ui-scale-hint ui-scale-status">
-                            <p id="ui-scale-hint" class="text-xs text-slate-400">75%～100%，此裝置共用，立即生效。</p>
+                            <input type="range" id="set-ui-scale" min="60" max="100" value="80" step="5" aria-describedby="ui-scale-hint ui-scale-status">
+                            <p id="ui-scale-hint" class="text-xs text-slate-400">60%～100%，中央為 80%；此裝置共用，立即生效。</p>
                             <p id="ui-scale-status" class="text-xs text-amber-200" role="status" aria-live="polite"></p>
                         </div>
                         <div class="automation-audio-row flex items-center justify-between gap-3">
@@ -592,22 +590,22 @@
 
     <script src="js/anim-manifest.js?v=14d284fa9f"></script>
     <script src="js/00-data.js?v=5b30e05bfb"></script>
-<script src="js/ui-scale.js?v=977e219542"></script>
-    <script src="js/game-layout.js?v=0d28c06ee3"></script>
-<script src="js/01-drops-config.js?v=6bcdbd269c"></script>
+<script src="js/ui-scale.js?v=030a9a700b"></script>
+    <script src="js/game-layout.js?v=0c5d56ca90"></script>
+<script src="js/01-drops-config.js?v=a2874c759b"></script>
 <script src="js/02-stats-recompute.js?v=4bb09b45ab"></script>
-    <script src="js/03-combat-core.js?v=5b70dc8fdf"></script>
+    <script src="js/03-combat-core.js?v=4c3e924fcd"></script>
     <script src="js/04-combat-attack.js?v=1ed0d2d6ad"></script>
-<script src="js/05-kill-progression.js?v=f985ceebe5"></script>
-    <script src="js/06-status-allies.js?v=8a66f7e3c0"></script>
+<script src="js/05-kill-progression.js?v=68713f3eb6"></script>
+    <script src="js/06-status-allies.js?v=42882aefe4"></script>
     <script src="js/07-skills-cast.js?v=2ff536efb6"></script>
-<script src="js/08-items-equip.js?v=aeca709332"></script>
-<script src="js/09-vfx-render.js?v=898038aed5"></script>
-    <script src="js/effect-details.js?v=f0940386dd"></script>
-    <script src="js/party-inspector.js?v=8f8213d86f"></script>
+<script src="js/08-items-equip.js?v=86cd31decc"></script>
+<script src="js/09-vfx-render.js?v=c857bbe82c"></script>
+    <script src="js/effect-details.js?v=6931e257de"></script>
+    <script src="js/party-inspector.js?v=b7a4044bda"></script>
     <script src="js/party-portrait-bounds.js?v=57f5054baa"></script>
-    <script src="js/party-roster.js?v=1e0903eedb"></script>
-    <script src="js/10-ui-tabs.js?v=b54b2d1e62"></script>
+    <script src="js/party-roster.js?v=007b361999"></script>
+    <script src="js/10-ui-tabs.js?v=bc14818ca2"></script>
 <script src="js/11-world-map.js?v=7efa1000b7"></script>
 <script src="js/12-npc-quests.js?v=21b6fd7fba"></script>
 <script src="js/13-shop-save.js?v=f26b89afe1"></script>
@@ -616,11 +614,11 @@
 <script src="js/16-equip-book.js?v=06993d3f55"></script>
 <script src="js/18-misc-book.js?v=9a4bbc3677"></script>
 <script src="js/17-audio.js?v=8b26455c32"></script>
-<script src="js/19-equipment-window.js?v=b4fa25ce49"></script>
+<script src="js/19-equipment-window.js?v=ab117827ec"></script>
 <script src="js/20-warehouse-window.js?v=3efb907c43"></script>
 <script src="js/21-relic-book.js?v=40aef7ae9b"></script>
-    <script src="js/23-summons.js?v=2726db4840"></script>
-    <script src="js/22-pets.js?v=915e2162c7"></script>
+    <script src="js/23-summons.js?v=7dfe0c8454"></script>
+    <script src="js/22-pets.js?v=9993e123bc"></script>
     <script src="js/companion-haste.js?v=f0447755fd"></script>
     <script src="js/24-pandora-relic-market.js?v=f4dc248558"></script>
     <script src="js/25-clan-system.js?v=c0b9566793"></script>

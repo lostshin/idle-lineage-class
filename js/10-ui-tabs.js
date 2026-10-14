@@ -417,20 +417,7 @@ function decorateClassicInventoryTab(div){
     let down=document.createElement('button');
     down.type='button'; down.className='classic-inventory-scroll classic-inventory-scroll-down'; down.setAttribute('aria-label','向下捲動');
     down.onclick=()=>viewport.scrollBy({top:Math.max(32,viewport.clientHeight/CLASSIC_GRID_ROWS),behavior:'smooth'});
-    let sortWrap=document.createElement('div');
-    sortWrap.className='classic-sort-wrap';
-    let sortBtn=document.createElement('button');
-    sortBtn.type='button'; sortBtn.className='classic-sort-button'; sortBtn.title='整理背包'; sortBtn.setAttribute('aria-label','整理背包'); sortBtn.textContent='↕';
-    let sortMenu=document.createElement('div');
-    sortMenu.className='classic-sort-menu';
-    if(_invSortMenuOpen)sortMenu.classList.add('open');   // 🔧 v3.0.92 重繪時依持久旗標復原開啟（掛機掉物/自動販賣不再關閉）
-    let mode=inventorySortMode();
-    sortMenu.innerHTML=`<button type="button" data-sort="category" class="${mode==='category'?'active':''}">分類整理</button><button type="button" data-sort="quality" class="${mode==='quality'?'active':''}">品質整理</button><button type="button" data-sort="name" class="${mode==='name'?'active':''}">名稱整理</button><label><input type="checkbox" ${player.inventoryAutoSort===false?'':'checked'}> 取得物品時自動整理</label>`;
-    sortBtn.onclick=(ev)=>{ev.stopPropagation();_invSortMenuOpen=!_invSortMenuOpen;sortMenu.classList.toggle('open',_invSortMenuOpen);};
-    sortMenu.querySelectorAll('[data-sort]').forEach(b=>b.onclick=(ev)=>{ev.stopPropagation();_invSortMenuOpen=false;setInventorySortMode(b.dataset.sort);});
-    let auto=sortMenu.querySelector('input');if(auto)auto.onchange=()=>toggleInventoryAutoSort(auto.checked);
-    sortWrap.appendChild(sortBtn);sortWrap.appendChild(sortMenu);
-    shell.appendChild(viewport); shell.appendChild(up); shell.appendChild(down); shell.appendChild(sortWrap);
+    shell.appendChild(viewport); shell.appendChild(up); shell.appendChild(down);
     let quick=Array.from(div.children).find(x=>x.classList.contains('sticky'));
     if(quick)quick.classList.add('classic-list-toolbar');
     div.appendChild(shell);
@@ -1752,6 +1739,12 @@ function _qjEligibleItems(type) {
     return player.inv.filter(i => _qjCanSelect(DB.items[i.id], i, type));
 }
 // ⚡🗑️ 分頁頂端快速操作表頭：武器/防具＝[快速強化][快速廢品]；道具＝[快速廢品]（強化進行中沿用原強化表頭）
+function inventorySortControls(type) {
+    const mode = inventorySortMode();
+    return `<div class="classic-sort-wrap"><button type="button" data-inventory-sort="${type}" class="btn py-1.5 text-sm font-bold rounded" aria-expanded="${_invSortMenuOpen}" onclick="event.stopPropagation();_invSortMenuOpen=!_invSortMenuOpen;renderTabs(true)">整理背包</button>
+        <div class="classic-sort-menu${_invSortMenuOpen ? ' open' : ''}">${[['category','分類整理'],['quality','品質整理'],['name','名稱整理']].map(([value,label])=>`<button type="button" data-sort="${value}" class="${mode===value?'active':''}" onclick="event.stopPropagation();_invSortMenuOpen=false;setInventorySortMode('${value}')">${label}</button>`).join('')}
+        <label><input type="checkbox" ${player.inventoryAutoSort===false?'':'checked'} onchange="toggleInventoryAutoSort(this.checked)"> 取得物品時自動整理</label></div></div>`;
+}
 function buildQuickHeader(type) {
     let hasEnh = (type === 'wpn' || type === 'arm');
     if (hasEnh && quickEnh[type].active) return buildQuickEnhanceHeader(type);   // 強化進行中：沿用原強化表頭
@@ -1781,7 +1774,7 @@ function buildQuickHeader(type) {
         return hdr;
     }
     // 皆未啟用：顯示按鈕（武器/防具有強化＋廢品；道具僅廢品）
-    let btns = `<button type="button" data-inventory-sort="${type}" onclick="sortInventoryNow()" class="flex-1 btn py-1.5 text-sm font-bold rounded">一鍵排列</button>`;
+    let btns = inventorySortControls(type);
     if (hasEnh) btns += `<button onclick="toggleQuickEnhance('${type}')" class="flex-1 btn border-blue-700 bg-blue-900/70 hover:bg-blue-800 py-1.5 text-sm font-bold text-blue-200 rounded shadow">⚡ 快速強化</button>`;
     btns += `<button onclick="toggleQuickJunk('${type}')" class="flex-1 btn border-amber-700 bg-amber-900/60 hover:bg-amber-800 py-1.5 text-sm font-bold text-amber-200 rounded shadow">🗑️ 快速廢品</button>`;
     hdr.innerHTML = `<div class="flex gap-1">${btns}</div>`;
@@ -1971,18 +1964,8 @@ function autoSortInventory() {
     if (typeof resetCatchupGainItemIndex === 'function') resetCatchupGainItemIndex();
     renderTabs(true);
 }
-// 🔧 v2.6.80 規則視窗「立即一鍵排列」：純排序＋提示·不 saveGame（避免把視窗草稿規則一併落地·排序結果隨其他存檔點落地）·視窗保持開啟
-function sortInventoryNow() {
-    if (!player || !Array.isArray(player.inv)) return;
-    player[INV_SORT_MODE_KEY] = 'category';
-    player.inv.sort(invSortCmp);
-    if (typeof resetCatchupGainItemIndex === 'function') resetCatchupGainItemIndex();
-    renderTabs(true);
-    logSys('<span class="text-cyan-300 font-bold">背包已重新排列。</span>');
-}
 // 🔧 v2.6.74 自動化設定改「分頁內嵌」（#tab-automation·與能力/技能同框架·switchTab 切換）；v2.6.73 的浮動視窗與 toggleAutomationWindow 已移除。
 //    set-* 控制項恆在 DOM（分頁隱藏時仍可 getElementById 讀值）→ saveGame/自動化邏輯完全不受影響。
-// 🗑️ v3.5.83 移除 sortInventory()：零呼叫點，現行入口為 sortInventoryNow()。
 
 // 一鍵賣出所有已勾為廢品的武器/防具/飾品（鎖定者不會被賣，因鎖定時已自動取消勾選）
 // ⏲️ 自動賣出廢品：由主迴圈 tick（每 10 秒·JUNK_AUTOSELL_TICKS）呼叫；賣掉所有標示為廢品(且非鎖定/可販售)的物品。無廢品→靜默不洗版。
@@ -2154,9 +2137,9 @@ function openAutoSellRules() {
     let el=document.createElement('div'); el.id='autosell-rule-modal'; el.innerHTML=`<style>
       #autosell-rule-modal{position:fixed;inset:0;background:#020617aa;z-index:10050;display:flex;align-items:center;justify-content:center;color:#e2e8f0}
       .as-box{width:min(720px,92vw);max-height:88vh;overflow:auto;background:#172033;border:2px solid #b7791f;border-radius:14px;padding:18px;box-shadow:0 18px 60px #000}
-      .as-head{display:flex;justify-content:space-between;align-items:center;font-size:23px;font-weight:bold;color:#fde68a}.as-sec{background:#0f172acc;border:1px solid #475569;border-radius:10px;padding:12px;margin-top:12px}.as-title{font-weight:bold;color:#fbbf24;margin-bottom:7px}.as-row{display:block;padding:5px 0}.as-row input[type=number]{width:72px;background:#020617;border:1px solid #64748b;border-radius:5px;padding:3px;text-align:center}.as-row input[type=checkbox]{width:18px;height:18px;vertical-align:middle}.as-help,.as-muted{font-size:13px;color:#94a3b8}.as-actions{display:flex;gap:8px;margin-top:12px}.as-actions button,.as-head button,.as-ex button,.as-ex-tools button{background:#334155;border:1px solid #64748b;border-radius:6px;padding:6px 12px}.as-actions .primary{background:#92400e;border-color:#f59e0b}.as-ex{display:flex;gap:10px;align-items:center;padding:5px;border-bottom:1px solid #334155}.as-ex span{flex:1}.as-ex b{color:#fcd34d}.as-ex-tools{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}.as-ex-tools input,.as-ex-tools select,select{background:#020617;border:1px solid #64748b;padding:6px;border-radius:6px}.as-ex-tools input{min-width:180px;flex:1}.as-btnrow{display:flex;align-items:center;flex-wrap:wrap;gap:6px}.as-quick-actions{display:inline-flex;align-items:center;gap:8px;flex:0 0 auto}.as-sell-now-btn{margin-left:0;height:38px;display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;line-height:1;padding:0 12px;border:2px solid #fb923c;border-radius:7px;background:#7c2d12;color:#ffedd5;font-weight:bold;cursor:pointer;box-shadow:0 2px 7px #0008}.as-sell-now-btn:hover{filter:brightness(1.25)}.as-sort-now-btn{border-color:#22d3ee;background:#164e63;color:#cffafe}.as-override-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.as-override-actions button{padding:7px 13px;border:2px solid;border-radius:7px;font-weight:bold;cursor:pointer;box-shadow:0 2px 7px #0008;transition:filter .15s,transform .15s}.as-override-actions button:hover{filter:brightness(1.25);transform:translateY(-1px)}.as-keep-btn{color:#bbf7d0;background:#14532d;border-color:#4ade80!important}.as-sell-btn{color:#fecaca;background:#7f1d1d;border-color:#f87171!important}#as-item{width:min(100%,390px);margin-bottom:7px}
+      .as-head{display:flex;justify-content:space-between;align-items:center;font-size:23px;font-weight:bold;color:#fde68a}.as-sec{background:#0f172acc;border:1px solid #475569;border-radius:10px;padding:12px;margin-top:12px}.as-title{font-weight:bold;color:#fbbf24;margin-bottom:7px}.as-row{display:block;padding:5px 0}.as-row input[type=number]{width:72px;background:#020617;border:1px solid #64748b;border-radius:5px;padding:3px;text-align:center}.as-row input[type=checkbox]{width:18px;height:18px;vertical-align:middle}.as-help,.as-muted{font-size:13px;color:#94a3b8}.as-actions{display:flex;gap:8px;margin-top:12px}.as-actions button,.as-head button,.as-ex button,.as-ex-tools button{background:#334155;border:1px solid #64748b;border-radius:6px;padding:6px 12px}.as-actions .primary{background:#92400e;border-color:#f59e0b}.as-ex{display:flex;gap:10px;align-items:center;padding:5px;border-bottom:1px solid #334155}.as-ex span{flex:1}.as-ex b{color:#fcd34d}.as-ex-tools{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}.as-ex-tools input,.as-ex-tools select,select{background:#020617;border:1px solid #64748b;padding:6px;border-radius:6px}.as-ex-tools input{min-width:180px;flex:1}.as-btnrow{display:flex;align-items:center;flex-wrap:wrap;gap:6px}.as-quick-actions{display:inline-flex;align-items:center;gap:8px;flex:0 0 auto}.as-sell-now-btn{margin-left:0;height:38px;display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;line-height:1;padding:0 12px;border:2px solid #fb923c;border-radius:7px;background:#7c2d12;color:#ffedd5;font-weight:bold;cursor:pointer;box-shadow:0 2px 7px #0008}.as-sell-now-btn:hover{filter:brightness(1.25)}.as-override-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.as-override-actions button{padding:7px 13px;border:2px solid;border-radius:7px;font-weight:bold;cursor:pointer;box-shadow:0 2px 7px #0008;transition:filter .15s,transform .15s}.as-override-actions button:hover{filter:brightness(1.25);transform:translateY(-1px)}.as-keep-btn{color:#bbf7d0;background:#14532d;border-color:#4ade80!important}.as-sell-btn{color:#fecaca;background:#7f1d1d;border-color:#f87171!important}#as-item{width:min(100%,390px);margin-bottom:7px}
     </style><div class="as-box"><div class="as-head"><span>自動販賣規則</span><button onclick="closeAutoSellRules()">Close</button></div>
-      <div class="as-sec"><label class="as-row"><input id="as-on" type="checkbox" ${player.autoSellOn!==false?'checked':''}> 啟用自動販賣</label><label class="as-row"><input id="as-global" type="checkbox" ${player.autoSellGlobal?'checked':''}> 套用全部存檔（8 個角色共用此設定）</label><div class="as-row as-btnrow"><span>物品取得／符合規則後，等待</span><input id="as-delay" type="number" min="10" max="86400" value="${r.delaySec}"><span>秒才販賣</span><span class="as-quick-actions"><button type="button" class="as-sell-now-btn" onclick="sellAutoSellItemsNow()">立即賣出</button><button type="button" class="as-sell-now-btn as-sort-now-btn" onclick="sortInventoryNow()">立即排列</button></span></div><div class="as-help">等待期間可取消廢品標記或鎖定物品；「立即賣出」會跳過等待秒數。背包整理方式與自動整理開關請在背包左側的整理按鈕設定，與自動販賣互不影響。</div></div>
+      <div class="as-sec"><label class="as-row"><input id="as-on" type="checkbox" ${player.autoSellOn!==false?'checked':''}> 啟用自動販賣</label><label class="as-row"><input id="as-global" type="checkbox" ${player.autoSellGlobal?'checked':''}> 套用全部存檔（8 個角色共用此設定）</label><div class="as-row as-btnrow"><span>物品取得／符合規則後，等待</span><input id="as-delay" type="number" min="10" max="86400" value="${r.delaySec}"><span>秒才販賣</span><span class="as-quick-actions"><button type="button" class="as-sell-now-btn" onclick="sellAutoSellItemsNow()">立即賣出</button></span></div><div class="as-help">等待期間可取消廢品標記或鎖定物品；「立即賣出」會跳過等待秒數。背包整理方式與自動整理開關請在背包分頁的「整理背包」設定，與自動販賣互不影響。</div></div>
       <div class="as-sec"><div class="as-title">裝備條件</div>${equipRows}<label class="as-row"><input id="as-pb" type="checkbox" ${r.protectBless?'checked':''}> 保護祝福裝備</label><label class="as-row"><input id="as-pa" type="checkbox" ${r.protectAnc?'checked':''}> 保護古代裝備</label><label class="as-row"><input id="as-pt" type="checkbox" ${r.protectAttr?'checked':''}> 保護屬性裝備</label><label class="as-row"><input id="as-ps" type="checkbox" ${r.protectSet?'checked':''}> 保護套裝詞綴裝備</label><label class="as-row"><input id="as-pl" type="checkbox" ${r.protectLegend?'checked':''}> 保護傳說裝備</label><label class="as-row"><input id="as-prelic" type="checkbox" ${r.protectRelic!==false?'checked':''}> 保護遺物</label><label class="as-row"><input id="as-pold" type="checkbox" ${r.protectOldSeries?'checked':''}> 保護解封後的「古老的」系列裝備</label><div class="as-help">解除封印完成後立即保護古老的劍、巨劍、弩槍、鱗甲、皮盔甲、長袍及金屬盔甲，避免成品在取得瞬間被規則標為廢品。</div><label class="as-row"><input id="as-pcraft" type="checkbox" ${r.protectCraftEquip?'checked':''}> 保護製作素材裝備；保留可製作 <input id="as-craftsets" type="number" min="1" max="99" value="${r.craftSets}"> 次的數量</label><div class="as-help">系統會掃描全部製作配方，例如配方需要「暗殺軍王之痕 ×1」，保留 1 次就至少留 1 件，多餘數量才依武器規則處理。</div></div>
       <div class="as-sec"><div class="as-title">材料與一般物品</div>${miscRows}<div class="as-help">任務物品、不可販賣物品與系統保護物品不會被處理。</div></div>
       <div class="as-sec"><div class="as-title">個別例外（全遊戲物品）</div><div class="as-ex-tools"><input id="as-item-search" type="search" placeholder="輸入物品名稱搜尋" oninput="refreshAutoSellItemOptions()"><select id="as-item-type" onchange="refreshAutoSellItemOptions()"><option value="all">全部分類</option>${exceptionTypeRows}</select><select id="as-item-scope" onchange="refreshAutoSellItemOptions()"><option value="all">全部物品</option><option value="held">目前持有</option></select></div><div class="as-override-actions"><select id="as-item">${itemRows}</select><button class="as-keep-btn" onclick="setAutoSellOverride('keep')">永遠保留</button><button class="as-sell-btn" onclick="setAutoSellOverride('sell')">永遠販賣</button></div><div class="as-help">例外依物品本體全局套用，包含未取得物品及其所有強化、祝福、屬性與套裝版本。</div><div id="as-overrides">${rules}</div></div>
@@ -2578,6 +2561,9 @@ function pvpRevenge(i, choiceIndex) {
     renderPvpTab();
 }
 function switchTab(t, btn) {
+    _invSortMenuOpen=false;
+    document.querySelectorAll('.classic-sort-menu.open').forEach(menu=>menu.classList.remove('open'));
+    document.querySelectorAll('[data-inventory-sort]').forEach(button=>button.setAttribute('aria-expanded','false'));
     Array.from(btn.parentElement.children).forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     // 👇 更新陣列名單
@@ -2654,7 +2640,7 @@ function renderSquadPanel() {
         + '||P:' + _pets.map(p => p.uid + ':' + p.lv + ':' + (p._downed ? 'D' : '') + ':' + Math.round(p.hp / Math.max(1, p.mhp) * 20) + ':' + Math.round(p.mp / Math.max(1, p.mmp) * 20) + ':' + Math.round((p.exp || 0) / Math.max(1, petExpReq(p.lv)) * 20) + ':' + (p.potPct || 0) + ':' + Math.ceil((p._reviveCd || 0) / 10)).join('|')
         + '||S:' + ((typeof summonTeamSignature === 'function') ? summonTeamSignature() : '')   // team 分頁：名單/倒地/等級＋寵物/召喚血量(5%階)變動才重建
         + '||G:' + ((typeof guardTeamSignature === 'function') ? guardTeamSignature() : '');   // 🏰 城堡護衛血量/倒地/復活倒數變動才重建
-    let sigSkill = _sigAllies + '||E:' + allies.map(a => (a.elfEle || '')+':'+(a.skills||[]).join(',')+':'+Object.values(a.eq||{}).filter(Boolean).map(itemSig).join(',')).join('|');   // 🩹 v3.2.74 skill 分頁只看傭兵名單/等級→戰鬥中寵物/召喚掉血不重建·開啟的技能下拉不被關
+    let sigSkill = _sigAllies + '||P:' + _pets.map(p => p.uid + ':' + petDisplayName(p)).join('|') + '||E:' + allies.map(a => (a.elfEle || '')+':'+(a.skills||[]).join(',')+':'+Object.values(a.eq||{}).filter(Boolean).map(itemSig).join(',')).join('|');   // 🩹 v3.2.74 skill 分頁只看傭兵名單/等級→戰鬥中寵物/召喚掉血不重建·開啟的技能下拉不被關
     // 🧝 v3.8.5 追加 elfEle：來源妖精換屬性後 refreshAllyOnce 重建快照時名字/等級都沒變 → 簽章不動 → 技能下拉與自動維持勾選會停在舊屬性的清單（該隱藏的沒隱藏）
     let _squadRebuilt = false;
     if (sigTeam !== _squadSigTeam) {
@@ -2663,8 +2649,8 @@ function renderSquadPanel() {
             let s = a._slot;
             if (a._downed) {   // 🤝 Phase 3：倒地→灰顯卡片。返生術＝手動鈕（消耗MP·無冷卻立即）；復活卷軸＝v2.6.6 改自動（15秒冷卻結束身上有卷軸即自動使用），此處只顯示狀態文字（不可點）。每幀更新。
                 return `<div class="bg-slate-900/70 border border-red-900 rounded p-2 flex items-center justify-between gap-2" style="opacity:0.85;">
-                    <div class="text-sm">${partyNameButton('ally', s, a._allyName, 'font-bold text-slate-400')} ${partyClassBadge(a)} <span class="text-slate-600 text-xs">Lv.${a.lv || 1}</span> <span class="text-red-400 font-bold">【倒地】</span></div>
-                    <div class="flex items-center gap-1 shrink-0">
+                    <div class="text-sm">${partyNameButton('ally', s, a._allyName, 'font-bold text-slate-400')} ${partyClassBadge(a)} <span class="text-slate-600 text-xs">Lv.${a.lv || 1}</span></div>
+                    <div class="party-roster-recovery"><span data-party-down>倒地</span>
                         <button id="squad-rez-${s}" class="py-1 px-2 text-xs font-bold rounded border whitespace-nowrap" style="background:#1e3a8a;border-color:#3b82f6;color:#bfdbfe;" onclick="reviveMercenary('${s}','rez')">返生術</button>
                         <span id="squad-revive-${s}" class="py-1 px-2 text-xs font-bold rounded border whitespace-nowrap" style="background:#3f1d1d;border-color:#7f1d1d;color:#fca5a5;cursor:default;" title="倒地 15 秒後，若身上有復活卷軸將自動使用。">卷軸</span>
                     </div>
@@ -2708,7 +2694,10 @@ function renderSquadPanel() {
                 </div><div class="ally-potion-condition"><span class="ally-potion-label">喝水條件</span><span class="ally-skill-gate" title="低於此％時，喝隊長設定的藥水回血。0 = 關閉。">HP&lt;<input aria-label="喝水 HP 門檻" type="number" min="0" max="100" value="${potPct}" onchange="setAllyPotHp('${s}', this.value)">%</span></div></div>
                 ${_allyAutoBuffChips(a)}
             </div>`;
-        }).join('');
+        }).join('') + _pets.map(p => `<div class="ally-skill-card" data-pet-skill="${partyEscape(p.uid)}">
+            <div class="party-member-heading"><span class="party-member-name" title="${partyEscape(petDisplayName(p))}">${partyEscape(petDisplayName(p))}</span></div>
+            <div class="ally-potion-condition"><span class="ally-potion-label">喝水條件</span><label class="ally-skill-gate" title="HP 低於或等於此％時喝水，0 = 關閉。">HP≤<input aria-label="${partyEscape(petDisplayName(p))}：喝水 HP 門檻" type="number" min="0" max="95" value="${p.potPct || 0}" onchange="petSetPotPct('${p.uid}',this.value);this.value=petsOutList().find(p=>p.uid==='${p.uid}')?.potPct||0">%</label></div>
+        </div>`).join('');
         _squadRebuilt = true;
     }
     if (_squadRebuilt) switchSquadTab(_squadTab);   // 有任一分頁重建→還原目前分頁與按鈕高亮
@@ -2751,11 +2740,14 @@ function renderSquadPanel() {
             let t = document.getElementById('squad-exp-txt-' + s); if (t) t.innerText = pct >= 100 ? '滿' : pct.toFixed(1) + '%';   // 不即時升級→累積超過一級顯「滿」（解雇可回收）
         }
         if ((el = document.getElementById('squad-status-' + s))) {   // 🤝 Phase4：傭兵異常狀態小字（無狀態時空白不佔版面）
-            let _ss = a.statuses || {}, _out = [];
-            [['stun', '暈眩'], ['freeze', '冰凍'], ['stone', '石化'], ['paralyze', '麻痺'], ['sleep', '沉睡'], ['silence', '沉默'], ['magicseal', '魔封'], ['poison', '中毒'], ['burn', '灼燒'], ['scald', '燙傷'], ['bleed', '出血'], ['slowAtk', '緩速'], ['weaken', '弱化'], ['disease', '疾病'], ['blind', '目盲'], ['potionFrost', '藥水霜化'], ['foulWater', '汙濁之水']].forEach(p => { if ((_ss[p[0]] || 0) > 0) _out.push(p[1]); });   // 🌊 v3.6.20 含汙濁之水
-            el.textContent = _out.length ? ('⚠ ' + _out.join('·')) : '';
+            el.textContent = partyStatusText(a);
+            el.title = el.textContent;
         }
     });
+    for (const row of document.querySelectorAll('#squad-tab-team [data-roster-kind="pet"]')) {
+        const button = row.querySelector('[data-party-id]'), actor = _pets.find(p=>String(p.uid)===button.dataset.partyId), status = row.querySelector('.party-roster-status');
+        if (status) { status.textContent = partyStatusText(actor); status.title = status.textContent; }
+    }
 }
 
 function switchSquadTab(t) {

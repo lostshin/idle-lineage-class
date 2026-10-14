@@ -1866,9 +1866,13 @@ function logCombat(msg, type="player", src=null) {
 
     let _src = src || _combatSrc || (type === 'enemy' ? 'enemy' : 'player');   // 來源：明確指定 > 派發點情境(_combatSrc) > 依顏色type推定
     el.insertAdjacentHTML('beforeend', `<div class="log-entry ${colorClass} ${catClass}" data-src="${_src}">${msg}</div>`);   // 🚀 只解析新訊息、不重建整個日誌(原 innerHTML+= 會 O(n) 重建全部子節點，戰鬥洗版時造成卡頓)
-    // 🔒 鎖定捲動時保留更多歷史；未鎖定時維持一般上限
+    // Retain each source independently so hidden attack traffic cannot erase cast history.
     let _max = _combatLogLocked ? COMBAT_LOG_MAX_LOCKED : COMBAT_LOG_MAX;
-    while(el.children.length > _max && el.children.length > 1) el.removeChild(el.firstChild);
+    const sourceRows = Array.from(el.children).filter(row=>row.dataset.src===_src);
+    const anchor = _combatLogLocked ? Array.from(el.children).find(row=>row.getClientRects().length&&row.getBoundingClientRect().bottom>el.getBoundingClientRect().top) : null;
+    const anchorTop = anchor?.getBoundingClientRect().top;
+    for (const row of sourceRows.slice(0, Math.max(0, sourceRows.length - _max))) row.remove();
+    if (anchor?.isConnected) el.scrollTop += anchor.getBoundingClientRect().top - anchorTop;
     if(!_combatLogLocked) el.scrollTop = el.scrollHeight;   // 鎖定時不自動捲到底，保留玩家檢視位置
 }
 

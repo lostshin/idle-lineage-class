@@ -166,8 +166,8 @@ function applyBleed(m, hitDmg, maxLayers, masteryBoost, src) {
     m._bleedCap = cap;
     let dps = Math.max(1, Math.floor(hitDmg * 0.20));
     while(m.bleeds.length >= cap) m.bleeds.shift();      // 超過上限：移除最舊的，由新層取代
-    m.bleeds.push({ dmg: dps, ticksLeft: 80 });          // 8 秒 = 80 ticks
-    m._bleedSrc = src || 'player';                       // 🎯 DPS：出血 DoT 施加者（多來源→取最後施加者·單一標記簡化）；玩家路徑不傳 src→'player'
+    m.bleeds.push({ dmg: dps, ticksLeft: 80, src:src || 'player' });
+    m._bleedSrc = src || 'player';
     if(masteryBoost) m._bleedMastery = true;             // 🔧 出血精通：此怪出血每秒總傷害 ×(1+0.1×層數)（10 層 = +100%）
     // 🔧 不再輸出「敵人陷入出血」套用訊息（依需求只保留每秒出血傷害日誌）
 }
@@ -193,7 +193,7 @@ function processMobStatusTick(m, i) {
         s.poison--;
         if(state.ticks % (s.poisonTick || 30) === 0) {
             let _pdc = _teamDotCrit(s.poisonDmg);   // 🏺 v3.1.80 永不終止的夢魘：中毒 DoT 可爆擊
-            m.curHp -= _pdc.dmg; m.justHit = 'magic'; mobWake(m); _dpsCreditDot(s.poisonSrc, _pdc.dmg);   // 🎯 DPS：中毒 DoT 依施加者歸因（玩家/傭兵/召喚·未標記→玩家）
+            m.curHp -= _pdc.dmg; m.justHit = 'magic'; mobWake(m); _dpsCreditDot(s.poisonSrc, Math.min(_pdc.dmg, Math.max(0,m.curHp+_pdc.dmg)));   // 🎯 DPS：中毒 DoT 依施加者歸因（玩家/傭兵/召喚·未標記→玩家）
             logCombat(`<span class="${getMobColor(m.lv)}">${m.n}</span> 受到中毒傷害 ${_pdc.dmg} 點。${_pdc.crit ? ' <span class="text-yellow-500 font-bold">(爆擊!)</span>' : ''}`, 'dot');   // 🟢 中毒 DoT→綠色持續傷害分類
             if(m.curHp <= 0) { killMob(i); return true; }
         }
@@ -201,18 +201,21 @@ function processMobStatusTick(m, i) {
     }
     // 出血 DoT：可疊 5 層，每層各自獨立計時，每秒(10 ticks)造成一次傷害；同 tick 觸發的多層合併為一次顯示
     if(m.bleeds && m.bleeds.length) {
-        let bleedTotal = 0;
+        let bleedTotal = 0, bleedSources = [];
         for(let bi = m.bleeds.length - 1; bi >= 0; bi--) {
             let b = m.bleeds[bi];
             b.ticksLeft--;
-            if(b.ticksLeft % 10 === 0) bleedTotal += b.dmg;
+            if(b.ticksLeft % 10 === 0) { bleedTotal += b.dmg; bleedSources.push({src:b.src || m._bleedSrc,dmg:b.dmg}); }
             if(b.ticksLeft <= 0) m.bleeds.splice(bi, 1);
         }
         if(bleedTotal > 0) {
             // 🔧 出血精通：每秒出血總傷害 ×(1 + 0.1×層數)（每層 +10%、10 層 = +100%）
+            const sourceTotal = bleedTotal;
             if(m._bleedMastery) bleedTotal = Math.floor(bleedTotal * (1 + 0.10 * m.bleeds.length));
             let _bdc = _teamDotCrit(bleedTotal);   // 🏺 v3.1.80 永不終止的夢魘：出血 DoT 可爆擊
-            m.curHp -= _bdc.dmg; m.justHit = 'magic'; mobWake(m); _dpsCreditDot(m._bleedSrc, _bdc.dmg);   // 🎯 DPS：出血 DoT 依施加者歸因（玩家/傭兵/寵物·未標記→玩家）
+            const effectiveBleed = Math.min(Math.max(0,m.curHp),_bdc.dmg);
+            m.curHp -= _bdc.dmg; m.justHit = 'magic'; mobWake(m);
+            for (const source of bleedSources) _dpsCreditDot(source.src,effectiveBleed*source.dmg/sourceTotal);
             logCombat(`<span class="${getMobColor(m.lv)}">${m.n}</span> 受到出血傷害 ${_bdc.dmg} 點（${m.bleeds.length} 層）。${_bdc.crit ? ' <span class="text-yellow-500 font-bold">(爆擊!)</span>' : ''}`, 'dot');   // 🟢 出血 DoT→綠色持續傷害分類(原 'player' 藍色一般攻擊)
             if(m.curHp <= 0) { killMob(i); return true; }
             if(!state.ff) renderMobs();
@@ -236,7 +239,7 @@ function processMobStatusTick(m, i) {
         m._burnDot.left--;
         if(m._burnDot.left % (m._burnDot.tick || 10) === 0) {
             let _fdc = _teamDotCrit(m._burnDot.dmg);   // 🏺 灼燒 DoT 可爆擊（與中毒/出血一致）
-            m.curHp -= _fdc.dmg; m.justHit = 'fire'; mobWake(m); _dpsCreditDot(m._burnDot.src, _fdc.dmg);   // 🎯 DPS：灼燒 DoT 依施加者歸因（未標記→玩家）
+            m.curHp -= _fdc.dmg; m.justHit = 'fire'; mobWake(m); _dpsCreditDot(m._burnDot.src, Math.min(_fdc.dmg, Math.max(0,m.curHp+_fdc.dmg)));   // 🎯 DPS：灼燒 DoT 依施加者歸因（未標記→玩家）
             logCombat(`<span class="${getMobColor(m.lv)}">${m.n}</span> 受到灼燒傷害 ${_fdc.dmg} 點。${_fdc.crit ? ' <span class="text-yellow-500 font-bold">(爆擊!)</span>' : ''}`, 'dot');   // 🟢 灼燒 DoT→綠色持續傷害分類
             if(m.curHp <= 0) { m._burnDot = null; killMob(i); return true; }
             if(!state.ff) renderMobs();

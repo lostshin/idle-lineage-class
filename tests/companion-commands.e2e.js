@@ -25,7 +25,7 @@ if(!options.baseline){
   await check('dragging the resize handle changes window width and height',()=>page.evaluate(before=>{const r=document.getElementById('party-inspector').getBoundingClientRect();return r.width>before.width+80&&r.height<before.height-70;},before));
   await check('resized window and fluid artwork survive live refresh',()=>page.evaluate(()=>{const p=document.getElementById('party-inspector'),before=p.getBoundingClientRect();player.allies[0].buffs.sk_shield--;refreshPartyInspector();const r=p.getBoundingClientRect(),art=document.querySelector('#party-bonus-window .ability-window-shell').getBoundingClientRect();return Math.abs(r.width-before.width)<1&&Math.abs(r.height-before.height)<1&&art.width<=document.getElementById('party-details').clientWidth&&Math.abs(art.height/art.width-825/400)<.02;}));
  }
- for(const [width,height,scale]of [[1330,900,100],[1330,900,75],[390,844,100],[390,844,75],[844,390,100],[844,390,75]]){
+ for(const [width,height,scale]of [[1330,900,100],[1330,900,75],[390,844,100],[390,844,75],[844,390,100],[844,390,75]]){if(options.desktopOnly&&width<1200)continue;
   await page.cdp('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:1,mobile:width<1024});await page.cdp('Emulation.setTouchEmulationEnabled',{enabled:width<1024,maxTouchPoints:1});await page.evaluate(v=>setUiScale(v),scale);
   if(canResize){await page.press('#party-resize','ArrowLeft');await page.press('#party-resize','ArrowUp');}
   if(canResize&&width===390&&scale===100){

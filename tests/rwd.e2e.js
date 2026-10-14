@@ -18,7 +18,7 @@ async function check(name,fn){try{const r=await fn();if(r!==true)throw Error(JSO
 async function bounds(ids){return page.evaluate(ids=>{const errors=[];for(const id of ids){const e=document.getElementById(id);if(!e || !e.getClientRects().length)continue;const r=e.getBoundingClientRect();if(r.left < -1 || r.right > innerWidth+1)errors.push({id,left:r.left,right:r.right,viewport:innerWidth});}return errors.length?errors:true;},ids);}
 const sizes=[[320,640],[390,844],[768,1024],[844,390],[1024,768],[1199,800],[1330,759],[1440,900],[1920,1080]];
 await boot(options.url);
-for(const [w,h] of sizes){
+for(const [w,h] of sizes){if(options.desktopOnly&&w<1200)continue;
  await viewport(w,h);await check(`${w}x${h}: home actions fit horizontally`,()=>bounds(['main-menu','btn-start-menu','btn-vfx-toggle','btn-vfxnum-toggle']));await check(`${w}x${h}: touch home actions remain tappable`,()=>page.evaluate(()=>!matchMedia('(pointer: coarse)').matches || [...document.querySelectorAll('#main-menu > button')].every(e=>e.getBoundingClientRect().height>=44)));
  for(const scale of [100,75]){
   await page.evaluate(v=>setUiScale(v),scale);
@@ -36,16 +36,16 @@ for(const [w,h] of sizes){
  }
  await page.evaluate(()=>setUiScale(100));
 }
-await viewport(390,844);await page.click('#btn-start-menu');
-await check('mobile: character slots and actions fit',()=>bounds(['load-art-stage','load-slot-grid','load-action-panel']));
+await viewport(options.desktopOnly?1330:390,options.desktopOnly?900:844);await page.click('#btn-start-menu');
+await check('character slots and actions fit',()=>bounds(['load-art-stage','load-slot-grid','load-action-panel']));
 await check('selection page removes per-role transfer and keeps account transfer available',()=>page.evaluate(()=>!document.getElementById('load-btn-import') && !document.getElementById('load-btn-export') && ['load-btn-account-import','load-btn-account-export'].every(id=>!!document.getElementById(id)?.getClientRects().length)));
 await page.click('#load-btn-create');await page.click('#btn-class-base-mage');
-await check('mobile: creation controls fit',()=>bounds(['creation-class-list','stat-allocation','creation-gender-panel','btn-start']));
+await check('creation controls fit',()=>bounds(['creation-class-list','stat-allocation','creation-gender-panel','btn-start']));
 await page.evaluate(()=>{
  currentSlot=1;selectClass('m_mage');startGame();stopGameTimers();state.running=false;
  player.lv=60;player.skills=[...new Set([...Object.keys(DB.skills).filter(s=>DB.skills[s].type==='buff' && !DB.skills[s].procOnly).slice(0,24),'sk_summon','sk_zombie','sk_heal1'])];player.grantedSkills=[];calcStats();renderSkillSelects();updateUI();
 });
-for(const [w,h] of sizes){
+for(const [w,h] of sizes){if(options.desktopOnly&&w<1200)continue;
  await page.evaluate(()=>{player.skills=[...new Set([...Object.keys(DB.skills).filter(s=>DB.skills[s].type==='buff' && !DB.skills[s].procOnly).slice(0,24),'sk_summon','sk_zombie','sk_heal1'])];player.grantedSkills=[];renderSkillSelects();});
  await viewport(w,h);await check(`${w}x${h}: settings button is reachable`,async()=>{await page.click('#btn-automation');return true;});
  await page.evaluate(()=>{if(document.getElementById('tab-automation').classList.contains('hidden'))switchTab('automation',document.getElementById('btn-automation'));});
@@ -88,10 +88,10 @@ await check('file URL: original settings and game load',()=>page.evaluate(()=>{s
 if(!options.baseline && !options.skipScreenshots){
  await page.evaluate(()=>{player.lv=60;player.skills=[...new Set(['sk_summon','sk_zombie','sk_heal1',...Object.keys(DB.skills).filter(s=>DB.skills[s].type==='buff' && !DB.skills[s].procOnly).slice(0,18)])];player.grantedSkills=[];calcStats();renderSkillSelects();updateUI();});
  await viewport(1330,759);await page.click('#btn-automation');await page.screenshot({path:options.artifacts+'/rwd-desktop.png'});
- await page.evaluate(()=>document.getElementById('tab-automation').scrollTop=0);
+ if(!options.desktopOnly){await page.evaluate(()=>document.getElementById('tab-automation').scrollTop=0);
  await viewport(390,844);await page.click('#btn-automation');await page.evaluate(()=>{const game=document.getElementById('game-screen');game.scrollTop+=document.getElementById('col-right').getBoundingClientRect().top-70;});await page.screenshot({path:options.artifacts+'/rwd-mobile-settings.png'});
  await page.evaluate(()=>document.getElementById('tab-automation').scrollTop=10000);await page.screenshot({path:options.artifacts+'/rwd-mobile-buffs.png'});
- await viewport(1024,768);await page.click('#btn-automation');await page.evaluate(()=>{document.getElementById('tab-automation').scrollTop=0;const game=document.getElementById('game-screen');game.scrollTop+=document.getElementById('col-right').getBoundingClientRect().top-16;});await page.screenshot({path:options.artifacts+'/rwd-tablet.png'});
+ await viewport(1024,768);await page.click('#btn-automation');await page.evaluate(()=>{document.getElementById('tab-automation').scrollTop=0;const game=document.getElementById('game-screen');game.scrollTop+=document.getElementById('col-right').getBoundingClientRect().top-16;});await page.screenshot({path:options.artifacts+'/rwd-tablet.png'});}
 }
 await fs.writeFile(options.artifacts+'/'+(options.baseline?'rwd-baseline':'rwd-report-'+options.protocol)+'.json',JSON.stringify({date:new Date().toISOString(),reports},null,2));
 console.log(JSON.stringify({checks:reports.length,passed:reports.filter(r=>r.status==='PASS').length,failed:reports.filter(r=>r.status==='FAIL')},null,2));

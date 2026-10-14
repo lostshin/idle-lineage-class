@@ -2419,6 +2419,7 @@ function _allySpritesApply() {   // 8fps ticker 驅動
             bv.appendChild(el);
             st.el = el; st.imgs = { sh: sh, bd: bd, wp: wp };
         } else if (st.el.parentElement !== bv) bv.appendChild(st.el);
+        st.imgs.bd.dataset.mapName = ally._allyName || _clanRoleDisplayName(ally);
         let w = (a.idle && a.idle[0]) ? a.idle[0].naturalWidth : 100;
         st.el.style.width = w + 'px';
         { let _ps = _partySpritePos().A, _pp = _ps[Math.min(i, _ps.length - 1)]; st.el.style.left = 'calc(' + _pp.x + ' - ' + Math.round(w / 2) + 'px)'; st.el.style.bottom = _pp.b + 'px'; st.el.style.zIndex = String(30 - _pp.b); }   // 每輪更新（隊員順位/地圖版面 5格↔3格 可能變）；🤝 v3.6.89 固定站位＝依招募順序（前排 0~2·後排 3~6）

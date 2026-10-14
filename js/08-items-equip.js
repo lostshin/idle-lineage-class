@@ -1468,6 +1468,8 @@ function _updateUIImpl() {
             _nameEl.style.textShadow = '0 0 6px rgba(0,0,0,.75)';
         }
     }
+    const nameStatus = document.getElementById('st-status');
+    nameStatus.textContent = partyStatusText(player); nameStatus.title = nameStatus.textContent;
 
     // 處理背景圖片：全部職業／性別頭像統一使用 assets/character 對應的 PNG。
     let bgImageName = player.avatar || clsDisplayName;

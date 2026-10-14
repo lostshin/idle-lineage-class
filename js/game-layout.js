@@ -30,7 +30,7 @@
         }
     }
     function apply() {
-        const desktop = innerWidth >= 1200 && !document.body.classList.contains('m-mobile');
+        const desktop = matchMedia('(min-width:1200px)').matches && !document.body.classList.contains('m-mobile');
         for (const node of handles) node.hidden = !desktop; control.hidden = !desktop;
         if (!desktop) { game.style.removeProperty('--game-left-width'); game.style.removeProperty('--game-right-width'); return; }
         if (!game.clientWidth) return;

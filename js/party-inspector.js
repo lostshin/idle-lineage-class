@@ -261,6 +261,7 @@ function partyEquipmentHtml(actor,kind,id,page=0) {
     window.refreshPartyInspector = refresh;
     window.openPartyInspector = function (kind, id, button = document.activeElement) {
         currentTab='ability';equipmentPage=0;returnFocus = button; selected = {kind, id:String(id)}; owner = player; signature = ''; moved = false;
+        panel.dataset.kind=kind;panel.dataset.id=String(id);
         panel.hidden = false;document.getElementById('party-details').scrollTop=0;clearInterval(timer); refresh();
         if (selected) { timer = setInterval(refresh, 250); document.getElementById('party-inspector-close').focus({preventScroll:true}); positionPanel(true); }
     };

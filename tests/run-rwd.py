@@ -8,10 +8,11 @@ from pathlib import Path
 import subprocess
 import threading
 
-SUITES = ['rwd','ui-scale','gameplay','account-gameplay','visual-account-gameplay','companion-commands','game-tools','pwa','visual-game-tools','addon-defaults','compact-layout','party-refinements','party-equipment','visual-party-equipment','village-clan-warehouse','visual-village-clan-warehouse','ally-skill-stop','visual-ally-skill-stop','skill-cards','visual-skill-cards','town-buffs-enhance','visual-town-buffs-enhance','summon-display','visual-summon-display','play-fixes']
+SUITES = ['rwd','ui-scale','gameplay','account-gameplay','visual-account-gameplay','companion-commands','game-tools','pwa','visual-game-tools','addon-defaults','compact-layout','party-refinements','party-equipment','visual-party-equipment','village-clan-warehouse','visual-village-clan-warehouse','ally-skill-stop','visual-ally-skill-stop','skill-cards','visual-skill-cards','town-buffs-enhance','visual-town-buffs-enhance','summon-display','visual-summon-display','play-fixes','desktop-feedback','visual-desktop-feedback']
 REQUIRED = ['rwd','ui-scale','gameplay','account-gameplay','companion-commands']
 
 parser = argparse.ArgumentParser()
+parser.add_argument('--desktop-only', action='store_true', help='Skip mobile and tablet viewport checks')
 parser.add_argument('--baseline', action='store_true')
 parser.add_argument('--protocol', choices=['http','file','both'], default='http')
 parser.add_argument('--suite', nargs='+', choices=SUITES + ['required'], default=['rwd'], help="One or more suites run in order; 'required' expands to " + ' '.join(REQUIRED))
@@ -57,7 +58,7 @@ try:
     for protocol, suite in runs:
         if len(runs) > 1:
             print(f'== {suite} ({protocol})', flush=True)
-        options = {'root': str(root), 'artifacts': str(artifacts), 'baseline': args.baseline,
+        options = {'root': str(root), 'artifacts': str(artifacts), 'baseline': args.baseline, 'desktopOnly': args.desktop_only,
                    'space': args.space, 'page': args.page, 'keepSpace': args.keep_space or len(runs) > 1, 'skipScreenshots': args.skip_screenshots, 'protocol': protocol, 'url': (root / 'index.html').as_uri() if protocol == 'file' else f'http://127.0.0.1:{server.server_port}/index.html'}
         test = root / ('tests/' + suite + '.js' if suite.startswith('visual-') else 'tests/' + suite + '.e2e.js')
         source = 'const options = ' + json.dumps(options) + ';\n' + test.read_text()

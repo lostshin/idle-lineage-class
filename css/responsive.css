@@ -133,7 +133,7 @@
     #col-right > .tab-bar { top: 62px; }
 }
 @media (pointer: coarse) {
-    #main-menu > button { min-height: 44px; font-size: clamp(13px, 1.8vw, 16px) !important; }
+    #main-menu > button { min-height: calc(44px * var(--ui-scale-inverse, 1)); font-size: clamp(13px, 1.8vw, 16px) !important; }
 }
 @media (max-height: 520px) and (pointer: coarse) {
     #main-menu { top: 34%; left: 52%; width: 34%; gap: 8px !important; }
@@ -226,6 +226,8 @@
 .effect-icon:hover, .effect-icon:focus-visible { border-color: #e2c27c; outline: 1px solid #e2c27c; }
 #effect-tooltip { display: block; position: fixed; z-index: 150; pointer-events: none; box-sizing: border-box; max-height: calc(100dvh - 24px); overflow-y: auto; padding: 10px 12px; background: #15151cf5; border: 1px solid #a18156; color: #e8dfcb; border-radius: 3px; font-size: 13px; line-height: 1.6; }
 #effect-tooltip[hidden] { display: none; }
+#map-name-tooltip { position:fixed; z-index:150; pointer-events:none; box-sizing:border-box; padding:4px 8px; background:#15151cf5; border:1px solid #a18156; color:#e8dfcb; border-radius:3px; font-size:13px; overflow-wrap:anywhere; }
+#map-name-tooltip[hidden] { display:none; }
 #effect-tooltip strong { color: #e2c27c; }
 @media (max-width: 768px) { #load-action-panel { max-height: none; overflow: visible; } }
 @media (pointer: coarse) { .transfer-body input, .transfer-body select { font-size: 16px; min-height: 44px; } .effect-icon { min-width: 44px; min-height: 44px; } }
@@ -258,8 +260,12 @@
 .party-summary-cell strong { color:#edd397; font-size:20px; font-variant-numeric:tabular-nums; }
 .party-art-scroll { max-width:100%; overflow:hidden; }
 .party-art-scroll .ability-window-shell { flex:none; }
-#party-ability-tip { position:fixed; z-index:155; padding:12px; color:#f0d59c; background:#17151af5; border:1px solid #a18156; font-size:20px; pointer-events:none; max-width:calc(100vw - 24px); }
+#party-ability-tip { position:fixed; z-index:155; padding:10px; color:#f0d59c; background:#17151af5; border:1px solid #a18156; font-size:13px; line-height:1.5; white-space:pre-line; pointer-events:none; max-width:calc(100vw - 24px); max-height:calc(100dvh - 24px); overflow:auto; }
 #party-ability-tip[hidden] { display:none; }
+#equipment-stat-contributions { position:absolute; bottom:6px; left:6px; right:6px; z-index:25; padding:5px 8px; border:1px solid #655139; background:#19171af5; color:#d8c5a4; font-size:12px; pointer-events:auto; }
+#equipment-stat-contributions summary { cursor:pointer; }
+#equipment-stat-contributions > div { max-height:280px; overflow:auto; margin-top:6px; }
+#equipment-stat-contributions li { margin:5px 0; }
 @media(max-width:768px){ #party-inspector-close { min-height:44px; } .party-summary { gap:5px; } }
 
 #party-inspector { background:#17161c!important; }
@@ -453,6 +459,23 @@
 .party-roster-row.is-downed .party-roster-portrait { filter:grayscale(1); }
 .party-roster-note { margin:0;font-size:11px; }
 .party-roster-portrait { position:relative;overflow:hidden; }
+.party-roster-heading { flex-wrap:nowrap; }
+.party-roster-status { color:#fca5a5; font-size:11px; min-width:0; max-width:42%; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; flex:0 1 auto; }
+.party-roster-status:empty { display:none; }
+.party-roster-recovery { display:flex; align-items:center; gap:4px; white-space:nowrap; font-size:10px; }
+.party-roster-recovery > * { flex:none; }
+.party-roster-recovery [data-party-down] { color:#f87171; font-weight:700; }
+.party-roster-recovery button,.party-roster-recovery [id^="squad-revive-"] { font-size:10px; padding:1px 4px; }
+.status-overview-row { display:flex; justify-content:space-between; gap:8px; color:#94a3b8; white-space:nowrap; }
+.status-overview-row .status-stat { gap:4px; }
+.status-name-heading { display:flex; align-items:center; justify-content:flex-end; gap:4px; min-width:0; }
+.status-name-heading #st-class { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0; padding:0; }
+.status-name-heading .party-roster-status { max-width:50%; }
+.classic-list-toolbar .classic-sort-wrap { position:relative; left:auto; top:auto; width:auto; height:auto; flex:1; min-width:0; }
+.classic-list-toolbar [data-inventory-sort] { width:100%; }
+.classic-list-toolbar .classic-sort-menu { left:0; top:100%; width:max-content; min-width:180px; max-width:none; z-index:20; }
+#settings-tools .m-dex-entry-main,#settings-tools .m-wiki-entry-main { padding:5px 8px!important; min-height:30px!important; height:auto!important; font-size:13px!important; line-height:20px!important; }
+#settings-tools .m-dex-entry-newtab,#settings-tools .m-wiki-entry-newtab { padding:5px 10px!important; min-height:30px!important; height:auto!important; font-size:14px!important; line-height:20px!important; }
 
 /* Keep the clan toggle independent of its longer cost explanation. */
 .clan-buff-heading { display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px; }
