@@ -14,7 +14,7 @@
     <title>放置天堂 - 日出之國</title>
     <link rel="icon" type="image/png" href="assets/favicon.png">   <!-- 🖼️ 瀏覽器分頁圖示(favicon)：把你的圖放到 assets/favicon.png 即生效；可改 href 路徑或副檔名(.ico/.svg) -->
 
-    <link rel="stylesheet" href="css/style.css?v=59ff0049c7">
+    <link rel="stylesheet" href="css/style.css?v=0d31a4834b">
     <link rel="stylesheet" href="css/floating-ui.css?v=bc8be4ac7f">
     <link rel="stylesheet" href="css/tailwind-built.css?v=932535789f"><!-- 🔧 預編譯 Tailwind（取代執行期 JIT tailwind.js）：只含實際用到的 class，省 407KB runtime + 移除持續掃描 DOM 的成本。置於 style.css 之後以保留原 cascade（utility 平手時勝過自訂 class，與舊 JIT 注入順序一致） -->
     <link rel="stylesheet" href="css/responsive.css?v=4db59c475a">
@@ -42,7 +42,13 @@
         </div>
 
         <div id="login-meta-layer">
-            <!-- 🏷️ 版本號（由 js/14 window.onload 依 GAME_VERSION 填入；此處 v2.4.0 僅為 JS 失效時的後備文字） -->
+            <!-- 版本出處：原版 + pp771007 加掛 + lostshin 整合（取代原作者的非官方轉載橫幅） -->
+            <div id="login-credits" class="text-center">
+                <div>原作者：<span class="login-credit-name">秋玥</span>（shines871）· 原版 <span data-game-version>v3.8.34</span> · <a href="https://shines871.github.io/idle-lineage-class/" target="_blank" rel="noopener">原版連結</a></div>
+                <div>加掛模組：<span class="login-credit-name">pp771007</span> · <a href="https://pp771007.github.io/idle-lineage-class/" target="_blank" rel="noopener">加掛版連結</a></div>
+                <div>本版本：<span class="login-credit-name">lostshin</span> 整合修改版 · <a href="https://github.com/lostshin/idle-lineage-class" target="_blank" rel="noopener">GitHub</a></div>
+            </div>
+            <!-- 🏷️ 版本號（由 js/14 window.onload 依 FORK_VERSION 填入；此處 v2.4.0 僅為 JS 失效時的後備文字） -->
             <div id="login-version" class="text-center text-sm text-slate-300 font-medium tracking-wide select-none">v2.4.0</div>
             <div id="login-disclaimer" class="text-center text-xs text-slate-400 leading-relaxed mx-auto">本遊戲為非官方免費同人作品，絕無營利意圖；遊戲內圖片與音樂版權歸原權利方 NCSOFT 所有，其餘程式為獨立開發，嚴禁商業販售。</div>
         </div>
@@ -475,6 +481,14 @@
                         <label class="col-span-2 cursor-pointer flex items-center gap-2 border-t border-slate-700 pt-2 mt-1"><input type="checkbox" id="set-auto-buy-arrow" class="w-4 h-4" checked> <span class="text-orange-300">弓箭耗盡時自動購買 1000 銀箭</span></label>
 						<div id="auto-buff-skills" class="col-span-2 grid grid-cols-2 gap-1 mt-1 border-t border-slate-600 pt-2"></div>
                     </div>
+                    <!-- 版權聲明：取代原作者在非官方網域頂端掛的轉載橫幅（#_orig_pbar 於 css/style.css 隱藏） -->
+                    <div id="copyright-notice" class="bg-slate-800 p-3 rounded-lg border border-slate-700 mt-3 text-xs text-slate-300 leading-relaxed">
+                        <div class="text-sm text-slate-400 mb-1 border-b border-slate-700 pb-1">版權聲明</div>
+                        <p>本版本由 lostshin 整合原版與 pp771007 加掛並自行修改，屬非官方、非商業轉載，禁止商業營利。</p>
+                        <p>原作者 秋玥（shines871）· 官方最新免費版：<a href="https://shines871.github.io/idle-lineage-class/" target="_blank" rel="noopener" class="text-amber-300 underline">shines871.github.io/idle-lineage-class</a></p>
+                        <p>加掛模組來源：<a href="https://pp771007.github.io/idle-lineage-class/" target="_blank" rel="noopener" class="text-amber-300 underline">pp771007.github.io/idle-lineage-class</a></p>
+                        <p>遊戲內圖片與音樂版權歸原權利方 NCSOFT 所有。</p>
+                    </div>
                     <!-- 匯出/存檔 已移至右上角按鈕區（3×4） -->
                 </div>
             </div>
@@ -579,7 +593,7 @@
     </script>
 
     <script src="js/anim-manifest.js?v=14d284fa9f"></script>
-    <script src="js/00-data.js?v=81d761a1d1"></script>
+    <script src="js/00-data.js?v=5b30e05bfb"></script>
 <script src="js/ui-scale.js?v=977e219542"></script>
     <script src="js/game-layout.js?v=0d28c06ee3"></script>
 <script src="js/01-drops-config.js?v=fb0b0b0dc0"></script>
@@ -599,7 +613,7 @@
 <script src="js/11-world-map.js?v=5ab16680bc"></script>
 <script src="js/12-npc-quests.js?v=21b6fd7fba"></script>
 <script src="js/13-shop-save.js?v=99c6c786db"></script>
-<script src="js/14-craft-pandora.js?v=26ab9f373b"></script>
+<script src="js/14-craft-pandora.js?v=d19248eb8e"></script>
 <script src="js/15-cards.js?v=42975a78a0"></script>
 <script src="js/16-equip-book.js?v=06993d3f55"></script>
 <script src="js/18-misc-book.js?v=9a4bbc3677"></script>
