@@ -2,7 +2,7 @@
 // 以「HP-delta 歸因」量測各來源每秒輸出：在 tick 各攻擊階段前後快照在場怪 curHp，差值歸給該階段來源。
 // 來源：player（玩家·含自動施法/持續增益/中毒出血 DoT）、summon（玩家召喚/迷魅/幻術立方）、pet（寵物）、
 //       per-ally（每個傭兵獨立·key=存檔槽 _slot）。累積傷害÷觀測秒數＝DPS。換地圖/重置歸零（auditReset→_dpsReset），非存檔。
-let _dps = { player: 0, summon: 0, pet: 0, pets: {}, allies: {} };
+let _dps = { player: 0, summon: 0, guard: 0, pet: 0, pets: {}, allies: {} };
 let _dpsAllyTurn = false;   // alliesTick 逐傭兵量測期間為 true：令 _allyDamageMob 不重複計入（回合內輸出已被該傭兵 HP-delta 涵蓋），僅「反擊/居合」等回合外輸出才由 _allyDamageMob 直接歸因
 // 原版方向的魔法係數：1－屬性防禦＋3×max(1, INT提供SP＋道具SP)÷32。
 // Fable 的 INT 可超過原版上限，因此 INT 提供的 SP 封頂 33（等同原版 INT 45 → INT-12）。
@@ -116,7 +116,12 @@ function weaponMagicTier(wpn) {
 function weaponMagicDamageCoef(dStats, wpn, target, ele) {
     return magicDamageCoef(dStats, magicAttrDefense(target, ele), weaponMagicTier(wpn));
 }
-function _dpsReset() { _dps = { player: 0, summon: 0, pet: 0, pets: {}, allies: {} }; _dpsReactAllyAccum = 0; }
+function _dpsReset() { _dps = { player: 0, summon: 0, guard: 0, pet: 0, pets: {}, allies: {} }; _dpsReactAllyAccum = 0; }
+function _dpsGuardWrap(fn) {
+    const snap = _dpsSnap();
+    try { return fn(); }
+    finally { _dps.guard += _dpsDealt(snap); }
+}
 function _dpsPetSrc(pet) { return {petUid:String(pet.uid),name:petDisplayName(pet)}; }
 function _dpsAddPet(source, amount) {
     if (!(amount > 0)) return;
@@ -901,7 +906,7 @@ function tick() {
     }
 
     if(!player.dead) { let _auraSnap = _dpsSnap(); try { relicAuraTick(); } catch(e){} let _auraDealt = _dpsDealt(_auraSnap); if(_auraDealt > 0) _dps.player += _auraDealt; }   // 🏺 蠅災的詛咒等 auraDmg：玩家階段週期全體固定魔傷（自帶快照→正確計入玩家 DPS·修 code-review#1）
-    if(!player.dead) { _combatSrc = 'summon'; let _dpsSumSnap = _dpsSnap(); summonTick(player.summon, () => { player.summon = null; }); summonTick(player.charmed, () => { player.charmed = null; }); if (typeof summonV2Tick === 'function') { try { summonV2Tick(); } catch (e) {} }   /* 🧙 v3.2.19 召喚術 v2（多實體·js/23） */ if (typeof castleGuardTick === 'function') { try { castleGuardTick(); } catch (e) {} }   /* 🏰 城堡護衛 v2（可招募協同角色·js/31）：與召喚同階段·輸出計入 summon 桶 */ if(player.cls === 'illusion') { cubeTick(); illuSummonTick(); } { let _sd = _dpsDealt(_dpsSumSnap); if (_sd > 0) _dps.summon += _sd; }   /* 🎯 DPS：召喚（玩家召喚/迷魅/幻術立方/城堡護衛）輸出 */ _combatSrc = 'mercenary'; alliesTick(); _combatSrc = null; }   // ⚔️ 召喚(含迷魅)/傭兵 戰鬥訊息來源情境；🔮 幻術士立方週期效果＋幻術精通幻象
+    if(!player.dead) { _combatSrc = 'summon'; let _dpsSumSnap = _dpsSnap(); summonTick(player.summon, () => { player.summon = null; }); summonTick(player.charmed, () => { player.charmed = null; }); if (typeof summonV2Tick === 'function') { try { summonV2Tick(); } catch (e) {} }   /* 🧙 v3.2.19 召喚術 v2（多實體·js/23） */ if (typeof castleGuardTick === 'function') { try { _dpsGuardWrap(() => castleGuardTick()); } catch (e) {} }   /* 🏰 城堡護衛 v2（可招募協同角色·js/31）：與召喚同階段·保留 summon 合計並記 guard 子項 */ if(player.cls === 'illusion') { cubeTick(); illuSummonTick(); } { let _sd = _dpsDealt(_dpsSumSnap); if (_sd > 0) _dps.summon += _sd; }   /* 🎯 DPS：召喚（玩家召喚/迷魅/幻術立方/城堡護衛）輸出 */ _combatSrc = 'mercenary'; alliesTick(); _combatSrc = null; }   // ⚔️ 召喚(含迷魅)/傭兵 戰鬥訊息來源情境；🔮 幻術士立方週期效果＋幻術精通幻象
     if(!player.dead) pledgeBlessTick();   // 生命的祝福：場上血盟怪物持續治療
     // HoT 持續回復（體力回復術 / 生命的祝福）
 // 💤 【休眠機制】團隊 HoT（持續回復）：整條鏈路目前不可達——DB.skills 內已無任何技能宣告 hot/autoBuff

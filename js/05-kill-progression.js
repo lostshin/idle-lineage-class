@@ -141,7 +141,11 @@ function renderAuditTab() {
             _dpsRows.push({ name: '傭兵·' + nm, dps: (rec ? rec.dmg : 0) / _dpsSecs, color: '#fbbf24' });   // 每個傭兵一條（琥珀）
         });
     }
-    if ((_dps.summon || 0) > 0) _dpsRows.push({ name: '召喚', dps: _dps.summon / _dpsSecs, color: '#c084fc' });   // 召喚＝紫（有輸出才顯示）
+    // Keep the legacy summon aggregate for the mirrored training module; split its guard subset here.
+    const summonDamage = Math.max(0, (_dps.summon || 0) - (_dps.guard || 0));
+    const hasSummon = player.summon || player.charmed || summonV2List().length || (player.allies || []).some(a => a?.summon);
+    if (summonDamage > 0 || hasSummon) _dpsRows.push({ name: '召喚', dps: summonDamage / _dpsSecs, color: '#c084fc' });
+    if ((_dps.guard || 0) > 0 || guardV2List().length) _dpsRows.push({ name: '護衛', dps: (_dps.guard || 0) / _dpsSecs, color: '#22d3ee' });
     const petRows = new Map(Object.entries(_dps.pets));
     for (const pet of petsOutList()) if (!petRows.has(String(pet.uid))) petRows.set(String(pet.uid), {name:petDisplayName(pet),dmg:0});
     for (const rec of petRows.values()) _dpsRows.push({name:'寵物·'+rec.name,dps:rec.dmg/_dpsSecs,color:'#4ade80'});
@@ -180,6 +184,7 @@ function renderAuditTab() {
         <div class="border-t border-slate-700 pt-2">
             <div class="text-emerald-300 font-bold mb-2">DPS 統計 <span class="text-slate-500 text-xs font-normal">（本圖每秒輸出·各傭兵獨立）</span></div>
             <div class="audit-dps-chart">${_dpsHtml}</div>
+            <p class="text-slate-400 text-xs mt-2">夥伴＝寵物，各隻按名稱分列；護衛獨立計算，召喚不含護衛。</p>
         </div>
         <div class="border-t border-slate-700 pt-2">
             <div class="text-cyan-300 font-bold mb-1">自訂掉落追蹤</div>
