@@ -1678,10 +1678,26 @@ function _clanAdjustContribution(points) {
     });
 }
 
+function clanDonationAmount(kind) {
+    const value = Number(player.config?.clanDonationAmounts?.[kind]);
+    return Number.isInteger(value) && value >= (kind === 'gold' ? 10000 : 1) && (kind !== 'gold' || value % 10000 === 0) ? value : kind === 'gold' ? 10000 : 1;
+}
+function clanRememberDonation(kind, value) {
+    const amount = Number(value);
+    if (!Number.isInteger(amount) || amount < (kind === 'gold' ? 10000 : 1) || (kind === 'gold' && amount % 10000 !== 0)) return false;
+    player.config ||= {};
+    player.config.clanDonationAmounts = {...player.config.clanDonationAmounts, [kind]:amount};
+    const saved = saveGame() === true;
+    const status = document.getElementById('clan-donation-status');
+    if (status) status.textContent = saved ? '' : '捐獻數字尚未儲存，請先手動存檔。';
+    return saved;
+}
+
 function clanDonateGold() {
     let el = document.getElementById('clan-gold-donate');
     let amount = Math.floor(Number(el && el.value) || 0);
     if (amount < 10000 || amount % 10000 !== 0) { alert('金幣捐獻需為 10,000 的整數倍。'); return; }
+    clanRememberDonation('gold', amount);
     if ((player.gold || 0) < amount) { alert('金幣不足。'); return; }
     let points = amount / 10000;
     player.gold -= amount;
@@ -1706,6 +1722,7 @@ function clanDonateDiamonds() {
     let el = document.getElementById('clan-diamond-donate');
     let amount = Math.floor(Number(el && el.value) || 0);
     if (amount < 1) { alert('請輸入要捐獻的龍之鑽石數量。'); return; }
+    clanRememberDonation('diamond', amount);
     if (typeof window.pandoraAdjustSharedDiamonds !== 'function') { alert('龍之鑽石資料目前無法使用。'); return; }
     let spend = window.pandoraAdjustSharedDiamonds(-amount);
     if (!spend || !spend.ok) { alert((spend && spend.error) || '龍之鑽石不足。'); return; }
@@ -1997,26 +2014,24 @@ function renderClanTab() {
                 </div>
             </div>
             <div>
-                <div class="flex items-center justify-between gap-3 mb-2">
-                    <div>
-                        <div class="text-slate-100 font-bold">血盟 Buff</div>
-                        <div class="text-xs text-slate-400">每小時消耗 5 貢獻（關閉時未滿 1 小時亦計 5 點），目前 ${current.contribution.toLocaleString()} 貢獻</div>
-                    </div>
-                    <label class="flex items-center gap-2 text-sm text-slate-200 cursor-pointer">
+                <div class="clan-buff-heading mb-2">
+                    <div class="text-slate-100 font-bold">血盟 Buff</div>
+                    <label class="clan-buff-toggle text-sm text-slate-200 cursor-pointer">
                         <input type="checkbox" ${current.buffOn ? 'checked' : ''} onchange="clanToggleBuff(this.checked)">
                         <span>${current.buffOn ? '已開啟' : '已關閉'}</span>
                     </label>
                 </div>
+                <div class="text-xs text-slate-400 mb-2">每小時消耗 5 貢獻（關閉時未滿 1 小時亦計 5 點），目前 ${current.contribution.toLocaleString()} 貢獻</div>
                 <div class="text-sm text-emerald-200 leading-relaxed border-l-2 border-emerald-700 pl-3">${_clanBuffText(buff)}</div>
             </div>
             <div class="border-t border-slate-700 pt-3">
-                <div class="text-slate-100 font-bold mb-2">捐獻</div>
+                <div class="text-slate-100 font-bold mb-2">捐獻</div><p id="clan-donation-status" class="text-amber-200 text-xs" role="status"></p>
                 <div class="flex gap-2 mb-2">
-                    <input id="clan-gold-donate" type="number" min="10000" step="10000" value="10000" class="min-w-0 flex-1 bg-slate-900 border border-slate-600 text-white px-2 py-2 rounded">
+                    <input id="clan-gold-donate" type="number" min="10000" step="10000" value="${clanDonationAmount('gold')}" onchange="clanRememberDonation('gold',this.value)" class="min-w-0 flex-1 bg-slate-900 border border-slate-600 text-white px-2 py-2 rounded">
                     <button class="btn px-3 py-2 font-bold bg-amber-800 border-amber-500 text-amber-100" onclick="clanDonateGold()">捐金幣</button>
                 </div>
                 <div class="flex gap-2">
-                    <input id="clan-diamond-donate" type="number" min="1" step="1" value="1" class="min-w-0 flex-1 bg-slate-900 border border-slate-600 text-white px-2 py-2 rounded">
+                    <input id="clan-diamond-donate" type="number" min="1" step="1" value="${clanDonationAmount('diamond')}" onchange="clanRememberDonation('diamond',this.value)" class="min-w-0 flex-1 bg-slate-900 border border-slate-600 text-white px-2 py-2 rounded">
                     <button class="btn px-3 py-2 font-bold bg-cyan-900 border-cyan-600 text-cyan-100" onclick="clanDonateDiamonds()">捐龍鑽（持有 ${diamonds.toLocaleString()}）</button>
                 </div>
                 <div class="text-xs text-slate-400 mt-2">10,000 金幣 = 1 貢獻；1 龍之鑽石 = 100 貢獻。貢獻會增加等量的全模式共用血盟經驗。</div>

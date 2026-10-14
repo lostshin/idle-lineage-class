@@ -485,11 +485,26 @@ function whWithdraw(uidv, qty){
     renderTabs(true); updateUI();
     renderWarehouseNPC(document.getElementById('interaction-content'));
 }
+function whGoldAmount(){
+    const value = Number(player.config?.warehouseGoldAmount);
+    return Number.isSafeInteger(value) && value > 0 ? value : 1000;
+}
+function whRememberGoldAmount(value){
+    const amount = Number(value);
+    if (!Number.isSafeInteger(amount) || amount <= 0) return false;
+    player.config ||= {};
+    player.config.warehouseGoldAmount = amount;
+    const saved = saveGame() === true;
+    const status = document.getElementById('wh-gold-status');
+    if (status) status.textContent = saved ? '' : '倉庫金額尚未儲存，請先手動存檔。';
+    return saved;
+}
 function whGold(dir){
     // 🏦 縱深守衛：倉庫只能在安全區使用（浮動視窗曾可被帶進狩獵區；closeNpcInteraction 已補關閉，這裡再擋一層）
     if (typeof mapState === 'undefined' || !mapState.current || !String(mapState.current).startsWith('town_')) { if (typeof logSys === 'function') logSys('<span class="text-red-400">離開安全區後無法使用倉庫。</span>'); return; }
-    let amt = parseInt(document.getElementById('wh-gold-amt').value) || 0;
-    if(amt <= 0) return;
+    let amt = Number(document.getElementById('wh-gold-amt').value);
+    if(!Number.isSafeInteger(amt) || amt <= 0) return;
+    whRememberGoldAmount(amt);
     let w = loadWarehouse();
     let _txn = whTxnSnapshot();
     if(dir === 'in'){ amt = Math.min(amt, player.gold); player.gold -= amt; w.gold = (w.gold||0) + amt; }
@@ -518,10 +533,11 @@ function renderWarehouseNPC(div){
         <div class="text-slate-300 text-sm leading-relaxed">將物品或金幣存入倉庫，<b class="text-amber-300">四個存檔角色共用</b>。點背包物品＝存入；點倉庫物品＝取出（依下方<b class="text-amber-300">數量</b>欄取出／存入；留空＝整疊全部）。已裝備或鎖定中的物品無法存入（需先解鎖）。</div>
         <div class="flex items-center gap-2 bg-slate-800/60 border border-slate-600 rounded p-3 text-sm flex-wrap">
             <span>金幣　背包：<span class="text-yellow-400 font-bold">${player.gold}</span>　倉庫：<span class="text-yellow-400 font-bold">${w.gold||0}</span></span>
-            <input id="wh-gold-amt" type="number" min="1" value="1000" class="w-24 bg-slate-900 border border-slate-600 text-center text-white rounded h-8 ms-auto">
+            <input id="wh-gold-amt" type="number" min="1" step="1" value="${whGoldAmount()}" onchange="whRememberGoldAmount(this.value)" class="w-24 bg-slate-900 border border-slate-600 text-center text-white rounded h-8 ms-auto">
             <button onclick="whGold('in')" class="btn px-4 text-sm font-bold h-8 inline-flex items-center justify-center" style="background: linear-gradient(135deg, #0c4a5e 0%, #0e7490 28%, #0a3d4d 52%, #11657e 76%, #093440 100%); color: #a5f3fc; border-color: #0891b2;">存入 ▶</button>
             <button onclick="whGold('out')" class="btn px-4 text-sm font-bold h-8 inline-flex items-center justify-center" style="background: linear-gradient(135deg, #6b2a10 0%, #b3490e 28%, #5a230e 52%, #9a3e0c 76%, #4a1d0c 100%); color: #fed7aa; border-color: #c2410c;">◀ 取出</button>
         </div>
+        <output id="wh-gold-status" class="text-amber-200 text-xs" role="status"></output>
         <div class="flex items-center gap-2 text-sm flex-wrap">
             <span class="text-slate-300 font-bold">物品分類：</span>
             <select onchange="whSetFilter(this.value)" class="bg-slate-900 border border-slate-600 text-white rounded py-1 px-2 text-sm">

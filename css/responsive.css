@@ -282,3 +282,7 @@
 #party-resize { flex:none; width:28px; height:28px; cursor:nwse-resize; touch-action:none; color:#e2c27c; background:#242027; border:1px solid #806448; }
 @media(pointer:coarse){ #party-resize { width:44px; height:44px; } }
 @container(max-width:400px){ .party-summary { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+
+.clan-buff-heading { display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px; }
+.clan-buff-toggle { display:inline-flex;align-items:center;gap:6px;white-space:nowrap; }
+.clan-buff-toggle input[type="checkbox"] { width:18px;height:18px;flex:none;margin:0; }
