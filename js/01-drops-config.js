@@ -1804,7 +1804,7 @@ let quickJunk = { wpn: { active: false, sel: {}, known: {} }, arm: { active: fal
 // _combatSrc：目前正在記錄的戰鬥訊息來源，由各攻擊派發點設定；為 null 時依顏色 type 推定（'enemy'→敵人，其餘→玩家）。
 let _combatSrc = null;
 const COMBAT_FILTER_KEY = 'lineage_idle_combat_filter';
-let _combatFilter = { enemy: true, player: true, mercenary: true, summon: true, pet: true };
+let _combatFilter = { enemy: true, player: true, mercenary: true, cast: true, summon: true, pet: true };
 (function(){ try { let s = localStorage.getItem(COMBAT_FILTER_KEY); if (s) { let o = JSON.parse(s); for (let k in _combatFilter) if (typeof o[k] === 'boolean') _combatFilter[k] = o[k]; } } catch(e){} })();
 function saveCombatFilter(){ try { localStorage.setItem(COMBAT_FILTER_KEY, JSON.stringify(_combatFilter)); } catch(e){} }
 function applyCombatFilter(){
@@ -1824,6 +1824,14 @@ let _showMobHp = false;
 (function(){ try { let s = localStorage.getItem('lineage_idle_mob_hp'); if (s !== null) _showMobHp = (s === '1'); } catch(e){} })();
 function toggleMobHp(){ _showMobHp = !_showMobHp; try { localStorage.setItem('lineage_idle_mob_hp', _showMobHp ? '1' : '0'); } catch(e){} let b = document.getElementById('cf-btn-hp'); if (b) b.classList.toggle('cf-off', !_showMobHp); renderMobs(); }
 
+function logSpellCast(actor, skill, target=null) {
+    if (!actor || !skill || state.ff) return;
+    if (skill === DB.skills.sk_fireball && actor.eq?.armor && DB.items[actor.eq.armor.id]?.fireballBurst) skill = DB.skills.sk_fireball_burst;
+    const escape=value=>String(value||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const source=actor._allyName?'mercenary':'player',name=actor._allyName?'傭兵·'+actor._allyName:actor.name||'你';
+    const recipient=target?' → '+escape(target._allyName||target.name||target.form||target.n||'隊友'):'';
+    logCombat(`<span class="spell-cast-action font-bold" data-cast-source="${source}">【施法】${escape(name)}</span> 施放 ${escape(skill.n)}${recipient}。`, 'skill', 'cast');
+}
 function logCombat(msg, type="player", src=null) {
     if(state.ff) return; // 補跑期間不洗版
     const el = document.getElementById('combat-log');

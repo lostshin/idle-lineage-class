@@ -1,0 +1,33 @@
+{
+  "method": "Native spell logger and persistent source filters in synthetic Node VM; DOM/CSS visual behavior requires browser QA",
+  "reports": [
+    {
+      "name": "old player/mercenary preferences survive and new cast category starts enabled",
+      "status": "PASS"
+    },
+    {
+      "name": "both casters share the independent cast category with actor identity retained",
+      "status": "PASS"
+    },
+    {
+      "name": "cast toggle updates its own log filter and button, preserving source switches",
+      "status": "PASS"
+    },
+    {
+      "name": "cast toggle persists with all existing source preferences",
+      "status": "PASS"
+    },
+    {
+      "name": "re-enabling casts does not enable player or mercenary messages",
+      "status": "PASS"
+    },
+    {
+      "name": "regular player/mercenary damage stays in its original source categories",
+      "status": "PASS"
+    },
+    {
+      "name": "offline casts do not append log entries",
+      "status": "PASS"
+    }
+  ]
+}

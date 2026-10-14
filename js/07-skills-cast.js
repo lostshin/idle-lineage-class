@@ -313,6 +313,7 @@ function manualCast(skId) {
     player.mp -= cost;
     if (player.mastery === 'i_mana' && player.mp < _mpBeforeManual) manaMasteryRefund(_mpBeforeManual - player.mp);   // 🔮 魔力精通：手動施法消耗MP→傭兵回饋10%
     player.manualCd[skId] = (sk.mEff === 'barrier') ? (sk.dur * 10 + 120) : getAutoCastInterval(player, isSupportSkill(sk), player.manualCd[skId]);   // 🛡️ 絕對屏障保留專屬長冷卻；其餘手動施法套用攻擊／輔助施法速度
+    logSpellCast(player, sk);
     calcStats(); updateUI();
 }
 
@@ -367,7 +368,7 @@ function castSkill(skId) {
         r = castSkillInner(skId);
         if (player.mp < _before) manaMasteryRefund(_before - player.mp);
     }
-    if (r) { try { playSpellCast(DB.skills[skId] ? DB.skills[skId].n : null); } catch(e){} }   // 🔊 音效：施法成功才出聲（依技能名對應專屬施展音，查無→通用魔法音）
+    if (r) { logSpellCast(player, DB.skills[skId]); try { playSpellCast(DB.skills[skId] ? DB.skills[skId].n : null); } catch(e){} }   // 🔊 音效：施法成功才出聲（依技能名對應專屬施展音，查無→通用魔法音）
     if (r && typeof playSelfFx === 'function' && DB.skills[skId] && isSupportSkill(DB.skills[skId])) {   // 🙏 v2.7.48 自我增益特效：buff→玩家頭上(overHead)·heal→被治療目標身上（未註冊靜默略過）
         try {
             let _sk = DB.skills[skId];

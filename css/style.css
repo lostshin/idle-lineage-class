@@ -737,7 +737,7 @@
         /* ⚔️ 戰鬥日誌來源過濾：點亮(顯示)/點暗(隱藏) 敵人/玩家/傭兵/召喚/夥伴 */
         .cf-pill { font-size: 0.7rem; font-weight: 700; line-height: 1; padding: 3px 6px; border-radius: 9999px; border: 1px solid; cursor: pointer; user-select: none; transition: opacity .15s, filter .15s; white-space: nowrap; }
         .cf-pill.cf-off { opacity: 0.4; filter: grayscale(0.85); }
-        #combat-log.cf-hide-enemy [data-src="enemy"], #combat-log.cf-hide-player [data-src="player"], #combat-log.cf-hide-mercenary [data-src="mercenary"], #combat-log.cf-hide-summon [data-src="summon"], #combat-log.cf-hide-pet [data-src="pet"] { display: none; }
+        #combat-log.cf-hide-enemy [data-src="enemy"], #combat-log.cf-hide-player [data-src="player"], #combat-log.cf-hide-mercenary [data-src="mercenary"], #combat-log.cf-hide-cast [data-src="cast"], #combat-log.cf-hide-summon [data-src="summon"], #combat-log.cf-hide-pet [data-src="pet"] { display: none; }
         @keyframes flash { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
         .anim-flash { animation: flash 1s infinite; }
         

@@ -13,6 +13,7 @@ function shareCompanionHaste(caster) {
         caster.mp-=cost;
         if(caster!==player)allyManaMasteryRefund(caster,cost);
         actor.buffs ||= {}; actor.buffs.sk_haste_spell=sk.dur;
+        logSpellCast(caster,sk,actor);
     }
 }
 function companionHasteTick() {

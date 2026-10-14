@@ -368,6 +368,7 @@ function setupSummon(skId, sk, owner) {
     (owner.skills || []).forEach(s => { let d = DB.skills[s]; if(d && d.summon) owner.buffs[s] = 0; });
     if(skId !== 'sk_charm') owner.buffs[skId] = sk.dur || 3600;
     owner.summon = buildSummon(skId, sk.summon, sk.dur || 3600, owner);
+    if (owner !== player) logSpellCast(owner, sk);
     if(sk.eleFromPlayer) owner.summon.ele = owner.elfEle || 'none';
     if(owner === player) logCombat(`你召喚了 <span class="text-purple-300">${owner.summon.n}</span>。`, 'magic', 'summon');
     else logCombat(`<span class="text-emerald-300 font-bold">【協力·${owner._allyName}】</span>召喚了 <span class="text-purple-300">${owner.summon.n}</span>。`, 'magic', 'summon');
@@ -1246,6 +1247,7 @@ function allyCastMagic(ally, sk) {
     let d = ally.d || {};
     let targets = (sk.target === 'all') ? mapState.mobs.filter(m => m && m.curHp > 0) : [getTarget()].filter(m => m && m.curHp > 0);
     if (!targets.length) return;
+    if (ally._echoing || _allyRoyalFreeCast) logSpellCast(ally, sk);
     let mageMult = 1.0;
     let texts = [], _burstDmg = 0;   // 🔧 神官魔杖·魔爆：累計本次魔法總傷害
     targets.forEach(t => {
@@ -1378,6 +1380,7 @@ function allyCastNonDamage(ally, sk) {
     if ((ally.mp || 0) < cost) return false;
     ally.mp -= cost; allyManaMasteryRefund(ally, cost);
     let _sv = player; player = ally;   // 以傭兵自身魔法命中判定（applyMobStatus/tryInstakill 內部讀 player）
+    if (_allyRoyalFreeCast) logSpellCast(ally, sk);
     let _ikKills = [];                  // 🔧 即死成功的目標 uid：延後到還原 player 後再 killMob（結算與 UI 歸真實玩家）
     try {
         logCombat(`<span class="text-emerald-300 font-bold">【協力·${ally._allyName}】</span>施放 ${sk.n}。`, 'magic');
@@ -2680,6 +2683,7 @@ function allyActWithSkillGate(ally, actFn) {
         ally._atkSkillCd = allyAtkSkillInterval(ally, false, ally._atkSkillCd); // 設攻擊施法冷卻（即使資源不足也等下一次嘗試）
         let _didSkill = actFn(ally);
         if (_didSkill !== true) { ally._atkSkillCd = 0; return false; }   // 資源不足／武器或目標條件不符時，已退回普攻：不誤套施法間隔
+        logSpellCast(ally, _sk);
         return true;
     } else {                                                            // 普攻回合(或 MP 未達門檻)：暫清 _atkSkill→職業 act 內部退回普攻(同步·try/finally 還原)
         let _save = ally._atkSkill; ally._atkSkill = '';
@@ -2721,6 +2725,7 @@ function allyCastConvert(ally, sk) {
     //    X 軸沿用 _partyMemberRect(ally)（.party-sprite 容器·水平置中）；Y 軸改以實際 pm-body 頂端為基準——
     //    容器 rect 含影子層且各職業 sprite 高度不一，直接用會讓 overHead 特效忽高忽低。
     let _playConvertVfx = () => {
+        logSpellCast(ally, sk);
         if (typeof _allySpriteTrigger === 'function') _allySpriteTrigger(ally, 'skill', sk.n);
         if (typeof playSelfFx !== 'function') return;
         if (typeof _vfxMute === 'function' && _vfxMute()) return;   // ⚡ 補跑(state.ff)/關特效：先擋掉·否則下方 getBoundingClientRect 會在掛機補跑時逐次強制重排
@@ -2911,6 +2916,7 @@ function allyMaintainBuffs(ally) {
             ally.mp -= cost; allyManaMasteryRefund(ally, cost);
             if (_hpc > 0) ally.curHp = Math.max(1, (ally.curHp || 0) - _hpc);
             ally.buffs[sid] = sk.dur;
+            logSpellCast(ally, sk);
             if (sk.awaken && ally.mastery !== 'k_awaken') _MERC_AWAKENS.forEach(_ak => { if (_ak !== sid) ally.buffs[_ak] = 0; });
             if (sk.haste) ally.buffs.haste = Math.max(ally.buffs.haste || 0, sk.dur);
             changed = true;
@@ -2982,6 +2988,7 @@ function shareTeamBuffs(caster) {
             caster.mp -= cost;
             if (caster !== player && typeof allyManaMasteryRefund === 'function') allyManaMasteryRefund(caster, cost);   // 傭兵魔導精通退魔（玩家 getMpCost 已含折扣）
             t.buffs[sid] = sk.dur;
+            logSpellCast(caster, sk, t);
             if (sk.haste) t.buffs.haste = Math.max(t.buffs.haste || 0, sk.dur);
             applied = true;
         }
@@ -3017,6 +3024,7 @@ function allyTryDispel(ally) {
     if (!_tgt) return false;            // 保險（teamHasCurableStatus 已檢查·理論上非 null）
     ally.mp -= cost; allyManaMasteryRefund(ally, cost);
     ally._purifySkillCd = allyAtkSkillInterval(ally, true, ally._purifySkillCd);
+    logSpellCast(ally, skd, _tgt);
     logCombat(`<span class="text-emerald-300 font-bold">協力·${ally._allyName}</span> 施放 ${skd.n}，解除了 ${_dispelTargetName(_tgt)} 的負面狀態。`, 'heal', 'mercenary');
     return true;
 }
@@ -3179,6 +3187,7 @@ function allyTryHeal(ally) {
         ally.mp -= cost0; allyManaMasteryRefund(ally, cost0);
         allyCastMagic(ally, sk);
         ally._healCastCd = allyAtkSkillInterval(ally, false, ally._healCastCd);
+        logSpellCast(ally, sk);
         ally._lastHealCastSupport = false;
         return true;
     }
@@ -3224,6 +3233,7 @@ function allyTryHeal(ally) {
     else { let _who = (typeof _supName === 'function') ? _supName(lowest) : ((lowest === player) ? (player.name || '你') : ('協力·' + lowest._allyName)); logCombat(`<span class="text-emerald-300 font-bold">協力·${ally._allyName}</span> 施放 ${sk.n}，為 ${_who} 恢復 ${_actual} 點 HP。`, 'heal', 'mercenary'); }
     ally._healCastCd = allyAtkSkillInterval(ally, true, ally._healCastCd);
     ally._lastHealCastSupport = true;
+    logSpellCast(ally, sk, sk.groupHeal?null:lowest);
     return true;
 }
 // 🍶 傭兵自動喝藥水：當傭兵 HP% 低於「HP 安全線」(_hpSafePct·隊伍面板設定)，消耗「隊長設定的藥水」(自動化設定的 set-pot·紅/橙/白藥水)回血。

@@ -1,0 +1,20 @@
+// Failure cases: old preferences losing categories, caster identity affecting
+// visibility, new entries bypassing filters, and toggles not persisting.
+// Exercise native logSpellCast/logCombat/filter functions with a synthetic log.
+const fs=require('node:fs'),vm=require('node:vm'),path=require('node:path');
+const root=path.resolve(__dirname,'..'),baseline=process.argv.includes('--baseline');
+const reports=[],storage={lineage_idle_combat_filter:JSON.stringify({player:false,mercenary:false,summon:true,pet:false,enemy:true})};
+function element(){const classes=new Set();return {classes,children:[],scrollHeight:100,scrollTop:0,classList:{toggle(k,on){if(on)classes.add(k);else classes.delete(k);},add(k){classes.add(k);},remove(k){classes.delete(k);}},insertAdjacentHTML(_,html){this.children.push({html,src:html.match(/data-src="([^"]*)"/)?.[1]});},removeChild(){this.children.shift();}};}
+const nodes={};for(const id of ['combat-log','cf-btn-player','cf-btn-mercenary','cf-btn-cast'])nodes[id]=element();
+const ctx=vm.createContext({window:{},document:{getElementById:id=>nodes[id]||null},localStorage:{getItem:k=>storage[k]??null,setItem:(k,v)=>storage[k]=v},state:{ff:false},DB:{skills:{},items:{}},_combatLogLocked:false,COMBAT_LOG_MAX:50,COMBAT_LOG_MAX_LOCKED:150});
+const s=fs.readFileSync(path.join(root,'js/01-drops-config.js'),'utf8');
+vm.runInContext(s.slice(s.indexOf('let _combatSrc ='),s.indexOf('// 🔒 系統與物品日誌捲動鎖定')),ctx);
+function check(name,fn){try{if(fn()!==true)throw Error('false');reports.push({name,status:'PASS'});}catch(e){reports.push({name,status:'FAIL',error:String(e)});}}
+check('old player/mercenary preferences survive and new cast category starts enabled',()=>vm.runInContext('_combatFilter.player===false&&_combatFilter.mercenary===false&&_combatFilter.cast===true',ctx));
+check('both casters share the independent cast category with actor identity retained',()=>{vm.runInContext(`logSpellCast({name:'合成玩家'}, {n:'保護罩'});logSpellCast({_allyName:'合成法師'},{n:'初級治療術'});`,ctx);return nodes['combat-log'].children.length===2&&nodes['combat-log'].children.every(e=>e.src==='cast')&&nodes['combat-log'].children[0].html.includes('data-cast-source="player"')&&nodes['combat-log'].children[1].html.includes('data-cast-source="mercenary"');});
+check('cast toggle updates its own log filter and button, preserving source switches',()=>{vm.runInContext("toggleCombatFilter('cast');",ctx);return nodes['combat-log'].classes.has('cf-hide-cast')&&nodes['cf-btn-cast'].classes.has('cf-off')&&vm.runInContext('_combatFilter.player===false&&_combatFilter.mercenary===false',ctx);});
+check('cast toggle persists with all existing source preferences',()=>{const stored=JSON.parse(storage.lineage_idle_combat_filter);return stored.cast===false&&stored.player===false&&stored.mercenary===false&&stored.summon===true;});
+check('re-enabling casts does not enable player or mercenary messages',()=>{vm.runInContext("toggleCombatFilter('cast');",ctx);return !nodes['combat-log'].classes.has('cf-hide-cast')&&nodes['combat-log'].classes.has('cf-hide-player')&&nodes['combat-log'].classes.has('cf-hide-mercenary');});
+check('regular player/mercenary damage stays in its original source categories',()=>{vm.runInContext("logCombat('合成普攻','player','player');logCombat('合成傷害','skill','mercenary');",ctx);return nodes['combat-log'].children.slice(-2).map(e=>e.src).join(',')==='player,mercenary';});
+check('offline casts do not append log entries',()=>{const count=nodes['combat-log'].children.length;vm.runInContext("state.ff=true;logSpellCast({name:'合成'}, {n:'保護罩'});",ctx);return nodes['combat-log'].children.length===count;});
+const result={method:'Native spell logger and persistent source filters in synthetic Node VM; DOM/CSS visual behavior requires browser QA',reports};fs.writeFileSync(path.join(root,'tests/artifacts/spell-category-'+(baseline?'baseline':'integration')+'.json'),JSON.stringify(result,null,2)+'\n');console.log(JSON.stringify({checks:reports.length,passed:reports.filter(r=>r.status==='PASS').length,failed:reports.filter(r=>r.status==='FAIL')},null,2));if(!baseline&&reports.some(r=>r.status==='FAIL'))process.exitCode=1;
