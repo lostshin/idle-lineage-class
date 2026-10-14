@@ -168,7 +168,7 @@
 .ui-scale-active body { width: var(--ui-width); height: var(--ui-height); }
 
 /* Live party information uses the existing dark panels and copper frame. */
-.party-name { padding: 0; text-align: left; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; min-width: 0; overflow-wrap: break-word; }
+.party-name { padding: 0; text-align: left; cursor: pointer; text-decoration: none; min-width: 0; overflow-wrap: break-word; }
 .party-name:hover, .party-name:focus-visible { color: #ffe49a; }
 #party-inspector { position: fixed; top: 16px; right: 16px; z-index: 90; width: min(360px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); display: flex; flex-direction: column; background: #15151c; }
 #party-inspector[hidden] { display: none; }
@@ -283,6 +283,172 @@
 @media(pointer:coarse){ #party-resize { width:44px; height:44px; } }
 @container(max-width:400px){ .party-summary { grid-template-columns:repeat(2,minmax(0,1fr)); } }
 
+/* Compact data rows use horizontal space; only whole options flow to a new row. */
+#tab-automation { padding:8px; gap:8px; }
+#tab-automation > .bg-slate-800 { padding:8px; }
+.automation-actions { flex-wrap:nowrap; margin-bottom:0; gap:6px; }
+.automation-actions > button,#npc-language-setting { min-height:28px; font-size:12px; padding:4px 8px; }
+.automation-audio-row { display:grid; grid-template-columns:max-content minmax(0,1fr); gap:8px; }
+.automation-audio-row > label { font-size:12px; gap:4px; }
+.automation-audio-row > label > span { font-size:12px; }
+#tab-automation .automation-audio-row > input[type="range"] { width:100%; height:24px; }
+.automation-ui-scale { display:grid; grid-template-columns:max-content minmax(60px,1fr) auto auto; align-items:center; gap:6px; }
+.automation-ui-scale-heading { display:contents; }
+.automation-ui-scale-heading > label { grid-column:1; grid-row:1; font-size:12px; }
+#tab-automation #set-ui-scale { grid-column:2; grid-row:1; margin:0; height:24px; }
+#ui-scale-value { grid-column:3; grid-row:1; font-size:12px; }
+#btn-ui-scale-reset { grid-column:4; grid-row:1; font-size:12px; }
+#ui-scale-hint { display:none; }
+#ui-scale-status { grid-column:1/-1; }
+.automation-potion-row,.automation-skill-threshold { flex-wrap:nowrap; gap:6px; }
+#tab-automation .automation-percent { gap:2px; font-size:12px; }
+#tab-automation .automation-percent > input { width:38px; flex-basis:38px; min-height:26px; }
+.automation-skill-row { display:grid; grid-template-columns:max-content minmax(40px,1fr) auto; align-items:center; gap:6px; margin-top:6px; }
+.automation-skill-row > span { white-space:nowrap; font-size:12px; }
+.automation-skill-row > select { width:100%; font-size:12px; padding:4px; }
+.automation-hp-threshold { margin-top:6px; }
+#tab-automation > .automation-buffs,#auto-buff-skills { display:flex; flex-wrap:wrap; gap:4px 8px; }
+#tab-automation .automation-buffs > label:not(.hidden),#auto-buff-skills > label:not(.hidden) { display:inline-flex; align-items:center; gap:4px; white-space:nowrap; font-size:12px; line-height:1.4; max-width:100%; }
+#tab-automation .automation-buffs > label > input,#auto-buff-skills > label > input { margin:0; }
+#tab-automation .automation-buffs > label > span,#auto-buff-skills > label > span { overflow:hidden; text-overflow:ellipsis; overflow-wrap:normal; }
+#tab-automation .automation-buffs > .col-span-2 { flex-basis:100%; }
+.column-layout-controls { display:flex; align-items:center; gap:6px; flex-wrap:wrap; font-size:12px; }
+.column-layout-controls small { flex:1; color:#b9afa0; }
+#column-layout-status { flex-basis:100%; color:#e2c27c; }
+#column-layout-status:empty { display:none; }
+.column-resizer { position:absolute; z-index:45; width:10px; cursor:col-resize; touch-action:none; border-inline:1px solid transparent; }
+.column-resizer::after { content:''; position:absolute; top:40%; left:4px; width:2px; height:36px; background:#806448; border-radius:2px; }
+.column-resizer:hover,.column-resizer:focus-visible { background:#80644833; border-color:#d8b15d; outline:none; }
+.column-resizer[hidden],.column-layout-controls[hidden] { display:none; }
+@media(min-width:1200px){ #game-screen { position:relative; } #col-left { flex-basis:var(--game-left-width,clamp(220px,18vw,300px)); } #col-right { flex-basis:var(--game-right-width,clamp(320px,24vw,380px)); } }
+@media(pointer:coarse){ #tab-automation .automation-audio-row > input[type="range"],#tab-automation #set-ui-scale { height:44px; } .automation-skill-row > select { min-height:44px; font-size:16px; } .automation-actions > button,#npc-language-setting { min-height:44px; } }
+.ally-compact-head { grid-template-columns:minmax(0,1fr) auto auto; }
+.ally-compact-name { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; overflow-wrap:normal; }
+.party-class { white-space:nowrap; font-size:11px; color:#b9afa0; }
+.party-member-heading { display:flex; align-items:center; gap:4px; white-space:nowrap; }
+.party-member-heading > .party-member-name { min-width:0; overflow:hidden; text-overflow:ellipsis; }
+/* A: compact skill cards, with native Lineage frames and aligned controls. */
+.ally-skill-card { display:flex;flex-direction:column;gap:5px;min-width:0;padding:5px;border:5px solid transparent;border-image:url('../assets/ui/能力.png') 12 stretch;background:#19171a;container-type:inline-size;font-size:11px;line-height:1.35; }
+.ally-skill-card .party-member-heading { gap:4px;padding-bottom:4px;border-bottom:1px solid #655139; }
+.ally-skill-card .party-member-name { flex:1;color:#f6dc87;font-size:14px;font-weight:bold; }
+.ally-skill-card .party-class,.ally-skill-level { flex:none;color:#b9afa0;font-size:11px; }
+.ally-skill-controls,.ally-skill-rows { display:grid;gap:4px;min-width:0; }
+.ally-skill-row { display:grid;grid-template-columns:4em minmax(0,1fr) 8em;gap:4px;align-items:center;min-width:0;color:#83d7e0; }
+.ally-skill-label { white-space:nowrap;font-weight:bold; }
+.ally-skill-heal { color:#90d29d; }
+.ally-skill-convert { color:#ceb1de; }
+.ally-skill-row select { width:100%;min-width:0;height:26px;padding:2px 3px;border:1px solid #655139;border-radius:2px;background:#100f11;color:inherit;font:inherit; }
+.ally-skill-gate { display:flex;align-items:center;justify-content:flex-end;gap:2px;white-space:nowrap;font-variant-numeric:tabular-nums; }
+.ally-skill-gate input { width:28px;min-width:0;height:23px;margin:0;padding:1px;border:1px solid #655139;border-radius:2px;background:#0b0a0c;color:#eee4d3;font:inherit;text-align:center;appearance:textfield; }
+.ally-skill-gate input::-webkit-inner-spin-button,.ally-skill-gate input::-webkit-outer-spin-button { appearance:none;margin:0; }
+.ally-skill-stop { color:#e3a0a5; }
+.ally-potion-condition { display:flex;align-items:center;justify-content:space-between;gap:4px;padding:3px 0;border-top:1px solid #493d2c;color:#ddc178; }
+.ally-potion-label { white-space:nowrap; }
+.ally-auto-section { min-width:0;padding-top:4px;border-top:1px solid #655139; }
+.ally-auto-heading { display:flex;align-items:center;gap:5px;margin-bottom:4px;color:#b0d8dc;white-space:nowrap; }
+.ally-auto-heading small { min-width:0;overflow:hidden;text-overflow:ellipsis;font-size:9px;color:#b9afa0; }
+.ally-auto-grid { display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,var(--ally-auto-min,90px)),1fr));gap:3px; }
+.ally-auto-chip { display:flex;align-items:center;gap:3px;min-width:0;min-height:24px;padding:2px 3px;border:1px solid #494237;border-radius:2px;background:#141315;color:#9a9387;cursor:pointer; }
+.ally-auto-chip input { flex:none;width:12px;height:12px;margin:0;accent-color:#5e9cd1; }
+.ally-auto-chip span { min-width:0;white-space:nowrap; }
+.ally-auto-chip.is-on { border-color:#71604a;background:#25221c;color:#e4dac7; }
+.ally-auto-chip:hover { border-color:#b3945b;background:#302a20; }
+.ally-skill-card :is(select,input):focus-visible,.ally-auto-chip:focus-within { outline:1px solid #e2c27c;outline-offset:1px; }
+@container(min-width:480px){ .ally-skill-controls { grid-template-columns:minmax(0,1fr) 120px;gap:8px; } .ally-potion-condition { align-self:stretch;flex-direction:column;justify-content:center;gap:8px;padding-left:8px;border-top:0;border-left:1px solid #655139; } }
+@media(pointer:coarse){ .ally-skill-row select { height:32px; } .ally-skill-gate input { height:28px; } .ally-auto-chip { min-height:28px; } }
+@media(pointer:coarse){ #tab-automation .automation-percent > input { min-height:44px; } }
+
+@media(max-width:360px){ .automation-ui-scale { gap:4px; } #btn-ui-scale-reset { padding:4px; font-size:11px; } #ui-scale-value { font-size:11px; } }
+
+/* Aligned option columns and a squad that consumes available height. */
+#tab-automation > .automation-buffs,#auto-buff-skills { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 12px; }
+#tab-automation .automation-buffs > label:not(.hidden),#auto-buff-skills > label:not(.hidden) { display:flex;align-items:center;min-width:0; }
+#tab-automation .automation-buffs > .col-span-2 { grid-column:1/-1; }
+#tab-automation .automation-buffs > label > span,#auto-buff-skills > label > span { min-width:0; }
+@media(max-width:360px){ #tab-automation .automation-buffs > label:not(.hidden),#auto-buff-skills > label:not(.hidden) { font-size:11px; } }
+#squad-tab-team,#squad-tab-skill { max-height:none;overflow-y:visible; }
+@media(min-width:1200px){
+ #col-left { overflow-y:hidden; } #squad-panel { flex:1;min-height:0; }
+ #squad-body { flex:1;overflow:hidden; } #squad-body > div:first-child { flex:none; }
+ #squad-tab-team,#squad-tab-skill { flex:1;min-height:0;overflow-y:auto; }
+}
+#tab-automation .party-opacity-control { padding:8px 0 0;flex-wrap:nowrap;font-size:12px; }
+#party-window-status { font-size:12px;color:#e2c27c; }
+#party-window-status:empty { display:none; }
+#party-inspector .effect-icon small { display:none; }
+.effect-expiring { animation:effect-expiration 1s ease-in-out infinite; }
+@keyframes effect-expiration { 50% { opacity:.35; } }
+@media(prefers-reduced-motion:reduce){ .effect-expiring { animation:none;border-color:#eab308; } }
+#party-inspector .party-resize-edge { position:absolute;z-index:10;touch-action:none; }
+#party-inspector [data-party-resize="n"],#party-inspector [data-party-resize="s"] { left:12px;right:12px;height:7px;cursor:ns-resize; }
+#party-inspector [data-party-resize="n"] { top:0; } #party-inspector [data-party-resize="s"] { bottom:0; }
+#party-inspector [data-party-resize="e"],#party-inspector [data-party-resize="w"] { top:12px;bottom:12px;width:7px;cursor:ew-resize; }
+#party-inspector [data-party-resize="e"] { right:0; } #party-inspector [data-party-resize="w"] { left:0; }
+#party-inspector [data-party-resize="ne"],#party-inspector [data-party-resize="nw"],#party-inspector [data-party-resize="se"],#party-inspector [data-party-resize="sw"] { width:12px;height:12px;background:transparent;border:0; }
+#party-inspector [data-party-resize="ne"] { top:0;right:0;cursor:nesw-resize; } #party-inspector [data-party-resize="nw"] { top:0;left:0;cursor:nwse-resize; }
+#party-inspector [data-party-resize="se"] { bottom:0;right:0;cursor:nwse-resize; } #party-inspector [data-party-resize="sw"] { bottom:0;left:0;cursor:nesw-resize; }
+#party-inspector .party-resize-edge:focus-visible { outline:1px solid #e2c27c;background:#80644855; }
+@media(pointer:coarse){ #party-inspector .party-resize-edge { min-width:12px;min-height:12px; } }
+#party-bonus-window .ability-detail-column > div { grid-template-columns:60% 40%; }
+#party-bonus-window .ability-detail-column [data-ability-field] { align-items:center;font-size:2.2cqw;background:#080908;padding:0 3%;height:80%; }
+#party-bonus-window [data-ability-total],#party-bonus-window [data-ability-buff] { flex:none;padding:0;min-width:0; }
+
+/* Ability artwork follows the user-resized sidebar without changing its ratio. */
+#tab-stats .ability-window-shell { max-width:none; }
+.party-tabs { display:flex;flex:none;gap:6px;padding:6px 10px;border-bottom:1px solid #655139; }
+.party-tabs .btn { flex:1;padding:5px 12px; }
+.party-tabs [aria-selected="true"] { background:linear-gradient(#6e4932,#3d2b25);border-color:#c0935d;color:#fff0d8; }
+/* A fluid equipment sheet uses original icons, sprites and frame artwork. */
+.party-equipment-stage { width:100%;min-width:0; }
+.party-equipment-toolbar { display:flex;align-items:center;gap:6px;margin-bottom:6px; }
+.party-equipment-page-label { flex:1;min-width:0;font-size:12px;color:#d8c5a4;white-space:nowrap; }
+.party-equipment-page { padding:4px 8px;font-size:12px;white-space:nowrap; }
+.party-equipment-page[aria-pressed="true"] { color:#fff0d8;border-color:#c0935d;background:linear-gradient(#6e4932,#3d2b25); }
+.party-equipment-frame { position:relative;width:100%;height:var(--party-equipment-height,320px);min-width:0;box-sizing:border-box;border:4px solid transparent;border-image:url('../assets/ui/能力.png') 12 stretch;background:#19171a;container-type:size; }
+.party-equipment-frame .equipment-window-slots { display:grid;grid-template-columns:repeat(var(--party-equipment-columns,4),minmax(0,1fr));grid-template-rows:repeat(var(--party-equipment-rows,5),minmax(0,1fr));gap:clamp(1px,.7cqw,4px);padding:clamp(2px,.7cqw,4px); }
+.party-equipment-frame .equipment-visual-slot { position:relative;left:auto;top:auto;width:auto;height:auto;min-width:0;min-height:0;transform:none;display:flex;flex-direction:column;padding:2px;gap:2px;border:1px solid #655139;background:linear-gradient(#2c2825,#141216);overflow:hidden; }
+.party-equipment-frame .equipment-visual-slot > img { flex:1;min-height:0;min-width:0;width:100%;height:0;object-fit:contain;image-rendering:pixelated; }
+.party-equipment-label { flex:none;max-width:100%;font-size:clamp(10px,2.6cqw,14px);line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#d8c5a4; }
+.party-equipment-frame .equipment-slot-equipped { min-width:0;width:min(15px,calc(100cqh / var(--party-equipment-rows,5) * .35));height:min(15px,calc(100cqh / var(--party-equipment-rows,5) * .35));padding:0;left:1px;top:1px;font-size:min(12px,calc(100cqh / var(--party-equipment-rows,5) * .3)); }
+.party-equipment-frame :is(.equipment-slot-enhance,.equipment-slot-count) { right:2px;bottom:calc(clamp(10px,2.6cqw,14px) * 1.2 + 3px);font-size:min(13px,3cqw,calc(100cqh / var(--party-equipment-rows,5) * .3)); }
+.party-equipment-frame .equipment-visual-slot:focus-visible { outline:1px solid #e2c27c;outline-offset:-2px; }
+@container(max-height:180px){ .party-equipment-label { display:none; } .party-equipment-frame :is(.equipment-slot-enhance,.equipment-slot-count) { bottom:1px; } .party-equipment-frame .equipment-visual-slot { padding:1px;gap:0; } }
+#tab-items .classic-list-toolbar [data-inventory-sort="item"] { flex:1 1 0;min-width:0; }
+.game-tooltip[data-party-equipment] { z-index:100; }
+@media(pointer:coarse){ .party-tabs .btn { min-height:44px; } }
+
+/* C: original Lineage frames and sprites, with one rhythm for every companion. */
+#squad-tab-team { gap:4px; }
+.party-roster-row { display:grid;grid-template-columns:14px 32px minmax(0,1fr);gap:5px;align-items:center;min-width:0;padding:3px;border:5px solid transparent;border-image:url('../assets/ui/能力.png') 12 stretch;background:#19171a; }
+.party-roster-kind { display:flex;align-items:center;justify-content:center;align-self:stretch;writing-mode:vertical-rl;font-size:11px;letter-spacing:2px;color:#d8d9e4;border:1px solid #5c6080;background:linear-gradient(#202e46,#131b28); }
+[data-roster-kind="pet"] .party-roster-kind { color:#e4d2a0;background:linear-gradient(#4a381a,#201910);border-color:#887242; }
+[data-roster-kind="summon"] .party-roster-kind,[data-roster-kind="merc-summon"] .party-roster-kind { color:#d2b4e8;background:linear-gradient(#3e254c,#1c1422);border-color:#71517f; }
+[data-roster-kind="guard"] .party-roster-kind { color:#b4d5d8;background:linear-gradient(#253e40,#142021);border-color:#51797f; }
+.party-roster-portrait { display:flex;align-items:center;justify-content:center;width:32px;height:48px; }
+.party-roster-portrait img { max-width:100%;max-height:100%;object-fit:contain;image-rendering:pixelated; }
+.party-roster-body { min-width:0;display:flex;flex-direction:column;gap:3px; }
+.party-roster-heading { display:flex;align-items:center;gap:4px;min-width:0;font:12px/1.3 "Microsoft JhengHei",Arial,sans-serif; }
+.party-roster-heading .party-name { font:700 14px/1.3 "Microsoft JhengHei",Arial,sans-serif;text-decoration:none; }
+.party-roster-heading .party-name { flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+.party-roster-level { flex:none;color:#b4aea5;font:400 11px/1.3 "Microsoft JhengHei",Arial,sans-serif;white-space:nowrap; }
+.party-roster-row .compact-team-bar { height:13px!important;min-height:13px; }
+.party-roster-row .bar-text { font-size:9px!important;line-height:13px!important; }
+.party-roster-row .ally-exp-bar { height:8px;flex:none; }
+.party-roster-row .ally-exp-bar .bar-text { font-size:8px!important;line-height:8px!important; }
+.party-roster-row .ally-compact-head { gap:4px;font-size:12px; }
+.party-roster-row .party-class { font:400 11px/1.3 "Microsoft JhengHei",Arial,sans-serif; }
+.party-roster-action { align-self:flex-end;font-size:10px; }
+.party-roster-row [id^="squad-status-"]:empty { display:none; }
+.party-roster-row.is-downed .party-roster-portrait { filter:grayscale(1); }
+.party-roster-note { margin:0;font-size:11px; }
+.party-roster-portrait { position:relative;overflow:hidden; }
+
+/* Keep the clan toggle independent of its longer cost explanation. */
 .clan-buff-heading { display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:8px; }
 .clan-buff-toggle { display:inline-flex;align-items:center;gap:6px;white-space:nowrap; }
 .clan-buff-toggle input[type="checkbox"] { width:18px;height:18px;flex:none;margin:0; }
+#wh-gold-status:empty { display:none; }
+
+/* Keep the shared status icons anchored to the visible village scene. */
+#town-view { position:relative; }
+#modal-actions button:disabled { opacity:.45;cursor:not-allowed; }

@@ -17,7 +17,7 @@
     <link rel="stylesheet" href="css/style.css?v=6fc6034784">
     <link rel="stylesheet" href="css/floating-ui.css?v=bc8be4ac7f">
     <link rel="stylesheet" href="css/tailwind-built.css?v=932535789f"><!-- 🔧 預編譯 Tailwind（取代執行期 JIT tailwind.js）：只含實際用到的 class，省 407KB runtime + 移除持續掃描 DOM 的成本。置於 style.css 之後以保留原 cascade（utility 平手時勝過自訂 class，與舊 JIT 注入順序一致） -->
-    <link rel="stylesheet" href="css/responsive.css?v=d98552af9c">
+    <link rel="stylesheet" href="css/responsive.css?v=2392015710">
 </head>
 <body class="h-screen w-screen overflow-hidden">
 
@@ -406,7 +406,7 @@
                         </div>
                         <div class="automation-ui-scale border-t border-slate-700 pt-2">
                             <div class="automation-ui-scale-heading">
-                                <label for="set-ui-scale" class="text-sm font-bold text-slate-200">整體 UI 縮放</label>
+                                <label for="set-ui-scale" class="text-sm font-bold text-slate-200">UI 縮放</label>
                                 <output id="ui-scale-value" for="set-ui-scale" class="text-sm text-slate-300">100%</output>
                                 <button type="button" id="btn-ui-scale-reset" class="btn py-1 px-2 text-sm bg-slate-700 hover:bg-slate-600 border-slate-500" title="還原 UI 縮放至 100%">100%</button>
                             </div>
@@ -439,14 +439,25 @@
                     
                     <div class="bg-slate-800 p-3 rounded-lg border border-slate-700">
                         <div class="text-sm text-slate-400 mb-3 border-b border-slate-700 pb-1">自動施放設定</div>
-                        <div class="automation-skill-threshold flex justify-between items-center mb-2 text-sm"><span class="text-cyan-400 font-bold">攻擊技能</span><span class="automation-percent">MP &gt; <input type="number" id="set-mp-atk" value="50" class="w-12 bg-slate-900 border text-center text-white rounded">%</span></div>
-                        <select id="sel-atk-skill" class="w-full bg-slate-900 border text-cyan-300 px-2 py-2 mb-3 rounded text-sm"><option value="">無</option></select>
-                        <div class="automation-skill-threshold flex justify-between items-center mb-2 text-sm"><span class="text-green-400 font-bold">治癒魔法</span><span class="automation-percent">HP &lt; <input type="number" id="set-mp-heal" value="50" class="w-12 bg-slate-900 border text-center text-white rounded">%</span></div>
-                        <select id="sel-heal-skill" class="w-full bg-slate-900 border text-green-300 px-2 py-2 rounded text-sm"><option value="">無</option></select>
-                        <div class="automation-skill-threshold flex justify-between items-center mb-1 mt-3 text-sm border-t border-slate-700 pt-2"><span class="text-rose-400 font-bold">消耗HP技能</span><span class="automation-percent">HP &gt; <input type="number" id="set-hp-skill" value="0" min="0" max="100" class="w-12 bg-slate-900 border text-center text-white rounded">%</span></div>
+                        <div class="automation-skill-row text-sm">
+                            <span class="text-cyan-400 font-bold">攻擊技能</span>
+                            <select id="sel-atk-skill" class="min-w-0 bg-slate-900 border text-cyan-300 px-1 py-1 rounded text-sm"><option value="">無</option></select>
+                            <span class="automation-percent">MP &gt; <input type="number" id="set-mp-atk" value="50" class="bg-slate-900 border text-center text-white rounded">%</span>
+                        </div>
+                        <div class="automation-skill-row text-sm">
+                            <span class="text-green-400 font-bold">治癒魔法</span>
+                            <select id="sel-heal-skill" class="min-w-0 bg-slate-900 border text-green-300 px-1 py-1 rounded text-sm"><option value="">無</option></select>
+                            <span class="automation-percent">HP &lt; <input type="number" id="set-mp-heal" value="50" class="bg-slate-900 border text-center text-white rounded">%</span>
+                        </div>
+                        <div class="automation-skill-threshold automation-hp-threshold flex justify-between items-center text-sm">
+                            <span class="text-rose-400 font-bold">消耗HP技能</span><span class="automation-percent">HP &gt; <input type="number" id="set-hp-skill" value="0" min="0" max="100" class="bg-slate-900 border text-center text-white rounded">%</span>
+                        </div>
                         <div id="ui-convert-row" class="hidden">
-                            <div class="automation-skill-threshold flex justify-between items-center mb-2 mt-3 text-sm"><span class="text-cyan-400 font-bold">轉換魔法</span><span class="automation-percent">HP &gt; <input type="number" id="set-hp-convert" value="50" class="w-12 bg-slate-900 border text-center text-white rounded">%</span></div>
-                            <select id="sel-convert-skill" class="w-full bg-slate-900 border text-cyan-300 px-2 py-2 rounded text-sm"><option value="">無</option></select>
+                            <div class="automation-skill-row text-sm">
+                                <span class="text-cyan-400 font-bold">轉換魔法</span>
+                                <select id="sel-convert-skill" class="min-w-0 bg-slate-900 border text-cyan-300 px-1 py-1 rounded text-sm"><option value="">無</option></select>
+                                <span class="automation-percent">HP &gt; <input type="number" id="set-hp-convert" value="50" class="bg-slate-900 border text-center text-white rounded">%</span>
+                            </div>
                         </div>
                     </div>
 
@@ -569,6 +580,7 @@
     <script src="js/anim-manifest.js?v=14d284fa9f"></script>
     <script src="js/00-data.js?v=81d761a1d1"></script>
 <script src="js/ui-scale.js?v=977e219542"></script>
+    <script src="js/game-layout.js?v=0d28c06ee3"></script>
 <script src="js/01-drops-config.js?v=65869d391b"></script>
 <script src="js/02-stats-recompute.js?v=a4b3e03acd"></script>
     <script src="js/03-combat-core.js?v=3e323fc060"></script>
@@ -576,20 +588,22 @@
 <script src="js/05-kill-progression.js?v=a6179bbdeb"></script>
     <script src="js/06-status-allies.js?v=d4f2d132ba"></script>
     <script src="js/07-skills-cast.js?v=919b44a32b"></script>
-<script src="js/08-items-equip.js?v=e64597f71e"></script>
+<script src="js/08-items-equip.js?v=ab3418d1c5"></script>
 <script src="js/09-vfx-render.js?v=898038aed5"></script>
-    <script src="js/effect-details.js?v=0a6d322416"></script>
-    <script src="js/party-inspector.js?v=54effb6a21"></script>
-    <script src="js/10-ui-tabs.js?v=94cc21a37c"></script>
+    <script src="js/effect-details.js?v=f07fddd61d"></script>
+    <script src="js/party-inspector.js?v=0a2394d84d"></script>
+    <script src="js/party-portrait-bounds.js?v=57f5054baa"></script>
+    <script src="js/party-roster.js?v=1e0903eedb"></script>
+    <script src="js/10-ui-tabs.js?v=3043367efc"></script>
 <script src="js/11-world-map.js?v=5ab16680bc"></script>
 <script src="js/12-npc-quests.js?v=21b6fd7fba"></script>
 <script src="js/13-shop-save.js?v=99c6c786db"></script>
-<script src="js/14-craft-pandora.js?v=c8394f39f0"></script>
+<script src="js/14-craft-pandora.js?v=26ab9f373b"></script>
 <script src="js/15-cards.js?v=42975a78a0"></script>
 <script src="js/16-equip-book.js?v=06993d3f55"></script>
 <script src="js/18-misc-book.js?v=9a4bbc3677"></script>
 <script src="js/17-audio.js?v=8b26455c32"></script>
-<script src="js/19-equipment-window.js?v=a1935e8610"></script>
+<script src="js/19-equipment-window.js?v=b4fa25ce49"></script>
 <script src="js/20-warehouse-window.js?v=3efb907c43"></script>
 <script src="js/21-relic-book.js?v=40aef7ae9b"></script>
     <script src="js/23-summons.js?v=2726db4840"></script>

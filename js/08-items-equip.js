@@ -1141,11 +1141,11 @@ function doEnhance(targetUid, isEq = true) {
     if(!target) return;
 
     let d = DB.items[target.id];
-    if (isRelic(d) || (d && d.noEnhance)) { logSys(`<span class="c-relic">${getItemFullName(target)} 無法強化。</span>`); activeScroll = null; if (typeof closeModal === 'function') closeModal(); return; }   // 🏺 遺物/古老系列/娃娃：無法強化（防呆·enumeration 已濾除·此為直點路徑保險）
+    if (isRelic(d) || (d && d.noEnhance)) { activeScroll = null; renderEnhanceOptions(target, isEq, `${getItemFullName(target)} 無法強化。`); return; }
     let _cap = enhanceCap(d);   // 🔧 強化上限：武器+15 / 防具+15 / 飾品+5
     if ((Number(target.en) || 0) >= _cap) {   // 已達上限：不消耗卷軸，提示後返回
         logSys(`<span class="text-amber-300">${getItemFullName(target)} 已達強化上限（+${_cap}），無法再強化。</span>`);
-        activeScroll = null; closeModal();
+        activeScroll = null; renderEnhanceOptions(target, isEq, '已達強化上限，無法再強化。');
         return;
     }
     let scroll = activeScroll;
@@ -1175,14 +1175,15 @@ function doEnhance(targetUid, isEq = true) {
     else nochange = true;   // 武器 +9 起 1/6 無事：卷軸已消耗、強化值不變
 
     let fn = getItemFullName(target);
+    let result;
     if (success) {
         let add = (DB.items[scroll.id] && DB.items[scroll.id].isB) ? blessEnhanceGain(target.en) : 1;   // 🌟 祝福卷：+2 以下(含負值) +1~+3、+3~+5 +1~+2、+6 起等同一般卷 +1（純機率）
         target.en = Math.min(_cap, target.en + add);   // 🔧 祝福卷軸跳級不超過上限
         let prefix = (target.en > (d.safe||0)) ? "持續" : "";
         let _enTxt = '+' + capEn(target.en, d);   // 🔧 顯示 +N（夾擠至強化上限）
-        logSys(`<span class="text-yellow-400 font-bold">${_enTxt} ${d.n} ${prefix}發出銀色的光芒。</span>`);
+        result = `<span class="text-yellow-400 font-bold">${_enTxt} ${d.n} ${prefix}發出銀色的光芒。</span>`;
     } else if (destroy) {
-        logSys(`<span class="text-red-500 font-bold">${fn} 強烈的發出銀色的光芒就消失了。</span>`);
+        result = `<span class="text-red-500 font-bold">${fn} 強烈的發出銀色的光芒就消失了。</span>`;
         if (isEq) {
             player.eq[slot] = null; // 碎掉身上裝備
             // ⚠️ 爆裝後必須同步副手／沙哈箭：否則主手被炸掉時 offwpn 會殘留在「無主手」的非法狀態，
@@ -1193,12 +1194,13 @@ function doEnhance(targetUid, isEq = true) {
             player.inv = player.inv.filter(i => i.uid !== target.uid); // 碎掉背包裝備
         }
     } else {
-        logSys(`<span class="text-slate-400">${fn} 一瞬間發出銀色的光芒。</span>`);
+        result = `<span class="text-slate-400">${fn} 一瞬間發出銀色的光芒。</span>`;
     }
+    logSys(result);
     
     calcStats();
     renderTabs();
-    closeModal();
+    renderEnhanceOptions(target, isEq, result);
     
     // 👇 自動存檔機制：不論成功、失敗或無變化，結算完立刻強制儲存進度！
     saveGame(); 
@@ -1271,6 +1273,8 @@ const STATUS_ICON_SKILLS = {
 };
 function renderStatusIconBar() {
     let bar=document.getElementById('status-icon-bar'); if(!bar||!player||!player.buffs)return;
+    let host=document.getElementById(mapState.current.startsWith('town_')?'town-view':'battle-view');
+    if(host && bar.parentElement!==host) host.appendChild(bar);
     let rows=[],seen=new Set();
     // player.buffs 的數值單位就是「秒」，主迴圈每 10 tick（1 秒）扣 1；不可再除以 10。
     let add=(name,seconds,label,icon,ally,effectId)=>{if(!name||seen.has(name))return;seen.add(name);let sec=Math.max(0,Math.ceil(Number(seconds)||0));rows.push({name,ticks:Number(seconds)||0,label:label||name,sec,icon:icon||name,ally:!!ally,effectId:effectId||Object.keys(STATUS_ICON_SKILLS).find(k=>STATUS_ICON_SKILLS[k]===name)||({加速術:'haste',勇敢藥水:'brave',藍色藥水:'blue',慎重藥水:'cautious',精靈餅乾:'elfcookie',變形術:'poly'})[name]||name});};   // 🐾 v3.2.17 icon 參數：多狀態共用同一圖示檔（如 7 種誘捕）；🤝 ally 旗標：隊友提供的全隊光環（圖示加藍點區別）
@@ -1311,11 +1315,9 @@ function renderStatusEffects() {
     renderStatusIconBar();
 
     // ===== 增益 BUFF =====
-    // 🔧 v2.7.2 用戶要求「有圖示的狀態不用再於此文字欄重複」：戰鬥右上狀態圖示列(renderStatusIconBar)已顯示的增益，這裡略過文字。
-    //   但圖示列在 #battle-view 內→安全區(村莊)戰鬥區帶 .hidden 時圖示不可見，此時仍以文字顯示，避免完全看不到增益。
-    //   _skipIconized=true(戰鬥中·圖示可見)：藥水(加速/勇/藍/慎/精靈餅乾)、變身、及 STATUS_ICON_SKILLS 內的技能 皆略過文字（改看圖示）。
-    let _bv = document.getElementById('battle-view');
-    let _skipIconized = !!(_bv && !_bv.classList.contains('hidden'));
+    // The same icon bar is visible in both village and battle scenes.
+    let _bar = document.getElementById('status-icon-bar');
+    let _skipIconized = !!(_bar && _bar.getClientRects().length);
     let buffs = [];
     if((player.buffs.haste>0 || player._equipHaste) && !_skipIconized) buffs.push(`<span class="text-emerald-400 font-bold">加速</span>`);
     if(player.buffs.brave>0 && !_skipIconized) buffs.push(`<span class="text-fuchsia-400 font-bold">勇水</span>`);

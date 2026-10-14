@@ -53,10 +53,10 @@
         royal: '王族', knight: '騎士', mage: '法師', elf: '妖精',
         dark: '黑妖', illusion: '幻術', dragon: '龍騎', warrior: '戰士'
     };
-    function equipmentTemplateUrl() {
-        const cls = typeof player !== 'undefined' && player ? EQUIPMENT_TEMPLATE_CLASS[player.cls] : '';
+    function equipmentTemplateUrl(actor = player) {
+        const cls = actor ? EQUIPMENT_TEMPLATE_CLASS[actor.cls] : '';
         if (!cls) return 'public/assets/login/EQ%20UI/' + encodeURIComponent('原圖.png') + '?v=20260713';
-        const avatar = String(player.avatar || '');
+        const avatar = String(actor?.avatar || '');
         const female = avatar.startsWith('女') || avatar === '公主';   // 👑 v3.6.01 王族性別直接看 avatar：舊制以 bloodPledge 推斷，血盟改版後創角不再自動入盟、陣營又隨盟主而非自己 → 公主未入盟/入王子盟會誤判為男
         return 'public/assets/login/EQ%20UI/' + encodeURIComponent((female ? '女' : '男') + cls + '.png') + '?v=20260713';
     }
@@ -84,6 +84,51 @@
         }
     }
 
+    // Share the original slot artwork and badges with read-only teammate views.
+    function createEquipmentVisualSlot(item, pos) {
+        const data = item && DB.items[item.id];
+        const slot = document.createElement('button');
+        slot.type = 'button';
+        slot.className = 'equipment-visual-slot' + (item ? ' is-filled' : ' is-empty');
+        slot.style.cssText = `left:${pos.x}%;top:${pos.y}%;width:${pos.w}%;height:${pos.h}%;`;
+        if (item && data) {
+            const img = document.createElement('img');
+            img.src = getIconUrl(data);
+            img.alt = data.n || pos.k;
+            img.draggable = false;
+            img.onerror = function () { this.style.display = 'none'; };
+            // 裝備框沿用背包／舊裝備欄的統一圖示光效：祝福金光、遠古紫光、屬性光、遺物與傳說皆由單一判定處理。
+            if (typeof getGlowClass === 'function') {
+                const glowClass = getGlowClass(item, data);
+                if (glowClass) img.classList.add(...glowClass.split(/\s+/).filter(Boolean));
+            }
+            slot.appendChild(img);
+            if ((data.type === 'wpn' || data.type === 'arm' || data.type === 'acc') && !data.isArrow) {
+                const equipped = document.createElement('span');
+                equipped.className = 'equipment-slot-equipped';
+                equipped.textContent = 'E';
+                equipped.setAttribute('aria-hidden', 'true');
+                slot.appendChild(equipped);
+            }
+            if ((Number(item.en) || 0) > 0) {
+                const badge = document.createElement('span');
+                badge.className = 'equipment-slot-enhance';
+                badge.textContent = '+' + capEn(item.en, data);
+                slot.appendChild(badge);
+            } else if ((item.cnt || 1) > 1) {
+                const count = document.createElement('span');
+                count.className = 'equipment-slot-count';
+                count.textContent = (item.cnt || 1).toLocaleString();
+                slot.appendChild(count);
+            }
+            slot.classList.add('tip-host');
+        } else {
+            slot.title = '尚未裝備';
+        }
+        return slot;
+    }
+    window.equipmentView = { pages: PAGE_SLOTS, templateUrl: equipmentTemplateUrl, createSlot: createEquipmentVisualSlot };
+
     function renderSlots() {
         if (typeof player === 'undefined' || !player || !player.eq) return;
         const host = el('equipment-window-slots');
@@ -92,52 +137,16 @@
             const actualKey = pos.alt && player.eq[pos.alt] ? pos.alt : pos.k;
             const item = player.eq[actualKey];
             const data = item && typeof DB !== 'undefined' && DB.items[item.id];
-            const slot = document.createElement('button');
-            slot.type = 'button';
-            slot.className = 'equipment-visual-slot' + (item ? ' is-filled' : ' is-empty');
-            slot.style.cssText = `left:${pos.x}%;top:${pos.y}%;width:${pos.w}%;height:${pos.h}%;`;
+            const slot = createEquipmentVisualSlot(item, pos);
             if (item && data) {
-                const img = document.createElement('img');
-                img.src = getIconUrl(data);
-                img.alt = data.n || pos.k;
-                img.draggable = false;
-                img.onerror = function () { this.style.display = 'none'; };
-                // 裝備框沿用背包／舊裝備欄的統一圖示光效：祝福金光、遠古紫光、屬性光、遺物與傳說皆由單一判定處理。
-                if (typeof getGlowClass === 'function') {
-                    const glowClass = getGlowClass(item, data);
-                    if (glowClass) img.classList.add(...glowClass.split(/\s+/).filter(Boolean));
-                }
-                slot.appendChild(img);
-                if ((data.type === 'wpn' || data.type === 'arm' || data.type === 'acc') && !data.isArrow) {
-                    const equipped = document.createElement('span');
-                    equipped.className = 'equipment-slot-equipped';
-                    equipped.textContent = 'E';
-                    equipped.setAttribute('aria-hidden', 'true');
-                    slot.appendChild(equipped);
-                }
-                if ((Number(item.en) || 0) > 0) {
-                    const badge = document.createElement('span');
-                    badge.className = 'equipment-slot-enhance';
-                    badge.textContent = '+' + capEn(item.en, data);
-                    slot.appendChild(badge);
-                } else if ((item.cnt || 1) > 1) {
-                    const count = document.createElement('span');
-                    count.className = 'equipment-slot-count';
-                    count.textContent = (item.cnt || 1).toLocaleString();
-                    slot.appendChild(count);
-                }
-                slot.classList.add('tip-host');
-                slot.setAttribute('data-tip-uid', item.uid); slot.setAttribute('data-tip-src', 'eq');   // 🖱️ hover 即時顯示已裝備物品完整資訊 tooltip
-                slot.onclick = function () {   // 嵌入模式：單擊開物品視窗（原浮動模式的側欄延遲單擊已隨側欄移除）
-                    if (typeof openModal === 'function') openModal(item, true, actualKey);
-                };
+                slot.setAttribute('data-tip-uid', item.uid);
+                slot.setAttribute('data-tip-src', 'eq');
+                slot.onclick = function () { openModal(item, true, actualKey); };
                 slot.ondblclick = function (event) {
                     event.preventDefault();
                     event.stopPropagation();
                     unequipItem(actualKey);
                 };
-            } else {
-                slot.title = '尚未裝備';
             }
             host.appendChild(slot);
         });

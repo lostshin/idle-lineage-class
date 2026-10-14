@@ -1403,7 +1403,24 @@ function showEnhanceOptions(uid, isEq) {
     let item = isEq ? Object.values(player.eq).find(e => e && e.uid === uid) : player.inv.find(i => i.uid === uid);
     if (!item) return;
     let d = DB.items[item.id];
-    
+    if (d.type === 'acc') {
+        let scroll = player.inv.find(i => i.id === 'scroll_acc' && i.cnt > 0);
+        if (!scroll) { renderEnhanceOptions(item, isEq, '強化卷軸不足。'); return; }
+        activeScroll = scroll;
+        doEnhance(item.uid, isEq);
+        return;
+    }
+    renderEnhanceOptions(item, isEq);
+}
+
+// Repaint only; never execute enhancement while refreshing its result.
+function renderEnhanceOptions(item, isEq, result = '', goal = null) {
+    let d = DB.items[item.id];
+    let live = isEq ? Object.values(player.eq).some(e => e && e.uid === item.uid) : player.inv.some(i => i.uid === item.uid);
+    let canEnhance = live && !d.noEnhance && !isRelic(d) && (Number(item.en) || 0) < enhanceCap(d);
+    let canLower = live && !d.noEnhance && !isRelic(d) && (Number(item.en) || 0) > -1;
+    if (goal == null) goal = Number(document.getElementById('auto-enh-target')?.value) || null;
+
     let scrollNorm, scrollBless, scrollCurse;
     let scrollNormId = ''; // 🌟 紀錄該裝備對應的一般卷軸 ID
     let scrollCurseId = ''; // 詛咒卷軸 ID（武器/盔甲）
@@ -1425,45 +1442,30 @@ function showEnhanceOptions(uid, isEq) {
         scrollNorm = player.inv.find(i => i.id === 'scroll_acc');
     }
     
-    // 飾品特殊處理：若有卷軸直接點爆，不用選
-    if (d.type === 'acc') {
-        if (!scrollNorm) {
-            logSys(`<span class="text-red-400 font-bold">強化卷軸不足。</span>`);
-            return;
-        }
-        activeScroll = scrollNorm;
-        doEnhance(item.uid, isEq);
-        return;
-    }
-    
-    // 武器/防具：如果一般／祝福／詛咒卷軸全都沒有，直接跳錯
-    if (!scrollNorm && !scrollBless && !scrollCurse) {
-        logSys(`<span class="text-red-400 font-bold">強化卷軸不足。</span>`);
-        return;
-    }
-    
     // 如果有卷軸，將 Modal 畫面替換為「選擇卷軸介面」
     document.getElementById('modal-item-name').innerHTML = `強化 ${getItemFullName(item)}`;
     document.getElementById('modal-item-name').className = `text-xl font-bold mb-3 border-b border-slate-600 pb-3 text-purple-300`;
-    document.getElementById('modal-item-desc').innerHTML = "請選擇你要使用的強化卷軸：";
+    let hint = !live ? '裝備已消失，無法繼續強化。' : !canEnhance ? '無法再提高此裝備的強化值。' : !scrollNorm && !scrollBless && !scrollCurse ? '強化卷軸不足。' : '請選擇你要使用的強化卷軸：';
+    document.getElementById('modal-item-desc').innerHTML = (result ? `<div role="status" class="mb-2">${result}</div>` : '') + hint;
+    document.getElementById('modal-compare').classList.add('hidden');
     
     let act = '';
-    if (scrollNorm) {
-        act += `<button class="col-span-2 w-full btn border-slate-600 bg-slate-800 hover:bg-slate-700 py-3 text-base font-bold text-white shadow" onclick="executeEnhance('${scrollNorm.uid}', '${item.uid}', ${isEq})">使用 ${DB.items[scrollNorm.id].n} (擁有: ${scrollNorm.cnt})</button>`;
+    if (live && scrollNorm) {
+        act += `<button ${canEnhance ? '' : 'disabled'} class="col-span-2 w-full btn border-slate-600 bg-slate-800 hover:bg-slate-700 py-3 text-base font-bold text-white shadow" onclick="executeEnhance('${scrollNorm.uid}', '${item.uid}', ${isEq})">使用 ${DB.items[scrollNorm.id].n} (擁有: ${scrollNorm.cnt})</button>`;
     }
-    if (scrollBless) {
-        act += `<button class="col-span-2 w-full btn border-yellow-600 bg-yellow-900 hover:bg-yellow-800 py-3 text-base font-bold text-yellow-300 shadow" onclick="executeEnhance('${scrollBless.uid}', '${item.uid}', ${isEq})">使用 ${DB.items[scrollBless.id].n} (擁有: ${scrollBless.cnt})</button>`;
+    if (live && scrollBless) {
+        act += `<button ${canEnhance ? '' : 'disabled'} class="col-span-2 w-full btn border-yellow-600 bg-yellow-900 hover:bg-yellow-800 py-3 text-base font-bold text-yellow-300 shadow" onclick="executeEnhance('${scrollBless.uid}', '${item.uid}', ${isEq})">使用 ${DB.items[scrollBless.id].n} (擁有: ${scrollBless.cnt})</button>`;
     }
-    if (scrollCurse) {
-        act += `<button class="col-span-2 w-full btn border-red-800 bg-red-950 hover:bg-red-900 py-3 text-base font-bold c-cursed shadow" onclick="executeCurseDeEnhance('${item.uid}', ${isEq}, '${scrollCurseId}')">使用 ${DB.items[scrollCurse.id].n} (擁有: ${scrollCurse.cnt})｜強化值 -1</button>`;
+    if (live && scrollCurse) {
+        act += `<button ${canLower ? '' : 'disabled'} class="col-span-2 w-full btn border-red-800 bg-red-950 hover:bg-red-900 py-3 text-base font-bold c-cursed shadow" onclick="executeCurseDeEnhance('${item.uid}', ${isEq}, '${scrollCurseId}')">使用 ${DB.items[scrollCurse.id].n} (擁有: ${scrollCurse.cnt})｜強化值 -1</button>`;
     }
     
     // 🌟 一鍵強化到指定值：右側可選目標強化值（預設＝安定值），逐級嘗試，過程中任一階失敗即視為失敗（爆裝）
     let safe = d.safe || 0;
-    if (scrollNorm && (d.type === 'wpn' || d.type === 'arm')) {
+    if (canEnhance && scrollNorm && (d.type === 'wpn' || d.type === 'arm')) {
         let _cur = Number(item.en) || 0;
         let _max = Math.min(enhanceCap(d), Math.max(safe, _cur) + 6);   // 🔧 可選目標上限不超過淬鍊（強化上限）
-        let _def = Math.min(_max, Math.max(safe, _cur + 1));
+        let _def = goal > _cur && goal <= _max ? goal : Math.min(_max, Math.max(safe, _cur + 1));
         let _opts = '';
         for (let _t = _cur + 1; _t <= _max; _t++) {
             _opts += `<option value="${_t}" ${_t === _def ? 'selected' : ''}>+${_t}${_t <= safe ? '（安定）' : ''}</option>`;
@@ -1474,9 +1476,10 @@ function showEnhanceOptions(uid, isEq) {
             + `</div>`;
     }
     
-    act += `<button class="col-span-2 w-full btn py-3 bg-slate-700 text-lg font-bold mt-2" onclick="returnToItemModal('${item.uid}', ${isEq})">返回</button>`;
+    act += live ? `<button class="col-span-2 w-full btn py-3 bg-slate-700 text-lg font-bold mt-2" onclick="returnToItemModal('${item.uid}', ${isEq})">返回</button>` : '<button class="col-span-2 w-full btn py-3 bg-slate-700 text-lg font-bold mt-2" onclick="closeModal()">關閉</button>';
     
     document.getElementById('modal-actions').innerHTML = act;
+    document.getElementById('item-modal').classList.remove('hidden');
 }
 
 // 👇 一鍵強化到指定值：逐級嘗試直到目標值。安定值前必定成功；安定值起依天堂經典衝裝規則（enhanceRollOutcome js/01），
@@ -1543,20 +1546,22 @@ function executeAutoSafeEnhance(targetUid, isEq, scrollId, goal) {
         }
     }
 
+    let result;
     if (destroyed) {
         if (isEq) { if (slot) player.eq[slot] = null; if (typeof syncShahaArrow === 'function') syncShahaArrow(); if (typeof syncDualWield === 'function') syncDualWield(); }   // ⚠️ 快速強化爆裝同樣要同步副手／沙哈箭（與 js/08 doEnhance 一致）
         else { player.inv = player.inv.filter(i => i.uid !== target.uid); }
-        logSys(`消耗了 ${used} 張 ${scrollName}。<span class="text-red-500 font-bold">${fn0} 強烈的發出銀色的光芒就消失了。</span>`);
+        result = `消耗了 ${used} 張 ${scrollName}。<span class="text-red-500 font-bold">${fn0} 強烈的發出銀色的光芒就消失了。</span>`;
     } else if (ranOut) {
-        logSys(`${scrollName} 不足，消耗了 ${used} 張，<span class="text-yellow-400 font-bold">+${target.en} ${d.n} 發出銀色的光芒。</span>`);
+        result = `${scrollName} 不足，消耗了 ${used} 張，<span class="text-yellow-400 font-bold">+${target.en} ${d.n} 發出銀色的光芒。</span>`;
     } else {
         let prefix = hadRisk ? `<span class="text-green-300 font-bold">強化成功！</span>` : '';
-        logSys(`${prefix}消耗了 ${used} 張 ${scrollName}，<span class="text-yellow-400 font-bold">+${target.en} ${d.n} 發出銀色的光芒。</span>`);
+        result = `${prefix}消耗了 ${used} 張 ${scrollName}，<span class="text-yellow-400 font-bold">+${target.en} ${d.n} 發出銀色的光芒。</span>`;
     }
+    logSys(result);
 
     calcStats();
     renderTabs();
-    closeModal();
+    renderEnhanceOptions(target, isEq, result, goal);
     saveGame();
 }
 
@@ -1592,11 +1597,12 @@ function executeCurseDeEnhance(targetUid, isEq, scrollId) {
     if (scrollItem.cnt <= 0) player.inv = player.inv.filter(i => i.uid !== scrollItem.uid);
 
     target.en -= 1;   // 100% 成功降 1 階（強化已改純機率→重爬時各階自然重新擲骰，無需重骰身份）
-    logSys(`消耗了 1 個 <span class="c-cursed">${scrollName}</span>，<span class="text-red-300 font-bold">${target.en < 0 ? target.en : '+' + target.en} ${d.n} 散發出黯淡的光芒。</span>`);
+    let result = `消耗了 1 個 <span class="c-cursed">${scrollName}</span>，<span class="text-red-300 font-bold">${target.en < 0 ? target.en : '+' + target.en} ${d.n} 散發出黯淡的光芒。</span>`;
+    logSys(result);
 
     calcStats();
     renderTabs();
-    closeModal();
+    renderEnhanceOptions(target, isEq, result);
     saveGame();
 }
 
@@ -2618,9 +2624,10 @@ function _allyAutoBuffChips(a) {
     let chips = list.map(it => {
         let on = (typeof _mercAutoOn === 'function') ? _mercAutoOn(a, it.sid) : false;
         let name = (it.sid === 'sk_zombie' && a.eq && a.eq.shield && a.eq.shield.id === 'relic_necro_book') ? '骷髏復生' : it.n;
-        return `<label class="flex items-center gap-0.5 px-1 rounded border cursor-pointer" style="border-color:${on ? '#0891b2' : '#475569'};background:${on ? 'rgba(8,145,178,0.18)' : 'rgba(15,23,42,0.4)'};" title="自動維持 ${name}（${it.cat}）"><input type="checkbox" ${on ? 'checked' : ''} onchange="setAllyAutoBuff('${s}','${it.sid}',this.checked)" style="width:11px;height:11px;margin:0;"><span style="color:${on ? '#67e8f9' : '#94a3b8'};">${name}</span></label>`;
+        return `<label class="ally-auto-chip${on ? ' is-on' : ''}" title="自動維持 ${partyEscape(name)}（${it.cat}）"><input type="checkbox" ${on ? 'checked' : ''} onchange="setAllyAutoBuff('${s}','${it.sid}',this.checked)"><span>${partyEscape(name)}</span></label>`;
     }).join('');
-    return `<div class="flex flex-col gap-0.5" style="margin-top:1px;"><span class="text-cyan-400 font-bold" style="font-size:10px;">自動維持（增益／召喚／回復／淨化）</span><div class="flex flex-wrap gap-1" style="font-size:10px;line-height:1.4;">${chips}</div></div>`;
+    let minChars = Math.max(6, ...list.map(it => it.n.length));
+    return `<div class="ally-auto-section"><span class="ally-auto-heading" title="自動維持已學會的增益、召喚、回復與淨化技能">自動維持 <small>增益／召喚／回復／淨化</small></span><div class="ally-auto-grid" style="--ally-auto-min:calc(${minChars}em + 24px);">${chips}</div></div>`;
 }
 
 function renderSquadPanel() {
@@ -2640,7 +2647,7 @@ function renderSquadPanel() {
     let _guards = (typeof guardV2List === 'function' && player && player.cls) ? guardV2List() : [];   // 🏰 城堡護衛（可招募的協同角色）
     if (!allies.length && !_pets.length && !_summonVisible && !_guards.length) { panel.style.display = 'none'; _squadSigTeam = ''; _squadSigSkill = ''; return; }
     panel.style.display = '';
-    let _sigAllies = allies.map(a => a._slot + ':' + (a._allyName || '') + ':' + (a._downed ? 'D' : '') + ':' + (a.lv || 1)).join('|');
+    let _sigAllies = allies.map(a => a._slot + ':' + (a._allyName || '') + ':' + (a._downed ? 'D' : '') + ':' + (a.lv || 1) + ':' + (a.cls || '') + ':' + (a.avatar || '') + ':' + (a.eq?.wpn?.id || '')).join('|');
     let sigTeam = _sigAllies
         + '||P:' + _pets.map(p => p.uid + ':' + p.lv + ':' + (p._downed ? 'D' : '') + ':' + Math.round(p.hp / Math.max(1, p.mhp) * 20) + ':' + Math.round(p.mp / Math.max(1, p.mmp) * 20) + ':' + Math.round((p.exp || 0) / Math.max(1, petExpReq(p.lv)) * 20) + ':' + (p.potPct || 0) + ':' + Math.ceil((p._reviveCd || 0) / 10)).join('|')
         + '||S:' + ((typeof summonTeamSignature === 'function') ? summonTeamSignature() : '')   // team 分頁：名單/倒地/等級＋寵物/召喚血量(5%階)變動才重建
@@ -2654,7 +2661,7 @@ function renderSquadPanel() {
             let s = a._slot;
             if (a._downed) {   // 🤝 Phase 3：倒地→灰顯卡片。返生術＝手動鈕（消耗MP·無冷卻立即）；復活卷軸＝v2.6.6 改自動（15秒冷卻結束身上有卷軸即自動使用），此處只顯示狀態文字（不可點）。每幀更新。
                 return `<div class="bg-slate-900/70 border border-red-900 rounded p-2 flex items-center justify-between gap-2" style="opacity:0.85;">
-                    <div class="text-sm">${partyNameButton('ally', s, a._allyName, 'font-bold text-slate-400')} <span class="text-slate-600 text-xs">Lv.${a.lv || 1}</span> <span class="text-red-400 font-bold">【倒地】</span></div>
+                    <div class="text-sm">${partyNameButton('ally', s, a._allyName, 'font-bold text-slate-400')} ${partyClassBadge(a)} <span class="text-slate-600 text-xs">Lv.${a.lv || 1}</span> <span class="text-red-400 font-bold">【倒地】</span></div>
                     <div class="flex items-center gap-1 shrink-0">
                         <button id="squad-rez-${s}" class="py-1 px-2 text-xs font-bold rounded border whitespace-nowrap" style="background:#1e3a8a;border-color:#3b82f6;color:#bfdbfe;" onclick="reviveMercenary('${s}','rez')">返生術</button>
                         <span id="squad-revive-${s}" class="py-1 px-2 text-xs font-bold rounded border whitespace-nowrap" style="background:#3f1d1d;border-color:#7f1d1d;color:#fca5a5;cursor:default;" title="倒地 15 秒後，若身上有復活卷軸將自動使用。">卷軸</span>
@@ -2664,6 +2671,7 @@ function renderSquadPanel() {
             return `<div class="bg-slate-800/60 border border-slate-600 rounded p-2 flex flex-col gap-1 ally-compact-card">
                 <div class="ally-compact-head text-sm">
                     ${partyNameButton('ally', s, a._allyName, 'font-bold text-amber-200 ally-compact-name')}
+                    ${partyClassBadge(a)}
                     <span class="text-slate-400 text-xs whitespace-nowrap">Lv.${a.lv || 1}</span>
                     <div class="bar-bg ally-exp-bar"><div id="squad-exp-${s}" class="bar-fill bg-yellow-500" style="width:0%"></div><div id="squad-exp-txt-${s}" class="bar-text text-white">0%</div></div>
                 </div>
@@ -2678,6 +2686,7 @@ function renderSquadPanel() {
             + ((typeof renderSummonTeamHTML === 'function') ? renderSummonTeamHTML() : '')
             + ((typeof renderMercSummonTeamHTML === 'function') ? renderMercSummonTeamHTML() : '')
             + ((typeof renderGuardTeamHTML === 'function') ? renderGuardTeamHTML() : '');   // 隊伍排列：傭兵 → 寵物 → 玩家召喚物 → 傭兵召喚物 → 🏰 城堡護衛
+        decoratePartyRoster(document.getElementById('squad-tab-team'));
         _squadRebuilt = true;
     }
     if (sigSkill !== _squadSigSkill) {
@@ -2688,15 +2697,13 @@ function renderSquadPanel() {
             let potPct = (a._potHpPct != null) ? a._potHpPct : ((a._hpSafePct != null) ? a._hpSafePct : 0);
             let skillPct = (a._hpSkillPct != null) ? a._hpSkillPct : ((a._hpSafePct != null) ? a._hpSafePct : 0);
             let mpPct = (a._castMpPct != null) ? a._castMpPct : 0;   // 🆕 v2.6.27 施法MP門檻
-            return `<div class="bg-slate-800/60 border border-slate-600 rounded p-2 flex flex-col gap-1">
-                <div class="text-sm font-bold text-amber-200">${a._allyName} <span class="text-slate-500 text-xs">Lv.${a.lv || 1}</span></div>
-                <div class="flex items-center gap-1 text-xs"><span class="text-cyan-400 font-bold shrink-0" style="width:3rem;">攻擊技能</span><select class="flex-1 min-w-0 bg-slate-900 border border-slate-600 text-cyan-300 px-1 py-1 rounded text-xs outline-none" onchange="setAllyAtkSkill('${s}', this.value)">${_allySkillOptions(a, 'atk', a._atkSkill || '')}</select><span class="shrink-0 flex items-center text-blue-300 whitespace-nowrap" title="MP％ 高於此值才施放攻擊技（0 = 不限）。">MP&gt;<input type="number" min="0" max="100" value="${mpPct}" class="w-10 bg-slate-900 border border-blue-700 text-center text-white rounded" onchange="setAllyCastMp('${s}', this.value)">%</span></div>
-                <div class="flex items-center gap-1 text-xs"><span class="text-green-400 font-bold shrink-0" style="width:3rem;">治癒魔法</span><select class="flex-1 min-w-0 bg-slate-900 border border-slate-600 text-green-300 px-1 py-1 rounded text-xs outline-none" onchange="setAllyHealSkill('${s}', this.value)">${_allySkillOptions(a, 'heal', a._healSkill || '')}</select><span class="shrink-0 flex items-center text-green-300 whitespace-nowrap" title="HP％ 低於此值才施放治癒。">HP&lt;<input type="number" min="0" max="100" value="${hpPct}" class="w-10 bg-slate-900 border border-green-700 text-center text-white rounded" onchange="setAllyHealHp('${s}', this.value)">%</span></div>
-                <div class="flex items-center gap-1 text-xs"><span class="text-purple-400 font-bold shrink-0" style="width:3rem;">轉換技能</span><select class="flex-1 min-w-0 bg-slate-900 border border-slate-600 text-purple-300 px-1 py-1 rounded text-xs outline-none" onchange="setAllyConvertSkill('${s}', this.value)">${_allySkillOptions(a, 'convert', a._convertSkill || '')}</select></div>
-                <div class="flex items-stretch gap-1 text-xs">
-                    <span class="flex-1 flex items-center justify-center gap-0.5 text-amber-400 bg-slate-900/40 border border-amber-800 rounded py-0.5" title="低於此％時，喝隊長設定的藥水回血。0 = 關閉。">HP&lt;<input type="number" min="0" max="100" value="${potPct}" class="w-10 bg-slate-900 border border-amber-700 text-center text-white rounded" onchange="setAllyPotHp('${s}', this.value)">%喝水</span>
-                    <span class="flex-1 flex items-center justify-center gap-0.5 text-rose-400 bg-slate-900/40 border border-rose-800 rounded py-0.5" title="低於此％時，暫停施放消耗 HP 的技能（龍騎士 HP 技／轉換技能／立方和諧），退回普攻。0 = 關閉。">HP&lt;<input type="number" min="0" max="100" value="${skillPct}" class="w-10 bg-slate-900 border border-rose-700 text-center text-white rounded" onchange="setAllyHpSkill('${s}', this.value)">%停技</span>
-                </div>
+            return `<div class="ally-skill-card">
+                <div class="party-member-heading"><span class="party-member-name" title="${partyEscape(a._allyName)}">${partyEscape(a._allyName)}</span>${partyClassBadge(a)}<span class="ally-skill-level">Lv.${a.lv || 1}</span></div>
+                <div class="ally-skill-controls"><div class="ally-skill-rows">
+                    <div class="ally-skill-row ally-skill-attack"><span class="ally-skill-label">攻擊技能</span><select aria-label="${partyEscape(a._allyName)}：攻擊技能" onchange="setAllyAtkSkill('${s}', this.value)">${_allySkillOptions(a, 'atk', a._atkSkill || '')}</select><span class="ally-skill-gate" title="MP％ 高於此值才施放攻擊技（0 = 不限）。">MP&gt;<input aria-label="攻擊技能 MP 門檻" type="number" min="0" max="100" value="${mpPct}" onchange="setAllyCastMp('${s}', this.value)">%</span></div>
+                    <div class="ally-skill-row ally-skill-heal"><span class="ally-skill-label">治癒魔法</span><select aria-label="${partyEscape(a._allyName)}：治癒魔法" onchange="setAllyHealSkill('${s}', this.value)">${_allySkillOptions(a, 'heal', a._healSkill || '')}</select><span class="ally-skill-gate" title="HP％ 低於此值才施放治癒。">HP&lt;<input aria-label="治癒魔法 HP 門檻" type="number" min="0" max="100" value="${hpPct}" onchange="setAllyHealHp('${s}', this.value)">%</span></div>
+                    <div class="ally-skill-row ally-skill-convert"><span class="ally-skill-label">轉換技能</span><select aria-label="${partyEscape(a._allyName)}：轉換技能" onchange="setAllyConvertSkill('${s}', this.value)">${_allySkillOptions(a, 'convert', a._convertSkill || '')}</select><span class="ally-skill-gate ally-skill-stop" title="HP 低於或等於此％時，停止轉換技能及其他消耗 HP 的技能。0 = 關閉自訂門檻；龍騎士耗 HP 技、耗 HP 增益與立方和諧仍有 25% 安全限制。">HP≤<input aria-label="停止耗 HP 技能門檻" type="number" min="0" max="100" value="${skillPct}" onchange="setAllyHpSkill('${s}', this.value)">%</span></div>
+                </div><div class="ally-potion-condition"><span class="ally-potion-label">喝水條件</span><span class="ally-skill-gate" title="低於此％時，喝隊長設定的藥水回血。0 = 關閉。">HP&lt;<input aria-label="喝水 HP 門檻" type="number" min="0" max="100" value="${potPct}" onchange="setAllyPotHp('${s}', this.value)">%</span></div></div>
                 ${_allyAutoBuffChips(a)}
             </div>`;
         }).join('');

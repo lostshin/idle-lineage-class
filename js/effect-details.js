@@ -36,7 +36,7 @@ function effectInfo(id) {
 function effectIconHtml(id,seconds,source='自身',type='buff') {
     const e=effectInfo(id),name=e.name,time=seconds==null?'常駐':Math.ceil(seconds)+' 秒';
     const image=e.icon?'<img src="assets/state-icons/'+encodeURIComponent(e.icon)+'.jpg" alt="'+partyEscape(name)+'" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><span hidden>'+partyEscape(name)+'</span>':'<span>'+partyEscape(name)+'</span>';
-    return '<button type="button" class="effect-icon" data-'+type+'="'+partyEscape(id)+'" data-effect-id="'+partyEscape(id)+'" data-effect-seconds="'+(seconds==null?'':seconds)+'" data-effect-source="'+partyEscape(source)+'" aria-label="'+partyEscape(name)+' '+time+'">'+image+'<small>'+time+'</small></button>';
+    return '<button type="button" class="effect-icon'+(seconds!=null&&seconds<=10?' effect-expiring':'')+'" data-'+type+'="'+partyEscape(id)+'" data-effect-id="'+partyEscape(id)+'" data-effect-seconds="'+(seconds==null?'':seconds)+'" data-effect-source="'+partyEscape(source)+'" aria-label="'+partyEscape(name)+' '+time+'">'+image+'<small>'+time+'</small></button>';
 }
 (function(){
     const tip=document.createElement('div');tip.id='effect-tooltip';tip.className='game-tooltip';tip.setAttribute('role','tooltip');tip.hidden=true;document.body.appendChild(tip);
@@ -109,7 +109,7 @@ function partyAbilityNumber(snapshot, keys, suffix = '', seconds = false, buff =
 }
 function partyAbilityValue(snapshot, keys, suffix = '', seconds = false) {
     const total = partyAbilityNumber(snapshot, keys, suffix, seconds);
-    const buff = partyAbilityNumber(snapshot, keys, suffix, seconds, true);
+    const buff = partyAbilityNumber(snapshot, keys, '', seconds, true);
     const label = '（'+buff.replace(/^\+/, '＋').replace(/^-/, '−')+'）';
     return '<span data-ability-total>'+total+'</span><small data-ability-buff'+(parseFloat(buff)===0||buff==='—'?' hidden':'')+' aria-label="Buff 加成 '+buff+'">'+label+'</small>';
 }

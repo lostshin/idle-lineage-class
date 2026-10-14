@@ -1966,7 +1966,7 @@ window.onload = () => {
         // 技能頁 host（data-tip-skill）與收集冊 host（data-tip-id）不限於 NPC 互動面板；其餘 host 仍限定於 interaction-content
         let ok = host && ((ic && ic.contains(host)) || (eb && !eb.classList.contains('hidden') && eb.contains(host)) || host.hasAttribute('data-tip-skill') || host.hasAttribute('data-tip-id') || host.hasAttribute('data-tip-uid'));   // 🖱️ data-tip-uid（背包/裝備欄實例物品）不限面板，任何處 hover 即顯示完整資訊 tooltip
         if(!ok){ hideTip(); return; }
-        let el = getTip();
+        let el = getTip();el.toggleAttribute('data-party-equipment',host.getAttribute('data-tip-src')==='party');
         let tSkill = host.getAttribute('data-tip-skill');
         let tUid = host.getAttribute('data-tip-uid');
         let tId = host.getAttribute('data-tip-id');
@@ -1977,12 +1977,15 @@ window.onload = () => {
         } else if(tUid){
             // 實例物品（倉庫/背包清單）：顯示完整資訊（含 +N、詞綴、套裝效果）
             let tSrc = host.getAttribute('data-tip-src') || 'inv';
-            let key = 'I:' + tSrc + ':' + tUid;
+            const partyActor = tSrc === 'party' ? partyMemberById(host.dataset.tipPartyKind, host.dataset.tipPartyId) : null;
+            const partyItem = partyActor?.eq?.[host.dataset.equipmentSlot];
+            let key = 'I:' + tSrc + ':' + tUid + (tSrc === 'party' ? ':' + host.dataset.tipPartyKind + ':' + host.dataset.tipPartyId + ':' + (partyItem ? itemSig(partyItem) : '') : '');
             if(el._id !== key){
-                let it = findTipItem(tSrc, tUid);
+                let it = tSrc === 'party' ? partyItem : findTipItem(tSrc, tUid);
                 if(!it){ hideTip(); return; }
-                el.innerHTML = `<div class="font-bold text-base ${getItemColor(it)}" style="margin-bottom:4px;">${getItemFullName(it)}</div>`
+                const content = () => `<div class="font-bold text-base ${getItemColor(it)}" style="margin-bottom:4px;">${getItemFullName(it)}</div>`
                     + `<div class="text-slate-300" style="font-size:12px;line-height:1.5;">${buildItemDescHTML(it)}</div>`;
+                el.innerHTML = partyActor ? _withAllyEquipmentContext(effectActorCopy(partyActor), content) : content();
                 el._id = key;
             }
         } else if(tId){
