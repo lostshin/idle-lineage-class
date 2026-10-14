@@ -64,6 +64,25 @@ if(!options.baseline){
  const chooserWait=page.waitForFileChooser();await page.click('#load-btn-account-import');const chooser=await chooserWait;await chooser.setFiles(accountPath);await page.waitForSelector('#account-import-confirm');await page.click('#account-import-confirm');
  await check('account UI restores all roles, settings and shared progress',()=>page.evaluate(()=>[1,2,3,4,5,6,7,8].every(n=>!!slotSummary(n))&&_roleReadSavePlayer(1).name==='再改名字'&&pandoraGetSharedDiamonds()===2&&JSON.parse(_lzGet(whKey({classicMode:true}))).gold===123));
  await page.click('#account-import-cancel');
+ const os=await import('node:os'),path=await import('node:path'),roleDir=await fs.mkdtemp(path.join(os.tmpdir(),'role-files-')),roleFiles=[];
+ for(const [slot,gold] of [[2,111],[3,222],[6,333]]){await page.evaluate(([slot,gold])=>_lzSet(whKey({classicMode:slot>4}),JSON.stringify({items:[],gold})),[slot,gold]);const wait=page.waitForEvent('download',{timeout:15000});await page.evaluate(s=>exportSave(s),slot);const d=await wait,file=path.join(roleDir,d.suggestedFilename());await d.saveAs(file);roleFiles.push(file);}
+ for(const [i,file] of roleFiles.entries())await fs.utimes(file,1700000000+i*100,1700000000+i*100);
+ const roleRaw=await Promise.all(roleFiles.map(f=>fs.readFile(f,'utf8'))),accountRaw=await fs.readFile(accountPath,'utf8');
+ await check('old per-role exports name their source slot',async()=>roleFiles.every((f,i)=>path.basename(f).startsWith('fable5_save_'+[2,3,6][i]+'_')));
+ await check('tampered, duplicated, mixed and oversized role batches are rejected before writing',()=>page.evaluate(([raws,accountRaw])=>{const before=JSON.stringify(__data),entry=(raw,name)=>({name,raw,lastModified:1}),fails=[],payload=_saveUnwrap(raws[0]).payload;
+  const expectFail=(label,list)=>{try{accountImportFromFiles(list);fails.push(label);}catch(e){}};
+  expectFail('tampered',[entry('SIG1:bad:'+payload,'fable5_save_2_x.json')]);
+  expectFail('duplicate',[entry(raws[0],'fable5_save_2_a.json'),entry(raws[0],'fable5_save_5_b.json')]);
+  expectFail('mixed',[entry(accountRaw,'fable5_account.json'),entry(raws[1],'fable5_save_3_x.json')]);
+  expectFail('nine',Array.from({length:9},(_,i)=>{const d=JSON.parse(payload);d.p.enSeed='batch-'+i;return entry(_saveWrapPortable(JSON.stringify(d)),'role'+i+'.json');}));
+  return (fails.length===0&&JSON.stringify(__data)===before)||fails;},[roleRaw,accountRaw]));
+ await page.evaluate(()=>{for(let n=1;n<=8;n++)_lzRemoveStored('lineage_idle_save_'+n);_lzSet(whKey({classicMode:false}),JSON.stringify({items:[],gold:0}));_lzSet(_dexKey(CARDDEX_KEY,{classicMode:false}),JSON.stringify({kept:1}));_lzSet(AUTOSELL_GLOBAL_KEY,JSON.stringify({kept:1}));renderLoadSelect();});
+ const roleChooser=page.waitForFileChooser();await page.click('#load-btn-account-import');await (await roleChooser).setFiles(roleFiles);await page.waitForSelector('#account-import-confirm');
+ await check('role batch preview names the files and the progress it cannot carry',()=>page.evaluate(()=>{const t=document.getElementById('account-import-dialog').textContent;return t.includes('3 個角色檔')&&t.includes('圖鑑')&&t.includes('fable5_save_3_');}));
+ await page.click('#account-import-confirm');
+ await check('account import accepts several old role files at once',()=>page.evaluate(()=>[2,3,6].every(n=>_roleReadSavePlayer(n)?.enSeed==='test-role-'+n)&&[1,4,5,7,8].every(n=>!slotSummary(n))&&JSON.parse(_lzGet(whKey({classicMode:false}))).gold===222&&JSON.parse(_lzGet(whKey({classicMode:true}))).gold===333&&JSON.parse(_lzGet(_dexKey(CARDDEX_KEY,{classicMode:false}))).kept===1&&JSON.parse(_lzGet(AUTOSELL_GLOBAL_KEY)).kept===1));
+ await page.click('#account-import-cancel');await fs.rm(roleDir,{recursive:true,force:true});
+ await page.evaluate(raw=>{const r=applyAccountImport(planAccountImport(parseAccountFile(raw)));if(!r.ok)throw Error(r.error);},accountRaw);
  await check('same identity in another slot is updated without duplication',()=>page.evaluate(()=>{const d=JSON.parse(_saveUnwrap(_lzGet('lineage_idle_save_1')).payload);_lzRemoveStored('lineage_idle_save_1');_lzSet('lineage_idle_save_8',_saveWrap(JSON.stringify(d)));const plan=planAccountImport(__account,{});const ok=plan.actions.find(a=>a.source===1).target===8&&plan.actions.filter(a=>a.target===8&&a.kind!=='skip').length===1;_lzSet('lineage_idle_save_1',_saveWrap(JSON.stringify(d)));_lzSet('lineage_idle_save_8',_saveWrap(JSON.stringify(__account.roles[7])));return ok;}));
  await check('legacy missing mode flag preserves valid party references',()=>page.evaluate(()=>{const a=accountClone(__account);delete a.roles[0].p.classicMode;a.roles[0].p.accountParty=[{id:'test-role-2',auto:{},exp:0}];return applyAccountImport(planAccountImport(a)).ok&&accountRoleDoc(1).p.accountParty.length===1;}));
  await check('incoming empty slots preserve existing characters',()=>page.evaluate(()=>{const a=accountClone(__account);a.roles[6]=null;return applyAccountImport(planAccountImport(a)).ok&&_roleReadSavePlayer(7).enSeed==='test-role-7';}));

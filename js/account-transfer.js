@@ -48,6 +48,10 @@ function buildAccountSnapshot() {
         d.p.accountParty = (d.p.allies || []).map(a => ({id:accountRoleId(a), auto:accountClone(a._autoBuff || {}), potPct:a.potPct, exp:a._expGained || 0, alignment:a._alignmentDelta || 0}));
         d.p.allies = []; d.p.summonsV2 = []; d.p.guardsV2 = [];
     });
+    return validateAccount({format:ACCOUNT_FORMAT,schema:1,source:_FS?'desktop':'web',version:GAME_VERSION,exportedAt:new Date().toISOString(),roles,
+        shared:{modes:accountLocalModes(),market:accountRead(ACCOUNT_MARKET_KEY,true,null),raceClaims:accountRead(RACE_LEDGER_KEY,true,[]),diamonds:pandoraGetSharedDiamonds(),clan:clanExportSharedState(),ledger:accountRead(MERC_LEDGER_KEY,false,[]),autosell:accountRead(AUTOSELL_GLOBAL_KEY,false,null)}});
+}
+function accountLocalModes() {
     const modes = {};
     for (const classicMode of [false, true]) {
         const p = {classicMode}, suffix = modeSuffix(classicMode, false);
@@ -58,8 +62,7 @@ function buildAccountSnapshot() {
         for (const key of [CARDDEX_KEY,EQUIPDEX_KEY,MISCDEX_KEY,RELICDEX_KEY]) dex[key] = accountRead(_dexKey(key,p),false,{});
         modes[classicMode ? 'classic' : 'normal'] = {warehouse,pets:portablePetRoster(pets),dex};
     }
-    return validateAccount({format:ACCOUNT_FORMAT,schema:1,source:_FS?'desktop':'web',version:GAME_VERSION,exportedAt:new Date().toISOString(),roles,
-        shared:{modes,market:accountRead(ACCOUNT_MARKET_KEY,true,null),raceClaims:accountRead(RACE_LEDGER_KEY,true,[]),diamonds:pandoraGetSharedDiamonds(),clan:clanExportSharedState(),ledger:accountRead(MERC_LEDGER_KEY,false,[]),autosell:accountRead(AUTOSELL_GLOBAL_KEY,false,null)}});
+    return modes;
 }
 function validateAccount(a) {
     if (!a || a.format !== ACCOUNT_FORMAT || a.schema !== 1 || !Array.isArray(a.roles) || a.roles.length !== 8 || !a.shared) throw Error('不是支援的帳號存檔。');
@@ -116,6 +119,47 @@ function parseAccountFile(raw) {
     const u = _saveUnwrap(String(raw));
     if (!u.signed || !u.ok) throw Error('帳號存檔校驗失敗，未匯入任何資料。');
     return validateAccount(JSON.parse(u.payload));
+}
+// Old versions export one role per file; combine a folder of them into one account preview.
+function accountFromRoleFiles(entries) {
+    if(_FS)throw Error('安裝版不支援一次匯入多個網頁版角色檔。');
+    const files=entries.map(f=>{
+        if(String(f.raw).startsWith('SIG2:'))throw Error(f.name+' 是安裝版存檔，無法匯入網頁版。');
+        const u=_saveUnwrap(String(f.raw));if(!u.ok)throw Error(f.name+' 校驗失敗，未匯入任何資料。');
+        let d;try{d=JSON.parse(u.payload);}catch(e){throw Error(f.name+' 不是有效的存檔。');}
+        if(d?.format==='idle-lineage-desktop-save')throw Error(f.name+' 是安裝版存檔，無法匯入網頁版。');
+        if(!d?.p?.cls||!CLAN_CLASS_NAMES[d.p.cls]||!Array.isArray(d.p.inv))throw Error(f.name+' 不是角色存檔；帳號檔請單獨匯入。');
+        const slot=Number((/fable5_save_(\d+)_/.exec(f.name)||[])[1]);
+        return {...f,d,signed:u.signed,slot};
+    });
+    if(files.length>8)throw Error('本版只有八格角色，請一次最多選 8 個角色檔。');
+    const ids=new Map();
+    for(const f of files){const id=accountRoleId(f.d.p);if(ids.has(id))throw Error(ids.get(id)+' 與 '+f.name+' 是同一個角色，請只選一個。');ids.set(id,f.name);}
+    const roles=Array(8).fill(null),pending=[];
+    for(const f of files)(f.slot>=1&&f.slot<=8&&!roles[f.slot-1]?(roles[f.slot-1]=f):pending.push(f));
+    for(const f of pending)roles[roles.indexOf(null)]=f;
+    const newest=list=>list.reduce((a,b)=>!a||b.lastModified>a.lastModified?b:a,null);
+    const modes=accountLocalModes(),sources=[];
+    for(const mode of ['normal','classic']){
+        const f=newest(files.filter(x=>!!x.d.p.classicMode===(mode==='classic')&&x.d.wh));if(!f)continue;
+        modes[mode].warehouse={items:f.d.wh.items||[],gold:Math.max(0,Math.floor(Number(f.d.wh.gold)||0))};
+        if(Array.isArray(f.d.pets))modes[mode].pets=portablePetRoster(f.d.pets);
+        sources.push((mode==='classic'?'經典':'一般')+'倉庫與寵物取自 '+f.name);
+    }
+    const latest=newest(files.filter(x=>x.d.pandoraDiamonds!==undefined||x.d.clanState));
+    if(latest)sources.push('龍鑽與血盟取自 '+latest.name);
+    const notes=files.filter(f=>!f.signed).map(f=>f.name+' 沒有完整性簽章（可能是舊版檔），仍照常讀取。');
+    return validateAccount({format:ACCOUNT_FORMAT,schema:1,source:'web',version:GAME_VERSION,exportedAt:new Date(newest(files).lastModified).toISOString(),importNotes:notes,
+        sharedNote:'共 '+files.length+' 個角色檔：'+sources.join('；')+'。舊版角色檔不含圖鑑與傭兵隊伍：圖鑑維持本機現有資料，隊伍需重新編組。',
+        roles:roles.map(f=>{if(!f)return null;const d=accountClone(f.d);for(const k of ['wh','pets','pandoraDiamonds','clanState'])delete d[k];d.p.enSeed=accountRoleId(d.p);d.p.allies=[];d.p.accountParty=[];return d;}),
+        shared:{modes,market:accountRead(ACCOUNT_MARKET_KEY,true,null),raceClaims:[],diamonds:latest?.d.pandoraDiamonds!==undefined?Math.max(0,Math.floor(Number(latest.d.pandoraDiamonds)||0)):pandoraGetSharedDiamonds(),
+            clan:latest?.d.clanState||clanExportSharedState(),ledger:[],autosell:accountRead(AUTOSELL_GLOBAL_KEY,false,null)}});
+}
+function accountImportFromFiles(entries) {
+    const isAccount=raw=>{try{const t=String(raw).trim();if(t.startsWith('{')&&JSON.parse(t).format==='idle-lineage-full')return true;return JSON.parse(_saveUnwrap(t).payload).format===ACCOUNT_FORMAT;}catch(e){return false;}};
+    if(entries.length===1&&(_FS||String(entries[0].raw).startsWith('SIG2:')||isAccount(entries[0].raw)))return parseAccountFile(String(entries[0].raw));
+    if(entries.some(f=>isAccount(f.raw)))throw Error('帳號檔請單獨匯入，不要和角色檔一起選。');
+    return accountFromRoleFiles(entries);
 }
 function planAccountImport(data, choices = {}) {
     validateAccount(data); accountIdleRequired();
@@ -231,15 +275,15 @@ async function exportAccount() {
     } catch(e) {alert('帳號匯出失敗：'+e.message);}
 }
 function importAccount() {
-    const input=document.createElement('input');input.type='file';input.accept='.json,application/json';
-    input.onchange=async()=>{if(!input.files[0])return;try{const data=parseAccountFile(await input.files[0].text());showAccountImport(data);}catch(e){alert('帳號匯入失敗：'+e.message);}};input.click();
+    const input=document.createElement('input');input.type='file';input.accept='.json,application/json';input.multiple=true;
+    input.onchange=async()=>{if(!input.files.length)return;try{const entries=await Promise.all(Array.from(input.files,async f=>({name:f.name,raw:await f.text(),lastModified:f.lastModified})));showAccountImport(accountImportFromFiles(entries));}catch(e){alert('帳號匯入失敗：'+e.message);}};input.click();
 }
 function showAccountImport(data) {
     const plan=planAccountImport(data),rows=plan.actions.map(a=>{
         const old=slotSummary(a.target),p=a.doc.p,label=(p.name||'未命名')+' '+(CLAN_CLASS_NAMES[p.cls]||p.cls)+' Lv.'+p.lv;
         return '<div class="transfer-role"><b>角色 '+a.source+' → 第 '+a.target+' 格</b><span>'+partyEscape(label)+'</span>'+(a.blocked?'<p class="transfer-note">此格已保留給另一位匯入角色；請先整理角色位置，再匯入本角色。</p>':a.conflict?'<label>此格已有 '+partyEscape(old?.name||old?.cls||'其他角色')+'，是否取代？ <select data-account-choice="'+a.source+'" '+(a.blocked?'disabled':'')+'><option value="keep">保留，跳過此角色</option><option value="replace">取代</option></select></label>':'<small>'+(a.kind==='update'?'更新相同角色':'匯入空格')+'</small>')+'</div>';
     }).join('');
-    const dialog=transferDialog('account-import-dialog','匯入帳號',rows+'<p class="transfer-note">共用資料將依此檔還原：一般／經典倉庫、4 種圖鑑、寵物、血盟／城堡、傭兵經驗與龍鑽 '+data.shared.diamonds+' 顆。寵物回保管；未匯入角色的失效隊伍與血盟關係解除。空格不刪除現有角色。</p><p class="transfer-note">相同角色將以這份檔案取代目前進度；請確認檔案日期：'+partyEscape(data.exportedAt)+'</p><p id="account-import-status" role="status"></p><div class="transfer-actions"><button class="btn" id="account-import-confirm">確認匯入</button><button class="btn" id="account-import-cancel">取消</button></div>');
+    const dialog=transferDialog('account-import-dialog','匯入帳號',rows+'<p class="transfer-note">'+(data.sharedNote?partyEscape(data.sharedNote)+' 龍鑽 '+data.shared.diamonds+' 顆。':'共用資料將依此檔還原：一般／經典倉庫、4 種圖鑑、寵物、血盟／城堡、傭兵經驗與龍鑽 '+data.shared.diamonds+' 顆。')+'寵物回保管；未匯入角色的失效隊伍與血盟關係解除。空格不刪除現有角色。</p><p class="transfer-note">相同角色將以這份檔案取代目前進度；請確認檔案日期：'+partyEscape(data.exportedAt)+'</p><p id="account-import-status" role="status"></p><div class="transfer-actions"><button class="btn" id="account-import-confirm">確認匯入</button><button class="btn" id="account-import-cancel">取消</button></div>');
     if(data.importNotes?.length)dialog.querySelector('.transfer-body').insertAdjacentHTML('afterbegin','<div class="transfer-note">'+data.importNotes.map(n=>'<p>'+partyEscape(n)+'</p>').join('')+'</div>');
     dialog.querySelector('#account-import-cancel').onclick=()=>closeTransferDialog(dialog);
     dialog.querySelector('#account-import-confirm').onclick=()=>{
