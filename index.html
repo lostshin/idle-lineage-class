@@ -14,7 +14,7 @@
     <title>放置天堂 - 日出之國</title>
     <link rel="icon" type="image/png" href="assets/favicon.png">   <!-- 🖼️ 瀏覽器分頁圖示(favicon)：把你的圖放到 assets/favicon.png 即生效；可改 href 路徑或副檔名(.ico/.svg) -->
 
-    <link rel="stylesheet" href="css/style.css?v=17a8106eb3">
+    <link rel="stylesheet" href="css/style.css?v=6b56fa2b8e">
     <link rel="stylesheet" href="css/floating-ui.css?v=bc8be4ac7f">
     <link rel="stylesheet" href="css/tailwind-built.css?v=932535789f"><!-- 🔧 預編譯 Tailwind（取代執行期 JIT tailwind.js）：只含實際用到的 class，省 407KB runtime + 移除持續掃描 DOM 的成本。置於 style.css 之後以保留原 cascade（utility 平手時勝過自訂 class，與舊 JIT 注入順序一致） -->
     <link rel="stylesheet" href="css/responsive.css?v=4db59c475a">
@@ -43,10 +43,10 @@
 
         <div id="login-meta-layer">
             <!-- 版本出處：原版 + pp771007 加掛 + lostshin 整合（取代原作者的非官方轉載橫幅） -->
-            <div id="login-credits" class="text-center">
-                <div>原作者：<span class="login-credit-name">秋玥</span>（shines871）· 原版 <span data-game-version>v3.8.34</span> · <a href="https://shines871.github.io/idle-lineage-class/" target="_blank" rel="noopener">原版連結</a></div>
-                <div>加掛模組：<span class="login-credit-name">pp771007</span> · <a href="https://pp771007.github.io/idle-lineage-class/" target="_blank" rel="noopener">加掛版連結</a></div>
-                <div>本版本：<span class="login-credit-name">lostshin</span> 整合修改版 · <a href="https://github.com/lostshin/idle-lineage-class" target="_blank" rel="noopener">GitHub</a></div>
+            <div id="login-credits">
+                <span class="login-credit-label">原作者</span><span class="login-credit-name">秋玥 <small>shines871</small></span><a href="https://shines871.github.io/idle-lineage-class/" target="_blank" rel="noopener">原版 <span data-game-version>v3.8.34</span></a>
+                <span class="login-credit-label">加掛模組</span><span class="login-credit-name">pp771007</span><a href="https://pp771007.github.io/idle-lineage-class/" target="_blank" rel="noopener">加掛版</a>
+                <span class="login-credit-label">本版本</span><span class="login-credit-name">lostshin <small>整合修改版</small></span><a href="https://github.com/lostshin/idle-lineage-class" target="_blank" rel="noopener">GitHub</a>
             </div>
             <!-- 🏷️ 版本號（由 js/14 window.onload 依 FORK_VERSION 填入；此處 v2.4.0 僅為 JS 失效時的後備文字） -->
             <div id="login-version" class="text-center text-sm text-slate-300 font-medium tracking-wide select-none">v2.4.0</div>
@@ -83,9 +83,7 @@
             </section>
             <div id="load-action-panel">
                 <button onclick="loadCreateSelected()" id="load-btn-create" type="button">創新角色</button>
-                <button onclick="loadImportSelected()" id="load-btn-import" type="button">匯入進度</button>
                 <button onclick="loadEnterSelected()" id="load-btn-enter" type="button" class="hidden">進入遊戲</button>
-                <button onclick="loadExportSelected()" id="load-btn-export" type="button" class="hidden">匯出進度</button>
                 <button onclick="loadDeleteSelected()" id="load-btn-delete" type="button" class="hidden" style="color:#e7a09a;border-color:rgba(151,61,52,.82);">刪除角色</button>
                 <button onclick="loadRenameSelected()" id="load-btn-rename" type="button">修改暱稱</button>
                 <button onclick="exportAccount()" id="load-btn-account-export" type="button">匯出帳號</button>
@@ -612,7 +610,7 @@
     <script src="js/10-ui-tabs.js?v=b54b2d1e62"></script>
 <script src="js/11-world-map.js?v=7efa1000b7"></script>
 <script src="js/12-npc-quests.js?v=21b6fd7fba"></script>
-<script src="js/13-shop-save.js?v=3ec76b3175"></script>
+<script src="js/13-shop-save.js?v=f26b89afe1"></script>
 <script src="js/14-craft-pandora.js?v=d19248eb8e"></script>
 <script src="js/15-cards.js?v=42975a78a0"></script>
 <script src="js/16-equip-book.js?v=06993d3f55"></script>
@@ -626,7 +624,7 @@
     <script src="js/companion-haste.js?v=f0447755fd"></script>
     <script src="js/24-pandora-relic-market.js?v=f4dc248558"></script>
     <script src="js/25-clan-system.js?v=c0b9566793"></script>
-    <script src="js/26-world-channel.js?v=b7103157d3"></script>
+    <script src="js/26-world-channel.js?v=3299ebe24a"></script>
 <script src="js/28-pvp-arena.js?v=1347b3bd93"></script>
 <script src="js/29-siege-v2-data.js?v=379d78bb1e"></script>
 <script src="js/30-siege-v2.js?v=09b50f9871"></script>

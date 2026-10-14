@@ -1,0 +1,90 @@
+{
+  "method": "Ego Page.printToPDF with screen media; rasterized locally to PNG using pdfplumber/PDFium at 144 DPI",
+  "spaceId": 5,
+  "reports": [
+    {
+      "screen": "home",
+      "width": 1330,
+      "height": 900,
+      "scale": 100,
+      "preview": "tests/artifacts/cccc-homepage-20261015/cccc-home-1330-100.png"
+    },
+    {
+      "screen": "selection",
+      "width": 1330,
+      "height": 900,
+      "scale": 100,
+      "preview": "tests/artifacts/cccc-homepage-20261015/cccc-selection-1330-100.png"
+    },
+    {
+      "screen": "home",
+      "width": 1330,
+      "height": 900,
+      "scale": 75,
+      "preview": "tests/artifacts/cccc-homepage-20261015/cccc-home-1330-75.png"
+    },
+    {
+      "screen": "selection",
+      "width": 1330,
+      "height": 900,
+      "scale": 75,
+      "preview": "tests/artifacts/cccc-homepage-20261015/cccc-selection-1330-75.png"
+    },
+    {
+      "screen": "home",
+      "width": 390,
+      "height": 844,
+      "scale": 100,
+      "preview": "tests/artifacts/cccc-homepage-20261015/cccc-home-390-100.png"
+    },
+    {
+      "screen": "selection",
+      "width": 390,
+      "height": 844,
+      "scale": 100,
+      "preview": "tests/artifacts/cccc-homepage-20261015/cccc-selection-390-100.png"
+    },
+    {
+      "screen": "home",
+      "width": 390,
+      "height": 844,
+      "scale": 75,
+      "preview": "tests/artifacts/cccc-homepage-20261015/cccc-home-390-75.png"
+    },
+    {
+      "screen": "selection",
+      "width": 390,
+      "height": 844,
+      "scale": 75,
+      "preview": "tests/artifacts/cccc-homepage-20261015/cccc-selection-390-75.png"
+    },
+    {
+      "screen": "home",
+      "width": 844,
+      "height": 390,
+      "scale": 100,
+      "preview": "tests/artifacts/cccc-homepage-20261015/cccc-home-844-100.png"
+    },
+    {
+      "screen": "selection",
+      "width": 844,
+      "height": 390,
+      "scale": 100,
+      "preview": "tests/artifacts/cccc-homepage-20261015/cccc-selection-844-100.png"
+    },
+    {
+      "screen": "home",
+      "width": 844,
+      "height": 390,
+      "scale": 75,
+      "preview": "tests/artifacts/cccc-homepage-20261015/cccc-home-844-75.png"
+    },
+    {
+      "screen": "selection",
+      "width": 844,
+      "height": 390,
+      "scale": 75,
+      "preview": "tests/artifacts/cccc-homepage-20261015/cccc-selection-844-75.png"
+    }
+  ]
+}

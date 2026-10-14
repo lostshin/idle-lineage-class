@@ -1,0 +1,261 @@
+{
+  "date": "2026-10-14T16:39:38.877Z",
+  "reports": [
+    {
+      "name": "account transfer has independent selection-page buttons",
+      "status": "PASS"
+    },
+    {
+      "name": "selection page has a rename entry",
+      "status": "PASS"
+    },
+    {
+      "name": "main header cannot bypass nickname cost",
+      "status": "PASS"
+    },
+    {
+      "name": "category sorting puts locks first and keeps ordinary same items adjacent",
+      "status": "PASS"
+    },
+    {
+      "name": "quick junk groups enhancement levels but preserves blessed and elemental variants",
+      "status": "PASS"
+    },
+    {
+      "name": "new loot follows only the selected enhancement group and limit",
+      "status": "PASS"
+    },
+    {
+      "name": "clearing all selection cancels previous group intentions",
+      "status": "PASS"
+    },
+    {
+      "name": "battle buff icons expose an effect tooltip",
+      "status": "PASS"
+    },
+    {
+      "name": "mage summoning creates actors in actual battle scene",
+      "status": "PASS"
+    },
+    {
+      "name": "mage summon has visible rendered artwork",
+      "status": "PASS"
+    },
+    {
+      "name": "party details float without moving the team panel",
+      "status": "PASS"
+    },
+    {
+      "name": "team card does not collapse when floating details open",
+      "status": "PASS"
+    },
+    {
+      "name": "ability window uses the same current AC as the live status",
+      "status": "PASS"
+    },
+    {
+      "name": "one artwork shows total and buff together with no mode switches",
+      "status": "PASS"
+    },
+    {
+      "name": "desktop inspector opens beside the squad menu",
+      "status": "PASS"
+    },
+    {
+      "name": "transparency updates immediately and survives live refresh and reopening",
+      "status": "PASS"
+    },
+    {
+      "name": "party buffs use icons and the original ability window",
+      "status": "PASS"
+    },
+    {
+      "name": "battle hover describes AC effect and stays within viewport",
+      "status": "PASS"
+    },
+    {
+      "name": "shield effective bonus is calculated and actor is unchanged",
+      "status": "PASS"
+    },
+    {
+      "name": "IME Enter preserves the rename draft",
+      "status": "PASS"
+    },
+    {
+      "name": "first name is free and persistent",
+      "status": "PASS"
+    },
+    {
+      "name": "renaming invalidates stale tabs without changing character identity",
+      "status": "PASS"
+    },
+    {
+      "name": "second rename costs exactly one diamond",
+      "status": "PASS"
+    },
+    {
+      "name": "rename write failure rolls back both name and diamonds",
+      "status": "PASS"
+    },
+    {
+      "name": "insufficient diamonds leave the name unchanged",
+      "status": "PASS"
+    },
+    {
+      "name": "unchanged name never consumes rename credit or diamonds",
+      "status": "PASS"
+    },
+    {
+      "name": "empty name is rejected",
+      "status": "PASS"
+    },
+    {
+      "name": "account snapshot contains all eight roles and both mode progress",
+      "status": "PASS"
+    },
+    {
+      "name": "account excludes UI preferences and runtime storage",
+      "status": "PASS"
+    },
+    {
+      "name": "fork full-device backup is parsed without writing and preserves account progress and supported role preferences",
+      "status": "PASS"
+    },
+    {
+      "name": "fork backup beyond eight populated slots is rejected without dropping roles",
+      "status": "PASS"
+    },
+    {
+      "name": "truncated fork backups and invalid role signatures are rejected before writing",
+      "status": "PASS"
+    },
+    {
+      "name": "export button produces one signed account file",
+      "status": "PASS"
+    },
+    {
+      "name": "account UI restores all roles, settings and shared progress",
+      "status": "PASS"
+    },
+    {
+      "name": "old per-role exports name their source slot",
+      "status": "PASS"
+    },
+    {
+      "name": "tampered, duplicated, mixed and oversized role batches are rejected before writing",
+      "status": "PASS"
+    },
+    {
+      "name": "role batch preview names the files and the progress it cannot carry",
+      "status": "PASS"
+    },
+    {
+      "name": "account import accepts several old role files at once",
+      "status": "PASS"
+    },
+    {
+      "name": "same identity in another slot is updated without duplication",
+      "status": "PASS"
+    },
+    {
+      "name": "legacy missing mode flag preserves valid party references",
+      "status": "PASS"
+    },
+    {
+      "name": "incoming empty slots preserve existing characters",
+      "status": "PASS"
+    },
+    {
+      "name": "shared pets and castle survive account restore",
+      "status": "PASS"
+    },
+    {
+      "name": "claimed ledger IDs cannot be resurrected by a repeated import",
+      "status": "PASS"
+    },
+    {
+      "name": "declined account import leaves storage untouched",
+      "status": "PASS"
+    },
+    {
+      "name": "conflict keep skips only that incoming role",
+      "status": "PASS"
+    },
+    {
+      "name": "conflict replace is explicit and restores source role",
+      "status": "PASS"
+    },
+    {
+      "name": "mid-import write failure restores all touched data",
+      "status": "PASS"
+    },
+    {
+      "name": "invalid account signature is rejected before writing",
+      "status": "PASS"
+    },
+    {
+      "name": "mercenary uses the renamed source role name",
+      "status": "PASS"
+    },
+    {
+      "name": "mercenary summon artwork is visible without new combat actors",
+      "status": "PASS"
+    },
+    {
+      "name": "removing a mercenary cleans its visual summons",
+      "status": "PASS"
+    },
+    {
+      "name": "bonus inspection does not mutate the live actor",
+      "status": "PASS"
+    },
+    {
+      "name": "1330x900 100%: mercenary nickname stays on one line with full-name access and profession",
+      "status": "PASS"
+    },
+    {
+      "name": "1330x900 100%: floating party details fit the viewport",
+      "status": "PASS"
+    },
+    {
+      "name": "390x844 100%: mercenary nickname stays on one line with full-name access and profession",
+      "status": "PASS"
+    },
+    {
+      "name": "390x844 100%: floating party details fit the viewport",
+      "status": "PASS"
+    },
+    {
+      "name": "390x844 75%: mercenary nickname stays on one line with full-name access and profession",
+      "status": "PASS"
+    },
+    {
+      "name": "390x844 75%: floating party details fit the viewport",
+      "status": "PASS"
+    },
+    {
+      "name": "844x390 75%: mercenary nickname stays on one line with full-name access and profession",
+      "status": "PASS"
+    },
+    {
+      "name": "844x390 75%: floating party details fit the viewport",
+      "status": "PASS"
+    },
+    {
+      "name": "account roles and renamed nickname survive page reload",
+      "status": "PASS"
+    },
+    {
+      "name": "desktop bridge exports and parses its own signed account format",
+      "status": "PASS"
+    },
+    {
+      "name": "desktop rejects web account format",
+      "status": "PASS"
+    },
+    {
+      "name": "no runtime errors",
+      "status": "PASS"
+    }
+  ]
+}

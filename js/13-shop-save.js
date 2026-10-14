@@ -582,193 +582,6 @@ function downloadSaveFile(data, fname){
     setTimeout(() => URL.revokeObjectURL(url), 1000);
     logSys(`<span class="text-indigo-300 font-bold">✔ 存檔已匯出至下載資料夾：${fname}</span>`);
 }
-// 匯入：對指定存檔位 n 開啟選檔視窗，驗證後用匯入的存檔「取代」該位置的存檔，並刷新清單。
-function importSave(n){
-    let input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.json,application/json';
-    input.onchange = function(){
-        let file = input.files && input.files[0];
-        if(!file) return;
-        let reader = new FileReader();
-        reader.onload = function(){
-            let _raw = String(reader.result || '');
-            const desktopImport = !!_FS;
-            if(!desktopImport && _raw.startsWith('SIG2:')){
-                alert('匯入失敗：這是 Idle Lineage 安裝版匯出檔，網頁版資料與安裝版資料彼此獨立。');
-                return;
-            }
-            let _u = _saveUnwrap(_raw);
-            if(_u.signed && !_u.ok){ alert('匯入失敗：檔案完整性校驗未通過，可能已被竄改。'); return; }
-            if(!desktopImport && !_u.signed && !confirm('此存檔檔案沒有完整性簽章（可能來自舊版本，或被外部修改/移除簽章）。\n仍要匯入嗎？')) return;
-            let text = _u.payload;
-            let d;
-            try { d = JSON.parse(text); }
-            catch(e){ alert('匯入失敗：檔案不是有效的存檔（JSON 解析錯誤）。'); return; }
-            if(desktopImport){
-                if(!_u.signed || !_u.ok || !d || d.format !== 'idle-lineage-desktop-save' || d.schema !== 1 || !d.save){
-                    alert('匯入失敗：安裝版只支援由 Idle Lineage 安裝版匯出的專用存檔，網頁版資料無法匯入。');
-                    return;
-                }
-                d = d.save;
-            } else if(d && d.format === 'idle-lineage-desktop-save'){
-                alert('匯入失敗：這是 Idle Lineage 安裝版匯出檔，網頁版資料與安裝版資料彼此獨立。');
-                return;
-            }
-            if(!d || typeof d !== 'object' || !d.p || typeof d.p !== 'object' || !d.p.cls){
-                alert('匯入失敗：檔案內容不是有效的放置天堂存檔。'); return;
-            }
-            let existing = slotSummary(n);
-            if(existing){ alert(`存檔 ${n} 已有角色，請先刪除角色後再匯入。`); return; }
-            // 同一角色不可複製到另一存檔格：寵物以 enSeed 判斷主人，重複身分會讓兩個角色共用出戰權。
-            let importSeed = d.p.enSeed || ('es' + _seedHash((d.p.name || '') + '|' + (d.p.cls || '') + '|lz').toString(36));
-            for(let slotN = 1; slotN <= 8; slotN++){
-                if(String(slotN) === String(n)) continue;
-                let other = _roleReadSavePlayer(slotN);
-                if(!other || !other.cls) continue;
-                let otherSeed = other.enSeed || ('es' + _seedHash((other.name || '') + '|' + (other.cls || '') + '|lz').toString(36));
-                if(otherSeed === importSeed){
-                    alert(`匯入失敗：相同角色已存在於存檔 ${slotN}。請先刪除原角色後再還原備份，避免角色與寵物身分重複。`);
-                    return;
-                }
-            }
-            d.p.enSeed = importSeed;
-            d.p._roleEpoch = _roleEpoch();   // 匯入視為新的角色世代，已刪角色的舊分頁不能覆蓋這份匯入檔
-            d.p.allies = [];   // 🤝 舊匯出檔也強制移除傭兵；來源角色未一併匯入時不可保留快照
-            // 🔧 抽出倉庫資料（若匯入檔含 wh）；🐾 v3.2.75 也抽出寵物名冊（pets）；龍之鑽石同為共用資料。
-            //    寫入存檔位時不保留這些匯出專用欄位（它們不進角色存檔）。
-            let whData = d.wh;
-            let petData = d.pets;
-            let pandoraDiamonds = d.pandoraDiamonds;
-            let clanState = d.clanState;
-            if(whData !== undefined){
-                if(!whData || typeof whData !== 'object' || !Array.isArray(whData.items || [])){ alert('匯入失敗：倉庫資料格式不正確。'); return; }
-                whData = { items: whData.items || [], gold: Number.isFinite(Number(whData.gold)) ? Math.max(0, Math.floor(Number(whData.gold))) : 0 };
-            }
-            if(petData !== undefined){
-                if(!Array.isArray(petData)){ alert('匯入失敗：寵物名冊格式不正確。'); return; }
-                petData = portablePetRoster(petData);   // 🐾 舊檔可能仍帶出戰歸屬；匯入端再次清理
-            }
-            if(pandoraDiamonds !== undefined){
-                pandoraDiamonds = Number(pandoraDiamonds);
-                if(!Number.isFinite(pandoraDiamonds)){ alert('匯入失敗：龍之鑽石資料格式不正確。'); return; }
-                pandoraDiamonds = Math.max(0, Math.floor(pandoraDiamonds));
-            }
-            if(clanState !== undefined && (!clanState || typeof clanState !== 'object' || Array.isArray(clanState) || !clanState.modes || !clanState.members)){
-                alert('匯入失敗：血盟資料格式不正確。'); return;
-            }
-            let saveText = JSON.stringify(d);
-            if(whData !== undefined || petData !== undefined || pandoraDiamonds !== undefined || clanState !== undefined){ let _c = {}; for(let k in d){ if(k !== 'wh' && k !== 'pets' && k !== 'pandoraDiamonds' && k !== 'clanState') _c[k] = d[k]; } saveText = JSON.stringify(_c); }
-            // 🔧 詢問是否一併還原共用倉庫（會覆蓋現有倉庫，四個存檔位共用）
-            let whMsg = '', restoreWh = false;
-            if(whData !== undefined){
-                let _cnt = (whData.items && whData.items.length) || 0;
-                let _gold = whData.gold || 0;
-                if(confirm(`此匯入檔包含倉庫資料（物品 ${_cnt} 項、金幣 ${_gold.toLocaleString()}）。\n是否一併還原倉庫？\n⚠ 會覆蓋該角色所屬模式（${(d.p && d.p.classicMode) ? '經典' : '非經典'}）的共用倉庫。`)){
-                    restoreWh = true;
-                    whMsg = '\n倉庫已一併還原。';
-                } else {
-                    whMsg = '\n（倉庫維持原狀，未還原）';
-                }
-            }
-            // 🐾 v3.2.75 詢問是否一併還原共用寵物名冊（會覆蓋該模式現有名冊·同模式角色共用·比照倉庫）。桶存 _saveWrap 簽章格式。
-            let petMsg = '', restorePets = false;
-            if(petData !== undefined){
-                if(confirm(`此匯入檔包含寵物名冊（${petData.length} 隻，匯入後全部為未出戰）。\n是否一併還原寵物？\n⚠ 會覆蓋該角色所屬模式（${(d.p && d.p.classicMode) ? '經典' : '非經典'}）的共用寵物名冊。`)){
-                    restorePets = true;
-                    petMsg = '\n寵物名冊已一併還原，所有寵物均為未出戰。';
-                } else {
-                    petMsg = '\n（寵物名冊維持原狀，未還原）';
-                }
-            }
-            // 💎 龍之鑽石為全角色共用；只還原數量，不覆蓋目前的叫賣 NPC、遺物布告欄與冷卻資料。
-            let pandoraMsg = '', restorePandoraDiamonds = false;
-            if(pandoraDiamonds !== undefined){
-                if(confirm(`此匯入檔包含龍之鑽石 ${pandoraDiamonds.toLocaleString()} 顆。\n是否一併還原龍之鑽石？\n⚠ 會覆蓋目前所有角色共用的龍之鑽石數量。`)){
-                    restorePandoraDiamonds = true;
-                    pandoraMsg = '\n龍之鑽石已一併還原。';
-                } else {
-                    pandoraMsg = '\n（龍之鑽石維持原狀，未還原）';
-                }
-            }
-            let clanMsg = '', restoreClan = false;
-            if(clanState !== undefined){
-                if(confirm('此匯入檔包含血盟資料。\n是否一併還原血盟？\n⚠ 會覆蓋一般與經典模式的血盟、全模式共用經驗、角色貢獻與城堡狀態。')){
-                    restoreClan = true;
-                    clanMsg = '\n血盟資料已一併還原。';
-                } else {
-                    clanMsg = '\n（血盟資料維持原狀，未還原）';
-                }
-            }
-            // 💾 角色／倉庫／寵物／龍之鑽石／血盟視為同一批匯入；失敗時回復匯入前資料。
-            let roleKey = 'lineage_idle_save_' + n;
-            let whRestoreKey = restoreWh ? whKey(d.p) : '';
-            let petRestoreKey = restorePets ? ((typeof PET_ROSTER_KEY !== 'undefined' ? PET_ROSTER_KEY : 'fb5_pet_roster') + (typeof modeSuffix === 'function' ? modeSuffix(!!(d.p && d.p.classicMode), false) : '')) : '';
-            let writes = [{ key: roleKey, value: _saveWrap(saveText) }];
-            if(restoreWh){
-                writes.push({ key: whRestoreKey, value: JSON.stringify(whData) });
-                writes.push({ key: whRestoreKey + '_rm', value: '{}' });   // 🪦 清除舊領出墓碑，否則備份物品會再次被隱藏
-            }
-            if(restorePets){
-                writes.push({ key: petRestoreKey, value: _saveWrap(JSON.stringify(petData)) });
-                writes.push({ key: petRestoreKey + '_rm', value: _saveWrap('{}') });   // 🪦 清除舊放生墓碑，允許備份寵物合法還原
-            }
-            let before = writes.map(w => ({ key: w.key, raw: _lsGet(w.key) }));
-            let beforePandoraDiamonds = restorePandoraDiamonds && typeof window.pandoraGetSharedDiamonds === 'function' ? Number(window.pandoraGetSharedDiamonds()) : null;
-            let beforeClanState = restoreClan && typeof window.clanExportSharedState === 'function' ? window.clanExportSharedState() : null;
-            let writeOk = true;
-            for(let w of writes){ if(!_lzSet(w.key, w.value)){ writeOk = false; break; } }
-            if(!writeOk){
-                for(let i = before.length - 1; i >= 0; i--){
-                    if(before[i].raw == null) _lzRemoveStored(before[i].key);
-                    else _lzSetStoredRaw(before[i].key, before[i].raw);
-                }
-                alert('匯入失敗：儲存空間不足或寫入異常，已嘗試還原匯入前資料。');
-                return;
-            }
-            if(restorePandoraDiamonds){
-                let _pandoraResult = (typeof window.pandoraRestoreSharedDiamonds === 'function') ? window.pandoraRestoreSharedDiamonds(pandoraDiamonds) : null;
-                if(!_pandoraResult || !_pandoraResult.ok){
-                    for(let i = before.length - 1; i >= 0; i--){
-                        if(before[i].raw == null) _lzRemoveStored(before[i].key);
-                        else _lzSetStoredRaw(before[i].key, before[i].raw);
-                    }
-                    alert('匯入失敗：龍之鑽石資料無法安全還原，角色、倉庫與寵物資料已回復匯入前狀態。');
-                    return;
-                }
-            }
-            if(restoreClan){
-                let _clanResult = (typeof window.clanRestoreSharedState === 'function') ? window.clanRestoreSharedState(clanState) : null;
-                if(!_clanResult || !_clanResult.ok){
-                    for(let i = before.length - 1; i >= 0; i--){
-                        if(before[i].raw == null) _lzRemoveStored(before[i].key);
-                        else _lzSetStoredRaw(before[i].key, before[i].raw);
-                    }
-                    if(restorePandoraDiamonds && Number.isFinite(beforePandoraDiamonds) && typeof window.pandoraRestoreSharedDiamonds === 'function') window.pandoraRestoreSharedDiamonds(beforePandoraDiamonds);
-                    if(beforeClanState && typeof window.clanRestoreSharedState === 'function') window.clanRestoreSharedState(beforeClanState);
-                    alert('匯入失敗：血盟資料無法安全還原，角色、倉庫、寵物與龍之鑽石資料已嘗試回復匯入前狀態。');
-                    return;
-                }
-            }
-            if(restoreWh){
-                try { if(typeof _whLoadUids !== 'undefined') _whLoadUids = null; if(typeof _whLoadOk !== 'undefined') _whLoadOk = true; } catch(e){}
-            }
-            if(restorePets){
-                try {
-                    if(typeof _petRoster !== 'undefined') _petRoster = [];
-                    if(typeof _petRosterKey !== 'undefined') _petRosterKey = null;
-                    if(typeof _petRosterDirty !== 'undefined') _petRosterDirty = false;
-                    if(typeof _petReleasedUids !== 'undefined') _petReleasedUids = {};
-                } catch(e){}
-            }
-            renderLoadSelect();   // 重新整理存檔位清單（更新名稱/等級與可載入狀態）
-            let ns = slotSummary(n);
-            alert(`已匯入到存檔 ${n}：${ns ? (ns.cls + ' Lv.' + ns.lv + '　' + ns.name) : '完成'}。${whMsg}${petMsg}${pandoraMsg}${clanMsg}`);
-        };
-        reader.readAsText(file);
-    };
-    input.click();
-}
 // 🗑️ v3.5.83 移除 restoreBackup／slotBackupSummary：「匯入前自動備份」機制早已改成 importSave 內的
 //    記憶體 before[] 回滾（本檔 importSave），全專案不再有任何 lineage_idle_save_<n>_bak 寫入點，
 //    復原按鈕也因舊 slot-select-panel 移除而無入口 → 整條救援路徑不存在。
@@ -930,14 +743,10 @@ function updateLoadInfo(){
     set('load-info-cha', empty ? '' : (base.cha || ''));
     set('load-info-int', empty ? '' : (base.int || ''));
     const create = document.getElementById('load-btn-create');
-    const importBtn = document.getElementById('load-btn-import');
     const enter = document.getElementById('load-btn-enter');
-    const exportBtn = document.getElementById('load-btn-export');
     const del = document.getElementById('load-btn-delete');
     if(create) create.classList.toggle('hidden', !empty);
-    if(importBtn) importBtn.classList.toggle('hidden', !empty);
     if(enter) enter.classList.toggle('hidden', empty);
-    if(exportBtn) exportBtn.classList.toggle('hidden', empty);
     if(del) del.classList.toggle('hidden', empty);
 }
 function loadSelectSlot(n){
@@ -969,8 +778,6 @@ function loadEnterSelected(){
     currentSlot = _loadSelectedSlot;
     loadGame();
 }
-function loadImportSelected(){ importSave(_loadSelectedSlot); }
-function loadExportSelected(){ exportSave(_loadSelectedSlot); }
 function loadDeleteSelected(){
     const slot = _loadSelectedSlot, sum = slotSummary(slot);
     if(!sum){ renderLoadSelect(); return; }
@@ -981,7 +788,7 @@ function loadDeleteSelected(){
         return;
     }
     const expected = sum.name || '未命名';
-    const typed = prompt(`即將刪除存檔 ${slot}：${sum.cls} Lv.${sum.lv} ${expected}\n\n刪除後才能在此欄位創建新角色或匯入進度。\n請輸入角色名稱「${expected}」確認刪除：`, '');
+    const typed = prompt(`即將刪除存檔 ${slot}：${sum.cls} Lv.${sum.lv} ${expected}\n\n刪除後才能在此欄位創建新角色，或用「匯入帳號」匯入角色。\n請輸入角色名稱「${expected}」確認刪除：`, '');
     if(typed === null) return;
     if(typed.trim() !== expected){ alert('角色名稱不正確，已取消刪除。'); return; }
     if(_roleOtherActiveSessions().length){ alert('刪除期間偵測到其他遊戲分頁，已取消刪除。請先關閉其他角色後再試。'); return; }
@@ -1002,7 +809,7 @@ function loadDeleteSelected(){
     if(_lsGet('lineage_idle_save_' + slot)){ alert('角色存檔刪除失敗，請重新整理後再試。'); return; }
     try { if(typeof clanOnRoleDeleted === 'function') clanOnRoleDeleted(oldPlayer); } catch(e){ console.warn('clan delete cleanup', e); }
     renderLoadSelect();
-    alert(`角色「${expected}」已刪除。現在可以在此欄位創建新角色或匯入進度。`);
+    alert(`角色「${expected}」已刪除。現在可以在此欄位創建新角色，或用「匯入帳號」匯入角色。`);
 }
 (function animateLoadSelectPreview(){
     function tick(now){
@@ -1564,7 +1371,7 @@ function saveGame() {
             _saveFailureNotified = true;
             // ⚠️ v3.5.92 原文案宣稱「倉庫存取將暫停」＝不存在的機制（唯一的倉庫暫停在 js/12 loadWarehouse 讀取失敗處，
             //    與存檔失敗無關）。寵物上限回滾會走到這裡並在下一拍補存成功，玩家等於被假警報趕去重新整理。
-            logSys('<span class="text-red-400 font-bold">⚠ 遊戲進度儲存失敗，本次進度未寫入。請重新整理後再試；若反覆失敗，請先用「匯出進度」備份存檔。</span>');
+            logSys('<span class="text-red-400 font-bold">⚠ 遊戲進度儲存失敗，本次進度未寫入。請重新整理後再試；若反覆失敗，請先用「匯出帳號」備份存檔。</span>');
         }
         return false;
     }
@@ -1643,14 +1450,14 @@ function loadGame() {
     //    照樣解得出角色摘要 → updateLoadInfo 的 empty=false → 「匯入進度」帶 hidden、只有「刪除角色」看得見。
     //    舊文案叫玩家直接去點「匯入進度」，那顆按鈕在此情境根本不渲染（且 importSave 的「已有角色請先刪除」閘門也會擋），
     //    故改成先刪後匯的正確順序（刪除流程走既有的輸入角色名確認，不繞過保護）。
-    if (_u.signed && !_u.ok) { alert('此存檔的完整性校驗未通過，可能已被外部修改，無法載入。\n可改用其他存檔位。\n若要還原先前匯出的 .json 備份檔：請先在載入畫面按「刪除角色」清空本欄位，清空後「匯入進度」按鈕才會出現，再用它還原。'); return; }
+    if (_u.signed && !_u.ok) { alert('此存檔的完整性校驗未通過，可能已被外部修改，無法載入。\n可改用其他存檔位。\n若要還原先前匯出的 .json 備份檔：請先在載入畫面按「刪除角色」清空本欄位，再用「匯入帳號」選取備份檔還原。'); return; }
     let s = _u.payload;
     if (s) {
         // 🛡️ 與其他讀檔點一致：毀損時乾淨報錯而非拋例外卡死
         //    ⚠️ v3.5.94 這條與上面簽章失敗那條方向相反：payload 連 JSON.parse 都失敗時 _summaryFromRaw 也回 null
         //    → 該欄位在載入畫面顯示為空、empty=true → 「匯入進度」可見而「刪除角色」被 hidden。
         //    舊文案多寫的「仍可用『刪除角色』清空」正好點名此情境唯一看不見的那顆按鈕，故移除。
-        let d; try { d = JSON.parse(s); } catch(e){ alert('此存檔位的資料已毀損，無法載入。\n此欄位在載入畫面會顯示為空，請直接按「匯入進度」還原先前匯出的 .json 備份檔。'); return; }
+        let d; try { d = JSON.parse(s); } catch(e){ alert('此存檔位的資料已毀損，無法載入。\n此欄位在載入畫面會顯示為空；請改用其他存檔位，或回報此問題。'); return; }
         player = d.p; mapState = d.ms;
         delete player.offlineHunt;   // 🗑️ v3.7.94 離線掛機已移除：舊存檔的逐地圖速率快照沒有讀取者，載入即丟掉（否則每次存檔都白帶一份）
         normalizeFacingRefsForSave();   // 舊存檔若含 v3.2.12 面向物件副本，載入時立即轉為 UID／隊員鍵並移除物件參照

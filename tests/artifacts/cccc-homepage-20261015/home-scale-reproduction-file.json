@@ -1,0 +1,224 @@
+{
+  "reports": [
+    {
+      "name": "320x640: home actions fit horizontally",
+      "status": "PASS"
+    },
+    {
+      "name": "320x640: touch home actions remain tappable",
+      "status": "PASS"
+    },
+    {
+      "name": "320x640 100%: home artwork keeps its viewport size and ratio",
+      "status": "PASS"
+    },
+    {
+      "name": "320x640 100%: credits align in three columns without clipped text",
+      "status": "PASS"
+    },
+    {
+      "name": "320x640 75%: home artwork keeps its viewport size and ratio",
+      "status": "FAIL",
+      "error": "Error: {\"actual\":{\"width\":240,\"height\":480},\"expected\":{\"width\":320,\"height\":640}}"
+    },
+    {
+      "name": "320x640 75%: credits align in three columns without clipped text",
+      "status": "PASS"
+    },
+    {
+      "name": "390x844: home actions fit horizontally",
+      "status": "PASS"
+    },
+    {
+      "name": "390x844: touch home actions remain tappable",
+      "status": "PASS"
+    },
+    {
+      "name": "390x844 100%: home artwork keeps its viewport size and ratio",
+      "status": "PASS"
+    },
+    {
+      "name": "390x844 100%: credits align in three columns without clipped text",
+      "status": "PASS"
+    },
+    {
+      "name": "390x844 75%: home artwork keeps its viewport size and ratio",
+      "status": "FAIL",
+      "error": "Error: {\"actual\":{\"width\":292.5,\"height\":633},\"expected\":{\"width\":390,\"height\":844}}"
+    },
+    {
+      "name": "390x844 75%: credits align in three columns without clipped text",
+      "status": "PASS"
+    },
+    {
+      "name": "768x1024: home actions fit horizontally",
+      "status": "PASS"
+    },
+    {
+      "name": "768x1024: touch home actions remain tappable",
+      "status": "PASS"
+    },
+    {
+      "name": "768x1024 100%: home artwork keeps its viewport size and ratio",
+      "status": "PASS"
+    },
+    {
+      "name": "768x1024 100%: credits align in three columns without clipped text",
+      "status": "PASS"
+    },
+    {
+      "name": "768x1024 75%: home artwork keeps its viewport size and ratio",
+      "status": "FAIL",
+      "error": "Error: {\"actual\":{\"width\":576,\"height\":432},\"expected\":{\"width\":768,\"height\":576}}"
+    },
+    {
+      "name": "768x1024 75%: credits align in three columns without clipped text",
+      "status": "PASS"
+    },
+    {
+      "name": "844x390: home actions fit horizontally",
+      "status": "PASS"
+    },
+    {
+      "name": "844x390: touch home actions remain tappable",
+      "status": "PASS"
+    },
+    {
+      "name": "844x390 100%: home artwork keeps its viewport size and ratio",
+      "status": "PASS"
+    },
+    {
+      "name": "844x390 100%: credits align in three columns without clipped text",
+      "status": "PASS"
+    },
+    {
+      "name": "844x390 75%: home artwork keeps its viewport size and ratio",
+      "status": "FAIL",
+      "error": "Error: {\"actual\":{\"width\":520,\"height\":292.5},\"expected\":{\"width\":520,\"height\":390}}"
+    },
+    {
+      "name": "844x390 75%: credits align in three columns without clipped text",
+      "status": "PASS"
+    },
+    {
+      "name": "1024x768: home actions fit horizontally",
+      "status": "PASS"
+    },
+    {
+      "name": "1024x768: touch home actions remain tappable",
+      "status": "PASS"
+    },
+    {
+      "name": "1024x768 100%: home artwork keeps its viewport size and ratio",
+      "status": "PASS"
+    },
+    {
+      "name": "1024x768 100%: credits align in three columns without clipped text",
+      "status": "PASS"
+    },
+    {
+      "name": "1024x768 75%: home artwork keeps its viewport size and ratio",
+      "status": "PASS"
+    },
+    {
+      "name": "1024x768 75%: credits align in three columns without clipped text",
+      "status": "PASS"
+    },
+    {
+      "name": "1199x800: home actions fit horizontally",
+      "status": "PASS"
+    },
+    {
+      "name": "1199x800: touch home actions remain tappable",
+      "status": "PASS"
+    },
+    {
+      "name": "1199x800 100%: home artwork keeps its viewport size and ratio",
+      "status": "PASS"
+    },
+    {
+      "name": "1199x800 100%: credits align in three columns without clipped text",
+      "status": "PASS"
+    },
+    {
+      "name": "1199x800 75%: home artwork keeps its viewport size and ratio",
+      "status": "PASS"
+    },
+    {
+      "name": "1199x800 75%: credits align in three columns without clipped text",
+      "status": "PASS"
+    },
+    {
+      "name": "1330x759: home actions fit horizontally",
+      "status": "PASS"
+    },
+    {
+      "name": "1330x759: touch home actions remain tappable",
+      "status": "PASS"
+    },
+    {
+      "name": "1330x759 100%: home artwork keeps its viewport size and ratio",
+      "status": "PASS"
+    },
+    {
+      "name": "1330x759 100%: credits align in three columns without clipped text",
+      "status": "PASS"
+    },
+    {
+      "name": "1330x759 75%: home artwork keeps its viewport size and ratio",
+      "status": "PASS"
+    },
+    {
+      "name": "1330x759 75%: credits align in three columns without clipped text",
+      "status": "PASS"
+    },
+    {
+      "name": "1440x900: home actions fit horizontally",
+      "status": "PASS"
+    },
+    {
+      "name": "1440x900: touch home actions remain tappable",
+      "status": "PASS"
+    },
+    {
+      "name": "1440x900 100%: home artwork keeps its viewport size and ratio",
+      "status": "PASS"
+    },
+    {
+      "name": "1440x900 100%: credits align in three columns without clipped text",
+      "status": "PASS"
+    },
+    {
+      "name": "1440x900 75%: home artwork keeps its viewport size and ratio",
+      "status": "PASS"
+    },
+    {
+      "name": "1440x900 75%: credits align in three columns without clipped text",
+      "status": "PASS"
+    },
+    {
+      "name": "1920x1080: home actions fit horizontally",
+      "status": "PASS"
+    },
+    {
+      "name": "1920x1080: touch home actions remain tappable",
+      "status": "PASS"
+    },
+    {
+      "name": "1920x1080 100%: home artwork keeps its viewport size and ratio",
+      "status": "PASS"
+    },
+    {
+      "name": "1920x1080 100%: credits align in three columns without clipped text",
+      "status": "PASS"
+    },
+    {
+      "name": "1920x1080 75%: home artwork keeps its viewport size and ratio",
+      "status": "PASS"
+    },
+    {
+      "name": "1920x1080 75%: credits align in three columns without clipped text",
+      "status": "PASS"
+    }
+  ]
+}

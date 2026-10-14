@@ -18,9 +18,27 @@ async function check(name,fn){try{const r=await fn();if(r!==true)throw Error(JSO
 async function bounds(ids){return page.evaluate(ids=>{const errors=[];for(const id of ids){const e=document.getElementById(id);if(!e || !e.getClientRects().length)continue;const r=e.getBoundingClientRect();if(r.left < -1 || r.right > innerWidth+1)errors.push({id,left:r.left,right:r.right,viewport:innerWidth});}return errors.length?errors:true;},ids);}
 const sizes=[[320,640],[390,844],[768,1024],[844,390],[1024,768],[1199,800],[1330,759],[1440,900],[1920,1080]];
 await boot(options.url);
-for(const [w,h] of sizes){await viewport(w,h);await check(`${w}x${h}: home actions fit horizontally`,()=>bounds(['main-menu','btn-start-menu','btn-vfx-toggle','btn-vfxnum-toggle']));await check(`${w}x${h}: touch home actions remain tappable`,()=>page.evaluate(()=>!matchMedia('(pointer: coarse)').matches || [...document.querySelectorAll('#main-menu > button')].every(e=>e.getBoundingClientRect().height>=44)));}
+for(const [w,h] of sizes){
+ await viewport(w,h);await check(`${w}x${h}: home actions fit horizontally`,()=>bounds(['main-menu','btn-start-menu','btn-vfx-toggle','btn-vfxnum-toggle']));await check(`${w}x${h}: touch home actions remain tappable`,()=>page.evaluate(()=>!matchMedia('(pointer: coarse)').matches || [...document.querySelectorAll('#main-menu > button')].every(e=>e.getBoundingClientRect().height>=44)));
+ for(const scale of [100,75]){
+  await page.evaluate(v=>setUiScale(v),scale);
+  await check(`${w}x${h} ${scale}%: home artwork keeps its viewport size and ratio`,()=>page.evaluate(()=>{
+   const r=document.getElementById('login-art-stage').getBoundingClientRect(),portrait=matchMedia('(max-width:600px) and (orientation:portrait)').matches;
+   const width=portrait?innerWidth:Math.min(innerWidth,innerHeight*4/3),height=portrait?Math.max(640*getUiScale(),innerHeight):width*3/4;
+   return Math.abs(r.width-width)<2 && Math.abs(r.height-height)<2 || {actual:{width:r.width,height:r.height},expected:{width,height}};
+  }));
+  await check(`${w}x${h} ${scale}%: credits align in three columns without clipped text`,()=>page.evaluate(()=>{
+   const credits=document.getElementById('login-credits'),r=credits.getBoundingClientRect(),cells=[...credits.children],errors=[];
+   if(cells.length!==9 || r.left<0 || r.right>innerWidth+1)errors.push('credits missing or outside viewport');
+   cells.forEach((cell,i)=>{const c=cell.getBoundingClientRect(),range=document.createRange();range.selectNodeContents(cell);if([...range.getClientRects()].some(t=>t.left<r.left-1 || t.right>r.right+1 || t.top<r.top-1 || t.bottom>r.bottom+1))errors.push({text:cell.textContent,reason:'text outside credits'});if(i>=3 && Math.abs(c.left-cells[i%3].getBoundingClientRect().left)>1)errors.push({text:cell.textContent,reason:'column misaligned'});});
+   return errors.length?errors:true;
+  }));
+ }
+ await page.evaluate(()=>setUiScale(100));
+}
 await viewport(390,844);await page.click('#btn-start-menu');
 await check('mobile: character slots and actions fit',()=>bounds(['load-art-stage','load-slot-grid','load-action-panel']));
+await check('selection page removes per-role transfer and keeps account transfer available',()=>page.evaluate(()=>!document.getElementById('load-btn-import') && !document.getElementById('load-btn-export') && ['load-btn-account-import','load-btn-account-export'].every(id=>!!document.getElementById(id)?.getClientRects().length)));
 await page.click('#load-btn-create');await page.click('#btn-class-base-mage');
 await check('mobile: creation controls fit',()=>bounds(['creation-class-list','stat-allocation','creation-gender-panel','btn-start']));
 await page.evaluate(()=>{

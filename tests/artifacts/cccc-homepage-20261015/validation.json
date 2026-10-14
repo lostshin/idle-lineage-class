@@ -1,0 +1,151 @@
+{
+  "date": "2026-10-14T16:42:45.987185+00:00",
+  "scope": "CCCC: align homepage credits and remove per-role transfer buttons from character selection",
+  "parentCommit": "a96ad0a33b8633ea8e14cab840a7dfd74fb11a07",
+  "sourceSha256": {
+    "css/style.css": "6b56fa2b8e4ea0e6b26ff2ee27f3b910124919f98098fc42dc18d4f967cdcf91",
+    "index.html": "4c0d95d32dee4d25648138c293db4251558e232d1929df310624ec7fc411d283",
+    "js/13-shop-save.js": "f26b89afe1a922e681af02fc83b2e590eed010b749ae1318c28be3e2092fa915",
+    "js/26-world-channel.js": "3299ebe24a58f8155c449e68b230626ac7478dbf08c13aabfc7300b1d3eeaf0e",
+    "tests/rwd.e2e.js": "8c45978703918b58b7d1a7e6f6fe3ce3648803f8a6190ad28dec7f45f4217dab",
+    "tests/account-gameplay.e2e.js": "333a2843b89efab475900dfed6479b95f55c8dfec9891d97b5f4c6acb55cb5f9"
+  },
+  "changes": [
+    "Three aligned credit columns sized to their container, including short landscape windows",
+    "Remove per-role import/export buttons and unused import handlers; preserve account transfer and legacy import compatibility",
+    "Use scaled viewport limits for login/selection artwork to prevent 75% clipping and blank space"
+  ],
+  "browser": {
+    "name": "Ego",
+    "spaceId": 5,
+    "page": "p1",
+    "storage": "synthetic isolated storage only",
+    "runs": [
+      {
+        "suite": "rwd",
+        "protocol": "http",
+        "checks": 258,
+        "passed": 258,
+        "report": "tests/artifacts/cccc-homepage-20261015/rwd-report-http.json"
+      },
+      {
+        "suite": "ui-scale",
+        "protocol": "http",
+        "checks": 100,
+        "passed": 100,
+        "report": "tests/artifacts/cccc-homepage-20261015/ui-scale-report-http.json"
+      },
+      {
+        "suite": "gameplay",
+        "protocol": "http",
+        "checks": 30,
+        "passed": 30,
+        "report": "tests/artifacts/cccc-homepage-20261015/gameplay-report-http.json"
+      },
+      {
+        "suite": "account-gameplay",
+        "protocol": "http",
+        "checks": 64,
+        "passed": 64,
+        "report": "tests/artifacts/cccc-homepage-20261015/account-gameplay-http.json"
+      },
+      {
+        "suite": "companion-commands",
+        "protocol": "http",
+        "checks": 21,
+        "passed": 21,
+        "report": "tests/artifacts/cccc-homepage-20261015/companion-commands-http.json"
+      },
+      {
+        "suite": "rwd",
+        "protocol": "file",
+        "checks": 258,
+        "passed": 258,
+        "report": "tests/artifacts/cccc-homepage-20261015/rwd-report-file.json"
+      },
+      {
+        "suite": "ui-scale",
+        "protocol": "file",
+        "checks": 100,
+        "passed": 100,
+        "report": "tests/artifacts/cccc-homepage-20261015/ui-scale-report-file.json"
+      },
+      {
+        "suite": "gameplay",
+        "protocol": "file",
+        "checks": 30,
+        "passed": 30,
+        "report": "tests/artifacts/cccc-homepage-20261015/gameplay-report-file.json"
+      },
+      {
+        "suite": "account-gameplay",
+        "protocol": "file",
+        "checks": 64,
+        "passed": 64,
+        "report": "tests/artifacts/cccc-homepage-20261015/account-gameplay-file.json"
+      },
+      {
+        "suite": "companion-commands",
+        "protocol": "file",
+        "checks": 21,
+        "passed": 21,
+        "report": "tests/artifacts/cccc-homepage-20261015/companion-commands-file.json"
+      }
+    ],
+    "checks": 946,
+    "passed": 946
+  },
+  "localChecks": {
+    "command": "python3 scripts/check-local.py",
+    "passed": 8,
+    "checks": 8,
+    "includes": [
+      "82 loaded scripts and all test JavaScript syntax",
+      "git diff --check",
+      "local resource SHA cache versions",
+      "46 mirrored add-on SHA values",
+      "4 Node integration harnesses"
+    ]
+  },
+  "commands": [
+    {
+      "command": "python3 tests/run-rwd.py --space 5 --suite required --protocol both --keep-space --skip-screenshots",
+      "exitCode": 1,
+      "note": "Latest-source batch completed HTTP and file RWD/UI-scale; file gameplay stopped at a transient close-button click timeout."
+    },
+    {
+      "command": "python3 tests/run-rwd.py --space 5 --suite gameplay account-gameplay companion-commands --protocol file --keep-space --skip-screenshots",
+      "exitCode": 0,
+      "note": "After inspecting the same page, the remaining file suites completed without source changes."
+    }
+  ],
+  "reproductions": [
+    {
+      "report": "tests/artifacts/cccc-homepage-20261015/credits-overflow-reproduction-http.json",
+      "failure": "844x390 at 100%: credit text escaped its container",
+      "result": "PASS in final RWD HTTP/file reports"
+    },
+    {
+      "report": "tests/artifacts/cccc-homepage-20261015/home-scale-reproduction-file.json",
+      "failure": "Four 75% viewport cases capped the artwork at unscaled viewport limits",
+      "result": "PASS in final RWD HTTP/file reports"
+    }
+  ],
+  "visuals": {
+    "report": "tests/artifacts/cccc-homepage-20261015/previews.json",
+    "method": "Ego Page.printToPDF with screen media; rasterized locally to PNG using pdfplumber/PDFium at 144 DPI",
+    "count": 12,
+    "reviewed": true,
+    "note": "100% portrait selection scrolls to its action buttons; real account button download and file chooser flows are covered by account-gameplay."
+  },
+  "testHarnessNotes": [
+    "The initial file account run was interrupted (exit 8) after the legacy fixture download stalled at 34 checks. Legacy fixture generation now captures the native export payload inside the browser; the actual account button download and native import file chooser remain tested. HTTP/file account tests were rerun successfully.",
+    "Integration checks use Node harnesses and are not counted as browser E2E."
+  ],
+  "excludedFromCommit": "CCC2 tool/rule/documentation changes and all backups",
+  "limitations": [
+    "Installed desktop application not tested; desktop storage bridge is synthetic.",
+    "PNG previews are local rasterizations of Ego screen-media PDFs, not direct browser screenshots."
+  ],
+  "replay": "Run rwd HTTP with --keep-space to obtain one new space ID, then run each listed suite/protocol sequentially with --space <id> --keep-space --skip-screenshots; finish that same space after verification."
+}

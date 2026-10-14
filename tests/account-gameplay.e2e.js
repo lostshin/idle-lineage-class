@@ -65,7 +65,8 @@ if(!options.baseline){
  await check('account UI restores all roles, settings and shared progress',()=>page.evaluate(()=>[1,2,3,4,5,6,7,8].every(n=>!!slotSummary(n))&&_roleReadSavePlayer(1).name==='再改名字'&&pandoraGetSharedDiamonds()===2&&JSON.parse(_lzGet(whKey({classicMode:true}))).gold===123));
  await page.click('#account-import-cancel');
  const os=await import('node:os'),path=await import('node:path'),roleDir=await fs.mkdtemp(path.join(os.tmpdir(),'role-files-')),roleFiles=[];
- for(const [slot,gold] of [[2,111],[3,222],[6,333]]){await page.evaluate(([slot,gold])=>_lzSet(whKey({classicMode:slot>4}),JSON.stringify({items:[],gold})),[slot,gold]);const wait=page.waitForEvent('download',{timeout:15000});await page.evaluate(s=>exportSave(s),slot);const d=await wait,file=path.join(roleDir,d.suggestedFilename());await d.saveAs(file);roleFiles.push(file);}
+ // Legacy exports only supply import fixtures; the account button above covers the real download.
+ for(const [slot,gold] of [[2,111],[3,222],[6,333]]){const fixture=await page.evaluate(async([slot,gold])=>{_lzSet(whKey({classicMode:slot>4}),JSON.stringify({items:[],gold}));const original=downloadSaveFile;let result;try{downloadSaveFile=(raw,name)=>{result={raw,name};};await exportSave(slot);}finally{downloadSaveFile=original;}return result;},[slot,gold]);if(!fixture)throw Error('Legacy role export fixture missing');const file=path.join(roleDir,fixture.name);await fs.writeFile(file,fixture.raw);roleFiles.push(file);}
  for(const [i,file] of roleFiles.entries())await fs.utimes(file,1700000000+i*100,1700000000+i*100);
  const roleRaw=await Promise.all(roleFiles.map(f=>fs.readFile(f,'utf8'))),accountRaw=await fs.readFile(accountPath,'utf8');
  await check('old per-role exports name their source slot',async()=>roleFiles.every((f,i)=>path.basename(f).startsWith('fable5_save_'+[2,3,6][i]+'_')));
