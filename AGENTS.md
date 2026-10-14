@@ -23,10 +23,10 @@
 - 沿用附近排版，展開區塊通常為四個空白；變數／函式用 camelCase，常數用 UPPER_SNAKE_CASE。
 - 前端資源修改後，執行 `python3 scripts/update-cache.py` 更新對應 URL 的 SHA 快取版本。
 - 原版天堂美術、配色與按鈕風格是既定方向；概念圖不是執行期素材或技能規則。
-- 65 個加掛模組的來源是 <https://pp771007.github.io/idle-lineage-class/>。
+- 46 個鏡像加掛模組的來源是 <https://pp771007.github.io/idle-lineage-class/>（原 65 個，已移除開關面板與 18 個預設關閉模組）。
 - 固定來源 commit：`5f00f4a86389aaa7309c24d7a7c1ab060c47b500`；逐檔 SHA 在 [來源清單](tests/addon-source.json)。
 - 不直接修改鏡像加掛模組或 `sw.js`；整合差異放在專案模組，並核對來源 SHA。
-- `js/addon-defaults.js` 中指定的 19 項預設關閉；保留使用者已明確儲存的開關，不重置偏好。
+- 外掛開關面板已移除；組合固定在 `js/addon-switches.js`（只有 `sellconfirm` 關閉），不讀取舊的 `afk_toggle_*` 偏好。
 
 ## 已確認的產品決策（2026-10-14）
 
@@ -131,7 +131,7 @@ python3 tests/run-rwd.py --help
 - 若瀏覽器圖片擷取不可用：行為 suite 用 `--skip-screenshots`；畫面用 Ego screen-media PDF，再本機轉 PNG。
 - PDF 中間檔放 `tmp/pdfs/`，驗收後刪除；明確標示 PNG 的生成方式，不宣稱是直接瀏覽器截圖。
 - 桌機／窄螢幕及 75%／100% 預覽均須實際檢查；手機技能區須捲到 sticky HP／MP 列下方再擷取。
-- 驗證語法、`git diff --check`、資源 SHA 與 65 個鏡像檔；保留可重跑的 JSON 報告及代表性預覽。
+- 驗證語法、`git diff --check`、資源 SHA 與 46 個鏡像檔；保留可重跑的 JSON 報告及代表性預覽。
 - 最新本地檢查：`node tests/dps-teleport.integration.js`、`node tests/spell-category.integration.js`、`node tests/equipment-cast.integration.js`、`node tests/equipment-proportions.integration.js`。只驗證各自標明的原生流程／幾何邊界。
 - 報告檔名先讀 runner 實際輸出，不猜新檔名；引用前核對檔案存在、方法、版本與結果。歷史報告及早期預覽不得充作後續美術／排版驗證。
 - 桌面橋接替身與 file 協定不等於安裝版實測；本機 iCloud 複製／雜湊相符不等於遠端同步完成。

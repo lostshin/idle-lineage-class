@@ -3410,3 +3410,10 @@ button.classic-skill-cell { cursor:pointer; }
 #tab-clan .clan-dip-war,    .clan-dip-war    { color: #fca5a5; }                                  /* 我方宣戰：淺紅 */
 #tab-clan .clan-dip-enemy,  .clan-dip-enemy  { color: #fca5a5; }                                  /* 對方宣戰：淺紅 */
 #tab-clan .clan-dip-mutual, .clan-dip-mutual { color: #dc2626; text-shadow: 0 0 6px rgba(220,38,38,.55); }   /* 互相宣戰：深紅＋微光 */
+
+/* 設定頁「查詢與其他功能」：首頁入口搬入後沿用原按鈕，改為卡片內排版；其他功能選單往下展開，避免被分頁捲動區裁掉 */
+#settings-tools .m-dex-entry-row, #settings-tools .m-wiki-entry-row { display:flex; gap:8px; align-items:stretch; }
+#settings-tools .m-dex-entry-main, #settings-tools .m-wiki-entry-main { flex:1 1 auto; width:auto !important; }
+#settings-tools .m-dex-entry-newtab, #settings-tools .m-wiki-entry-newtab { flex:0 0 auto; width:auto !important; font-size:1.2rem; line-height:1; padding-left:14px; padding-right:14px; }
+#settings-tools #afk-stg-wrap { align-items:stretch; margin-top:0; }
+#settings-tools #afk-stg-menu { position:static; transform:none; margin:0; box-shadow:none; min-width:0; }

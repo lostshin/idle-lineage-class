@@ -14,7 +14,7 @@
     <title>放置天堂 - 日出之國</title>
     <link rel="icon" type="image/png" href="assets/favicon.png">   <!-- 🖼️ 瀏覽器分頁圖示(favicon)：把你的圖放到 assets/favicon.png 即生效；可改 href 路徑或副檔名(.ico/.svg) -->
 
-    <link rel="stylesheet" href="css/style.css?v=0d31a4834b">
+    <link rel="stylesheet" href="css/style.css?v=c16e6302a6">
     <link rel="stylesheet" href="css/floating-ui.css?v=bc8be4ac7f">
     <link rel="stylesheet" href="css/tailwind-built.css?v=932535789f"><!-- 🔧 預編譯 Tailwind（取代執行期 JIT tailwind.js）：只含實際用到的 class，省 407KB runtime + 移除持續掃描 DOM 的成本。置於 style.css 之後以保留原 cascade（utility 平手時勝過自訂 class，與舊 JIT 注入順序一致） -->
     <link rel="stylesheet" href="css/responsive.css?v=4db59c475a">
@@ -634,21 +634,12 @@
 <script src="js/32-threat.js?v=d148facf2e"></script>
     <script src="js/account-transfer.js?v=5867d4642d"></script>
     <!-- Add-on modules are byte-for-byte mirrors of the published pp771007 build. -->
-    <script src="afk-toggles.js?v=feb1f5d3cf"></script>
-    <script src="js/addon-defaults.js?v=c1955c2d20"></script>
+    <script src="js/addon-switches.js?v=6e0f936e7a"></script>
     <script src="afk-lzcache.js?v=97c5052e4d"></script>
     <script src="afk-clanroster.js?v=57ca5de903"></script>
     <script src="afk-allyslim.js?v=c4899c933b"></script>
     <script src="afk-ui.js?v=9307c7dda9"></script>
     <script src="afk-extradata.js?v=fe68db6e9e"></script>
-    <script src="afk-mobile.js?v=e3a5444e65"></script>
-    <script src="afk-backnav.js?v=44bd32c799"></script>
-    <script src="afk-battlehud.js?v=ba0bc3e100"></script>
-    <script src="afk-mapbar.js?v=35c2504cb4"></script>
-    <script src="afk-nozoom.js?v=c1586fe7c7"></script>
-    <script src="afk-statusicon.js?v=9d68288411"></script>
-    <script src="afk-petui.js?v=4ceb829d4c"></script>
-    <script src="afk-loadslots.js?v=df16332037"></script>
     <script src="afk-dex.js?v=51229046e4"></script>
     <script src="afk-wiki.js?v=9d90fdc7c7"></script>
     <script src="afk-storage.js?v=db58fa6793"></script>
@@ -656,22 +647,16 @@
     <script src="afk-diag.js?v=526c972b27"></script>
     <script src="afk-powersave.js?v=8fde5a6830"></script>
     <script src="afk-statpts.js?v=b3562ef6f7"></script>
-    <script src="afk-statlist.js?v=58b360ed83"></script>
     <script src="afk-autobuy.js?v=0b3c6ef1f6"></script>
     <script src="afk-training.js?v=db73253c4b"></script>
     <script src="afk-junkmgr.js?v=48da09305a"></script>
     <script src="afk-mercguard.js?v=47275ae7f4"></script>
     <script src="afk-squadsync.js?v=5c9844945e"></script>
-    <script src="afk-ancdrop.js?v=8f33ee03b0"></script>
-    <script src="afk-relicaffix.js?v=1e654b2d31"></script>
     <script src="afk-relicbatch.js?v=d06c9a4497"></script>
     <script src="afk-bmprice.js?v=e9aaaa0677"></script>
     <script src="afk-bossavoid.js?v=6caed21cf6"></script>
     <script src="afk-bossring.js?v=53e6885a8b"></script>
     <script src="afk-itemsearch.js?v=e0b00b61b4"></script>
-    <script src="afk-invlist.js?v=4a5a02a4f3"></script>
-    <script src="afk-eqlist.js?v=961af5300b"></script>
-    <script src="afk-npclist.js?v=3f65625de5"></script>
     <script src="afk-npclabel.js?v=bfbcb41d35"></script>
     <script src="afk-mobname.js?v=807ec4cd74"></script>
     <script src="afk-trackinfo.js?v=2afc839494"></script>
@@ -679,13 +664,9 @@
     <script src="afk-relicguard.js?v=ff25ab39c3"></script>
     <script src="afk-wpnfix.js?v=836fc169c4"></script>
     <script src="afk-enhtarget.js?v=69f5c8ceb8"></script>
-    <script src="afk-retrial.js?v=8fe3b6ad0f"></script>
     <script src="afk-attrbatch.js?v=499133ae01"></script>
     <script src="afk-cursebatch.js?v=5ededab1ee"></script>
     <script src="afk-sellguard.js?v=9646b6b466"></script>
-    <script src="afk-battlebuffs.js?v=90233dcfe7"></script>
-    <script src="afk-skillbar.js?v=6217154fbd"></script>
-    <script src="afk-touchtip.js?v=cde210c5f1"></script>
     <script src="afk-locksafe.js?v=e7a6ebf51c"></script>
     <script src="afk-buyercompat.js?v=e1d9381953"></script>
     <script src="afk-traditional.js?v=6f62eb0b39"></script>
@@ -693,6 +674,6 @@
     <script src="afk-dograce.js?v=6cdbdcfe83"></script>
     <script src="afk-pwa.js?v=b6674413dc"></script>
     <script src="afk-sw.js?v=6a1669d3ff"></script>
-    <script src="js/addon-integration.js?v=172ba397bf"></script>
+    <script src="js/addon-integration.js?v=1531462f3f"></script>
 </body>
 </html>

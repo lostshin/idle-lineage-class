@@ -49,3 +49,18 @@ document.addEventListener('DOMContentLoaded', () => {
         return result;
     };
 });
+
+// The start menu stays minimal: lookup, encyclopedia and other tools live in the settings tab.
+document.addEventListener('DOMContentLoaded', () => {
+    if (new URLSearchParams(location.search).has('view')) return;
+    const notice = document.getElementById('copyright-notice');
+    const parts = [document.querySelector('#main-menu .m-dex-entry-row'), document.querySelector('#main-menu .m-wiki-entry-row'), document.getElementById('afk-stg-wrap')].filter(Boolean);
+    if (!notice || !parts.length) return;
+    const card = document.createElement('div');
+    card.id = 'settings-tools';
+    card.className = 'bg-slate-800 p-3 rounded-lg border border-slate-700 mt-3 flex flex-col gap-2';
+    card.innerHTML = '<div class="text-sm text-slate-400 border-b border-slate-700 pb-1">📚 查詢與其他功能</div>';
+    for (const part of parts) card.appendChild(part);
+    notice.before(card);
+    for (const id of ['m-afk-nav-dex', 'm-afk-nav-wiki']) document.getElementById(id)?.remove();
+});
