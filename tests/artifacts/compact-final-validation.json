@@ -1,0 +1,252 @@
+{
+  "date": "2026-10-14T00:18:39.330159+00:00",
+  "checkpointCommits": [
+    "f3d9e8a4a",
+    "34c18e6a2",
+    "8b786841e",
+    "0a04870e2"
+  ],
+  "newChangesCommitted": false,
+  "modifiedSourceAndTests": [
+    "css/responsive.css",
+    "index.html",
+    "js/10-ui-tabs.js",
+    "js/23-summons.js",
+    "js/25-clan-system.js",
+    "js/party-inspector.js",
+    "tests/account-gameplay.e2e.js",
+    "tests/run-rwd.py",
+    "tests/rwd.e2e.js",
+    "js/game-layout.js",
+    "tests/compact-layout.e2e.js"
+  ],
+  "checks": [
+    {
+      "suite": "compact-layout",
+      "protocol": "http",
+      "checks": 28,
+      "passed": 28,
+      "report": "tests/artifacts/compact-layout-http.json",
+      "exitCode": 0
+    },
+    {
+      "suite": "rwd",
+      "protocol": "http",
+      "checks": 221,
+      "passed": 221,
+      "report": "tests/artifacts/rwd-report-http.json",
+      "exitCode": 0
+    },
+    {
+      "suite": "ui-scale",
+      "protocol": "http",
+      "checks": 100,
+      "passed": 100,
+      "report": "tests/artifacts/ui-scale-report-http.json",
+      "exitCode": 0
+    },
+    {
+      "suite": "gameplay",
+      "protocol": "http",
+      "checks": 30,
+      "passed": 30,
+      "report": "tests/artifacts/gameplay-report-http.json",
+      "exitCode": 0
+    },
+    {
+      "suite": "account-gameplay",
+      "protocol": "http",
+      "checks": 60,
+      "passed": 60,
+      "report": "tests/artifacts/account-gameplay-http.json",
+      "exitCode": 0
+    },
+    {
+      "suite": "visual-account-gameplay",
+      "protocol": "file (visual runner)",
+      "requestedProtocol": "http",
+      "checks": 13,
+      "passed": 13,
+      "report": "tests/artifacts/account-visual-report.json",
+      "exitCode": 0
+    },
+    {
+      "suite": "companion-commands",
+      "protocol": "http",
+      "checks": 21,
+      "passed": 21,
+      "report": "tests/artifacts/companion-commands-http.json",
+      "exitCode": 0
+    },
+    {
+      "suite": "game-tools",
+      "protocol": "http",
+      "checks": 22,
+      "passed": 22,
+      "report": "tests/artifacts/game-tools-http.json",
+      "exitCode": 0
+    },
+    {
+      "suite": "addon-defaults",
+      "protocol": "http",
+      "checks": 6,
+      "passed": 6,
+      "report": "tests/artifacts/addon-defaults-http.json",
+      "exitCode": 0
+    },
+    {
+      "suite": "compact-layout",
+      "protocol": "file",
+      "checks": 28,
+      "passed": 28,
+      "report": "tests/artifacts/compact-layout-file.json",
+      "exitCode": 0
+    },
+    {
+      "suite": "rwd",
+      "protocol": "file",
+      "checks": 221,
+      "passed": 221,
+      "report": "tests/artifacts/rwd-report-file.json",
+      "exitCode": 0
+    },
+    {
+      "suite": "ui-scale",
+      "protocol": "file",
+      "checks": 100,
+      "passed": 100,
+      "report": "tests/artifacts/ui-scale-report-file.json",
+      "exitCode": 0
+    },
+    {
+      "suite": "gameplay",
+      "protocol": "file",
+      "checks": 30,
+      "passed": 30,
+      "report": "tests/artifacts/gameplay-report-file.json",
+      "exitCode": 0
+    },
+    {
+      "suite": "account-gameplay",
+      "protocol": "file",
+      "checks": 60,
+      "passed": 60,
+      "report": "tests/artifacts/account-gameplay-file.json",
+      "exitCode": 0
+    },
+    {
+      "suite": "visual-account-gameplay",
+      "protocol": "file (visual runner)",
+      "requestedProtocol": "file",
+      "checks": 13,
+      "passed": 13,
+      "report": "tests/artifacts/account-visual-report.json",
+      "exitCode": 0
+    },
+    {
+      "suite": "companion-commands",
+      "protocol": "file",
+      "checks": 21,
+      "passed": 21,
+      "report": "tests/artifacts/companion-commands-file.json",
+      "exitCode": 0
+    },
+    {
+      "suite": "game-tools",
+      "protocol": "file",
+      "checks": 22,
+      "passed": 22,
+      "report": "tests/artifacts/game-tools-file.json",
+      "exitCode": 0
+    },
+    {
+      "suite": "addon-defaults",
+      "protocol": "file",
+      "checks": 6,
+      "passed": 6,
+      "report": "tests/artifacts/addon-defaults-file.json",
+      "exitCode": 0
+    }
+  ],
+  "totalChecks": 1002,
+  "passed": 1002,
+  "allE2EPassed": true,
+  "syntax": {
+    "date": "2026-10-14T00:16:35.487931+00:00",
+    "files": 100,
+    "errors": []
+  },
+  "diffCheck": {
+    "exitCode": 0,
+    "output": ""
+  },
+  "addonSourceParity": {
+    "files": 65,
+    "commit": "5f00f4a86389aaa7309c24d7a7c1ab060c47b500",
+    "allPassed": true
+  },
+  "nativeCombatParity": {
+    "functions": 9,
+    "allPassed": true
+  },
+  "screenshots": [
+    "tests/artifacts/compact-1024-100-file.png",
+    "tests/artifacts/compact-1024-100-http.png",
+    "tests/artifacts/compact-1330-100-file.png",
+    "tests/artifacts/compact-1330-100-http.png",
+    "tests/artifacts/compact-1330-75-file.png",
+    "tests/artifacts/compact-1330-75-http.png",
+    "tests/artifacts/compact-1920-100-file.png",
+    "tests/artifacts/compact-1920-100-http.png",
+    "tests/artifacts/compact-1920-75-file.png",
+    "tests/artifacts/compact-1920-75-http.png",
+    "tests/artifacts/compact-390-100-file.png",
+    "tests/artifacts/compact-390-100-http.png",
+    "tests/artifacts/compact-390-75-file.png",
+    "tests/artifacts/compact-390-75-http.png",
+    "tests/artifacts/compact-844-100-file.png",
+    "tests/artifacts/compact-844-100-http.png",
+    "tests/artifacts/compact-844-75-file.png",
+    "tests/artifacts/compact-844-75-http.png",
+    "tests/artifacts/compact-battle-desktop-file.png",
+    "tests/artifacts/compact-battle-desktop-http.png",
+    "tests/artifacts/compact-desktop-diagnostic.png",
+    "tests/artifacts/compact-filled-1920-100.png",
+    "tests/artifacts/compact-filled-1920-75.png",
+    "tests/artifacts/compact-filled-390-100.png",
+    "tests/artifacts/compact-filled-390-75.png",
+    "tests/artifacts/compact-filled-844-100.png",
+    "tests/artifacts/compact-settings-1024-100-file.png",
+    "tests/artifacts/compact-settings-1024-100-http.png",
+    "tests/artifacts/compact-settings-390-100-file.png",
+    "tests/artifacts/compact-settings-390-100-http.png",
+    "tests/artifacts/compact-settings-390-75-file.png",
+    "tests/artifacts/compact-settings-390-75-http.png",
+    "tests/artifacts/compact-settings-844-100-file.png",
+    "tests/artifacts/compact-settings-844-100-http.png",
+    "tests/artifacts/compact-settings-844-75-file.png",
+    "tests/artifacts/compact-settings-844-75-http.png"
+  ],
+  "assessment": "tests/artifacts/feature-assessment.json",
+  "limitations": [
+    "Installed desktop application not exercised; desktop storage behavior verified through synthetic bridge only.",
+    "Real players and iCloud data not accessed.",
+    "Live experience consistency and new pet/summon single-target buffs evaluated only, not implemented."
+  ],
+  "cacheVersions": {
+    "files": 102,
+    "allPassed": true
+  },
+  "visualReview": {
+    "tool": "ego-browser",
+    "syntheticOnly": true,
+    "reviewedScreenshots": [
+      "tests/artifacts/compact-filled-1920-100.png",
+      "tests/artifacts/compact-1920-75-file.png",
+      "tests/artifacts/compact-filled-390-100.png",
+      "tests/artifacts/compact-filled-844-100.png",
+      "tests/artifacts/compact-battle-desktop-http.png",
+      "tests/artifacts/account-party-ability-390x844-75.png"
+    ]
+  }
+}

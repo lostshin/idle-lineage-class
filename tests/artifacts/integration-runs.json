@@ -1,0 +1,110 @@
+[
+  {
+    "suite": "game-tools",
+    "protocol": "http",
+    "exitCode": 0,
+    "log": "tests/artifacts/integration-game-tools-http.log"
+  },
+  {
+    "suite": "visual-game-tools",
+    "protocol": "http",
+    "exitCode": 0,
+    "log": "tests/artifacts/integration-visual-game-tools-http.log"
+  },
+  {
+    "suite": "account-gameplay",
+    "protocol": "http",
+    "exitCode": 0,
+    "log": "tests/artifacts/integration-account-gameplay-http.log"
+  },
+  {
+    "suite": "visual-account-gameplay",
+    "protocol": "http",
+    "exitCode": 0,
+    "log": "tests/artifacts/integration-visual-account-gameplay-http.log"
+  },
+  {
+    "suite": "companion-commands",
+    "protocol": "http",
+    "exitCode": 0,
+    "log": "tests/artifacts/integration-companion-commands-http.log"
+  },
+  {
+    "suite": "gameplay",
+    "protocol": "http",
+    "exitCode": 0,
+    "log": "tests/artifacts/integration-gameplay-http.log"
+  },
+  {
+    "suite": "rwd",
+    "protocol": "http",
+    "exitCode": 0,
+    "log": "tests/artifacts/integration-rwd-http.log"
+  },
+  {
+    "suite": "ui-scale",
+    "protocol": "http",
+    "exitCode": 0,
+    "log": "tests/artifacts/integration-ui-scale-http.log"
+  },
+  {
+    "suite": "pwa",
+    "protocol": "http",
+    "exitCode": 0,
+    "log": "tests/artifacts/integration-pwa-http.log"
+  },
+  {
+    "suite": "game-tools",
+    "protocol": "file",
+    "exitCode": 0,
+    "log": "tests/artifacts/integration-game-tools-file.log"
+  },
+  {
+    "suite": "visual-game-tools",
+    "protocol": "file",
+    "exitCode": 0,
+    "log": "tests/artifacts/integration-visual-game-tools-file.log"
+  },
+  {
+    "suite": "account-gameplay",
+    "protocol": "file",
+    "exitCode": 0,
+    "log": "tests/artifacts/integration-account-gameplay-file.log"
+  },
+  {
+    "suite": "visual-account-gameplay",
+    "protocol": "file",
+    "exitCode": 0,
+    "log": "tests/artifacts/integration-visual-account-gameplay-file.log"
+  },
+  {
+    "suite": "companion-commands",
+    "protocol": "file",
+    "exitCode": 0,
+    "log": "tests/artifacts/integration-companion-commands-file.log"
+  },
+  {
+    "suite": "gameplay",
+    "protocol": "file",
+    "exitCode": 0,
+    "log": "tests/artifacts/integration-gameplay-file.log"
+  },
+  {
+    "suite": "rwd",
+    "protocol": "file",
+    "exitCode": 0,
+    "log": "tests/artifacts/integration-rwd-file.log"
+  },
+  {
+    "suite": "ui-scale",
+    "protocol": "file",
+    "exitCode": 0,
+    "log": "tests/artifacts/integration-ui-scale-file.log"
+  },
+  {
+    "suite": "pwa",
+    "protocol": "file",
+    "exitCode": 0,
+    "log": "tests/artifacts/integration-pwa-file.log"
+  }
+]

@@ -1,0 +1,201 @@
+{
+  "date": "2026-10-13T13:14:19.743786+00:00",
+  "status": "PASS",
+  "modifiedFiles": [
+    "index.html",
+    "css/responsive.css",
+    "js/account-transfer.js",
+    "js/effect-details.js",
+    "js/party-inspector.js",
+    "js/08-items-equip.js",
+    "js/10-ui-tabs.js",
+    "js/13-shop-save.js",
+    "js/14-craft-pandora.js",
+    "js/22-pets.js",
+    "js/23-summons.js",
+    "tests/account-gameplay.e2e.js",
+    "tests/visual-account-gameplay.js",
+    "tests/gameplay.e2e.js",
+    "tests/run-rwd.py",
+    "js/04-combat-attack.js",
+    "js/07-skills-cast.js",
+    "js/companion-commands.js",
+    "tests/companion-commands.e2e.js"
+  ],
+  "features": {
+    "account": "選角頁可將 8 格角色、一般／經典倉庫、4 種圖鑑、寵物、龍鑽、血盟／城堡、傭兵隊伍引用及待領經驗匯出成一個簽章檔。匯入先預覽，同角色更新現有位置、空格補入；不同角色可保留跳過或取代。空格不刪除角色。",
+    "accountConflictRule": "跨格相同角色優先使用目前位置；同一格不能在同批匯入分配給兩個角色，預覽會說明須先整理角色位置。",
+    "nickname": "選角頁改名：每位現有／新角色首次免費，之後每次 1 顆龍鑽。次數隨角色保存，姓名與扣款同批寫入，舊分頁寫入受到世代識別保護。傭兵改顯示暱稱。",
+    "buffs": "戰鬥與隊友共用效果圖示及提示，支援懸浮、鍵盤聚焦及觸控點擊。AC 顯示實際負向加成，提示位置支援縮放。",
+    "party": "隊伍面板下方展開；沿用 assets/ui/能力.png 與原能力介面，提供總能力／Buff 加成切換。AC 讀實際防禦，迴避、移速、藥水與 MP 回復間隔使用既有換算；Buff 差值使用隔離資料，裝備免疫不列為 Buff 加成。窄螢幕維持比例並可捲動。",
+    "inventory": "分類→種類／部位→同品項→變體→強化排列。廢品群選只忽略強化值，祝福、屬性、遠古、套裝／附魔各自分組，遵守強化上限、鎖定與 noJunk 保護。",
+    "summons": "主角站立／行走動畫就緒時即開始繪製；傭兵既有集合實體按數量建立純繪圖分身，不增加傷害或受擊實體。",
+    "commands": "戰鬥畫面上緣的夥伴指揮列與夥伴圖像可選取寵物／召喚獸；點怪物圖像指定攻擊、點主人的守護區域下令守護。真正改變既有攻擊與移動，不增加戰鬥實體。守護僅在主人遭受直接傷害後反擊；傭兵召喚獸護其召喚者。目標死亡／消失或換地圖後回到守護。Escape／叉號結束選取，現行命令持續。命令為本次遊玩的暫態狀態，重新載入後不保留。",
+    "commandHitArea": "指揮列位於地圖控制列與戰場之間，不遮蓋怪物；主人圖片透明邊緣不攔截怪物點擊，守護區域依主人本體定位。HTTP 使用既有圖像錨點；file:// 依既有定位備援，已驗證點按。"
+  },
+  "baseline": "tests/artifacts/account-gameplay-baseline.json",
+  "e2eChecks": 876,
+  "results": [
+    {
+      "suite": "account-gameplay",
+      "protocol": "http",
+      "passed": 54,
+      "failed": 0,
+      "report": "tests/artifacts/account-gameplay-http.json",
+      "testedAt": "2026-10-13T13:12:38.685Z"
+    },
+    {
+      "suite": "account-gameplay",
+      "protocol": "file",
+      "passed": 54,
+      "failed": 0,
+      "report": "tests/artifacts/account-gameplay-file.json",
+      "testedAt": "2026-10-13T13:12:43.728Z"
+    },
+    {
+      "suite": "companion-commands",
+      "protocol": "http",
+      "passed": 33,
+      "failed": 0,
+      "report": "tests/artifacts/companion-commands-http.json",
+      "testedAt": "2026-10-13T13:11:30.002Z"
+    },
+    {
+      "suite": "companion-commands",
+      "protocol": "file",
+      "passed": 33,
+      "failed": 0,
+      "report": "tests/artifacts/companion-commands-file.json",
+      "testedAt": "2026-10-13T13:11:35.359Z"
+    },
+    {
+      "suite": "gameplay",
+      "protocol": "http",
+      "passed": 30,
+      "failed": 0,
+      "report": "tests/artifacts/gameplay-report-http.json",
+      "testedAt": "2026-10-13T13:11:41.103Z"
+    },
+    {
+      "suite": "gameplay",
+      "protocol": "file",
+      "passed": 30,
+      "failed": 0,
+      "report": "tests/artifacts/gameplay-report-file.json",
+      "testedAt": "2026-10-13T13:11:46.887Z"
+    },
+    {
+      "suite": "rwd",
+      "protocol": "http",
+      "passed": 221,
+      "failed": 0,
+      "report": "tests/artifacts/rwd-report-http.json",
+      "testedAt": "2026-10-13T13:11:58.495Z"
+    },
+    {
+      "suite": "rwd",
+      "protocol": "file",
+      "passed": 221,
+      "failed": 0,
+      "report": "tests/artifacts/rwd-report-file.json",
+      "testedAt": "2026-10-13T13:12:09.755Z"
+    },
+    {
+      "suite": "ui-scale",
+      "protocol": "http",
+      "passed": 100,
+      "failed": 0,
+      "report": "tests/artifacts/ui-scale-report-http.json",
+      "testedAt": "2026-10-13T13:12:21.728Z"
+    },
+    {
+      "suite": "ui-scale",
+      "protocol": "file",
+      "passed": 100,
+      "failed": 0,
+      "report": "tests/artifacts/ui-scale-report-file.json",
+      "testedAt": "2026-10-13T13:12:33.014Z"
+    }
+  ],
+  "visualChecks": {
+    "passed": 11,
+    "report": "tests/artifacts/account-visual-report.json"
+  },
+  "visualEvidence": [
+    "tests/artifacts/account-buff-hover.png",
+    "tests/artifacts/account-import-desktop.png",
+    "tests/artifacts/account-import-mobile-100.png",
+    "tests/artifacts/account-import-mobile-75.png",
+    "tests/artifacts/account-party-390x844-100.png",
+    "tests/artifacts/account-party-390x844-75.png",
+    "tests/artifacts/account-party-844x390-75.png",
+    "tests/artifacts/account-party-ability-390x844-100.png",
+    "tests/artifacts/account-party-ability-390x844-75.png",
+    "tests/artifacts/account-party-ability-844x390-75.png",
+    "tests/artifacts/account-party-ability-buff.png",
+    "tests/artifacts/account-party-ability-file.png",
+    "tests/artifacts/account-party-ability-http.png",
+    "tests/artifacts/account-party-ability-total.png",
+    "tests/artifacts/account-party-buff-hover.png",
+    "tests/artifacts/account-party-desktop.png",
+    "tests/artifacts/account-quick-junk.png",
+    "tests/artifacts/account-rename-desktop.png",
+    "tests/artifacts/account-rename-mobile-100.png",
+    "tests/artifacts/account-rename-mobile-75.png",
+    "tests/artifacts/account-selection-desktop.png",
+    "tests/artifacts/account-summons-desktop.png",
+    "tests/artifacts/commands-attack-1330-100-file.png",
+    "tests/artifacts/commands-attack-1330-100-http.png",
+    "tests/artifacts/commands-attack-390-100-file.png",
+    "tests/artifacts/commands-attack-390-100-http.png",
+    "tests/artifacts/commands-attack-390-75-file.png",
+    "tests/artifacts/commands-attack-390-75-http.png",
+    "tests/artifacts/commands-guard-1330-100-file.png",
+    "tests/artifacts/commands-guard-1330-100-http.png",
+    "tests/artifacts/commands-guard-390-100-file.png",
+    "tests/artifacts/commands-guard-390-100-http.png",
+    "tests/artifacts/commands-guard-390-75-file.png",
+    "tests/artifacts/commands-guard-390-75-http.png"
+  ],
+  "numericReadback": {
+    "liveAC": 3,
+    "abilityAC": 3,
+    "buffAC": -2,
+    "runtimeErrors": []
+  },
+  "staticChecks": [
+    "JavaScript syntax: PASS",
+    "Python runner syntax: PASS",
+    "git diff --check: PASS"
+  ],
+  "rerun": [
+    "python3 tests/run-rwd.py --suite account-gameplay --protocol http",
+    "python3 tests/run-rwd.py --suite account-gameplay --protocol file",
+    "python3 tests/run-rwd.py --suite gameplay --protocol http --skip-screenshots",
+    "python3 tests/run-rwd.py --suite gameplay --protocol file --skip-screenshots",
+    "python3 tests/run-rwd.py --suite rwd --protocol http --skip-screenshots",
+    "python3 tests/run-rwd.py --suite rwd --protocol file --skip-screenshots",
+    "python3 tests/run-rwd.py --suite ui-scale --protocol http --skip-screenshots",
+    "python3 tests/run-rwd.py --suite ui-scale --protocol file --skip-screenshots",
+    "python3 tests/run-rwd.py --suite companion-commands --protocol http",
+    "python3 tests/run-rwd.py --suite companion-commands --protocol file"
+  ],
+  "visualRerun": [
+    "python3 tests/run-rwd.py --suite account-gameplay --protocol file --keep-space",
+    "使用上一指令輸出的 spaceId：python3 tests/run-rwd.py --suite visual-account-gameplay --space <spaceId> --keep-space"
+  ],
+  "isolation": "所有測試與截圖使用合成角色及隔離的 localStorage／桌面橋接替身，未讀寫 Documents／iCloud 角色來源檔或真實帳號儲存。",
+  "remaining": [
+    "實際安裝版封裝與原生桌面 Host 尚未實機驗證；桌面存檔簽章與儲存失敗使用測試替身驗證。",
+    "實機 Safari／iOS 尚未驗證；RWD 在 Chromium 模擬視窗驗證。"
+  ],
+  "excluded": [
+    "iCloud 自動上傳／較新存檔同步不在此輪範圍。"
+  ],
+  "ipReference": {
+    "url": "https://tw.beanfun.com/lineage/events/20100921_waterdragon/c03_3.html",
+    "verified": "官方舊版選單具指定攻擊目標、攻擊及防禦模式。",
+    "scope": "本版守護受擊反擊依使用者指定；上述官方頁面未完整說明這項機制，不宣稱所有行為與原版完全相同。"
+  },
+  "commandBaseline": "tests/artifacts/companion-commands-baseline.json"
+}

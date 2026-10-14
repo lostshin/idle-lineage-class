@@ -1,0 +1,140 @@
+[
+  {
+    "suite": "addon-defaults",
+    "protocol": "file",
+    "exitCode": 0,
+    "seconds": 4.6
+  },
+  {
+    "suite": "rwd",
+    "protocol": "http",
+    "exitCode": 0,
+    "seconds": 45.4
+  },
+  {
+    "suite": "rwd",
+    "protocol": "file",
+    "exitCode": 0,
+    "seconds": 41.2
+  },
+  {
+    "suite": "ui-scale",
+    "protocol": "http",
+    "exitCode": 1,
+    "seconds": 29.4
+  },
+  {
+    "suite": "ui-scale",
+    "protocol": "file",
+    "exitCode": 1,
+    "seconds": 27.2
+  },
+  {
+    "suite": "gameplay",
+    "protocol": "http",
+    "exitCode": 0,
+    "seconds": 19.5
+  },
+  {
+    "suite": "gameplay",
+    "protocol": "file",
+    "exitCode": 0,
+    "seconds": 21.2
+  },
+  {
+    "suite": "companion-commands",
+    "protocol": "http",
+    "exitCode": 0,
+    "seconds": 17.3
+  },
+  {
+    "suite": "companion-commands",
+    "protocol": "file",
+    "exitCode": 0,
+    "seconds": 17.1
+  },
+  {
+    "suite": "account-gameplay",
+    "protocol": "http",
+    "exitCode": 0,
+    "seconds": 21.9
+  },
+  {
+    "suite": "account-gameplay",
+    "protocol": "file",
+    "exitCode": 0,
+    "seconds": 21.2
+  },
+  {
+    "suite": "visual-account-gameplay",
+    "protocol": "file",
+    "exitCode": 0,
+    "seconds": 32.2
+  },
+  {
+    "suite": "game-tools",
+    "protocol": "http",
+    "exitCode": 0,
+    "seconds": 11.2
+  },
+  {
+    "suite": "visual-game-tools",
+    "protocol": "http",
+    "exitCode": 0,
+    "seconds": 9.6
+  },
+  {
+    "suite": "game-tools",
+    "protocol": "file",
+    "exitCode": 0,
+    "seconds": 11.1
+  },
+  {
+    "suite": "visual-game-tools",
+    "protocol": "file",
+    "exitCode": 0,
+    "seconds": 6.6
+  },
+  {
+    "suite": "pwa",
+    "protocol": "http",
+    "exitCode": 0,
+    "seconds": 1.7
+  },
+  {
+    "suite": "pwa",
+    "protocol": "file",
+    "exitCode": 0,
+    "seconds": 1.1
+  },
+  {
+    "suite": "ui-scale",
+    "protocol": "http",
+    "exitCode": 1,
+    "seconds": 45.7
+  },
+  {
+    "suite": "ui-scale",
+    "protocol": "file",
+    "exitCode": 0,
+    "seconds": 22.2
+  },
+  {
+    "suite": "companion-commands",
+    "protocol": "http",
+    "exitCode": 0,
+    "seconds": 3.7
+  },
+  {
+    "suite": "companion-commands",
+    "protocol": "file",
+    "exitCode": 0,
+    "seconds": 3.6
+  },
+  {
+    "suite": "ui-scale",
+    "protocol": "http",
+    "exitCode": 0,
+    "note": "100/100 after waiting for DOM readiness and modal guard expiration"
+  }
+]

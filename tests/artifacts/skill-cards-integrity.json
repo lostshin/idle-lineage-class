@@ -1,0 +1,14 @@
+{
+  "combatUnchanged": {
+    "js/06-status-allies.js": true,
+    "js/07-skills-cast.js": true,
+    "js/22-pets.js": true,
+    "js/23-summons.js": true
+  },
+  "syntaxCount": 101,
+  "syntaxFailures": [],
+  "cacheCount": 105,
+  "cacheFailures": [],
+  "mirroredCount": 65,
+  "mirroredFailures": []
+}

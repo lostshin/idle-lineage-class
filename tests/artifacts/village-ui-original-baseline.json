@@ -1,0 +1,14 @@
+{
+  "reports": [
+    {
+      "name": "village names remain visible when battle status display is off",
+      "status": "FAIL",
+      "error": "Error: false"
+    },
+    {
+      "name": "clan Buff checkbox and state label keep their own horizontal space",
+      "status": "FAIL",
+      "error": "Error: false"
+    }
+  ]
+}

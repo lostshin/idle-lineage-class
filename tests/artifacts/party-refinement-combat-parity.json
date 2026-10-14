@@ -1,0 +1,60 @@
+{
+  "originalCommit": "b3fb21ce1960954adbbfcaa8f6dde9c8642d208b",
+  "checks": [
+    {
+      "file": "js/07-skills-cast.js",
+      "function": "summonAttack",
+      "matchesOriginal": true,
+      "expectedChange": null
+    },
+    {
+      "file": "js/07-skills-cast.js",
+      "function": "summonTick",
+      "matchesOriginal": false,
+      "expectedChange": "normal Haste attack interval"
+    },
+    {
+      "file": "js/22-pets.js",
+      "function": "_petPickTarget",
+      "matchesOriginal": true,
+      "expectedChange": null
+    },
+    {
+      "file": "js/22-pets.js",
+      "function": "petAttackOnce",
+      "matchesOriginal": true,
+      "expectedChange": null
+    },
+    {
+      "file": "js/22-pets.js",
+      "function": "petsTick",
+      "matchesOriginal": true,
+      "expectedChange": null
+    },
+    {
+      "file": "js/22-pets.js",
+      "function": "_petWanderStep",
+      "matchesOriginal": false,
+      "expectedChange": "normal Haste movement speed"
+    },
+    {
+      "file": "js/23-summons.js",
+      "function": "summonV2Tick",
+      "matchesOriginal": true,
+      "expectedChange": null
+    },
+    {
+      "file": "js/23-summons.js",
+      "function": "spiritAttackOnce",
+      "matchesOriginal": true,
+      "expectedChange": null
+    },
+    {
+      "file": "js/23-summons.js",
+      "function": "necroSkeletonTick",
+      "matchesOriginal": false,
+      "expectedChange": "normal Haste attack interval"
+    }
+  ],
+  "allExpected": true
+}

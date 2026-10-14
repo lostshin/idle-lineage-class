@@ -1,0 +1,20 @@
+{
+  "baselineOriginalCore": {
+    "closed": true,
+    "enhancement": 1,
+    "remainingScrolls": 3
+  },
+  "originalBugReproduced": true,
+  "reports": [
+    {
+      "name": "native mouse clicks can enhance twice without reopening",
+      "status": "PASS"
+    }
+  ],
+  "observed": {
+    "open": true,
+    "enhancement": 2,
+    "remainingScrolls": 2
+  },
+  "modalGuardMs": 450
+}

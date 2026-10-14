@@ -1,0 +1,33 @@
+{
+  "method": "Ego Page.printToPDF screen media rendered locally by sips",
+  "reports": [
+    {
+      "name": "desktop: successful enhancement remains visible with current values",
+      "status": "PASS"
+    },
+    {
+      "name": "desktop-75: successful enhancement remains visible with current values",
+      "status": "PASS"
+    },
+    {
+      "name": "mobile: successful enhancement remains visible with current values",
+      "status": "PASS"
+    },
+    {
+      "name": "mobile-75: successful enhancement remains visible with current values",
+      "status": "PASS"
+    },
+    {
+      "name": "village hover retains the native remaining-time tooltip",
+      "status": "PASS"
+    },
+    {
+      "name": "native and floating village buff icons use the live actor duration",
+      "status": "PASS"
+    },
+    {
+      "name": "no visual fixture runtime errors",
+      "status": "PASS"
+    }
+  ]
+}

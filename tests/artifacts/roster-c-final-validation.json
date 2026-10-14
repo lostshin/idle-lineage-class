@@ -1,0 +1,253 @@
+{
+  "date": "2026-10-14T03:39:23.994117+00:00",
+  "selectedDesign": "C unified nameplates",
+  "checks": [
+    {
+      "suite": "party-equipment",
+      "protocol": "http",
+      "command": "python3 tests/run-rwd.py --space 7 --keep-space --skip-screenshots --suite party-equipment --protocol http",
+      "exitCode": 0,
+      "checks": 20,
+      "passed": 20,
+      "report": "tests/artifacts/party-equipment-http.json"
+    },
+    {
+      "suite": "rwd",
+      "protocol": "http",
+      "command": "python3 tests/run-rwd.py --space 7 --keep-space --skip-screenshots --suite rwd --protocol http",
+      "exitCode": 0,
+      "checks": 221,
+      "passed": 221,
+      "report": "tests/artifacts/rwd-report-http.json"
+    },
+    {
+      "suite": "ui-scale",
+      "protocol": "http",
+      "command": "python3 tests/run-rwd.py --space 7 --keep-space --skip-screenshots --suite ui-scale --protocol http",
+      "exitCode": 0,
+      "checks": 100,
+      "passed": 100,
+      "report": "tests/artifacts/ui-scale-report-http.json"
+    },
+    {
+      "suite": "gameplay",
+      "protocol": "http",
+      "command": "python3 tests/run-rwd.py --space 7 --keep-space --skip-screenshots --suite gameplay --protocol http",
+      "exitCode": 0,
+      "checks": 30,
+      "passed": 30,
+      "report": "tests/artifacts/gameplay-report-http.json"
+    },
+    {
+      "suite": "account-gameplay",
+      "protocol": "http",
+      "command": "python3 tests/run-rwd.py --space 7 --keep-space --skip-screenshots --suite account-gameplay --protocol http",
+      "exitCode": 0,
+      "checks": 60,
+      "passed": 60,
+      "report": "tests/artifacts/account-gameplay-http.json"
+    },
+    {
+      "suite": "companion-commands",
+      "protocol": "http",
+      "command": "python3 tests/run-rwd.py --space 7 --keep-space --skip-screenshots --suite companion-commands --protocol http",
+      "exitCode": 0,
+      "checks": 21,
+      "passed": 21,
+      "report": "tests/artifacts/companion-commands-http.json"
+    },
+    {
+      "suite": "party-refinements",
+      "protocol": "http",
+      "command": "python3 tests/run-rwd.py --space 7 --keep-space --skip-screenshots --suite party-refinements --protocol http",
+      "exitCode": 0,
+      "checks": 38,
+      "passed": 38,
+      "report": "tests/artifacts/party-refinements-http.json"
+    },
+    {
+      "suite": "compact-layout",
+      "protocol": "http",
+      "command": "python3 tests/run-rwd.py --space 7 --keep-space --skip-screenshots --suite compact-layout --protocol http",
+      "exitCode": 0,
+      "checks": 28,
+      "passed": 28,
+      "report": "tests/artifacts/compact-layout-http.json"
+    },
+    {
+      "suite": "game-tools",
+      "protocol": "http",
+      "command": "python3 tests/run-rwd.py --space 7 --keep-space --skip-screenshots --suite game-tools --protocol http",
+      "exitCode": 0,
+      "checks": 22,
+      "passed": 22,
+      "report": "tests/artifacts/game-tools-http.json"
+    },
+    {
+      "suite": "addon-defaults",
+      "protocol": "http",
+      "command": "python3 tests/run-rwd.py --space 7 --keep-space --skip-screenshots --suite addon-defaults --protocol http",
+      "exitCode": 0,
+      "checks": 6,
+      "passed": 6,
+      "report": "tests/artifacts/addon-defaults-http.json"
+    },
+    {
+      "suite": "party-equipment",
+      "protocol": "file",
+      "command": "python3 tests/run-rwd.py --space 7 --keep-space --skip-screenshots --suite party-equipment --protocol file",
+      "exitCode": 0,
+      "checks": 20,
+      "passed": 20,
+      "report": "tests/artifacts/party-equipment-file.json"
+    },
+    {
+      "suite": "rwd",
+      "protocol": "file",
+      "command": "python3 tests/run-rwd.py --space 7 --keep-space --skip-screenshots --suite rwd --protocol file",
+      "exitCode": 0,
+      "checks": 221,
+      "passed": 221,
+      "report": "tests/artifacts/rwd-report-file.json"
+    },
+    {
+      "suite": "ui-scale",
+      "protocol": "file",
+      "command": "python3 tests/run-rwd.py --space 7 --keep-space --skip-screenshots --suite ui-scale --protocol file",
+      "exitCode": 0,
+      "checks": 100,
+      "passed": 100,
+      "report": "tests/artifacts/ui-scale-report-file.json"
+    },
+    {
+      "suite": "gameplay",
+      "protocol": "file",
+      "command": "python3 tests/run-rwd.py --space 7 --keep-space --skip-screenshots --suite gameplay --protocol file",
+      "exitCode": 0,
+      "checks": 30,
+      "passed": 30,
+      "report": "tests/artifacts/gameplay-report-file.json"
+    },
+    {
+      "suite": "account-gameplay",
+      "protocol": "file",
+      "command": "python3 tests/run-rwd.py --space 7 --keep-space --skip-screenshots --suite account-gameplay --protocol file",
+      "exitCode": 0,
+      "checks": 60,
+      "passed": 60,
+      "report": "tests/artifacts/account-gameplay-file.json"
+    },
+    {
+      "suite": "companion-commands",
+      "protocol": "file",
+      "command": "python3 tests/run-rwd.py --space 7 --keep-space --skip-screenshots --suite companion-commands --protocol file",
+      "exitCode": 0,
+      "checks": 21,
+      "passed": 21,
+      "report": "tests/artifacts/companion-commands-file.json"
+    },
+    {
+      "suite": "party-refinements",
+      "protocol": "file",
+      "command": "python3 tests/run-rwd.py --space 7 --keep-space --skip-screenshots --suite party-refinements --protocol file",
+      "exitCode": 0,
+      "checks": 38,
+      "passed": 38,
+      "report": "tests/artifacts/party-refinements-file.json"
+    },
+    {
+      "suite": "compact-layout",
+      "protocol": "file",
+      "command": "python3 tests/run-rwd.py --space 7 --keep-space --skip-screenshots --suite compact-layout --protocol file",
+      "exitCode": 0,
+      "checks": 28,
+      "passed": 28,
+      "report": "tests/artifacts/compact-layout-file.json"
+    },
+    {
+      "suite": "game-tools",
+      "protocol": "file",
+      "command": "python3 tests/run-rwd.py --space 7 --keep-space --skip-screenshots --suite game-tools --protocol file",
+      "exitCode": 0,
+      "checks": 22,
+      "passed": 22,
+      "report": "tests/artifacts/game-tools-file.json"
+    },
+    {
+      "suite": "addon-defaults",
+      "protocol": "file",
+      "command": "python3 tests/run-rwd.py --space 7 --keep-space --skip-screenshots --suite addon-defaults --protocol file",
+      "exitCode": 0,
+      "checks": 6,
+      "passed": 6,
+      "report": "tests/artifacts/addon-defaults-file.json"
+    },
+    {
+      "suite": "visual-party-equipment",
+      "protocol": "file screen print",
+      "checks": 2,
+      "passed": 2,
+      "exitCode": 0,
+      "command": "python3 tests/run-rwd.py --space 7 --keep-space --suite visual-party-equipment --protocol file",
+      "report": "tests/artifacts/roster-c-visual.json"
+    }
+  ],
+  "totalChecks": 1094,
+  "passed": 1094,
+  "allPassed": true,
+  "integrity": {
+    "syntaxFiles": 103,
+    "syntaxErrors": [],
+    "sourceFiles": 65,
+    "sourceMatches": true,
+    "cacheVersions": 105,
+    "cacheMatches": true,
+    "originalArtworkChanged": []
+  },
+  "sourceParity": {
+    "files": 65,
+    "matches": true
+  },
+  "cacheVersions": {
+    "files": 105,
+    "matches": true
+  },
+  "diffCheck": {
+    "exitCode": 0,
+    "output": ""
+  },
+  "modifiedSourceAndTests": [
+    "css/responsive.css",
+    "index.html",
+    "js/10-ui-tabs.js",
+    "js/party-inspector.js",
+    "js/party-roster.js",
+    "js/party-portrait-bounds.js",
+    "scripts/update-party-portraits.py",
+    "tests/party-equipment.e2e.js",
+    "tests/visual-party-equipment.js",
+    "tests/run-rwd.py"
+  ],
+  "designPrompts": "output/imagegen/party-panel-20261014/prompts.json",
+  "imageGenerationMode": "built-in image_gen",
+  "cloudFolder": "放置天堂－隊伍介面版型－20261014",
+  "cloudPreviews": [
+    {
+      "name": "C－實作版－桌機.png",
+      "matches": true
+    },
+    {
+      "name": "隊友裝備－桌機.png",
+      "matches": true
+    },
+    {
+      "name": "隊友裝備－手機.png",
+      "matches": true
+    }
+  ],
+  "limitations": [
+    "Direct Ego screenshot capture timed out; UI checked through screen-media page print rendered to PNG.",
+    "Installed desktop application not exercised; web/file synthetic roles and storage only."
+  ],
+  "committed": false
+}

@@ -1,0 +1,207 @@
+{
+  "requests": [
+    "Responsive equipment sheet replaces the tall background with a grid that scales with floating window width and height",
+    "Item-page sort and quick-junk buttons remain on one row",
+    "Three skill-settings design references generated; awaiting selection",
+    "Prior companion-name increase from 12px to 14px verified for all seven roster rows"
+  ],
+  "counts": {
+    "checks": 1028,
+    "passed": 1028,
+    "failed": 0
+  },
+  "behaviorSuites": [
+    {
+      "suite": "party-equipment",
+      "protocol": "http",
+      "report": "tests/artifacts/party-equipment-http.json",
+      "checks": 36,
+      "passed": 36
+    },
+    {
+      "suite": "rwd",
+      "protocol": "http",
+      "report": "tests/artifacts/rwd-report-http.json",
+      "checks": 221,
+      "passed": 221
+    },
+    {
+      "suite": "ui-scale",
+      "protocol": "http",
+      "report": "tests/artifacts/ui-scale-report-http.json",
+      "checks": 100,
+      "passed": 100
+    },
+    {
+      "suite": "gameplay",
+      "protocol": "http",
+      "report": "tests/artifacts/gameplay-report-http.json",
+      "checks": 30,
+      "passed": 30
+    },
+    {
+      "suite": "account-gameplay",
+      "protocol": "http",
+      "report": "tests/artifacts/account-gameplay-http.json",
+      "checks": 60,
+      "passed": 60
+    },
+    {
+      "suite": "companion-commands",
+      "protocol": "http",
+      "report": "tests/artifacts/companion-commands-http.json",
+      "checks": 21,
+      "passed": 21
+    },
+    {
+      "suite": "party-refinements",
+      "protocol": "http",
+      "report": "tests/artifacts/party-refinements-http.json",
+      "checks": 38,
+      "passed": 38
+    },
+    {
+      "suite": "party-equipment",
+      "protocol": "file",
+      "report": "tests/artifacts/party-equipment-file.json",
+      "checks": 36,
+      "passed": 36
+    },
+    {
+      "suite": "rwd",
+      "protocol": "file",
+      "report": "tests/artifacts/rwd-report-file.json",
+      "checks": 221,
+      "passed": 221
+    },
+    {
+      "suite": "ui-scale",
+      "protocol": "file",
+      "report": "tests/artifacts/ui-scale-report-file.json",
+      "checks": 100,
+      "passed": 100
+    },
+    {
+      "suite": "gameplay",
+      "protocol": "file",
+      "report": "tests/artifacts/gameplay-report-file.json",
+      "checks": 30,
+      "passed": 30
+    },
+    {
+      "suite": "account-gameplay",
+      "protocol": "file",
+      "report": "tests/artifacts/account-gameplay-file.json",
+      "checks": 60,
+      "passed": 60
+    },
+    {
+      "suite": "companion-commands",
+      "protocol": "file",
+      "report": "tests/artifacts/companion-commands-file.json",
+      "checks": 21,
+      "passed": 21
+    },
+    {
+      "suite": "party-refinements",
+      "protocol": "file",
+      "report": "tests/artifacts/party-refinements-file.json",
+      "checks": 38,
+      "passed": 38
+    }
+  ],
+  "visualChecks": [
+    {
+      "report": "tests/artifacts/account-visual-report.json",
+      "checks": 13,
+      "passed": 13
+    },
+    {
+      "report": "tests/artifacts/roster-c-visual.json",
+      "checks": 3,
+      "passed": 3
+    }
+  ],
+  "commands": "tests/artifacts/party-equipment-redesign-final-runs.json",
+  "integrity": {
+    "syntaxFiles": 103,
+    "syntaxErrors": [],
+    "mirroredFiles": 65,
+    "mirroredDifferences": [],
+    "cacheVersions": 105,
+    "cacheMatches": true,
+    "originalArtworkChanged": []
+  },
+  "modifiedFiles": [
+    "js/party-inspector.js",
+    "js/party-roster.js",
+    "css/responsive.css",
+    "index.html",
+    "tests/party-equipment.e2e.js",
+    "tests/visual-party-equipment.js",
+    "output/imagegen/skill-settings-20261014/"
+  ],
+  "baseline": "tests/artifacts/party-equipment-redesign-baseline.json",
+  "previewMethod": "Ego Page.printToPDF with screen media rendered by sips; representative 100%/75% desktop/mobile and wide-short/narrow-tall PNGs visually reviewed",
+  "previews": [
+    {
+      "source": "tests/artifacts/roster-c-desktop-preview.png",
+      "iCloudPath": "<iCloud preview folder>/C－實作版－桌機.png",
+      "sha256Matches": true
+    },
+    {
+      "source": "tests/artifacts/roster-c-desktop-75-preview.png",
+      "iCloudPath": "<iCloud preview folder>/C－實作版－桌機75%.png",
+      "sha256Matches": true
+    },
+    {
+      "source": "tests/artifacts/party-equipment-desktop-preview.png",
+      "iCloudPath": "<iCloud preview folder>/隊友裝備－桌機.png",
+      "sha256Matches": true
+    },
+    {
+      "source": "tests/artifacts/party-equipment-desktop-75-preview.png",
+      "iCloudPath": "<iCloud preview folder>/隊友裝備－桌機75%.png",
+      "sha256Matches": true
+    },
+    {
+      "source": "tests/artifacts/party-equipment-mobile-preview.png",
+      "iCloudPath": "<iCloud preview folder>/隊友裝備－手機.png",
+      "sha256Matches": true
+    },
+    {
+      "source": "tests/artifacts/party-equipment-mobile-75-preview.png",
+      "iCloudPath": "<iCloud preview folder>/隊友裝備－手機75%.png",
+      "sha256Matches": true
+    },
+    {
+      "source": "tests/artifacts/party-equipment-wide-short-preview.png",
+      "iCloudPath": "<iCloud preview folder>/隊友裝備－寬矮浮窗.png",
+      "sha256Matches": true
+    },
+    {
+      "source": "tests/artifacts/party-equipment-narrow-tall-preview.png",
+      "iCloudPath": "<iCloud preview folder>/隊友裝備－窄高浮窗.png",
+      "sha256Matches": true
+    },
+    {
+      "source": "tests/artifacts/item-toolbar-parallel-preview.png",
+      "iCloudPath": "<iCloud preview folder>/道具按鈕－並列.png",
+      "sha256Matches": true
+    }
+  ],
+  "imageGeneration": {
+    "mode": "built-in image_gen",
+    "count": 3,
+    "prompts": "output/imagegen/skill-settings-20261014/prompts.json",
+    "metadata": "output/imagegen/skill-settings-20261014/metadata.json",
+    "realPlayerScreenshotSent": false
+  },
+  "humanConfirmation": "Choose A compact cards, B skill roster, or C character tabs before skill-settings implementation",
+  "limitations": [
+    "Direct screenshot capture unavailable in earlier runs; page-print previews can render shadows differently.",
+    "Installed desktop app not tested.",
+    "Local iCloud copies verified; remote synchronization not independently verified."
+  ],
+  "git": "Uncommitted and unpushed"
+}

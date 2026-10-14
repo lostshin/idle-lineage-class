@@ -1,0 +1,26 @@
+{
+  "runs": [
+    {
+      "suite": "party-equipment",
+      "protocol": "http",
+      "command": "python3 tests/run-rwd.py --space 7 --keep-space --skip-screenshots --suite party-equipment --protocol http",
+      "exitCode": 0,
+      "output": "{ spaceId: 7 }\n{ checks: 17, passed: 17, failed: [] }\n\n"
+    },
+    {
+      "suite": "rwd",
+      "protocol": "http",
+      "command": "python3 tests/run-rwd.py --space 7 --keep-space --skip-screenshots --suite rwd --protocol http",
+      "exitCode": 0,
+      "output": "{ spaceId: 7 }\n{\n  \"checks\": 221,\n  \"passed\": 221,\n  \"failed\": []\n}\n\n"
+    },
+    {
+      "suite": "ui-scale",
+      "protocol": "http",
+      "command": "python3 tests/run-rwd.py --space 7 --keep-space --skip-screenshots --suite ui-scale --protocol http",
+      "exitCode": 0,
+      "output": "{ spaceId: 7 }\n{\n  \"checks\": 100,\n  \"passed\": 100,\n  \"failed\": []\n}\n\n"
+    }
+  ],
+  "screenshots": "CDP capture timeout; native window lookup cannot find web contents."
+}

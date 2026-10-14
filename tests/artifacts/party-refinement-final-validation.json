@@ -1,0 +1,266 @@
+{
+  "date": "2026-10-14T02:15:41.004050+00:00",
+  "changes": [
+    "Normal Haste shared to pets and summons, MP charged once per recipient, attack/movement speed restored on expiration.",
+    "Ally experience initialized from source progress plus unclaimed deduplicated ledger gains.",
+    "Aligned two-column checkboxes; squad fills available height before scrolling.",
+    "Floating opacity moved to settings; eight resize edges; size and opacity persisted.",
+    "Buff seconds hidden on icons, available in shared tooltip; blink during last ten seconds.",
+    "Inline ability values remain inside widened dark cells, without redundant buff units."
+  ],
+  "checks": [
+    {
+      "suite": "party-refinements",
+      "protocol": "http",
+      "requestedProtocol": "http",
+      "checks": 38,
+      "passed": 38,
+      "report": "tests/artifacts/party-refinements-http.json",
+      "command": "python3 tests/run-rwd.py --space 6 --keep-space --suite party-refinements --protocol http",
+      "exitCode": 0
+    },
+    {
+      "suite": "rwd",
+      "protocol": "http",
+      "requestedProtocol": "http",
+      "checks": 221,
+      "passed": 221,
+      "report": "tests/artifacts/rwd-report-http.json",
+      "command": "python3 tests/run-rwd.py --space 6 --keep-space --suite rwd --protocol http",
+      "exitCode": 0
+    },
+    {
+      "suite": "ui-scale",
+      "protocol": "http",
+      "requestedProtocol": "http",
+      "checks": 100,
+      "passed": 100,
+      "report": "tests/artifacts/ui-scale-report-http.json",
+      "command": "python3 tests/run-rwd.py --space 6 --keep-space --suite ui-scale --protocol http",
+      "exitCode": 0
+    },
+    {
+      "suite": "gameplay",
+      "protocol": "http",
+      "requestedProtocol": "http",
+      "checks": 30,
+      "passed": 30,
+      "report": "tests/artifacts/gameplay-report-http.json",
+      "command": "python3 tests/run-rwd.py --space 6 --keep-space --suite gameplay --protocol http",
+      "exitCode": 0
+    },
+    {
+      "suite": "account-gameplay",
+      "protocol": "http",
+      "requestedProtocol": "http",
+      "checks": 60,
+      "passed": 60,
+      "report": "tests/artifacts/account-gameplay-http.json",
+      "command": "python3 tests/run-rwd.py --space 6 --keep-space --suite account-gameplay --protocol http",
+      "exitCode": 0
+    },
+    {
+      "suite": "visual-account-gameplay",
+      "protocol": "file visual runner",
+      "requestedProtocol": "http",
+      "checks": 13,
+      "passed": 13,
+      "report": "tests/artifacts/account-visual-report.json",
+      "command": "python3 tests/run-rwd.py --space 6 --keep-space --suite visual-account-gameplay --protocol http",
+      "exitCode": 0
+    },
+    {
+      "suite": "companion-commands",
+      "protocol": "http",
+      "requestedProtocol": "http",
+      "checks": 21,
+      "passed": 21,
+      "report": "tests/artifacts/companion-commands-http.json",
+      "command": "python3 tests/run-rwd.py --space 6 --keep-space --suite companion-commands --protocol http",
+      "exitCode": 0
+    },
+    {
+      "suite": "compact-layout",
+      "protocol": "http",
+      "requestedProtocol": "http",
+      "checks": 28,
+      "passed": 28,
+      "report": "tests/artifacts/compact-layout-http.json",
+      "command": "python3 tests/run-rwd.py --space 6 --keep-space --suite compact-layout --protocol http",
+      "exitCode": 0
+    },
+    {
+      "suite": "game-tools",
+      "protocol": "http",
+      "requestedProtocol": "http",
+      "checks": 22,
+      "passed": 22,
+      "report": "tests/artifacts/game-tools-http.json",
+      "command": "python3 tests/run-rwd.py --space 6 --keep-space --suite game-tools --protocol http",
+      "exitCode": 0
+    },
+    {
+      "suite": "addon-defaults",
+      "protocol": "http",
+      "requestedProtocol": "http",
+      "checks": 6,
+      "passed": 6,
+      "report": "tests/artifacts/addon-defaults-http.json",
+      "command": "python3 tests/run-rwd.py --space 6 --keep-space --suite addon-defaults --protocol http",
+      "exitCode": 0
+    },
+    {
+      "suite": "party-refinements",
+      "protocol": "file",
+      "requestedProtocol": "file",
+      "checks": 38,
+      "passed": 38,
+      "report": "tests/artifacts/party-refinements-file.json",
+      "command": "python3 tests/run-rwd.py --space 6 --keep-space --suite party-refinements --protocol file",
+      "exitCode": 0
+    },
+    {
+      "suite": "rwd",
+      "protocol": "file",
+      "requestedProtocol": "file",
+      "checks": 221,
+      "passed": 221,
+      "report": "tests/artifacts/rwd-report-file.json",
+      "command": "python3 tests/run-rwd.py --space 6 --keep-space --suite rwd --protocol file",
+      "exitCode": 0
+    },
+    {
+      "suite": "ui-scale",
+      "protocol": "file",
+      "requestedProtocol": "file",
+      "checks": 100,
+      "passed": 100,
+      "report": "tests/artifacts/ui-scale-report-file.json",
+      "command": "python3 tests/run-rwd.py --space 6 --keep-space --suite ui-scale --protocol file",
+      "exitCode": 0
+    },
+    {
+      "suite": "gameplay",
+      "protocol": "file",
+      "requestedProtocol": "file",
+      "checks": 30,
+      "passed": 30,
+      "report": "tests/artifacts/gameplay-report-file.json",
+      "command": "python3 tests/run-rwd.py --space 6 --keep-space --suite gameplay --protocol file",
+      "exitCode": 0
+    },
+    {
+      "suite": "account-gameplay",
+      "protocol": "file",
+      "requestedProtocol": "file",
+      "checks": 60,
+      "passed": 60,
+      "report": "tests/artifacts/account-gameplay-file.json",
+      "command": "python3 tests/run-rwd.py --space 6 --keep-space --suite account-gameplay --protocol file",
+      "exitCode": 0
+    },
+    {
+      "suite": "visual-account-gameplay",
+      "protocol": "file visual runner",
+      "requestedProtocol": "file",
+      "checks": 13,
+      "passed": 13,
+      "report": "tests/artifacts/account-visual-report.json",
+      "command": "python3 tests/run-rwd.py --space 6 --keep-space --suite visual-account-gameplay --protocol file",
+      "exitCode": 0
+    },
+    {
+      "suite": "companion-commands",
+      "protocol": "file",
+      "requestedProtocol": "file",
+      "checks": 21,
+      "passed": 21,
+      "report": "tests/artifacts/companion-commands-file.json",
+      "command": "python3 tests/run-rwd.py --space 6 --keep-space --suite companion-commands --protocol file",
+      "exitCode": 0
+    },
+    {
+      "suite": "compact-layout",
+      "protocol": "file",
+      "requestedProtocol": "file",
+      "checks": 28,
+      "passed": 28,
+      "report": "tests/artifacts/compact-layout-file.json",
+      "command": "python3 tests/run-rwd.py --space 6 --keep-space --suite compact-layout --protocol file",
+      "exitCode": 0
+    },
+    {
+      "suite": "game-tools",
+      "protocol": "file",
+      "requestedProtocol": "file",
+      "checks": 22,
+      "passed": 22,
+      "report": "tests/artifacts/game-tools-file.json",
+      "command": "python3 tests/run-rwd.py --space 6 --keep-space --suite game-tools --protocol file",
+      "exitCode": 0
+    },
+    {
+      "suite": "addon-defaults",
+      "protocol": "file",
+      "requestedProtocol": "file",
+      "checks": 6,
+      "passed": 6,
+      "report": "tests/artifacts/addon-defaults-file.json",
+      "command": "python3 tests/run-rwd.py --space 6 --keep-space --suite addon-defaults --protocol file",
+      "exitCode": 0
+    }
+  ],
+  "totalChecks": 1078,
+  "passed": 1078,
+  "allE2EPassed": true,
+  "syntaxFiles": 101,
+  "syntaxErrors": [],
+  "addonSourceFiles": 65,
+  "addonSourceParity": true,
+  "cacheVersions": 103,
+  "cacheMatches": true,
+  "diffCheck": {
+    "exitCode": 0,
+    "output": ""
+  },
+  "combatParity": "tests/artifacts/party-refinement-combat-parity.json",
+  "modifiedSourceAndTests": [
+    "css/responsive.css",
+    "index.html",
+    "js/03-combat-core.js",
+    "js/06-status-allies.js",
+    "js/07-skills-cast.js",
+    "js/10-ui-tabs.js",
+    "js/22-pets.js",
+    "js/23-summons.js",
+    "js/25-clan-system.js",
+    "js/effect-details.js",
+    "js/party-inspector.js",
+    "tests/account-gameplay.e2e.js",
+    "tests/run-rwd.py",
+    "tests/rwd.e2e.js",
+    "js/companion-haste.js",
+    "js/game-layout.js",
+    "tests/party-refinements.e2e.js",
+    "tests/compact-layout.e2e.js"
+  ],
+  "screenshots": [
+    "tests/artifacts/party-refinement-settings-desktop.png",
+    "tests/artifacts/party-refinement-ability-desktop.png",
+    "tests/artifacts/party-refine-1330-75-file.png",
+    "tests/artifacts/party-refine-1330-75-http.png",
+    "tests/artifacts/party-refine-1920-100-file.png",
+    "tests/artifacts/party-refine-1920-100-http.png",
+    "tests/artifacts/party-refine-390-100-file.png",
+    "tests/artifacts/party-refine-390-100-http.png",
+    "tests/artifacts/party-refine-390-75-file.png",
+    "tests/artifacts/party-refine-390-75-http.png",
+    "tests/artifacts/party-refine-844-75-file.png",
+    "tests/artifacts/party-refine-844-75-http.png"
+  ],
+  "newChangesCommitted": false,
+  "limitations": [
+    "Installed desktop application was not exercised; synthetic web and file storage only.",
+    "All roles and storage in E2E and screenshots are synthetic."
+  ]
+}

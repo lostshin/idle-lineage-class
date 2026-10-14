@@ -1,0 +1,77 @@
+{
+  "date": "2026-10-13T20:37:04.995Z",
+  "reports": [
+    {
+      "name": "account transfer has independent selection-page buttons",
+      "status": "PASS"
+    },
+    {
+      "name": "selection page has a rename entry",
+      "status": "PASS"
+    },
+    {
+      "name": "main header cannot bypass nickname cost",
+      "status": "PASS"
+    },
+    {
+      "name": "category sorting puts locks first and keeps ordinary same items adjacent",
+      "status": "PASS"
+    },
+    {
+      "name": "quick junk groups enhancement levels but preserves blessed and elemental variants",
+      "status": "PASS"
+    },
+    {
+      "name": "new loot follows only the selected enhancement group and limit",
+      "status": "PASS"
+    },
+    {
+      "name": "clearing all selection cancels previous group intentions",
+      "status": "PASS"
+    },
+    {
+      "name": "battle buff icons expose an effect tooltip",
+      "status": "PASS"
+    },
+    {
+      "name": "mage summoning creates actors in actual battle scene",
+      "status": "PASS"
+    },
+    {
+      "name": "mage summon has visible rendered artwork",
+      "status": "PASS"
+    },
+    {
+      "name": "party details float without moving the team panel",
+      "status": "PASS"
+    },
+    {
+      "name": "team card does not collapse when floating details open",
+      "status": "PASS"
+    },
+    {
+      "name": "ability window uses the same current AC as the live status",
+      "status": "FAIL",
+      "error": "Error: false"
+    },
+    {
+      "name": "one artwork shows total and buff together with no mode switches",
+      "status": "FAIL",
+      "error": "Error: false"
+    },
+    {
+      "name": "desktop inspector opens beside the squad menu",
+      "status": "FAIL",
+      "error": "Error: false"
+    },
+    {
+      "name": "transparency updates immediately and survives live refresh and reopening",
+      "status": "FAIL",
+      "error": "Error: false"
+    },
+    {
+      "name": "party buffs use icons and the original ability window",
+      "status": "PASS"
+    }
+  ]
+}

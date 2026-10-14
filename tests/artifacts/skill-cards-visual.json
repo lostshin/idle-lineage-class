@@ -1,0 +1,17 @@
+{
+  "method": "Ego Page.printToPDF screen media rendered locally by sips",
+  "reports": [
+    {
+      "name": "all three native teammates remain available as stacked cards",
+      "status": "PASS"
+    },
+    {
+      "name": "checkbox labels are single-line and within each card",
+      "status": "PASS"
+    },
+    {
+      "name": "no visual fixture runtime errors",
+      "status": "PASS"
+    }
+  ]
+}

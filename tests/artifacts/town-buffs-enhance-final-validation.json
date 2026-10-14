@@ -1,0 +1,199 @@
+{
+  "completedAt": "2026-10-14T19:10:11.028698+08:00",
+  "acceptance": [
+    "Skill threshold text uses comparison plus percentage with no action suffix",
+    "Village shows the same native buff icons and remaining-time tooltips",
+    "Same-role refresh preserves live ordinary buff durations and does not revive expired stale-source buffs",
+    "Checked ordinary buffs renew in town at expiry with normal resource costs; active buffs do not recast on departure",
+    "Summons/cubes/storms retain their safe-zone restrictions",
+    "Native mouse supports two consecutive enhancements with no reopen",
+    "Single/mass/cursed/accessory enhancement results remain open with current enhancement values, scroll counts and disabled terminal actions",
+    "Stack splitting follows the actual enhanced singleton and existing save writes preserve unknown fields"
+  ],
+  "modifiedFiles": [
+    "js/06-status-allies.js",
+    "js/08-items-equip.js",
+    "js/10-ui-tabs.js",
+    "css/responsive.css",
+    "index.html",
+    "tests/run-rwd.py",
+    "tests/town-buffs-enhance.e2e.js",
+    "tests/visual-town-buffs-enhance.js"
+  ],
+  "groups": [
+    {
+      "report": "tests/artifacts/rwd-report-http.json",
+      "checks": 221,
+      "passed": 221
+    },
+    {
+      "report": "tests/artifacts/ui-scale-report-http.json",
+      "checks": 100,
+      "passed": 100
+    },
+    {
+      "report": "tests/artifacts/gameplay-report-http.json",
+      "checks": 30,
+      "passed": 30
+    },
+    {
+      "report": "tests/artifacts/account-gameplay-http.json",
+      "checks": 60,
+      "passed": 60
+    },
+    {
+      "report": "tests/artifacts/companion-commands-http.json",
+      "checks": 21,
+      "passed": 21
+    },
+    {
+      "report": "tests/artifacts/party-refinements-http.json",
+      "checks": 38,
+      "passed": 38
+    },
+    {
+      "report": "tests/artifacts/skill-cards-http.json",
+      "checks": 23,
+      "passed": 23
+    },
+    {
+      "report": "tests/artifacts/ally-skill-stop-http.json",
+      "checks": 15,
+      "passed": 15
+    },
+    {
+      "report": "tests/artifacts/town-buffs-enhance-http.json",
+      "checks": 34,
+      "passed": 34
+    },
+    {
+      "report": "tests/artifacts/rwd-report-file.json",
+      "checks": 221,
+      "passed": 221
+    },
+    {
+      "report": "tests/artifacts/ui-scale-report-file.json",
+      "checks": 100,
+      "passed": 100
+    },
+    {
+      "report": "tests/artifacts/gameplay-report-file.json",
+      "checks": 30,
+      "passed": 30
+    },
+    {
+      "report": "tests/artifacts/account-gameplay-file.json",
+      "checks": 60,
+      "passed": 60
+    },
+    {
+      "report": "tests/artifacts/companion-commands-file.json",
+      "checks": 21,
+      "passed": 21
+    },
+    {
+      "report": "tests/artifacts/party-refinements-file.json",
+      "checks": 38,
+      "passed": 38
+    },
+    {
+      "report": "tests/artifacts/skill-cards-file.json",
+      "checks": 23,
+      "passed": 23
+    },
+    {
+      "report": "tests/artifacts/ally-skill-stop-file.json",
+      "checks": 15,
+      "passed": 15
+    },
+    {
+      "report": "tests/artifacts/town-buffs-enhance-file.json",
+      "checks": 34,
+      "passed": 34
+    },
+    {
+      "report": "tests/artifacts/account-visual-report.json",
+      "checks": 13,
+      "passed": 13
+    },
+    {
+      "report": "tests/artifacts/town-buffs-enhance-visual.json",
+      "checks": 7,
+      "passed": 7
+    },
+    {
+      "report": "tests/artifacts/town-enhance-pointer.json",
+      "checks": 1,
+      "passed": 1
+    }
+  ],
+  "totalChecks": 1105,
+  "passed": 1105,
+  "integrity": {
+    "syntaxCount": 101,
+    "syntaxFailures": [],
+    "mirroredCount": 65,
+    "mirroredFailures": [],
+    "cacheCount": 105,
+    "cacheFailures": []
+  },
+  "baseline": {
+    "report": "tests/artifacts/town-buffs-enhance-baseline.json",
+    "enhancementOriginalCore": "tests/artifacts/town-enhance-pointer.json",
+    "originalEnhancementBugReproduced": true,
+    "testTimingCorrection": "The existing published modalguard rejects clicks for 450 ms after openModal. Enhancement tests wait for that guard before native clicks; the mirrored module remains unchanged."
+  },
+  "previews": {
+    "previews": [
+      {
+        "source": "./tests/artifacts/village-maintenance-desktop-preview.png",
+        "iCloudPath": "<iCloud preview folder>/村莊增益與技能文案－桌機.png",
+        "sha256Matches": true
+      },
+      {
+        "source": "./tests/artifacts/village-maintenance-desktop-75-preview.png",
+        "iCloudPath": "<iCloud preview folder>/村莊增益與技能文案－桌機75%.png",
+        "sha256Matches": true
+      },
+      {
+        "source": "./tests/artifacts/village-maintenance-mobile-preview.png",
+        "iCloudPath": "<iCloud preview folder>/村莊增益與技能文案－手機.png",
+        "sha256Matches": true
+      },
+      {
+        "source": "./tests/artifacts/village-maintenance-mobile-75-preview.png",
+        "iCloudPath": "<iCloud preview folder>/村莊增益與技能文案－手機75%.png",
+        "sha256Matches": true
+      },
+      {
+        "source": "./tests/artifacts/enhancement-retained-desktop-preview.png",
+        "iCloudPath": "<iCloud preview folder>/連續強化視窗－桌機.png",
+        "sha256Matches": true
+      },
+      {
+        "source": "./tests/artifacts/enhancement-retained-desktop-75-preview.png",
+        "iCloudPath": "<iCloud preview folder>/連續強化視窗－桌機75%.png",
+        "sha256Matches": true
+      },
+      {
+        "source": "./tests/artifacts/enhancement-retained-mobile-preview.png",
+        "iCloudPath": "<iCloud preview folder>/連續強化視窗－手機.png",
+        "sha256Matches": true
+      },
+      {
+        "source": "./tests/artifacts/enhancement-retained-mobile-75-preview.png",
+        "iCloudPath": "<iCloud preview folder>/連續強化視窗－手機75%.png",
+        "sha256Matches": true
+      }
+    ],
+    "remoteSyncVerified": false
+  },
+  "testCommands": "tests/artifacts/town-buffs-enhance-final-runs.json",
+  "limitations": [
+    "Installed desktop app not exercised; HTTP and file browser paths validated",
+    "Preview PNGs are local rasterizations of Ego screen-media PDFs",
+    "iCloud local copies verified by hash; remote sync not independently verified"
+  ],
+  "committed": false,
+  "pushed": false
+}

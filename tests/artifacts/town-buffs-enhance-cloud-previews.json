@@ -1,0 +1,45 @@
+{
+  "previews": [
+    {
+      "source": "./tests/artifacts/village-maintenance-desktop-preview.png",
+      "iCloudPath": "<iCloud preview folder>/村莊增益與技能文案－桌機.png",
+      "sha256Matches": true
+    },
+    {
+      "source": "./tests/artifacts/village-maintenance-desktop-75-preview.png",
+      "iCloudPath": "<iCloud preview folder>/村莊增益與技能文案－桌機75%.png",
+      "sha256Matches": true
+    },
+    {
+      "source": "./tests/artifacts/village-maintenance-mobile-preview.png",
+      "iCloudPath": "<iCloud preview folder>/村莊增益與技能文案－手機.png",
+      "sha256Matches": true
+    },
+    {
+      "source": "./tests/artifacts/village-maintenance-mobile-75-preview.png",
+      "iCloudPath": "<iCloud preview folder>/村莊增益與技能文案－手機75%.png",
+      "sha256Matches": true
+    },
+    {
+      "source": "./tests/artifacts/enhancement-retained-desktop-preview.png",
+      "iCloudPath": "<iCloud preview folder>/連續強化視窗－桌機.png",
+      "sha256Matches": true
+    },
+    {
+      "source": "./tests/artifacts/enhancement-retained-desktop-75-preview.png",
+      "iCloudPath": "<iCloud preview folder>/連續強化視窗－桌機75%.png",
+      "sha256Matches": true
+    },
+    {
+      "source": "./tests/artifacts/enhancement-retained-mobile-preview.png",
+      "iCloudPath": "<iCloud preview folder>/連續強化視窗－手機.png",
+      "sha256Matches": true
+    },
+    {
+      "source": "./tests/artifacts/enhancement-retained-mobile-75-preview.png",
+      "iCloudPath": "<iCloud preview folder>/連續強化視窗－手機75%.png",
+      "sha256Matches": true
+    }
+  ],
+  "remoteSyncVerified": false
+}

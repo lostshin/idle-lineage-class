@@ -1,0 +1,33 @@
+{
+  "requests": [
+    "equipment artwork stays readable without distorted slots when resizing",
+    "companion names grow from 12px to 14px"
+  ],
+  "modifiedFiles": [
+    "js/party-inspector.js",
+    "css/responsive.css",
+    "index.html",
+    "tests/party-equipment.e2e.js",
+    "tests/visual-party-equipment.js"
+  ],
+  "baseline": "tests/artifacts/party-equipment-resize-baseline.json",
+  "syntaxChecks": [
+    {
+      "command": "node --check js/party-inspector.js",
+      "exitCode": 0
+    },
+    {
+      "command": "node --check tests/party-equipment.e2e.js",
+      "exitCode": 0
+    },
+    {
+      "command": "node --check tests/visual-party-equipment.js",
+      "exitCode": 0
+    }
+  ],
+  "cacheVersions": 105,
+  "cacheMatches": true,
+  "browserVerification": "Completed in tests/artifacts/party-equipment-redesign-final-validation.json",
+  "git": "uncommitted and unpushed",
+  "status": "superseded by the requested equipment redesign"
+}

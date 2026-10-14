@@ -1,0 +1,21 @@
+{
+  "reports": [
+    {
+      "name": "A uses the original frame and dark compact cards for every teammate",
+      "status": "PASS"
+    },
+    {
+      "name": "auto-maintenance options form equal-width aligned cells",
+      "status": "PASS"
+    },
+    {
+      "name": "checkboxes display exactly the native learned auto-cast skills",
+      "status": "PASS"
+    },
+    {
+      "name": "long learned illusion skill names remain single-line and fully inside aligned checkbox cells",
+      "status": "FAIL",
+      "error": "Error: false"
+    }
+  ]
+}

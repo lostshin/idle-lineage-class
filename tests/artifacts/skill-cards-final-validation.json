@@ -1,0 +1,172 @@
+{
+  "completedAt": "2026-10-14T18:16:00.890893+08:00",
+  "selected": "A 緊湊卡片",
+  "acceptance": [
+    "Original Lineage frame, dark cards and consistent name/class/level heading",
+    "Aligned learned-skill dropdowns and native percentage settings",
+    "Stop threshold remains on the right of conversion; native shared HP semantics unchanged",
+    "Equal-width single-line checkbox cells adapt to the longest learned skill name",
+    "Potion condition uses a side column in wide cards and a lower row in narrow cards",
+    "Preference edits and checkbox toggles save through existing native handlers"
+  ],
+  "modifiedFiles": [
+    "js/10-ui-tabs.js",
+    "css/responsive.css",
+    "index.html",
+    "output/imagegen/skill-settings-20261014/metadata.json",
+    "tests/skill-cards.e2e.js",
+    "tests/visual-skill-cards.js",
+    "tests/run-rwd.py"
+  ],
+  "groups": [
+    {
+      "report": "tests/artifacts/rwd-report-http.json",
+      "checks": 221,
+      "passed": 221
+    },
+    {
+      "report": "tests/artifacts/ui-scale-report-http.json",
+      "checks": 100,
+      "passed": 100
+    },
+    {
+      "report": "tests/artifacts/gameplay-report-http.json",
+      "checks": 30,
+      "passed": 30
+    },
+    {
+      "report": "tests/artifacts/account-gameplay-http.json",
+      "checks": 60,
+      "passed": 60
+    },
+    {
+      "report": "tests/artifacts/companion-commands-http.json",
+      "checks": 21,
+      "passed": 21
+    },
+    {
+      "report": "tests/artifacts/party-refinements-http.json",
+      "checks": 38,
+      "passed": 38
+    },
+    {
+      "report": "tests/artifacts/skill-cards-http.json",
+      "checks": 23,
+      "passed": 23
+    },
+    {
+      "report": "tests/artifacts/ally-skill-stop-http.json",
+      "checks": 15,
+      "passed": 15
+    },
+    {
+      "report": "tests/artifacts/rwd-report-file.json",
+      "checks": 221,
+      "passed": 221
+    },
+    {
+      "report": "tests/artifacts/ui-scale-report-file.json",
+      "checks": 100,
+      "passed": 100
+    },
+    {
+      "report": "tests/artifacts/gameplay-report-file.json",
+      "checks": 30,
+      "passed": 30
+    },
+    {
+      "report": "tests/artifacts/account-gameplay-file.json",
+      "checks": 60,
+      "passed": 60
+    },
+    {
+      "report": "tests/artifacts/companion-commands-file.json",
+      "checks": 21,
+      "passed": 21
+    },
+    {
+      "report": "tests/artifacts/party-refinements-file.json",
+      "checks": 38,
+      "passed": 38
+    },
+    {
+      "report": "tests/artifacts/skill-cards-file.json",
+      "checks": 23,
+      "passed": 23
+    },
+    {
+      "report": "tests/artifacts/ally-skill-stop-file.json",
+      "checks": 15,
+      "passed": 15
+    },
+    {
+      "report": "tests/artifacts/account-visual-report.json",
+      "checks": 13,
+      "passed": 13
+    },
+    {
+      "report": "tests/artifacts/skill-cards-visual.json",
+      "checks": 3,
+      "passed": 3
+    }
+  ],
+  "totalChecks": 1032,
+  "passed": 1032,
+  "baselineReports": [
+    "tests/artifacts/skill-cards-design-baseline.json",
+    "tests/artifacts/skill-cards-baseline.json"
+  ],
+  "integrity": {
+    "combatUnchanged": {
+      "js/06-status-allies.js": true,
+      "js/07-skills-cast.js": true,
+      "js/22-pets.js": true,
+      "js/23-summons.js": true
+    },
+    "syntaxCount": 101,
+    "syntaxFailures": [],
+    "cacheCount": 105,
+    "cacheFailures": [],
+    "mirroredCount": 65,
+    "mirroredFailures": []
+  },
+  "previews": {
+    "previews": [
+      {
+        "source": "./tests/artifacts/skill-cards-desktop-preview.png",
+        "iCloudPath": "<iCloud preview folder>/技能設定－A－實作版－桌機.png",
+        "sha256Matches": true
+      },
+      {
+        "source": "./tests/artifacts/skill-cards-desktop-75-preview.png",
+        "iCloudPath": "<iCloud preview folder>/技能設定－A－實作版－桌機75%.png",
+        "sha256Matches": true
+      },
+      {
+        "source": "./tests/artifacts/skill-cards-wide-preview.png",
+        "iCloudPath": "<iCloud preview folder>/技能設定－A－實作版－寬欄位.png",
+        "sha256Matches": true
+      },
+      {
+        "source": "./tests/artifacts/skill-cards-mobile-preview.png",
+        "iCloudPath": "<iCloud preview folder>/技能設定－A－實作版－手機.png",
+        "sha256Matches": true
+      },
+      {
+        "source": "./tests/artifacts/skill-cards-mobile-75-preview.png",
+        "iCloudPath": "<iCloud preview folder>/技能設定－A－實作版－手機75%.png",
+        "sha256Matches": true
+      }
+    ],
+    "remoteSyncVerified": false
+  },
+  "testCommands": "tests/artifacts/skill-cards-final-runs.json",
+  "toolRecovery": "tests/artifacts/skill-cards-tool-recovery.json",
+  "limitations": [
+    "Installed desktop app not exercised; HTTP and file browser paths validated",
+    "PNG previews generated from Ego screen-media PDFs via sips; direct browser image capture unavailable in this session",
+    "Local iCloud copies verified; remote sync not independently verified"
+  ],
+  "committed": false,
+  "pushed": false
+}

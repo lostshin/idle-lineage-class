@@ -1,0 +1,109 @@
+{
+  "date": "2026-10-13T10:26:18.413039+00:00",
+  "status": "PASS",
+  "changes": [
+    "點擊隊友名稱查看即時 HP/MP、AC/MR、固定減傷、增益及異常狀態與剩餘時間；開啟資訊不暫停戰鬥。",
+    "武器、防具與道具提供一鍵排列；快速廢品可選全部或 +0～+20 以下，鎖定與 noJunk 道具維持保護。",
+    "未命名角色顯示點擊命名，提供確認及取消、Enter/Escape、中文輸入法支援；存檔失敗保留輸入並提示。",
+    "裝備頁開啟當下校正尺寸，避免等候動畫影格期間超出面板。"
+  ],
+  "modifiedFiles": [
+    "index.html",
+    "css/responsive.css",
+    "js/party-inspector.js",
+    "js/08-items-equip.js",
+    "js/10-ui-tabs.js",
+    "js/14-craft-pandora.js",
+    "js/19-equipment-window.js",
+    "js/22-pets.js",
+    "js/23-summons.js",
+    "js/31-castle-guards.js",
+    "tests/gameplay.e2e.js",
+    "tests/run-rwd.py",
+    "tests/rwd.e2e.js",
+    "tests/ui-scale.e2e.js"
+  ],
+  "baseline": "tests/artifacts/gameplay-baseline.json",
+  "e2eChecks": 716,
+  "results": [
+    {
+      "suite": "gameplay",
+      "protocol": "http",
+      "passed": 37,
+      "failed": 0,
+      "report": "tests/artifacts/gameplay-report-http.json",
+      "testedAt": "2026-10-13T10:23:19.058Z"
+    },
+    {
+      "suite": "gameplay",
+      "protocol": "file",
+      "passed": 37,
+      "failed": 0,
+      "report": "tests/artifacts/gameplay-report-file.json",
+      "testedAt": "2026-10-13T10:23:26.730Z"
+    },
+    {
+      "suite": "rwd",
+      "protocol": "http",
+      "passed": 221,
+      "failed": 0,
+      "report": "tests/artifacts/rwd-report-http.json",
+      "testedAt": "2026-10-13T10:11:07.743Z"
+    },
+    {
+      "suite": "rwd",
+      "protocol": "file",
+      "passed": 221,
+      "failed": 0,
+      "report": "tests/artifacts/rwd-report-file.json",
+      "testedAt": "2026-10-13T10:12:48.223Z"
+    },
+    {
+      "suite": "ui-scale",
+      "protocol": "http",
+      "passed": 100,
+      "failed": 0,
+      "report": "tests/artifacts/ui-scale-report-http.json",
+      "testedAt": "2026-10-13T10:14:21.147Z"
+    },
+    {
+      "suite": "ui-scale",
+      "protocol": "file",
+      "passed": 100,
+      "failed": 0,
+      "report": "tests/artifacts/ui-scale-report-file.json",
+      "testedAt": "2026-10-13T10:15:52.825Z"
+    }
+  ],
+  "additionalLayoutChecks": {
+    "passed": 6,
+    "report": "tests/artifacts/gameplay-toolbar-layout.json"
+  },
+  "staticChecks": [
+    "JavaScript syntax checks passed",
+    "Python runner syntax passed",
+    "git diff --check passed"
+  ],
+  "screenshots": [
+    "tests/artifacts/gameplay-party-desktop.png",
+    "tests/artifacts/gameplay-sort-desktop.png",
+    "tests/artifacts/gameplay-quick-junk.png",
+    "tests/artifacts/gameplay-name.png",
+    "tests/artifacts/gameplay-party-390x844-100.png",
+    "tests/artifacts/gameplay-party-390x844-75.png",
+    "tests/artifacts/gameplay-party-844x390-75.png"
+  ],
+  "visualReview": "已查看桌機、390×844 直向與 844×390 橫向截圖；關閉按鈕可見，內容可捲動；排列與廢品按鈕不斷行。",
+  "rerun": [
+    "python3 tests/run-rwd.py --suite gameplay --protocol http",
+    "python3 tests/run-rwd.py --suite gameplay --protocol file",
+    "python3 tests/run-rwd.py --suite rwd --protocol http --skip-screenshots",
+    "python3 tests/run-rwd.py --suite rwd --protocol file --skip-screenshots",
+    "python3 tests/run-rwd.py --suite ui-scale --protocol http --skip-screenshots",
+    "python3 tests/run-rwd.py --suite ui-scale --protocol file --skip-screenshots"
+  ],
+  "isolation": "所有角色與儲存資料均為合成測試資料；未讀寫使用者 iCloud 存檔。",
+  "remaining": [
+    "實際安裝版封裝與實機 Safari 尚未驗證。"
+  ]
+}

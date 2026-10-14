@@ -1,0 +1,165 @@
+{
+  "change": "Move the ally HP stop control to the right of conversion selection; show HP≤ and explain shared HP-cost safety gates.",
+  "findings": [
+    "Conversion skills stop when HP is at or below the configured percentage; require MP below 90 percent.",
+    "Zero disables the custom conversion threshold.",
+    "Dragon HP attacks, HP-consuming buffs and harmony cube also use the preference and retain a minimum 25 percent safety threshold.",
+    "Normal healing continues independently."
+  ],
+  "combatLogicUnchanged": {
+    "path": "js/06-status-allies.js",
+    "beforeSha256": "79d9cf0ba6f05c94ce28eec4be30147851f8210f498e0e1aca56b8219b81c55c",
+    "afterSha256": "79d9cf0ba6f05c94ce28eec4be30147851f8210f498e0e1aca56b8219b81c55c",
+    "unchanged": true
+  },
+  "counts": {
+    "checks": 909,
+    "passed": 909,
+    "failed": 0
+  },
+  "behaviorSuites": [
+    {
+      "suite": "ally-skill-stop",
+      "protocol": "http",
+      "report": "tests/artifacts/ally-skill-stop-http.json",
+      "checks": 15,
+      "passed": 15
+    },
+    {
+      "suite": "rwd",
+      "protocol": "http",
+      "report": "tests/artifacts/rwd-report-http.json",
+      "checks": 221,
+      "passed": 221
+    },
+    {
+      "suite": "ui-scale",
+      "protocol": "http",
+      "report": "tests/artifacts/ui-scale-report-http.json",
+      "checks": 100,
+      "passed": 100
+    },
+    {
+      "suite": "gameplay",
+      "protocol": "http",
+      "report": "tests/artifacts/gameplay-report-http.json",
+      "checks": 30,
+      "passed": 30
+    },
+    {
+      "suite": "account-gameplay",
+      "protocol": "http",
+      "report": "tests/artifacts/account-gameplay-http.json",
+      "checks": 60,
+      "passed": 60
+    },
+    {
+      "suite": "companion-commands",
+      "protocol": "http",
+      "report": "tests/artifacts/companion-commands-http.json",
+      "checks": 21,
+      "passed": 21
+    },
+    {
+      "suite": "ally-skill-stop",
+      "protocol": "file",
+      "report": "tests/artifacts/ally-skill-stop-file.json",
+      "checks": 15,
+      "passed": 15
+    },
+    {
+      "suite": "rwd",
+      "protocol": "file",
+      "report": "tests/artifacts/rwd-report-file.json",
+      "checks": 221,
+      "passed": 221
+    },
+    {
+      "suite": "ui-scale",
+      "protocol": "file",
+      "report": "tests/artifacts/ui-scale-report-file.json",
+      "checks": 100,
+      "passed": 100
+    },
+    {
+      "suite": "gameplay",
+      "protocol": "file",
+      "report": "tests/artifacts/gameplay-report-file.json",
+      "checks": 30,
+      "passed": 30
+    },
+    {
+      "suite": "account-gameplay",
+      "protocol": "file",
+      "report": "tests/artifacts/account-gameplay-file.json",
+      "checks": 60,
+      "passed": 60
+    },
+    {
+      "suite": "companion-commands",
+      "protocol": "file",
+      "report": "tests/artifacts/companion-commands-file.json",
+      "checks": 21,
+      "passed": 21
+    }
+  ],
+  "visualChecks": [
+    {
+      "report": "tests/artifacts/account-visual-report.json",
+      "checks": 13,
+      "passed": 13
+    },
+    {
+      "report": "tests/artifacts/ally-skill-stop-visual.json",
+      "checks": 2,
+      "passed": 2
+    }
+  ],
+  "commands": "tests/artifacts/ally-skill-stop-final-runs.json",
+  "integrity": {
+    "syntaxFiles": 103,
+    "syntaxErrors": [],
+    "mirroredFiles": 65,
+    "mirroredDifferences": [],
+    "cacheVersions": 105,
+    "cacheMatches": true,
+    "combatLogicUnchanged": true
+  },
+  "modifiedFiles": [
+    "js/10-ui-tabs.js",
+    "index.html",
+    "tests/run-rwd.py",
+    "tests/ally-skill-stop.e2e.js",
+    "tests/visual-ally-skill-stop.js"
+  ],
+  "baseline": "tests/artifacts/ally-skill-stop-baseline.json",
+  "previews": [
+    {
+      "source": "tests/artifacts/ally-skill-stop-desktop-preview.png",
+      "iCloudPath": "<iCloud preview folder>/技能停止條件－桌機.png",
+      "sha256Matches": true
+    },
+    {
+      "source": "tests/artifacts/ally-skill-stop-desktop-75-preview.png",
+      "iCloudPath": "<iCloud preview folder>/技能停止條件－桌機75%.png",
+      "sha256Matches": true
+    },
+    {
+      "source": "tests/artifacts/ally-skill-stop-mobile-preview.png",
+      "iCloudPath": "<iCloud preview folder>/技能停止條件－手機.png",
+      "sha256Matches": true
+    },
+    {
+      "source": "tests/artifacts/ally-skill-stop-mobile-75-preview.png",
+      "iCloudPath": "<iCloud preview folder>/技能停止條件－手機75%.png",
+      "sha256Matches": true
+    }
+  ],
+  "previewMethod": "Ego Page.printToPDF with screen media, rendered locally with sips; mobile preview scroll accounts for sticky vitals bar.",
+  "limitations": [
+    "Page-print previews are not direct screenshots.",
+    "Installed desktop app not tested.",
+    "Local iCloud copies verified; remote synchronization not independently verified."
+  ],
+  "git": "Uncommitted and unpushed"
+}

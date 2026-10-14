@@ -1,0 +1,140 @@
+{
+  "reports": [
+    {
+      "name": "skill conditions omit action suffixes and retain percentage comparisons",
+      "status": "PASS"
+    },
+    {
+      "name": "returning to town preserves the teammate live buff duration",
+      "status": "PASS"
+    },
+    {
+      "name": "returning to town does not reset the player buff duration",
+      "status": "PASS"
+    },
+    {
+      "name": "the existing buff icon bar is visible on the village scene",
+      "status": "PASS"
+    },
+    {
+      "name": "repeated town refreshes retain the current remaining time",
+      "status": "PASS"
+    },
+    {
+      "name": "an expired live buff is not resurrected from stale source-role storage",
+      "status": "PASS"
+    },
+    {
+      "name": "checked player buffs renew only when they expire in town",
+      "status": "PASS"
+    },
+    {
+      "name": "checked teammate buffs also renew in town with their native MP cost",
+      "status": "PASS"
+    },
+    {
+      "name": "active buffs are not cast again on subsequent town ticks",
+      "status": "PASS"
+    },
+    {
+      "name": "leaving town reuses active buffs without another MP charge",
+      "status": "PASS"
+    },
+    {
+      "name": "unchecked expired buffs disappear from both native and floating views",
+      "status": "PASS"
+    },
+    {
+      "name": "insufficient MP allows expiration and never creates a free buff",
+      "status": "PASS"
+    },
+    {
+      "name": "town maintenance retains silence and crowd-control restrictions",
+      "status": "PASS"
+    },
+    {
+      "name": "summoning remains blocked in the safe zone",
+      "status": "PASS"
+    },
+    {
+      "name": "single enhancement keeps the window open and refreshes enhancement and scroll count",
+      "status": "PASS"
+    },
+    {
+      "name": "a second click enhances the same item once and persists unknown fields",
+      "status": "PASS"
+    },
+    {
+      "name": "stack splitting follows the enhanced singleton and protects remaining items",
+      "status": "PASS"
+    },
+    {
+      "name": "running out of scrolls retains the result without an enabled enhancement action",
+      "status": "PASS"
+    },
+    {
+      "name": "reaching the enhancement cap leaves a visible terminal result",
+      "status": "PASS"
+    },
+    {
+      "name": "a no-change roll preserves the window and still consumes exactly one scroll",
+      "status": "PASS"
+    },
+    {
+      "name": "destroyed equipment leaves its result and cannot be enhanced again",
+      "status": "PASS"
+    },
+    {
+      "name": "one-click enhancement keeps equipped-item options open with the completed goal",
+      "status": "PASS"
+    },
+    {
+      "name": "cursed-scroll lowering keeps the same window and respects the minus-one limit",
+      "status": "PASS"
+    },
+    {
+      "name": "accessory refresh does not recursively consume more than one scroll",
+      "status": "PASS"
+    },
+    {
+      "name": "a subsequent accessory click consumes only one additional scroll",
+      "status": "PASS"
+    },
+    {
+      "name": "1920px 100% retained enhancement view fits the viewport",
+      "status": "PASS"
+    },
+    {
+      "name": "1920px 100% village buff icons remain visible within the scene",
+      "status": "PASS"
+    },
+    {
+      "name": "1920px 75% retained enhancement view fits the viewport",
+      "status": "PASS"
+    },
+    {
+      "name": "1920px 75% village buff icons remain visible within the scene",
+      "status": "PASS"
+    },
+    {
+      "name": "390px 100% retained enhancement view fits the viewport",
+      "status": "PASS"
+    },
+    {
+      "name": "390px 100% village buff icons remain visible within the scene",
+      "status": "PASS"
+    },
+    {
+      "name": "390px 75% retained enhancement view fits the viewport",
+      "status": "PASS"
+    },
+    {
+      "name": "390px 75% village buff icons remain visible within the scene",
+      "status": "PASS"
+    },
+    {
+      "name": "no duplicate ids or browser runtime errors",
+      "status": "PASS"
+    }
+  ]
+}

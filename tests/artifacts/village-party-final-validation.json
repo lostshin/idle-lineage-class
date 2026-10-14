@@ -1,0 +1,252 @@
+{
+  "requests": [
+    "teammate equipment matches original right-side slot artwork and hover information",
+    "consistent companion typography without underlines",
+    "village names visible independently of battle status display",
+    "clan Buff toggle aligned without wrapping",
+    "per-role warehouse amount remembered across rerenders and reloads"
+  ],
+  "counts": {
+    "checks": 1103,
+    "passed": 1103,
+    "failed": 0
+  },
+  "behaviorSuites": [
+    {
+      "suite": "village-clan-warehouse",
+      "protocol": "http",
+      "report": "tests/artifacts/village-clan-warehouse-http.json",
+      "checks": 17,
+      "passed": 17
+    },
+    {
+      "suite": "party-equipment",
+      "protocol": "http",
+      "report": "tests/artifacts/party-equipment-http.json",
+      "checks": 27,
+      "passed": 27
+    },
+    {
+      "suite": "rwd",
+      "protocol": "http",
+      "report": "tests/artifacts/rwd-report-http.json",
+      "checks": 221,
+      "passed": 221
+    },
+    {
+      "suite": "ui-scale",
+      "protocol": "http",
+      "report": "tests/artifacts/ui-scale-report-http.json",
+      "checks": 100,
+      "passed": 100
+    },
+    {
+      "suite": "gameplay",
+      "protocol": "http",
+      "report": "tests/artifacts/gameplay-report-http.json",
+      "checks": 30,
+      "passed": 30
+    },
+    {
+      "suite": "account-gameplay",
+      "protocol": "http",
+      "report": "tests/artifacts/account-gameplay-http.json",
+      "checks": 60,
+      "passed": 60
+    },
+    {
+      "suite": "companion-commands",
+      "protocol": "http",
+      "report": "tests/artifacts/companion-commands-http.json",
+      "checks": 21,
+      "passed": 21
+    },
+    {
+      "suite": "party-refinements",
+      "protocol": "http",
+      "report": "tests/artifacts/party-refinements-http.json",
+      "checks": 38,
+      "passed": 38
+    },
+    {
+      "suite": "compact-layout",
+      "protocol": "http",
+      "report": "tests/artifacts/compact-layout-http.json",
+      "checks": 28,
+      "passed": 28
+    },
+    {
+      "suite": "village-clan-warehouse",
+      "protocol": "file",
+      "report": "tests/artifacts/village-clan-warehouse-file.json",
+      "checks": 17,
+      "passed": 17
+    },
+    {
+      "suite": "party-equipment",
+      "protocol": "file",
+      "report": "tests/artifacts/party-equipment-file.json",
+      "checks": 27,
+      "passed": 27
+    },
+    {
+      "suite": "rwd",
+      "protocol": "file",
+      "report": "tests/artifacts/rwd-report-file.json",
+      "checks": 221,
+      "passed": 221
+    },
+    {
+      "suite": "ui-scale",
+      "protocol": "file",
+      "report": "tests/artifacts/ui-scale-report-file.json",
+      "checks": 100,
+      "passed": 100
+    },
+    {
+      "suite": "gameplay",
+      "protocol": "file",
+      "report": "tests/artifacts/gameplay-report-file.json",
+      "checks": 30,
+      "passed": 30
+    },
+    {
+      "suite": "account-gameplay",
+      "protocol": "file",
+      "report": "tests/artifacts/account-gameplay-file.json",
+      "checks": 60,
+      "passed": 60
+    },
+    {
+      "suite": "companion-commands",
+      "protocol": "file",
+      "report": "tests/artifacts/companion-commands-file.json",
+      "checks": 21,
+      "passed": 21
+    },
+    {
+      "suite": "party-refinements",
+      "protocol": "file",
+      "report": "tests/artifacts/party-refinements-file.json",
+      "checks": 38,
+      "passed": 38
+    },
+    {
+      "suite": "compact-layout",
+      "protocol": "file",
+      "report": "tests/artifacts/compact-layout-file.json",
+      "checks": 28,
+      "passed": 28
+    }
+  ],
+  "visualChecks": [
+    {
+      "report": "tests/artifacts/account-visual-report.json",
+      "checks": 13,
+      "passed": 13
+    },
+    {
+      "report": "tests/artifacts/roster-c-visual.json",
+      "checks": 3,
+      "passed": 3
+    },
+    {
+      "report": "tests/artifacts/village-clan-warehouse-visual.json",
+      "checks": 3,
+      "passed": 3
+    }
+  ],
+  "commands": "tests/artifacts/village-party-final-runs.json",
+  "integrity": {
+    "syntaxFiles": 103,
+    "syntaxErrors": [],
+    "mirroredFiles": 65,
+    "mirroredDifferences": [],
+    "cacheVersions": 105,
+    "cacheMatches": true,
+    "originalArtworkChanged": []
+  },
+  "modifiedFiles": [
+    "js/01-drops-config.js",
+    "js/11-world-map.js",
+    "js/12-npc-quests.js",
+    "js/25-clan-system.js",
+    "js/party-inspector.js",
+    "js/party-roster.js",
+    "js/19-equipment-window.js",
+    "js/14-craft-pandora.js",
+    "css/responsive.css",
+    "index.html",
+    "tests/party-equipment.e2e.js",
+    "tests/visual-party-equipment.js",
+    "tests/visual-account-gameplay.js",
+    "tests/village-clan-warehouse.e2e.js",
+    "tests/visual-village-clan-warehouse.js",
+    "tests/run-rwd.py"
+  ],
+  "baselines": [
+    "tests/artifacts/party-equipment-baseline.json",
+    "tests/artifacts/village-ui-original-baseline.json",
+    "tests/artifacts/village-clan-warehouse-baseline.json"
+  ],
+  "baselineNotes": "Original village visibility and clan toggle failures reproduced before fixes; original HEAD warehouse renderer restored only inside the isolated baseline page to reproduce its hard-coded 1000 reset.",
+  "previewMethod": "Ego Page.printToPDF with screen media rendered locally by sips; responsive frame stability checked before export",
+  "iCloudPreviews": [
+    {
+      "source": "tests/artifacts/roster-c-desktop-preview.png",
+      "iCloudPath": "<iCloud preview folder>/C－實作版－桌機.png",
+      "sha256Matches": true
+    },
+    {
+      "source": "tests/artifacts/party-equipment-desktop-preview.png",
+      "iCloudPath": "<iCloud preview folder>/隊友裝備－桌機.png",
+      "sha256Matches": true
+    },
+    {
+      "source": "tests/artifacts/party-equipment-mobile-preview.png",
+      "iCloudPath": "<iCloud preview folder>/隊友裝備－手機.png",
+      "sha256Matches": true
+    },
+    {
+      "source": "tests/artifacts/roster-c-desktop-75-preview.png",
+      "iCloudPath": "<iCloud preview folder>/C－實作版－桌機75%.png",
+      "sha256Matches": true
+    },
+    {
+      "source": "tests/artifacts/party-equipment-desktop-75-preview.png",
+      "iCloudPath": "<iCloud preview folder>/隊友裝備－桌機75%.png",
+      "sha256Matches": true
+    },
+    {
+      "source": "tests/artifacts/party-equipment-mobile-75-preview.png",
+      "iCloudPath": "<iCloud preview folder>/隊友裝備－手機75%.png",
+      "sha256Matches": true
+    },
+    {
+      "source": "tests/artifacts/village-clan-desktop-preview.png",
+      "iCloudPath": "<iCloud preview folder>/村莊名字與血盟－桌機.png",
+      "sha256Matches": true
+    },
+    {
+      "source": "tests/artifacts/clan-buff-mobile-preview.png",
+      "iCloudPath": "<iCloud preview folder>/血盟Buff－手機.png",
+      "sha256Matches": true
+    },
+    {
+      "source": "tests/artifacts/warehouse-amount-desktop-preview.png",
+      "iCloudPath": "<iCloud preview folder>/倉庫記憶金額－桌機.png",
+      "sha256Matches": true
+    },
+    {
+      "source": "tests/artifacts/warehouse-amount-mobile-preview.png",
+      "iCloudPath": "<iCloud preview folder>/倉庫記憶金額－手機.png",
+      "sha256Matches": true
+    }
+  ],
+  "limitations": [
+    "Direct screenshot capture unavailable in prior runs; previews use page printing and may render shadows differently.",
+    "Installed desktop app not tested.",
+    "Local iCloud copies verified; remote synchronization not independently verified."
+  ],
+  "git": "Changes remain uncommitted and unpushed"
+}

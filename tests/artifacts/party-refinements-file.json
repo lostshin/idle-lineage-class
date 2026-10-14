@@ -1,0 +1,156 @@
+{
+  "reports": [
+    {
+      "name": "recruitment preserves source experience progress",
+      "status": "PASS"
+    },
+    {
+      "name": "checkboxes form two aligned columns",
+      "status": "PASS"
+    },
+    {
+      "name": "squad uses spare left column height",
+      "status": "PASS"
+    },
+    {
+      "name": "opacity control is in settings instead of floating details",
+      "status": "PASS"
+    },
+    {
+      "name": "all four sides and four corners resize the floating window",
+      "status": "PASS"
+    },
+    {
+      "name": "buff seconds are hidden on icons and expiration flashes",
+      "status": "PASS"
+    },
+    {
+      "name": "hover tooltip displays remaining seconds",
+      "status": "PASS"
+    },
+    {
+      "name": "detail values fit the original dark value cells",
+      "status": "PASS"
+    },
+    {
+      "name": "source progress contributes to immediate level-up",
+      "status": "PASS"
+    },
+    {
+      "name": "town settlement matches live level and progress",
+      "status": "PASS"
+    },
+    {
+      "name": "repeated town returns do not grant experience twice",
+      "status": "PASS"
+    },
+    {
+      "name": "failed source write keeps pending progress visible",
+      "status": "PASS"
+    },
+    {
+      "name": "pending ledger is not counted twice on another refresh",
+      "status": "PASS"
+    },
+    {
+      "name": "experience projection survives leader reload",
+      "status": "PASS"
+    },
+    {
+      "name": "claiming pending experience preserves progress without duplication",
+      "status": "PASS"
+    },
+    {
+      "name": "only normal haste is shared to pets and all summoned companions",
+      "status": "PASS"
+    },
+    {
+      "name": "strong haste alone is not shared to companions",
+      "status": "PASS"
+    },
+    {
+      "name": "normal haste automation also works when the caster already has another haste source",
+      "status": "PASS"
+    },
+    {
+      "name": "repeated sharing does not spend MP on already hasted companions",
+      "status": "PASS"
+    },
+    {
+      "name": "haste increases real pet and summon attack frequency",
+      "status": "PASS"
+    },
+    {
+      "name": "haste expires and restores normal speed",
+      "status": "PASS"
+    },
+    {
+      "name": "resizing edge e works",
+      "status": "PASS"
+    },
+    {
+      "name": "resizing edge w works",
+      "status": "PASS"
+    },
+    {
+      "name": "resizing edge n works",
+      "status": "PASS"
+    },
+    {
+      "name": "resizing edge s works",
+      "status": "PASS"
+    },
+    {
+      "name": "resizing edge ne works",
+      "status": "PASS"
+    },
+    {
+      "name": "resizing edge nw works",
+      "status": "PASS"
+    },
+    {
+      "name": "resizing edge se works",
+      "status": "PASS"
+    },
+    {
+      "name": "resizing edge sw works",
+      "status": "PASS"
+    },
+    {
+      "name": "settings transparency updates and persists",
+      "status": "PASS"
+    },
+    {
+      "name": "failed floating preference write preserves the previous saved setting and reports failure",
+      "status": "PASS"
+    },
+    {
+      "name": "floating size and opacity survive a full reload",
+      "status": "PASS"
+    },
+    {
+      "name": "1920 100% floating contents remain bounded",
+      "status": "PASS"
+    },
+    {
+      "name": "1330 75% floating contents remain bounded",
+      "status": "PASS"
+    },
+    {
+      "name": "390 100% floating contents remain bounded",
+      "status": "PASS"
+    },
+    {
+      "name": "390 75% floating contents remain bounded",
+      "status": "PASS"
+    },
+    {
+      "name": "844 75% floating contents remain bounded",
+      "status": "PASS"
+    },
+    {
+      "name": "no runtime errors",
+      "status": "PASS"
+    }
+  ]
+}

@@ -1,0 +1,96 @@
+{
+  "reports": [
+    {
+      "name": "A uses the original frame and dark compact cards for every teammate",
+      "status": "PASS"
+    },
+    {
+      "name": "auto-maintenance options form equal-width aligned cells",
+      "status": "PASS"
+    },
+    {
+      "name": "checkboxes display exactly the native learned auto-cast skills",
+      "status": "PASS"
+    },
+    {
+      "name": "long learned illusion skill names remain single-line and fully inside aligned checkbox cells",
+      "status": "PASS"
+    },
+    {
+      "name": "setAllyCastMp changes and saves the native preference",
+      "status": "PASS"
+    },
+    {
+      "name": "setAllyHealHp changes and saves the native preference",
+      "status": "PASS"
+    },
+    {
+      "name": "setAllyHpSkill changes and saves the native preference",
+      "status": "PASS"
+    },
+    {
+      "name": "setAllyPotHp changes and saves the native preference",
+      "status": "PASS"
+    },
+    {
+      "name": "conversion selection changes and saves the native skill",
+      "status": "PASS"
+    },
+    {
+      "name": "toggling an aligned checkbox updates its native preference and rebuilt appearance",
+      "status": "PASS"
+    },
+    {
+      "name": "1920px 100% card fields and checkbox names fit without wrapping",
+      "status": "PASS"
+    },
+    {
+      "name": "1920px 75% card fields and checkbox names fit without wrapping",
+      "status": "PASS"
+    },
+    {
+      "name": "1330px 100% card fields and checkbox names fit without wrapping",
+      "status": "PASS"
+    },
+    {
+      "name": "1330px 75% card fields and checkbox names fit without wrapping",
+      "status": "PASS"
+    },
+    {
+      "name": "390px 100% card fields and checkbox names fit without wrapping",
+      "status": "PASS"
+    },
+    {
+      "name": "390px 75% card fields and checkbox names fit without wrapping",
+      "status": "PASS"
+    },
+    {
+      "name": "844px 100% card fields and checkbox names fit without wrapping",
+      "status": "PASS"
+    },
+    {
+      "name": "844px 75% card fields and checkbox names fit without wrapping",
+      "status": "PASS"
+    },
+    {
+      "name": "220px user-resized left column keeps all controls within the card",
+      "status": "PASS"
+    },
+    {
+      "name": "350px user-resized left column keeps all controls within the card",
+      "status": "PASS"
+    },
+    {
+      "name": "540px user-resized left column keeps all controls within the card",
+      "status": "PASS"
+    },
+    {
+      "name": "wide cards use horizontal space for the potion condition",
+      "status": "PASS"
+    },
+    {
+      "name": "no duplicate ids or browser runtime errors",
+      "status": "PASS"
+    }
+  ]
+}

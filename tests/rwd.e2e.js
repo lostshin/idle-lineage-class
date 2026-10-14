@@ -39,7 +39,7 @@ for(const [w,h] of sizes){
   const errors=[];
   for(const id of ['set-sfx-on','set-bgm-on']){const label=document.getElementById(id).closest('label'),text=label.querySelector('span');if(!text)continue;const range=document.createRange();range.selectNodeContents(text);const lines=new Set([...range.getClientRects()].map(r=>Math.round(r.top)));if(lines.size>1)errors.push({id,lines:lines.size,width:text.getBoundingClientRect().width});}
   if(document.querySelectorAll('#auto-buff-skills > label').length<6)errors.push({error:'Synthetic skill list missing'});
-  for(const label of document.querySelectorAll('#auto-buff-skills > label')){const text=label.querySelector('span');if(text && text.getBoundingClientRect().width<80)errors.push({skill:text.textContent,width:text.getBoundingClientRect().width});}
+  for(const label of document.querySelectorAll('#auto-buff-skills > label')){const text=label.querySelector('span');if(text){const r=text.getBoundingClientRect(),range=document.createRange();range.selectNodeContents(text);if([...range.getClientRects()].some(t=>t.left<r.left-1||t.right>r.right+1)||getComputedStyle(label).whiteSpace!=='nowrap')errors.push({skill:text.textContent,width:r.width});}}
   return errors.length?errors.slice(0,5):true;
  }));
  await check(`${w}x${h}: class-only potion rows stay hidden`,()=>page.evaluate(()=>!document.getElementById('ui-brave-row').getClientRects().length && !document.getElementById('ui-elfcookie-row').getClientRects().length && !!document.getElementById('ui-cautious-row').getClientRects().length));

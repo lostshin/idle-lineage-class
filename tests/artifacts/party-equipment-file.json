@@ -1,0 +1,148 @@
+{
+  "reports": [
+    {
+      "name": "widening the right column proportionally enlarges the ability artwork",
+      "status": "PASS"
+    },
+    {
+      "name": "party inspector exposes ability and equipment tabs",
+      "status": "PASS"
+    },
+    {
+      "name": "team uses C unified nameplates with original sprite artwork",
+      "status": "PASS"
+    },
+    {
+      "name": "teammate equipment uses a responsive native-icon grid instead of a list",
+      "status": "PASS"
+    },
+    {
+      "name": "roster names have no underline and use a consistent typeface",
+      "status": "PASS"
+    },
+    {
+      "name": "short windows resize the complete equipment grid and its badges within the viewport",
+      "status": "PASS"
+    },
+    {
+      "name": "enlarging the window increases the equipment sheet instead of retaining a collapsed strip",
+      "status": "PASS"
+    },
+    {
+      "name": "item sort and quick junk buttons share one horizontal row",
+      "status": "PASS"
+    },
+    {
+      "name": "equipment tab shows live item icons and enhancement values",
+      "status": "PASS"
+    },
+    {
+      "name": "equipment details use the selected teammate class and weapon information",
+      "status": "PASS"
+    },
+    {
+      "name": "opening equipment does not mutate either actor or storage",
+      "status": "PASS"
+    },
+    {
+      "name": "live updates retain the selected tab and update hovered equipment",
+      "status": "PASS"
+    },
+    {
+      "name": "hovered equipment refreshes its live enchantment",
+      "status": "PASS"
+    },
+    {
+      "name": "offhand weapon occupies the original shield slot",
+      "status": "PASS"
+    },
+    {
+      "name": "native second-page slots and selection survive refresh",
+      "status": "PASS"
+    },
+    {
+      "name": "removed equipment disappears from the live view",
+      "status": "PASS"
+    },
+    {
+      "name": "clicking a teammate slot shows read-only native information",
+      "status": "PASS"
+    },
+    {
+      "name": "switching back restores live abilities and buff display",
+      "status": "PASS"
+    },
+    {
+      "name": "pet nameplate retains the native potion control and live vitals",
+      "status": "PASS"
+    },
+    {
+      "name": "C nameplate potion setting uses the native pet behavior",
+      "status": "PASS"
+    },
+    {
+      "name": "pet equipment is read from its own equipment slots",
+      "status": "PASS"
+    },
+    {
+      "name": "native equipment portrait follows the selected teammate gender",
+      "status": "PASS"
+    },
+    {
+      "name": "unequipped teammate displays an empty state",
+      "status": "PASS"
+    },
+    {
+      "name": "1920px 100% artwork and equipment remain responsive",
+      "status": "PASS"
+    },
+    {
+      "name": "1920px 100% item toolbar buttons remain side by side",
+      "status": "PASS"
+    },
+    {
+      "name": "1920px 75% artwork and equipment remain responsive",
+      "status": "PASS"
+    },
+    {
+      "name": "1920px 75% item toolbar buttons remain side by side",
+      "status": "PASS"
+    },
+    {
+      "name": "1330px 100% artwork and equipment remain responsive",
+      "status": "PASS"
+    },
+    {
+      "name": "1330px 100% item toolbar buttons remain side by side",
+      "status": "PASS"
+    },
+    {
+      "name": "390px 100% artwork and equipment remain responsive",
+      "status": "PASS"
+    },
+    {
+      "name": "390px 100% item toolbar buttons remain side by side",
+      "status": "PASS"
+    },
+    {
+      "name": "390px 75% artwork and equipment remain responsive",
+      "status": "PASS"
+    },
+    {
+      "name": "390px 75% item toolbar buttons remain side by side",
+      "status": "PASS"
+    },
+    {
+      "name": "844px 75% artwork and equipment remain responsive",
+      "status": "PASS"
+    },
+    {
+      "name": "844px 75% item toolbar buttons remain side by side",
+      "status": "PASS"
+    },
+    {
+      "name": "no duplicate ids or runtime errors",
+      "status": "PASS"
+    }
+  ]
+}

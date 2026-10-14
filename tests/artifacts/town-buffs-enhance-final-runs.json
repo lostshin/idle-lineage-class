@@ -1,0 +1,135 @@
+[
+  {
+    "suite": "town-buffs-enhance",
+    "protocol": "http",
+    "command": "python3 tests/run-rwd.py --suite town-buffs-enhance --protocol http --space 4 --keep-space --skip-screenshots",
+    "exitCode": 0,
+    "output": "{ spaceId: 4 }\n{ checks: 34, passed: 34, failed: [] }\n\n"
+  },
+  {
+    "suite": "skill-cards",
+    "protocol": "http",
+    "command": "python3 tests/run-rwd.py --suite skill-cards --protocol http --space 4 --keep-space --skip-screenshots",
+    "exitCode": 0,
+    "output": "{ spaceId: 4 }\n{ checks: 23, passed: 23, failed: [] }\n\n"
+  },
+  {
+    "suite": "ally-skill-stop",
+    "protocol": "http",
+    "command": "python3 tests/run-rwd.py --suite ally-skill-stop --protocol http --space 4 --keep-space --skip-screenshots",
+    "exitCode": 0,
+    "output": "{ spaceId: 4 }\n{ checks: 15, passed: 15, failed: [] }\n\n"
+  },
+  {
+    "suite": "party-refinements",
+    "protocol": "http",
+    "command": "python3 tests/run-rwd.py --suite party-refinements --protocol http --space 4 --keep-space --skip-screenshots",
+    "exitCode": 0,
+    "output": "{ spaceId: 4 }\n{ checks: 38, passed: 38, failed: [] }\n\n"
+  },
+  {
+    "suite": "rwd",
+    "protocol": "http",
+    "command": "python3 tests/run-rwd.py --suite rwd --protocol http --space 4 --keep-space --skip-screenshots",
+    "exitCode": 0,
+    "output": "{ spaceId: 4 }\n{\n  \"checks\": 221,\n  \"passed\": 221,\n  \"failed\": []\n}\n\n"
+  },
+  {
+    "suite": "ui-scale",
+    "protocol": "http",
+    "command": "python3 tests/run-rwd.py --suite ui-scale --protocol http --space 4 --keep-space --skip-screenshots",
+    "exitCode": 0,
+    "output": "{ spaceId: 4 }\n{\n  \"checks\": 100,\n  \"passed\": 100,\n  \"failed\": []\n}\n\n"
+  },
+  {
+    "suite": "gameplay",
+    "protocol": "http",
+    "command": "python3 tests/run-rwd.py --suite gameplay --protocol http --space 4 --keep-space --skip-screenshots",
+    "exitCode": 0,
+    "output": "{ spaceId: 4 }\n{\n  \"checks\": 30,\n  \"passed\": 30,\n  \"failed\": []\n}\n\n"
+  },
+  {
+    "suite": "companion-commands",
+    "protocol": "http",
+    "command": "python3 tests/run-rwd.py --suite companion-commands --protocol http --space 4 --keep-space --skip-screenshots",
+    "exitCode": 0,
+    "output": "{ spaceId: 4 }\n{ checks: 21, passed: 21, failed: [] }\n\n"
+  },
+  {
+    "suite": "account-gameplay",
+    "protocol": "http",
+    "command": "python3 tests/run-rwd.py --suite account-gameplay --protocol http --space 4 --keep-space --skip-screenshots",
+    "exitCode": 0,
+    "output": "{ spaceId: 4 }\n{ checks: 60, passed: 60, failed: [] }\n\n"
+  },
+  {
+    "suite": "town-buffs-enhance",
+    "protocol": "file",
+    "command": "python3 tests/run-rwd.py --suite town-buffs-enhance --protocol file --space 4 --keep-space --skip-screenshots",
+    "exitCode": 0,
+    "output": "{ spaceId: 4 }\n{ checks: 34, passed: 34, failed: [] }\n\n"
+  },
+  {
+    "suite": "skill-cards",
+    "protocol": "file",
+    "command": "python3 tests/run-rwd.py --suite skill-cards --protocol file --space 4 --keep-space --skip-screenshots",
+    "exitCode": 0,
+    "output": "{ spaceId: 4 }\n{ checks: 23, passed: 23, failed: [] }\n\n"
+  },
+  {
+    "suite": "ally-skill-stop",
+    "protocol": "file",
+    "command": "python3 tests/run-rwd.py --suite ally-skill-stop --protocol file --space 4 --keep-space --skip-screenshots",
+    "exitCode": 0,
+    "output": "{ spaceId: 4 }\n{ checks: 15, passed: 15, failed: [] }\n\n"
+  },
+  {
+    "suite": "party-refinements",
+    "protocol": "file",
+    "command": "python3 tests/run-rwd.py --suite party-refinements --protocol file --space 4 --keep-space --skip-screenshots",
+    "exitCode": 0,
+    "output": "{ spaceId: 4 }\n{ checks: 38, passed: 38, failed: [] }\n\n"
+  },
+  {
+    "suite": "rwd",
+    "protocol": "file",
+    "command": "python3 tests/run-rwd.py --suite rwd --protocol file --space 4 --keep-space --skip-screenshots",
+    "exitCode": 0,
+    "output": "{ spaceId: 4 }\n{\n  \"checks\": 221,\n  \"passed\": 221,\n  \"failed\": []\n}\n\n"
+  },
+  {
+    "suite": "ui-scale",
+    "protocol": "file",
+    "command": "python3 tests/run-rwd.py --suite ui-scale --protocol file --space 4 --keep-space --skip-screenshots",
+    "exitCode": 0,
+    "output": "{ spaceId: 4 }\n{\n  \"checks\": 100,\n  \"passed\": 100,\n  \"failed\": []\n}\n\n"
+  },
+  {
+    "suite": "gameplay",
+    "protocol": "file",
+    "command": "python3 tests/run-rwd.py --suite gameplay --protocol file --space 4 --keep-space --skip-screenshots",
+    "exitCode": 0,
+    "output": "{ spaceId: 4 }\n{\n  \"checks\": 30,\n  \"passed\": 30,\n  \"failed\": []\n}\n\n"
+  },
+  {
+    "suite": "companion-commands",
+    "protocol": "file",
+    "command": "python3 tests/run-rwd.py --suite companion-commands --protocol file --space 4 --keep-space --skip-screenshots",
+    "exitCode": 0,
+    "output": "{ spaceId: 4 }\n{ checks: 21, passed: 21, failed: [] }\n\n"
+  },
+  {
+    "suite": "account-gameplay",
+    "protocol": "file",
+    "command": "python3 tests/run-rwd.py --suite account-gameplay --protocol file --space 4 --keep-space --skip-screenshots",
+    "exitCode": 0,
+    "output": "{ spaceId: 4 }\n{ checks: 60, passed: 60, failed: [] }\n\n"
+  },
+  {
+    "suite": "visual-account-gameplay",
+    "protocol": "file",
+    "command": "python3 tests/run-rwd.py --suite visual-account-gameplay --protocol file --space 4 --keep-space --skip-screenshots",
+    "exitCode": 0,
+    "output": "[ { name: 'already named legacy role gets one free rename', status: 'PASS', result: true }, { name: 'mobile 100% account preview fits', status: 'PASS', result: true }, { name: 'mobile 100% rename fits', status: 'PASS', result: true }, { name: 'mobile 75% account preview fits', status: 'PASS', result: true }, { name: 'mobile 75% rename fits', status: 'PASS', result: true }, { name: 'shield Buff ability card shows AC -2', status: 'PASS', result: true }, { name: 'total ability card matches live AC', status: 'PASS', result: true }, { name: '1330x900 100% floating close remains visible', status: 'PASS', result: true }, { name: '1330x900 75% floating close remains visible', status: 'PASS', result: true }, { name: '390x844 100% floating close remains visible', status: 'PASS', result: true }, { name: '390x844 75% floating close remains visible', status: 'PASS', result: true }, { name: '844x390 75% floating close remains visible', status: 'PASS', result: true }, { name: 'no visual QA runtime errors', status: 'PASS', result: true } ]\n\n"
+  }
+]

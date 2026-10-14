@@ -1,0 +1,18 @@
+{
+  "reports": [
+    {
+      "name": "A uses the original frame and dark compact cards for every teammate",
+      "status": "FAIL",
+      "error": "Error: false"
+    },
+    {
+      "name": "auto-maintenance options form equal-width aligned cells",
+      "status": "FAIL",
+      "error": "Error: false"
+    },
+    {
+      "name": "checkboxes display exactly the native learned auto-cast skills",
+      "status": "PASS"
+    }
+  ]
+}

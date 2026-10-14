@@ -1,0 +1,35 @@
+{
+  "reports": [
+    {
+      "name": "widening the right column proportionally enlarges the ability artwork",
+      "status": "PASS"
+    },
+    {
+      "name": "party inspector exposes ability and equipment tabs",
+      "status": "PASS"
+    },
+    {
+      "name": "team uses C unified nameplates with original sprite artwork",
+      "status": "PASS"
+    },
+    {
+      "name": "teammate equipment uses a responsive native-icon grid instead of a list",
+      "status": "FAIL",
+      "error": "Error: false"
+    },
+    {
+      "name": "roster names have no underline and use a consistent typeface",
+      "status": "PASS"
+    },
+    {
+      "name": "short windows resize the complete equipment grid and its badges within the viewport",
+      "status": "FAIL",
+      "error": "Error: false"
+    },
+    {
+      "name": "item sort and quick junk buttons share one horizontal row",
+      "status": "FAIL",
+      "error": "Error: false"
+    }
+  ]
+}

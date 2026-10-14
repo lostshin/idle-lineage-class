@@ -1,0 +1,30 @@
+[
+  {
+    "suite": "party-equipment",
+    "protocol": "http",
+    "command": "python3 tests/run-rwd.py --suite party-equipment --protocol http --space 8 --keep-space --skip-screenshots",
+    "exitCode": 0,
+    "output": "{ spaceId: 8 }\n{ checks: 25, passed: 25, failed: [] }\n\n"
+  },
+  {
+    "suite": "rwd",
+    "protocol": "http",
+    "command": "python3 tests/run-rwd.py --suite rwd --protocol http --space 8 --keep-space --skip-screenshots",
+    "exitCode": 0,
+    "output": "{ spaceId: 8 }\n{\n  \"checks\": 221,\n  \"passed\": 221,\n  \"failed\": []\n}\n\n"
+  },
+  {
+    "suite": "ui-scale",
+    "protocol": "http",
+    "command": "python3 tests/run-rwd.py --suite ui-scale --protocol http --space 8 --keep-space --skip-screenshots",
+    "exitCode": 0,
+    "output": "{ spaceId: 8 }\n{\n  \"checks\": 100,\n  \"passed\": 100,\n  \"failed\": []\n}\n\n"
+  },
+  {
+    "suite": "gameplay",
+    "protocol": "http",
+    "command": "python3 tests/run-rwd.py --suite gameplay --protocol http --space 8 --keep-space --skip-screenshots",
+    "exitCode": 1,
+    "output": "Error: Gameplay checks failed\n    at [eval]:85:66\n{ spaceId: 8 }\n{ failed: 'no runtime errors', error: 'Error: [\"ResizeObserver loop completed with undelivered notifications.\"]' }\n{\n  \"checks\": 30,\n  \"passed\": 29,\n  \"failed\": [\n    {\n      \"name\": \"no runtime errors\",\n      \"status\": \"FAIL\",\n      \"error\": \"Error: [\\\"ResizeObserver loop completed with undelivered notifications.\\\"]\"\n    }\n  ]\n}\n\nego's nodejs process exited with code 1.\n"
+  }
+]

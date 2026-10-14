@@ -1,0 +1,19 @@
+{
+  "before": {
+    "lv": 36,
+    "exp": 0,
+    "source": 0
+  },
+  "liveBeforeTown": {
+    "lv": 36,
+    "exp": 190005
+  },
+  "liveAfterTown": {
+    "lv": 36,
+    "exp": 190005
+  },
+  "sourceAfterTown": {
+    "lv": 36,
+    "exp": 190005
+  }
+}

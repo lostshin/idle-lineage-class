@@ -1,0 +1,17 @@
+{
+  "reports": [
+    {
+      "name": "village names remain visible when battle status display is off",
+      "status": "PASS"
+    },
+    {
+      "name": "clan Buff checkbox and state label keep their own horizontal space",
+      "status": "PASS"
+    },
+    {
+      "name": "warehouse gold input retains the requested deposit after rerender",
+      "status": "FAIL",
+      "error": "Error: false"
+    }
+  ]
+}

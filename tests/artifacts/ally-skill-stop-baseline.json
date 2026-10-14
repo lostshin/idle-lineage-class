@@ -1,0 +1,41 @@
+{
+  "reports": [
+    {
+      "name": "stop condition belongs to the conversion row on its right",
+      "status": "FAIL",
+      "error": "Error: false"
+    },
+    {
+      "name": "editing the stop condition updates the native preference and saves it",
+      "status": "PASS"
+    },
+    {
+      "name": "conversion is stopped below the configured HP percentage",
+      "status": "PASS"
+    },
+    {
+      "name": "conversion is also stopped exactly at the configured percentage",
+      "status": "PASS"
+    },
+    {
+      "name": "conversion resumes above the threshold and pays the native HP cost",
+      "status": "PASS"
+    },
+    {
+      "name": "zero disables the custom conversion stop threshold",
+      "status": "PASS"
+    },
+    {
+      "name": "conversion still requires MP below ninety percent",
+      "status": "PASS"
+    },
+    {
+      "name": "the stop threshold does not stop normal healing",
+      "status": "PASS"
+    },
+    {
+      "name": "HP-consuming dragon attacks share the setting and retain the twenty-five percent floor",
+      "status": "PASS"
+    }
+  ]
+}

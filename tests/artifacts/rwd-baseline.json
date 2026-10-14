@@ -1,0 +1,328 @@
+{
+  "date": "2026-10-13T07:40:23.753Z",
+  "reports": [
+    {
+      "name": "320x640: home actions fit horizontally",
+      "status": "PASS"
+    },
+    {
+      "name": "390x844: home actions fit horizontally",
+      "status": "PASS"
+    },
+    {
+      "name": "768x1024: home actions fit horizontally",
+      "status": "PASS"
+    },
+    {
+      "name": "844x390: home actions fit horizontally",
+      "status": "PASS"
+    },
+    {
+      "name": "1024x768: home actions fit horizontally",
+      "status": "PASS"
+    },
+    {
+      "name": "1199x800: home actions fit horizontally",
+      "status": "PASS"
+    },
+    {
+      "name": "1330x759: home actions fit horizontally",
+      "status": "PASS"
+    },
+    {
+      "name": "1440x900: home actions fit horizontally",
+      "status": "PASS"
+    },
+    {
+      "name": "1920x1080: home actions fit horizontally",
+      "status": "PASS"
+    },
+    {
+      "name": "mobile: character slots and actions fit",
+      "status": "PASS"
+    },
+    {
+      "name": "mobile: creation controls fit",
+      "status": "PASS"
+    },
+    {
+      "name": "320x640: settings button is reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "320x640: game columns fit horizontally",
+      "status": "PASS"
+    },
+    {
+      "name": "320x640: setting labels remain readable",
+      "status": "FAIL",
+      "error": "Error: [{\"id\":\"set-sfx-on\",\"lines\":2,\"width\":63.296875},{\"id\":\"set-bgm-on\",\"lines\":2,\"width\":63.296875}]"
+    },
+    {
+      "name": "320x640: percentage controls stay together",
+      "status": "PASS"
+    },
+    {
+      "name": "320x640: settings have no horizontal overflow",
+      "status": "PASS"
+    },
+    {
+      "name": "320x640: ability button is reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "320x640: ability window fits its tab",
+      "status": "PASS"
+    },
+    {
+      "name": "390x844: settings button is reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "390x844: game columns fit horizontally",
+      "status": "PASS"
+    },
+    {
+      "name": "390x844: setting labels remain readable",
+      "status": "PASS"
+    },
+    {
+      "name": "390x844: percentage controls stay together",
+      "status": "PASS"
+    },
+    {
+      "name": "390x844: settings have no horizontal overflow",
+      "status": "PASS"
+    },
+    {
+      "name": "390x844: ability button is reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "390x844: ability window fits its tab",
+      "status": "PASS"
+    },
+    {
+      "name": "768x1024: settings button is reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "768x1024: game columns fit horizontally",
+      "status": "PASS"
+    },
+    {
+      "name": "768x1024: setting labels remain readable",
+      "status": "PASS"
+    },
+    {
+      "name": "768x1024: percentage controls stay together",
+      "status": "PASS"
+    },
+    {
+      "name": "768x1024: settings have no horizontal overflow",
+      "status": "PASS"
+    },
+    {
+      "name": "768x1024: ability button is reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "768x1024: ability window fits its tab",
+      "status": "PASS"
+    },
+    {
+      "name": "844x390: settings button is reachable",
+      "status": "FAIL",
+      "error": "ElementResolutionError: page.click timed out after 3000ms: page.click failed: element is not visible in the viewport"
+    },
+    {
+      "name": "844x390: game columns fit horizontally",
+      "status": "FAIL",
+      "error": "Error: [{\"id\":\"col-center\",\"left\":134,\"right\":938,\"viewport\":844},{\"id\":\"col-right\",\"left\":954,\"right\":1208.09375,\"viewport\":844},{\"id\":\"map-view-panel\",\"left\":134,\"right\":938,\"viewport\":844},{\"id\":\"tab-content-panel\",\"left\":954,\"right\":1208.09375,\"viewport\":844}]"
+    },
+    {
+      "name": "844x390: setting labels remain readable",
+      "status": "FAIL",
+      "error": "Error: [{\"id\":\"set-sfx-on\",\"lines\":5,\"width\":22.09375},{\"id\":\"set-bgm-on\",\"lines\":5,\"width\":22.09375}]"
+    },
+    {
+      "name": "844x390: percentage controls stay together",
+      "status": "FAIL",
+      "error": "Error: [{\"id\":\"set-hp-pot\",\"textTop\":596.5,\"inputTop\":615}]"
+    },
+    {
+      "name": "844x390: settings have no horizontal overflow",
+      "status": "PASS"
+    },
+    {
+      "name": "844x390: ability button is reachable",
+      "status": "FAIL",
+      "error": "ElementResolutionError: page.click timed out after 3000ms: page.click failed: element is not visible in the viewport"
+    },
+    {
+      "name": "844x390: ability window fits its tab",
+      "status": "PASS"
+    },
+    {
+      "name": "1024x768: settings button is reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "1024x768: game columns fit horizontally",
+      "status": "FAIL",
+      "error": "Error: [{\"id\":\"col-right\",\"left\":954,\"right\":1208.09375,\"viewport\":1024},{\"id\":\"tab-content-panel\",\"left\":954,\"right\":1208.09375,\"viewport\":1024}]"
+    },
+    {
+      "name": "1024x768: setting labels remain readable",
+      "status": "FAIL",
+      "error": "Error: [{\"id\":\"set-sfx-on\",\"lines\":5,\"width\":22.09375},{\"id\":\"set-bgm-on\",\"lines\":5,\"width\":22.09375}]"
+    },
+    {
+      "name": "1024x768: percentage controls stay together",
+      "status": "FAIL",
+      "error": "Error: [{\"id\":\"set-hp-pot\",\"textTop\":596.5,\"inputTop\":615}]"
+    },
+    {
+      "name": "1024x768: settings have no horizontal overflow",
+      "status": "PASS"
+    },
+    {
+      "name": "1024x768: ability button is reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "1024x768: ability window fits its tab",
+      "status": "PASS"
+    },
+    {
+      "name": "1199x800: settings button is reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "1199x800: game columns fit horizontally",
+      "status": "FAIL",
+      "error": "Error: [{\"id\":\"col-right\",\"left\":954,\"right\":1208.09375,\"viewport\":1199},{\"id\":\"tab-content-panel\",\"left\":954,\"right\":1208.09375,\"viewport\":1199}]"
+    },
+    {
+      "name": "1199x800: setting labels remain readable",
+      "status": "FAIL",
+      "error": "Error: [{\"id\":\"set-sfx-on\",\"lines\":5,\"width\":22.09375},{\"id\":\"set-bgm-on\",\"lines\":5,\"width\":22.09375}]"
+    },
+    {
+      "name": "1199x800: percentage controls stay together",
+      "status": "FAIL",
+      "error": "Error: [{\"id\":\"set-hp-pot\",\"textTop\":596.5,\"inputTop\":615}]"
+    },
+    {
+      "name": "1199x800: settings have no horizontal overflow",
+      "status": "PASS"
+    },
+    {
+      "name": "1199x800: ability button is reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "1199x800: ability window fits its tab",
+      "status": "PASS"
+    },
+    {
+      "name": "1330x759: settings button is reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "1330x759: game columns fit horizontally",
+      "status": "PASS"
+    },
+    {
+      "name": "1330x759: setting labels remain readable",
+      "status": "FAIL",
+      "error": "Error: [{\"id\":\"set-sfx-on\",\"lines\":5,\"width\":22.09375},{\"id\":\"set-bgm-on\",\"lines\":5,\"width\":22.09375}]"
+    },
+    {
+      "name": "1330x759: percentage controls stay together",
+      "status": "FAIL",
+      "error": "Error: [{\"id\":\"set-hp-pot\",\"textTop\":596.5,\"inputTop\":615}]"
+    },
+    {
+      "name": "1330x759: settings have no horizontal overflow",
+      "status": "PASS"
+    },
+    {
+      "name": "1330x759: ability button is reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "1330x759: ability window fits its tab",
+      "status": "PASS"
+    },
+    {
+      "name": "1440x900: settings button is reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "1440x900: game columns fit horizontally",
+      "status": "PASS"
+    },
+    {
+      "name": "1440x900: setting labels remain readable",
+      "status": "FAIL",
+      "error": "Error: [{\"id\":\"set-sfx-on\",\"lines\":2,\"width\":68.140625},{\"id\":\"set-bgm-on\",\"lines\":2,\"width\":68.140625}]"
+    },
+    {
+      "name": "1440x900: percentage controls stay together",
+      "status": "PASS"
+    },
+    {
+      "name": "1440x900: settings have no horizontal overflow",
+      "status": "PASS"
+    },
+    {
+      "name": "1440x900: ability button is reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "1440x900: ability window fits its tab",
+      "status": "PASS"
+    },
+    {
+      "name": "1920x1080: settings button is reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "1920x1080: game columns fit horizontally",
+      "status": "PASS"
+    },
+    {
+      "name": "1920x1080: setting labels remain readable",
+      "status": "PASS"
+    },
+    {
+      "name": "1920x1080: percentage controls stay together",
+      "status": "PASS"
+    },
+    {
+      "name": "1920x1080: settings have no horizontal overflow",
+      "status": "PASS"
+    },
+    {
+      "name": "1920x1080: ability button is reachable",
+      "status": "PASS"
+    },
+    {
+      "name": "1920x1080: ability window fits its tab",
+      "status": "PASS"
+    },
+    {
+      "name": "settings edits save and reload",
+      "status": "PASS"
+    },
+    {
+      "name": "no browser runtime errors",
+      "status": "PASS"
+    },
+    {
+      "name": "file URL: original settings and game load",
+      "status": "PASS"
+    }
+  ]
+}

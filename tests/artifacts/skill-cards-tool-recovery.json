@@ -1,0 +1,12 @@
+{
+  "reason": "Ego page-ledger conflict when two test pages were used; returned to sequential execution within the same TaskSpace",
+  "failedRun": [
+    {
+      "suite": "gameplay",
+      "protocol": "file",
+      "command": "python3 tests/run-rwd.py --suite gameplay --protocol file --space 3 --keep-space --skip-screenshots",
+      "exitCode": 1,
+      "output": "Error: target 786E7C4EE3AB8072172A7A2654A2B855 is already page p2\n    at file:////[eval1]:17006:23\n    at #update (file:////[eval1]:17170:9)\n    at async PageLedgerStore.addPage (file:////[eval1]:17003:9)\n    at async file:////[eval1]:18991:41\n    at async file:////[eval1]:16691:28\n{ spaceId: 3 }\n\nego's nodejs process exited with code 1.\n"
+    }
+  ]
+}

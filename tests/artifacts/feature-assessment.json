@@ -1,0 +1,27 @@
+{
+  "allyExperience": {
+    "finding": "buildAlly sets exp to zero on every rebuild; kills update live exp immediately; returning to town safely writes pending gain to source save then rebuilds the ally with exp zero.",
+    "evidence": [
+      "js/06-status-allies.js:785",
+      "js/05-kill-progression.js:383",
+      "js/06-status-allies.js:3365",
+      "tests/artifacts/ally-experience-assessment-http.json",
+      "tests/artifacts/ally-experience-assessment-file.json"
+    ],
+    "recommendation": "Initialize ally level progress from its source role, retain _expGained as an independent settlement delta, and preserve pending gains when direct writing is blocked. Cover nonzero source progress, level-up, repeat returns, reload, concurrent source role, and failed writes before enabling.",
+    "implemented": false
+  },
+  "petAndSummonBuffs": {
+    "finding": "Existing pets and summons already receive selected team auras; single-target shareTeamBuffs only targets the player and active allies. Healing also includes pets and summons. They have separate derived stats and attack timing paths.",
+    "evidence": [
+      "js/01-drops-config.js:1253",
+      "js/04-combat-attack.js:1460",
+      "js/06-status-allies.js:2947",
+      "js/06-status-allies.js:2688",
+      "js/22-pets.js",
+      "js/23-summons.js"
+    ],
+    "recommendation": "Show already effective auras first, then add a small explicit buff whitelist with duration, caster MP cost, refresh rules and removal on summon expiration. Avoid duplicate aura/owner-stat bonuses and defer immunity buffs.",
+    "implemented": false
+  }
+}

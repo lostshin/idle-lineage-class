@@ -1,0 +1,117 @@
+{
+  "date": "2026-10-13T22:25:03.724864+00:00",
+  "runs": [
+    {
+      "suite": "rwd",
+      "protocol": "http",
+      "command": "python3 tests/run-rwd.py --space 4 --keep-space --suite rwd --protocol http",
+      "exitCode": 1,
+      "output": "",
+      "error": "Error: RWD validation failed\n    at file:////[eval2]:83:66\n{ spaceId: 4 }\n{\n  \"checks\": 221,\n  \"passed\": 212,\n  \"failed\": [\n    {\n      \"name\": \"320x640: setting labels remain readable\",\n      \"status\": \"FAIL\",\n      \"error\": \"Error: [{\\\"skill\\\":\\\"\u65e5\u5149\u8853\\\",\\\"width\\\":36},{\\\"skill\\\":\\\"\u4fdd\u8b77\u7f69\\\",\\\"width\\\":36},{\\\"skill\\\":\\\"\u795e\u8056\u6b66\u5668\\\",\\\"width\\\":48},{\\\"skill\\\":\\\"\u64ec\u4f3c\u9b54\u6cd5\u6b66\u5668\\\",\\\"width\\\":72},{\\\"skill\\\":\\\"\u7121\u6240\u9041\u5f62\u8853\\\",\\\"width\\\":60}]\"\n    },\n    {\n      \"name\": \"390x844: setting labels remain readable\",\n      \"status\": \"FAIL\",\n      \"error\": \"Error: [{\\\"skill\\\":\\\"\u65e5\u5149\u8853\\\",\\\"width\\\":36},{\\\"skill\\\":\\\"\u4fdd\u8b77\u7f69\\\",\\\"width\\\":36},{\\\"skill\\\":\\\"\u795e\u8056\u6b66\u5668\\\",\\\"width\\\":48},{\\\"skill\\\":\\\"\u64ec\u4f3c\u9b54\u6cd5\u6b66\u5668\\\",\\\"width\\\":72},{\\\"skill\\\":\\\"\u7121\u6240\u9041\u5f62\u8853\\\",\\\"width\\\":60}]\"\n    },\n    {\n      \"name\": \"768x1024: setting labels remain readable\",\n      \"status\": \"FAIL\",\n      \"error\": \"Error: [{\\\"skill\\\":\\\"\u65e5\u5149\u8853\\\",\\\"width\\\":36},{\\\"skill\\\":\\\"\u4fdd\u8b77\u7f69\\\",\\\"width\\\":36},{\\\"skill\\\":\\\"\u795e\u8056\u6b66\u5668\\\",\\\"width\\\":48},{\\\"skill\\\":\\\"\u64ec\u4f3c\u9b54\u6cd5\u6b66\u5668\\\",\\\"width\\\":72},{\\\"skill\\\":\\\"\u7121\u6240\u9041\u5f62\u8853\\\",\\\"width\\\":60}]\"\n    },\n    {\n      \"name\": \"844x390: setting labels remain readable\",\n      \"status\": \"FAIL\",\n      \"error\": \"Error: [{\\\"skill\\\":\\\"\u65e5\u5149\u8853\\\",\\\"width\\\":36},{\\\"skill\\\":\\\"\u4fdd\u8b77\u7f69\\\",\\\"width\\\":36},{\\\"skill\\\":\\\"\u795e\u8056\u6b66\u5668\\\",\\\"width\\\":48},{\\\"skill\\\":\\\"\u64ec\u4f3c\u9b54\u6cd5\u6b66\u5668\\\",\\\"width\\\":72},{\\\"skill\\\":\\\"\u7121\u6240\u9041\u5f62\u8853\\\",\\\"width\\\":60}]\"\n    },\n    {\n      \"name\": \"1024x768: setting labels remain readable\",\n      \"status\": \"FAIL\",\n      \"error\": \"Error: [{\\\"skill\\\":\\\"\u65e5\u5149\u8853\\\",\\\"width\\\":36},{\\\"skill\\\":\\\"\u4fdd\u8b77\u7f69\\\",\\\"width\\\":36},{\\\"skill\\\":\\\"\u795e\u8056\u6b66\u5668\\\",\\\"width\\\":48},{\\\"skill\\\":\\\"\u64ec\u4f3c\u9b54\u6cd5\u6b66\u5668\\\",\\\"width\\\":72},{\\\"skill\\\":\\\"\u7121\u6240\u9041\u5f62\u8853\\\",\\\"width\\\":60}]\"\n    },\n    {\n      \"name\": \"1199x800: setting labels remain readable\",\n      \"status\": \"FAIL\",\n      \"error\": \"Error: [{\\\"skill\\\":\\\"\u65e5\u5149\u8853\\\",\\\"width\\\":36},{\\\"skill\\\":\\\"\u4fdd\u8b77\u7f69\\\",\\\"width\\\":36},{\\\"skill\\\":\\\"\u795e\u8056\u6b66\u5668\\\",\\\"width\\\":48},{\\\"skill\\\":\\\"\u64ec\u4f3c\u9b54\u6cd5\u6b66\u5668\\\",\\\"width\\\":72},{\\\"skill\\\":\\\"\u7121\u6240\u9041\u5f62\u8853\\\",\\\"width\\\":60}]\"\n    },\n    {\n      \"name\": \"1330x759: setting labels remain readable\",\n      \"status\": \"FAIL\",\n      \"error\": \"Error: [{\\\"skill\\\":\\\"\u65e5\u5149\u8853\\\",\\\"width\\\":36},{\\\"skill\\\":\\\"\u4fdd\u8b77\u7f69\\\",\\\"width\\\":36},{\\\"skill\\\":\\\"\u795e\u8056\u6b66\u5668\\\",\\\"width\\\":48},{\\\"skill\\\":\\\"\u64ec\u4f3c\u9b54\u6cd5\u6b66\u5668\\\",\\\"width\\\":72},{\\\"skill\\\":\\\"\u7121\u6240\u9041\u5f62\u8853\\\",\\\"width\\\":60}]\"\n    },\n    {\n      \"name\": \"1440x900: setting labels remain readable\",\n      \"status\": \"FAIL\",\n      \"error\": \"Error: [{\\\"skill\\\":\\\"\u65e5\u5149\u8853\\\",\\\"width\\\":36},{\\\"skill\\\":\\\"\u4fdd\u8b77\u7f69\\\",\\\"width\\\":36},{\\\"skill\\\":\\\"\u795e\u8056\u6b66\u5668\\\",\\\"width\\\":48},{\\\"skill\\\":\\\"\u64ec\u4f3c\u9b54\u6cd5\u6b66\u5668\\\",\\\"width\\\":72},{\\\"skill\\\":\\\"\u7121\u6240\u9041\u5f62\u8853\\\",\\\"width\\\":60}]\"\n    },\n    {\n      \"name\": \"1920x1080: setting labels remain readable\",\n      \"status\": \"FAIL\",\n      \"error\": \"Error: [{\\\"skill\\\":\\\"\u65e5\u5149\u8853\\\",\\\"width\\\":36},{\\\"skill\\\":\\\"\u4fdd\u8b77\u7f69\\\",\\\"width\\\":36},{\\\"skill\\\":\\\"\u795e\u8056\u6b66\u5668\\\",\\\"width\\\":48},{\\\"skill\\\":\\\"\u64ec\u4f3c\u9b54\u6cd5\u6b66\u5668\\\",\\\"width\\\":72},{\\\"skill\\\":\\\"\u7121\u6240\u9041\u5f62\u8853\\\",\\\"width\\\":60}]\"\n    }\n  ]\n}\n\nego's nodejs process exited with code 1.\n"
+    },
+    {
+      "suite": "ui-scale",
+      "protocol": "http",
+      "command": "python3 tests/run-rwd.py --space 4 --keep-space --suite ui-scale --protocol http",
+      "exitCode": 1,
+      "output": "",
+      "error": "Error: UI scale E2E failed\n    at [eval]:62:45\n{ spaceId: 4 }\n{\n  \"checks\": 100,\n  \"passed\": 99,\n  \"failed\": [\n    {\n      \"name\": \"320x640 100%: scale control remains readable and reachable\",\n      \"status\": \"FAIL\",\n      \"error\": \"Error: false\"\n    }\n  ]\n}\n\nego's nodejs process exited with code 1.\n"
+    },
+    {
+      "suite": "gameplay",
+      "protocol": "http",
+      "command": "python3 tests/run-rwd.py --space 4 --keep-space --suite gameplay --protocol http",
+      "exitCode": 0,
+      "output": "",
+      "error": "{ spaceId: 4 }\n{\n  \"checks\": 30,\n  \"passed\": 30,\n  \"failed\": []\n}\n\n"
+    },
+    {
+      "suite": "account-gameplay",
+      "protocol": "http",
+      "command": "python3 tests/run-rwd.py --space 4 --keep-space --suite account-gameplay --protocol http",
+      "exitCode": 0,
+      "output": "",
+      "error": "{ spaceId: 4 }\n{ checks: 60, passed: 60, failed: [] }\n\n"
+    },
+    {
+      "suite": "visual-account-gameplay",
+      "protocol": "http",
+      "command": "python3 tests/run-rwd.py --space 4 --keep-space --suite visual-account-gameplay --protocol http",
+      "exitCode": 0,
+      "output": "",
+      "error": "[ { name: 'already named legacy role gets one free rename', status: 'PASS', result: true }, { name: 'mobile 100% account preview fits', status: 'PASS', result: true }, { name: 'mobile 100% rename fits', status: 'PASS', result: true }, { name: 'mobile 75% account preview fits', status: 'PASS', result: true }, { name: 'mobile 75% rename fits', status: 'PASS', result: true }, { name: 'shield Buff ability card shows AC -2', status: 'PASS', result: true }, { name: 'total ability card matches live AC', status: 'PASS', result: true }, { name: '1330x900 100% floating close remains visible', status: 'PASS', result: true }, { name: '1330x900 75% floating close remains visible', status: 'PASS', result: true }, { name: '390x844 100% floating close remains visible', status: 'PASS', result: true }, { name: '390x844 75% floating close remains visible', status: 'PASS', result: true }, { name: '844x390 75% floating close remains visible', status: 'PASS', result: true }, { name: 'no visual QA runtime errors', status: 'PASS', result: true } ]\n\n"
+    },
+    {
+      "suite": "companion-commands",
+      "protocol": "http",
+      "command": "python3 tests/run-rwd.py --space 4 --keep-space --suite companion-commands --protocol http",
+      "exitCode": 0,
+      "output": "",
+      "error": "{ spaceId: 4 }\n{ checks: 21, passed: 21, failed: [] }\n\n"
+    },
+    {
+      "suite": "addon-defaults",
+      "protocol": "http",
+      "command": "python3 tests/run-rwd.py --space 4 --keep-space --suite addon-defaults --protocol http",
+      "exitCode": 0,
+      "output": "",
+      "error": "{ spaceId: 4 }\n{ checks: 6, passed: 6, failed: [] }\n\n"
+    },
+    {
+      "suite": "rwd",
+      "protocol": "file",
+      "command": "python3 tests/run-rwd.py --space 4 --keep-space --suite rwd --protocol file",
+      "exitCode": 1,
+      "output": "",
+      "error": "Error: RWD validation failed\n    at file:////[eval2]:83:66\n{ spaceId: 4 }\n{\n  \"checks\": 221,\n  \"passed\": 212,\n  \"failed\": [\n    {\n      \"name\": \"320x640: setting labels remain readable\",\n      \"status\": \"FAIL\",\n      \"error\": \"Error: [{\\\"skill\\\":\\\"\u65e5\u5149\u8853\\\",\\\"width\\\":36},{\\\"skill\\\":\\\"\u4fdd\u8b77\u7f69\\\",\\\"width\\\":36},{\\\"skill\\\":\\\"\u795e\u8056\u6b66\u5668\\\",\\\"width\\\":48},{\\\"skill\\\":\\\"\u64ec\u4f3c\u9b54\u6cd5\u6b66\u5668\\\",\\\"width\\\":72},{\\\"skill\\\":\\\"\u7121\u6240\u9041\u5f62\u8853\\\",\\\"width\\\":60}]\"\n    },\n    {\n      \"name\": \"390x844: setting labels remain readable\",\n      \"status\": \"FAIL\",\n      \"error\": \"Error: [{\\\"skill\\\":\\\"\u65e5\u5149\u8853\\\",\\\"width\\\":36},{\\\"skill\\\":\\\"\u4fdd\u8b77\u7f69\\\",\\\"width\\\":36},{\\\"skill\\\":\\\"\u795e\u8056\u6b66\u5668\\\",\\\"width\\\":48},{\\\"skill\\\":\\\"\u64ec\u4f3c\u9b54\u6cd5\u6b66\u5668\\\",\\\"width\\\":72},{\\\"skill\\\":\\\"\u7121\u6240\u9041\u5f62\u8853\\\",\\\"width\\\":60}]\"\n    },\n    {\n      \"name\": \"768x1024: setting labels remain readable\",\n      \"status\": \"FAIL\",\n      \"error\": \"Error: [{\\\"skill\\\":\\\"\u65e5\u5149\u8853\\\",\\\"width\\\":36},{\\\"skill\\\":\\\"\u4fdd\u8b77\u7f69\\\",\\\"width\\\":36},{\\\"skill\\\":\\\"\u795e\u8056\u6b66\u5668\\\",\\\"width\\\":48},{\\\"skill\\\":\\\"\u64ec\u4f3c\u9b54\u6cd5\u6b66\u5668\\\",\\\"width\\\":72},{\\\"skill\\\":\\\"\u7121\u6240\u9041\u5f62\u8853\\\",\\\"width\\\":60}]\"\n    },\n    {\n      \"name\": \"844x390: setting labels remain readable\",\n      \"status\": \"FAIL\",\n      \"error\": \"Error: [{\\\"skill\\\":\\\"\u65e5\u5149\u8853\\\",\\\"width\\\":36},{\\\"skill\\\":\\\"\u4fdd\u8b77\u7f69\\\",\\\"width\\\":36},{\\\"skill\\\":\\\"\u795e\u8056\u6b66\u5668\\\",\\\"width\\\":48},{\\\"skill\\\":\\\"\u64ec\u4f3c\u9b54\u6cd5\u6b66\u5668\\\",\\\"width\\\":72},{\\\"skill\\\":\\\"\u7121\u6240\u9041\u5f62\u8853\\\",\\\"width\\\":60}]\"\n    },\n    {\n      \"name\": \"1024x768: setting labels remain readable\",\n      \"status\": \"FAIL\",\n      \"error\": \"Error: [{\\\"skill\\\":\\\"\u65e5\u5149\u8853\\\",\\\"width\\\":36},{\\\"skill\\\":\\\"\u4fdd\u8b77\u7f69\\\",\\\"width\\\":36},{\\\"skill\\\":\\\"\u795e\u8056\u6b66\u5668\\\",\\\"width\\\":48},{\\\"skill\\\":\\\"\u64ec\u4f3c\u9b54\u6cd5\u6b66\u5668\\\",\\\"width\\\":72},{\\\"skill\\\":\\\"\u7121\u6240\u9041\u5f62\u8853\\\",\\\"width\\\":60}]\"\n    },\n    {\n      \"name\": \"1199x800: setting labels remain readable\",\n      \"status\": \"FAIL\",\n      \"error\": \"Error: [{\\\"skill\\\":\\\"\u65e5\u5149\u8853\\\",\\\"width\\\":36},{\\\"skill\\\":\\\"\u4fdd\u8b77\u7f69\\\",\\\"width\\\":36},{\\\"skill\\\":\\\"\u795e\u8056\u6b66\u5668\\\",\\\"width\\\":48},{\\\"skill\\\":\\\"\u64ec\u4f3c\u9b54\u6cd5\u6b66\u5668\\\",\\\"width\\\":72},{\\\"skill\\\":\\\"\u7121\u6240\u9041\u5f62\u8853\\\",\\\"width\\\":60}]\"\n    },\n    {\n      \"name\": \"1330x759: setting labels remain readable\",\n      \"status\": \"FAIL\",\n      \"error\": \"Error: [{\\\"skill\\\":\\\"\u65e5\u5149\u8853\\\",\\\"width\\\":36},{\\\"skill\\\":\\\"\u4fdd\u8b77\u7f69\\\",\\\"width\\\":36},{\\\"skill\\\":\\\"\u795e\u8056\u6b66\u5668\\\",\\\"width\\\":48},{\\\"skill\\\":\\\"\u64ec\u4f3c\u9b54\u6cd5\u6b66\u5668\\\",\\\"width\\\":72},{\\\"skill\\\":\\\"\u7121\u6240\u9041\u5f62\u8853\\\",\\\"width\\\":60}]\"\n    },\n    {\n      \"name\": \"1440x900: setting labels remain readable\",\n      \"status\": \"FAIL\",\n      \"error\": \"Error: [{\\\"skill\\\":\\\"\u65e5\u5149\u8853\\\",\\\"width\\\":36},{\\\"skill\\\":\\\"\u4fdd\u8b77\u7f69\\\",\\\"width\\\":36},{\\\"skill\\\":\\\"\u795e\u8056\u6b66\u5668\\\",\\\"width\\\":48},{\\\"skill\\\":\\\"\u64ec\u4f3c\u9b54\u6cd5\u6b66\u5668\\\",\\\"width\\\":72},{\\\"skill\\\":\\\"\u7121\u6240\u9041\u5f62\u8853\\\",\\\"width\\\":60}]\"\n    },\n    {\n      \"name\": \"1920x1080: setting labels remain readable\",\n      \"status\": \"FAIL\",\n      \"error\": \"Error: [{\\\"skill\\\":\\\"\u65e5\u5149\u8853\\\",\\\"width\\\":36},{\\\"skill\\\":\\\"\u4fdd\u8b77\u7f69\\\",\\\"width\\\":36},{\\\"skill\\\":\\\"\u795e\u8056\u6b66\u5668\\\",\\\"width\\\":48},{\\\"skill\\\":\\\"\u64ec\u4f3c\u9b54\u6cd5\u6b66\u5668\\\",\\\"width\\\":72},{\\\"skill\\\":\\\"\u7121\u6240\u9041\u5f62\u8853\\\",\\\"width\\\":60}]\"\n    }\n  ]\n}\n\nego's nodejs process exited with code 1.\n"
+    },
+    {
+      "suite": "ui-scale",
+      "protocol": "file",
+      "command": "python3 tests/run-rwd.py --space 4 --keep-space --suite ui-scale --protocol file",
+      "exitCode": 1,
+      "output": "",
+      "error": "Error: UI scale E2E failed\n    at [eval]:62:45\n{ spaceId: 4 }\n{\n  \"checks\": 100,\n  \"passed\": 99,\n  \"failed\": [\n    {\n      \"name\": \"320x640 100%: scale control remains readable and reachable\",\n      \"status\": \"FAIL\",\n      \"error\": \"Error: false\"\n    }\n  ]\n}\n\nego's nodejs process exited with code 1.\n"
+    },
+    {
+      "suite": "gameplay",
+      "protocol": "file",
+      "command": "python3 tests/run-rwd.py --space 4 --keep-space --suite gameplay --protocol file",
+      "exitCode": 0,
+      "output": "",
+      "error": "{ spaceId: 4 }\n{\n  \"checks\": 30,\n  \"passed\": 30,\n  \"failed\": []\n}\n\n"
+    },
+    {
+      "suite": "account-gameplay",
+      "protocol": "file",
+      "command": "python3 tests/run-rwd.py --space 4 --keep-space --suite account-gameplay --protocol file",
+      "exitCode": 0,
+      "output": "",
+      "error": "{ spaceId: 4 }\n{ checks: 60, passed: 60, failed: [] }\n\n"
+    },
+    {
+      "suite": "visual-account-gameplay",
+      "protocol": "file",
+      "command": "python3 tests/run-rwd.py --space 4 --keep-space --suite visual-account-gameplay --protocol file",
+      "exitCode": 0,
+      "output": "",
+      "error": "[ { name: 'already named legacy role gets one free rename', status: 'PASS', result: true }, { name: 'mobile 100% account preview fits', status: 'PASS', result: true }, { name: 'mobile 100% rename fits', status: 'PASS', result: true }, { name: 'mobile 75% account preview fits', status: 'PASS', result: true }, { name: 'mobile 75% rename fits', status: 'PASS', result: true }, { name: 'shield Buff ability card shows AC -2', status: 'PASS', result: true }, { name: 'total ability card matches live AC', status: 'PASS', result: true }, { name: '1330x900 100% floating close remains visible', status: 'PASS', result: true }, { name: '1330x900 75% floating close remains visible', status: 'PASS', result: true }, { name: '390x844 100% floating close remains visible', status: 'PASS', result: true }, { name: '390x844 75% floating close remains visible', status: 'PASS', result: true }, { name: '844x390 75% floating close remains visible', status: 'PASS', result: true }, { name: 'no visual QA runtime errors', status: 'PASS', result: true } ]\n\n"
+    },
+    {
+      "suite": "companion-commands",
+      "protocol": "file",
+      "command": "python3 tests/run-rwd.py --space 4 --keep-space --suite companion-commands --protocol file",
+      "exitCode": 0,
+      "output": "",
+      "error": "{ spaceId: 4 }\n{ checks: 21, passed: 21, failed: [] }\n\n"
+    },
+    {
+      "suite": "addon-defaults",
+      "protocol": "file",
+      "command": "python3 tests/run-rwd.py --space 4 --keep-space --suite addon-defaults --protocol file",
+      "exitCode": 0,
+      "output": "",
+      "error": "{ spaceId: 4 }\n{ checks: 6, passed: 6, failed: [] }\n\n"
+    }
+  ]
+}

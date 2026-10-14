@@ -1,0 +1,44 @@
+[
+  {
+    "width": 390,
+    "height": 844,
+    "scale": 100,
+    "tab": "weapons",
+    "pass": true
+  },
+  {
+    "width": 390,
+    "height": 844,
+    "scale": 100,
+    "tab": "armors",
+    "pass": true
+  },
+  {
+    "width": 390,
+    "height": 844,
+    "scale": 75,
+    "tab": "weapons",
+    "pass": true
+  },
+  {
+    "width": 390,
+    "height": 844,
+    "scale": 75,
+    "tab": "armors",
+    "pass": true
+  },
+  {
+    "width": 844,
+    "height": 390,
+    "scale": 75,
+    "tab": "weapons",
+    "pass": true
+  },
+  {
+    "width": 844,
+    "height": 390,
+    "scale": 75,
+    "tab": "armors",
+    "pass": true
+  }
+]

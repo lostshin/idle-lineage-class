@@ -1,0 +1,72 @@
+{
+  "reports": [
+    {
+      "name": "skill conditions omit action suffixes and retain percentage comparisons",
+      "status": "FAIL",
+      "error": "Error: false"
+    },
+    {
+      "name": "returning to town preserves the teammate live buff duration",
+      "status": "FAIL",
+      "error": "Error: false"
+    },
+    {
+      "name": "returning to town does not reset the player buff duration",
+      "status": "PASS"
+    },
+    {
+      "name": "the existing buff icon bar is visible on the village scene",
+      "status": "FAIL",
+      "error": "Error: false"
+    },
+    {
+      "name": "repeated town refreshes retain the current remaining time",
+      "status": "FAIL",
+      "error": "Error: false"
+    },
+    {
+      "name": "an expired live buff is not resurrected from stale source-role storage",
+      "status": "FAIL",
+      "error": "Error: false"
+    },
+    {
+      "name": "checked player buffs renew only when they expire in town",
+      "status": "PASS"
+    },
+    {
+      "name": "checked teammate buffs also renew in town with their native MP cost",
+      "status": "FAIL",
+      "error": "Error: false"
+    },
+    {
+      "name": "active buffs are not cast again on subsequent town ticks",
+      "status": "PASS"
+    },
+    {
+      "name": "leaving town reuses active buffs without another MP charge",
+      "status": "FAIL",
+      "error": "Error: false"
+    },
+    {
+      "name": "unchecked expired buffs disappear from both native and floating views",
+      "status": "PASS"
+    },
+    {
+      "name": "insufficient MP allows expiration and never creates a free buff",
+      "status": "PASS"
+    },
+    {
+      "name": "town maintenance retains silence and crowd-control restrictions",
+      "status": "PASS"
+    },
+    {
+      "name": "summoning remains blocked in the safe zone",
+      "status": "PASS"
+    },
+    {
+      "name": "single enhancement keeps the window open and refreshes enhancement and scroll count",
+      "status": "FAIL",
+      "error": "Error: false"
+    }
+  ]
+}

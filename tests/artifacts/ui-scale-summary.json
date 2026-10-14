@@ -1,0 +1,76 @@
+{
+  "feature": "原版設定中的整體 UI 縮放",
+  "range": {
+    "min": 75,
+    "max": 100,
+    "step": 5,
+    "default": 100
+  },
+  "storage": {
+    "key": "lineage_ui_scale",
+    "scope": "device preference through _lsGet/_lsSet; excluded from player.config"
+  },
+  "behavior": [
+    "Immediate scaling with one-click 100% reset",
+    "Viewport surfaces fill available screen space",
+    "Screen-coordinate popups, tooltips, warehouse dragging and VFX stay aligned",
+    "Scaled body background fills the viewport without exposed margins"
+  ],
+  "modifiedFiles": [
+    "index.html",
+    "js/03-combat-core.js",
+    "js/09-vfx-render.js",
+    "js/10-ui-tabs.js",
+    "js/11-world-map.js",
+    "js/14-craft-pandora.js",
+    "js/19-equipment-window.js",
+    "js/20-warehouse-window.js",
+    "js/24-pandora-relic-market.js",
+    "js/25-clan-system.js",
+    "js/26-world-channel.js",
+    "css/responsive.css",
+    "js/ui-scale.js",
+    "tests/run-rwd.py",
+    "tests/ui-scale.e2e.js"
+  ],
+  "results": [
+    {
+      "report": "ui-scale-report-http.json",
+      "checks": 100,
+      "passed": 100
+    },
+    {
+      "report": "ui-scale-report-file.json",
+      "checks": 100,
+      "passed": 100
+    },
+    {
+      "report": "rwd-report-http.json",
+      "checks": 221,
+      "passed": 221
+    },
+    {
+      "report": "rwd-report-file.json",
+      "checks": 221,
+      "passed": 221
+    }
+  ],
+  "rerun": [
+    "python3 tests/run-rwd.py --suite ui-scale",
+    "python3 tests/run-rwd.py --suite ui-scale --protocol file",
+    "python3 tests/run-rwd.py",
+    "python3 tests/run-rwd.py --protocol file"
+  ],
+  "checks": [
+    "JavaScript syntax: PASS",
+    "git diff --check: PASS"
+  ],
+  "privacy": "All E2E storage and screenshots use synthetic characters. Personal progress and iCloud backup were not used.",
+  "limitations": [
+    "Ego Chromium verified; physical Safari and actual desktop package not tested."
+  ],
+  "screenshots": [
+    "ui-scale-75.png",
+    "ui-scale-100.png"
+  ]
+}

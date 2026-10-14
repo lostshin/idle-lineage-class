@@ -1,0 +1,17 @@
+{
+  "method": "Ego Page.printToPDF with screen media, rendered locally by sips",
+  "reports": [
+    {
+      "name": "all seven original sprite thumbnails load",
+      "status": "PASS"
+    },
+    {
+      "name": "all companion names share the same font and no underline",
+      "status": "PASS"
+    },
+    {
+      "name": "no visual fixture runtime errors",
+      "status": "PASS"
+    }
+  ]
+}

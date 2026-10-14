@@ -1,0 +1,638 @@
+{
+  "status": "PASS",
+  "scope": "天堂原版 UI 與經確認的加掛功能整合",
+  "testRuns": [
+    {
+      "suite": "game-tools",
+      "protocol": "http",
+      "exitCode": 0,
+      "log": "tests/artifacts/integration-game-tools-http.log",
+      "checks": 49,
+      "passed": 49
+    },
+    {
+      "suite": "visual-game-tools",
+      "protocol": "http",
+      "exitCode": 0,
+      "log": "tests/artifacts/integration-visual-game-tools-http.log",
+      "checks": 14,
+      "passed": 14
+    },
+    {
+      "suite": "account-gameplay",
+      "protocol": "http",
+      "exitCode": 0,
+      "log": "tests/artifacts/integration-account-gameplay-http.log",
+      "checks": 57,
+      "passed": 57
+    },
+    {
+      "suite": "visual-account-gameplay",
+      "protocol": "http",
+      "exitCode": 0,
+      "log": "tests/artifacts/integration-visual-account-gameplay-http.log",
+      "checks": 11,
+      "passed": 11
+    },
+    {
+      "suite": "companion-commands",
+      "protocol": "http",
+      "exitCode": 0,
+      "log": "tests/artifacts/integration-companion-commands-http.log",
+      "checks": 33,
+      "passed": 33
+    },
+    {
+      "suite": "gameplay",
+      "protocol": "http",
+      "exitCode": 0,
+      "log": "tests/artifacts/integration-gameplay-http.log",
+      "checks": 30,
+      "passed": 30
+    },
+    {
+      "suite": "rwd",
+      "protocol": "http",
+      "exitCode": 0,
+      "log": "tests/artifacts/integration-rwd-http.log",
+      "checks": 221,
+      "passed": 221
+    },
+    {
+      "suite": "ui-scale",
+      "protocol": "http",
+      "exitCode": 0,
+      "log": "tests/artifacts/integration-ui-scale-http.log",
+      "checks": 100,
+      "passed": 100
+    },
+    {
+      "suite": "pwa",
+      "protocol": "http",
+      "exitCode": 0,
+      "log": "tests/artifacts/integration-pwa-http.log",
+      "checks": 8,
+      "passed": 8
+    },
+    {
+      "suite": "game-tools",
+      "protocol": "file",
+      "exitCode": 0,
+      "log": "tests/artifacts/integration-game-tools-file.log",
+      "checks": 49,
+      "passed": 49
+    },
+    {
+      "suite": "visual-game-tools",
+      "protocol": "file",
+      "exitCode": 0,
+      "log": "tests/artifacts/integration-visual-game-tools-file.log",
+      "checks": 14,
+      "passed": 14
+    },
+    {
+      "suite": "account-gameplay",
+      "protocol": "file",
+      "exitCode": 0,
+      "log": "tests/artifacts/integration-account-gameplay-file.log",
+      "checks": 57,
+      "passed": 57
+    },
+    {
+      "suite": "visual-account-gameplay",
+      "protocol": "file",
+      "exitCode": 0,
+      "log": "tests/artifacts/integration-visual-account-gameplay-file.log",
+      "checks": 11,
+      "passed": 11
+    },
+    {
+      "suite": "companion-commands",
+      "protocol": "file",
+      "exitCode": 0,
+      "log": "tests/artifacts/integration-companion-commands-file.log",
+      "checks": 33,
+      "passed": 33
+    },
+    {
+      "suite": "gameplay",
+      "protocol": "file",
+      "exitCode": 0,
+      "log": "tests/artifacts/integration-gameplay-file.log",
+      "checks": 30,
+      "passed": 30
+    },
+    {
+      "suite": "rwd",
+      "protocol": "file",
+      "exitCode": 0,
+      "log": "tests/artifacts/integration-rwd-file.log",
+      "checks": 221,
+      "passed": 221
+    },
+    {
+      "suite": "ui-scale",
+      "protocol": "file",
+      "exitCode": 0,
+      "log": "tests/artifacts/integration-ui-scale-file.log",
+      "checks": 100,
+      "passed": 100
+    },
+    {
+      "suite": "pwa",
+      "protocol": "file",
+      "exitCode": 0,
+      "log": "tests/artifacts/integration-pwa-file.log",
+      "checks": 1,
+      "passed": 1
+    }
+  ],
+  "totalChecks": 1039,
+  "staticChecks": {
+    "javascript": [
+      {
+        "file": "js/13-shop-save.js",
+        "status": "PASS",
+        "error": null
+      },
+      {
+        "file": "js/27-offline-rewards.js",
+        "status": "PASS",
+        "error": null
+      },
+      {
+        "file": "js/22-pets.js",
+        "status": "PASS",
+        "error": null
+      },
+      {
+        "file": "js/03-combat-core.js",
+        "status": "PASS",
+        "error": null
+      },
+      {
+        "file": "js/02-stats-recompute.js",
+        "status": "PASS",
+        "error": null
+      },
+      {
+        "file": "js/06-status-allies.js",
+        "status": "PASS",
+        "error": null
+      },
+      {
+        "file": "js/25-clan-system.js",
+        "status": "PASS",
+        "error": null
+      },
+      {
+        "file": "js/14-craft-pandora.js",
+        "status": "PASS",
+        "error": null
+      },
+      {
+        "file": "js/anim-manifest.js",
+        "status": "PASS",
+        "error": null
+      },
+      {
+        "file": "js/28-pvp-arena.js",
+        "status": "PASS",
+        "error": null
+      },
+      {
+        "file": "js/01-drops-config.js",
+        "status": "PASS",
+        "error": null
+      },
+      {
+        "file": "js/09-vfx-render.js",
+        "status": "PASS",
+        "error": null
+      },
+      {
+        "file": "js/29-siege-v2-data.js",
+        "status": "PASS",
+        "error": null
+      },
+      {
+        "file": "js/24-pandora-relic-market.js",
+        "status": "PASS",
+        "error": null
+      },
+      {
+        "file": "js/20-warehouse-window.js",
+        "status": "PASS",
+        "error": null
+      },
+      {
+        "file": "js/10-ui-tabs.js",
+        "status": "PASS",
+        "error": null
+      },
+      {
+        "file": "js/game-activities.js",
+        "status": "PASS",
+        "error": null
+      },
+      {
+        "file": "js/08-items-equip.js",
+        "status": "PASS",
+        "error": null
+      },
+      {
+        "file": "js/reference-tools.js",
+        "status": "PASS",
+        "error": null
+      },
+      {
+        "file": "js/party-inspector.js",
+        "status": "PASS",
+        "error": null
+      },
+      {
+        "file": "js/battle-automation.js",
+        "status": "PASS",
+        "error": null
+      },
+      {
+        "file": "js/effect-details.js",
+        "status": "PASS",
+        "error": null
+      },
+      {
+        "file": "js/system-tools.js",
+        "status": "PASS",
+        "error": null
+      },
+      {
+        "file": "js/32-threat.js",
+        "status": "PASS",
+        "error": null
+      },
+      {
+        "file": "js/account-transfer.js",
+        "status": "PASS",
+        "error": null
+      },
+      {
+        "file": "js/18-misc-book.js",
+        "status": "PASS",
+        "error": null
+      },
+      {
+        "file": "js/07-skills-cast.js",
+        "status": "PASS",
+        "error": null
+      },
+      {
+        "file": "js/00-data.js",
+        "status": "PASS",
+        "error": null
+      },
+      {
+        "file": "js/game-tools-core.js",
+        "status": "PASS",
+        "error": null
+      },
+      {
+        "file": "js/31-castle-guards.js",
+        "status": "PASS",
+        "error": null
+      },
+      {
+        "file": "js/21-relic-book.js",
+        "status": "PASS",
+        "error": null
+      },
+      {
+        "file": "js/11-world-map.js",
+        "status": "PASS",
+        "error": null
+      },
+      {
+        "file": "js/23-summons.js",
+        "status": "PASS",
+        "error": null
+      },
+      {
+        "file": "js/ui-scale.js",
+        "status": "PASS",
+        "error": null
+      },
+      {
+        "file": "js/15-cards.js",
+        "status": "PASS",
+        "error": null
+      },
+      {
+        "file": "js/30-siege-v2.js",
+        "status": "PASS",
+        "error": null
+      },
+      {
+        "file": "js/04-combat-attack.js",
+        "status": "PASS",
+        "error": null
+      },
+      {
+        "file": "js/inventory-tools.js",
+        "status": "PASS",
+        "error": null
+      },
+      {
+        "file": "js/26-world-channel.js",
+        "status": "PASS",
+        "error": null
+      },
+      {
+        "file": "js/companion-commands.js",
+        "status": "PASS",
+        "error": null
+      },
+      {
+        "file": "js/05-kill-progression.js",
+        "status": "PASS",
+        "error": null
+      },
+      {
+        "file": "js/17-audio.js",
+        "status": "PASS",
+        "error": null
+      },
+      {
+        "file": "js/19-equipment-window.js",
+        "status": "PASS",
+        "error": null
+      },
+      {
+        "file": "js/12-npc-quests.js",
+        "status": "PASS",
+        "error": null
+      },
+      {
+        "file": "js/16-equip-book.js",
+        "status": "PASS",
+        "error": null
+      },
+      {
+        "file": "js/pwa.js",
+        "status": "PASS",
+        "error": null
+      },
+      {
+        "file": "tests/ui-scale.e2e.js",
+        "status": "PASS",
+        "error": null
+      },
+      {
+        "file": "tests/visual-game-tools.js",
+        "status": "PASS",
+        "error": null
+      },
+      {
+        "file": "tests/account-gameplay.e2e.js",
+        "status": "PASS",
+        "error": null
+      },
+      {
+        "file": "tests/rwd.e2e.js",
+        "status": "PASS",
+        "error": null
+      },
+      {
+        "file": "tests/gameplay.e2e.js",
+        "status": "PASS",
+        "error": null
+      },
+      {
+        "file": "tests/visual-account-gameplay.js",
+        "status": "PASS",
+        "error": null
+      },
+      {
+        "file": "tests/game-tools.e2e.js",
+        "status": "PASS",
+        "error": null
+      },
+      {
+        "file": "tests/pwa.e2e.js",
+        "status": "PASS",
+        "error": null
+      },
+      {
+        "file": "tests/companion-commands.e2e.js",
+        "status": "PASS",
+        "error": null
+      },
+      {
+        "file": "sw.js",
+        "status": "PASS",
+        "error": null
+      }
+    ],
+    "pythonAST": "PASS",
+    "gitDiffCheck": {
+      "status": "PASS",
+      "output": ""
+    },
+    "manifestJSON": "PASS"
+  },
+  "modifiedFiles": [
+    "index.html",
+    "css/responsive.css",
+    "css/game-tools.css",
+    "assets/ui/pwa-icon.svg",
+    "js/00-data.js",
+    "js/03-combat-core.js",
+    "js/04-combat-attack.js",
+    "js/05-kill-progression.js",
+    "js/06-status-allies.js",
+    "js/07-skills-cast.js",
+    "js/08-items-equip.js",
+    "js/09-vfx-render.js",
+    "js/10-ui-tabs.js",
+    "js/11-world-map.js",
+    "js/12-npc-quests.js",
+    "js/13-shop-save.js",
+    "js/17-audio.js",
+    "js/22-pets.js",
+    "js/24-pandora-relic-market.js",
+    "js/25-clan-system.js",
+    "js/account-transfer.js",
+    "js/party-inspector.js",
+    "js/effect-details.js",
+    "js/game-tools-core.js",
+    "js/inventory-tools.js",
+    "js/battle-automation.js",
+    "js/game-activities.js",
+    "js/reference-tools.js",
+    "js/system-tools.js",
+    "js/pwa.js",
+    "scripts/start-game.py",
+    "scripts/update-cache.py",
+    "sw.js",
+    "manifest.webmanifest",
+    "tests/game-tools.e2e.js",
+    "tests/pwa.e2e.js",
+    "tests/visual-game-tools.js",
+    "tests/run-rwd.py",
+    "tests/account-gameplay.e2e.js",
+    "tests/gameplay.e2e.js",
+    "tests/visual-account-gameplay.js"
+  ],
+  "sourceHashes": {
+    "index.html": "e1c5d77720d5236016c5f90e5b0499fa58c0b4d944279ca1fb26d35a4102871b",
+    "css/responsive.css": "7626d63c3b7200728fefbb408f4025cab9a32f23b07c971bb6405e75c470d63d",
+    "css/game-tools.css": "37619cd9bb5e3edbcbf44d4c7429ce8477973438e99ff616be92207e2d70b425",
+    "assets/ui/pwa-icon.svg": "c429c03801bb03fca25b6d8b736fcb0657fe053e38d4b2332ce86535aca9b2f9",
+    "js/00-data.js": "9db14e499fc6f79e5883392dd96f7ac5a5461d1954d497d2e8f9a01289afcef6",
+    "js/03-combat-core.js": "735dd44e43329dce8f64ea2ccd31dc7e3173869dd81b1262b2d01c14d519a3cc",
+    "js/04-combat-attack.js": "19ef4004eaa9aac628c72580fa3ccd2c29a177920dcb2d2e5fa18793ebff6876",
+    "js/05-kill-progression.js": "940e64e93f0978d2a67e738d59af888ddbeaf703d9ebf2c90060c0a6b31a26d8",
+    "js/06-status-allies.js": "532b5692701aca9d0b89af45b971ba63ce563aa749d39954d68b7716acfd40aa",
+    "js/07-skills-cast.js": "bd26f94da35d86dd9a0ecb6b3f6250204fbb395db330895b74d0bc7614e6b122",
+    "js/08-items-equip.js": "cdff4fac6865d5db0f4598d157036d18304167c3ead498ae1d110441d206e108",
+    "js/09-vfx-render.js": "782f54ea85bfe260b83193a76c97b8b58d8114fdf9063e90fb25e769684d6646",
+    "js/10-ui-tabs.js": "88a027f59cfcaea7344ee1cce52613cdbcd667346e050d19fa553149f4bc7721",
+    "js/11-world-map.js": "0a745311d0fb24d9d853f27e1f80dd2de59ac991a66a59a585063b2d06621c54",
+    "js/12-npc-quests.js": "267a3fca9d2b9388190135278a8c53681031242cce805d608d44580ffcc6c332",
+    "js/13-shop-save.js": "dadd5de50d235016efc8edef5e23bdd12e75c4886b9361641af2f1554eb9fcb5",
+    "js/17-audio.js": "3326e554a6920f4288233bb29505d633b96d959456e9cad7ab879bd4da74cd4f",
+    "js/22-pets.js": "de6e56f072487ab290465de4ac1913402fb67702aab9f761c61ccb29abbdee16",
+    "js/24-pandora-relic-market.js": "bb8e1d692fbcf98f2613d6cda88dc91027f01397fa88d012f9f0ad66f205a956",
+    "js/25-clan-system.js": "a37afca45ad0604b02943cfca7570ee0440c3691a1fd7e05f7d5def1ef42955f",
+    "js/account-transfer.js": "296f38ef72e8b47586cc444de124fbc8b7918a55e748c2ef525d77b4cdd1563f",
+    "js/party-inspector.js": "40e9ca385a47284da5cae8b3945501fd448ab71f347a6de57e9040d61c4662aa",
+    "js/effect-details.js": "2b842f2b8bee617cbebb33a3105c7af4e31a6569e537cc181526975352da850a",
+    "js/game-tools-core.js": "e961af4920e4f8ca9c2b3d5dfe766961327ed07a5baa27541fbd65931f58781f",
+    "js/inventory-tools.js": "dee7d4c31f3bd26541f73edda0a605b9748e5a574bfaf9d69ab1a7c75dc8954b",
+    "js/battle-automation.js": "c15466556c4f660ecdd37ab333808e81773b52d357a7eaaa85a1f5fa5148a595",
+    "js/game-activities.js": "180566d1bf67527bc11b551503e2850928480f9a07235df7b4c9b5dd2453e9b0",
+    "js/reference-tools.js": "651f7377ac1d216641028a485230e94c025becab02f7766f6cea8b4ae774fa6b",
+    "js/system-tools.js": "ad09addda639e08022f5ff6c1da03e001d7d9769abb0d6afe0f33db90ec35d17",
+    "js/pwa.js": "1f1c3d085cebc53668a172f13594ac22bac0acd442ed0919bdfa30c4e9b23c52",
+    "scripts/start-game.py": "516a0567caef63c4e1f5650b9e86595176dcb6c296f59c54fa3f429396a2c988",
+    "scripts/update-cache.py": "fc5fd71d9bf8c0e55607b6c39fff88215f7404d08a625f3a8470ad5d20ab8644",
+    "sw.js": "f72d4f78d430ec9b39e5ca9d18c0d6b2ee3e405252575c6afdd37d8a5ff252e3",
+    "manifest.webmanifest": "858231d5743338ae2ed9ce89e21413cdc0e2749743c8d515c9b1530a56c9fba4",
+    "tests/game-tools.e2e.js": "ffd8275120ac77f1471c9e2915b86eb8cf87b8daaf70500fb7b340e4bec4dc5f",
+    "tests/pwa.e2e.js": "4ae5d50a12535f23c07c22ce0a831e4f4f53bcd685681ab3bc1ec8e72eb3c417",
+    "tests/visual-game-tools.js": "f02905ff6de105abfcac284d9fb47e93d2163bfec2dcdd5f9d5402a19423c93f",
+    "tests/run-rwd.py": "f0d1750c8d39c1435790c71a454ea47f70bbeb2d839d7a0281af6dc007d18e5a",
+    "tests/account-gameplay.e2e.js": "92f6e4b51fd4911fb05fadf997086b9f81048588581ad1ab31f8bcacbf1246b2",
+    "tests/gameplay.e2e.js": "48efc2b78bd18d3d888cd3b7728ac62be65f0505e30edcdbfae9dd5fd5094073",
+    "tests/visual-account-gameplay.js": "3c9b2e6818ea10208a7ff80b60d508b505e2b6373077d0bb41cc479387a3a630"
+  },
+  "visualEvidence": [
+    "tests/artifacts/commands-attack-1330-100-file.png",
+    "tests/artifacts/commands-attack-1330-100-http.png",
+    "tests/artifacts/commands-attack-390-100-file.png",
+    "tests/artifacts/commands-attack-390-100-http.png",
+    "tests/artifacts/commands-attack-390-75-file.png",
+    "tests/artifacts/commands-attack-390-75-http.png",
+    "tests/artifacts/commands-guard-1330-100-file.png",
+    "tests/artifacts/commands-guard-1330-100-http.png",
+    "tests/artifacts/commands-guard-390-100-file.png",
+    "tests/artifacts/commands-guard-390-100-http.png",
+    "tests/artifacts/commands-guard-390-75-file.png",
+    "tests/artifacts/commands-guard-390-75-http.png",
+    "tests/artifacts/floating-party-1330-100-file.png",
+    "tests/artifacts/floating-party-1330-100-http.png",
+    "tests/artifacts/floating-party-390-100-file.png",
+    "tests/artifacts/floating-party-390-100-http.png",
+    "tests/artifacts/floating-party-390-75-file.png",
+    "tests/artifacts/floating-party-390-75-http.png",
+    "tests/artifacts/floating-party-844-75-file.png",
+    "tests/artifacts/floating-party-844-75-http.png",
+    "tests/artifacts/tools-dograce-file.png",
+    "tests/artifacts/tools-dograce-http.png",
+    "tests/artifacts/tools-home-1330-100-file.png",
+    "tests/artifacts/tools-home-1330-100-http.png",
+    "tests/artifacts/tools-home-390-100-file.png",
+    "tests/artifacts/tools-home-390-100-http.png",
+    "tests/artifacts/tools-home-390-75-file.png",
+    "tests/artifacts/tools-home-390-75-http.png",
+    "tests/artifacts/tools-home-844-75-file.png",
+    "tests/artifacts/tools-home-844-75-http.png",
+    "tests/artifacts/tools-inventory-search-file.png",
+    "tests/artifacts/tools-inventory-search-http.png",
+    "tests/artifacts/tools-inventory-sort-file.png",
+    "tests/artifacts/tools-inventory-sort-http.png",
+    "tests/artifacts/tools-reference-file.png",
+    "tests/artifacts/tools-reference-http.png",
+    "tests/artifacts/tools-relic-preview-file.png",
+    "tests/artifacts/tools-relic-preview-http.png",
+    "tests/artifacts/tools-system-1330-100-file.png",
+    "tests/artifacts/tools-system-1330-100-http.png",
+    "tests/artifacts/tools-system-390-100-file.png",
+    "tests/artifacts/tools-system-390-100-http.png",
+    "tests/artifacts/tools-system-390-75-file.png",
+    "tests/artifacts/tools-system-390-75-http.png",
+    "tests/artifacts/tools-system-844-75-file.png",
+    "tests/artifacts/tools-system-844-75-http.png",
+    "tests/artifacts/tools-training-battle-file.png",
+    "tests/artifacts/tools-training-battle-http.png",
+    "tests/artifacts/tools-training-picker-file.png",
+    "tests/artifacts/tools-training-picker-http.png"
+  ],
+  "localEntry": "http://127.0.0.1:8000/index.html",
+  "localServerPid": 13089,
+  "startCommand": "python3 scripts/start-game.py",
+  "cacheBuildCommand": "python3 scripts/update-cache.py",
+  "rerunCommands": [
+    "python3 tests/run-rwd.py --suite game-tools --protocol http",
+    "python3 tests/run-rwd.py --suite account-gameplay --protocol http",
+    "python3 tests/run-rwd.py --suite companion-commands --protocol http",
+    "python3 tests/run-rwd.py --suite gameplay --protocol http",
+    "python3 tests/run-rwd.py --suite rwd --protocol http",
+    "python3 tests/run-rwd.py --suite ui-scale --protocol http",
+    "python3 tests/run-rwd.py --suite pwa --protocol http",
+    "python3 tests/run-rwd.py --suite game-tools --protocol file",
+    "python3 tests/run-rwd.py --suite account-gameplay --protocol file",
+    "python3 tests/run-rwd.py --suite companion-commands --protocol file",
+    "python3 tests/run-rwd.py --suite gameplay --protocol file",
+    "python3 tests/run-rwd.py --suite rwd --protocol file",
+    "python3 tests/run-rwd.py --suite ui-scale --protocol file",
+    "python3 tests/run-rwd.py --suite pwa --protocol file"
+  ],
+  "visualRerun": "Run game-tools --keep-space, then visual-game-tools --space <reported id>; run account-gameplay --keep-space, then visual-account-gameplay --space <reported id>. Reuse one agent-owned space and finish it after verification.",
+  "features": [
+    "上鎖、遺物／傳說、席琳、特殊詞綴優先，普通同種類同品項分組",
+    "非模態隊友浮窗，桌機拖曳、手機底部 60% 高度、大字戰力、原圖 1／1.5／2 倍與鍵盤讀值",
+    "背包搜尋保留輸入焦點、遺物廢品保護、收購上鎖保護與高強化確認、快速強化 +15",
+    "廢品記憶、金幣全額存取、遺物預覽整理、一鍵附魔可停止、一鍵弱化",
+    "屏障 3→5 補货；找王／避王互斥；角色狀態驅動與地圖避王名單",
+    "NPC 名牌邊界、怪物名稱偏好、能力來源、狀態補充、傭兵提示／技能更新、查詢與黑市價格資訊",
+    "木人場隔離戰鬥、賽狗金幣／龍鑽交易與結算、逐角色隨機強化、追蹤地圖擴充",
+    "傭兵快照與 NPC 名冊瘦身、省電模式、存檔大小／寫入提醒、唯讀診斷",
+    "固定本地來源與 PWA 公開資源快取、完整版本更新、file:// 與桌面橋接降級",
+    "加掛版 idle-lineage-full 備份透過既有帳號預覽匯入；保留黑市、角色偏好與進度，拒絕超出八格及格式錯誤檔案"
+  ],
+  "compatibility": {
+    "http": "PASS",
+    "file": "PASS",
+    "desktopBridgeDouble": "PASS in account-gameplay",
+    "installedDesktopPackage": "NOT physically verified",
+    "SafariIOS": "NOT physically verified",
+    "PWAInstallOSDialog": "Manifest/cache/update verified; native browser or OS installation confirmation not exercised"
+  },
+  "excluded": [
+    "截圖關閉的 19 項介面／玩法修改",
+    "16 格選角、遠古掉落、重複遺物詞綴、試煉批次兌換",
+    "關頁後掛機收益（另案規劃）",
+    "六碼網路搬家、角色身分重發、iCloud 自動同步",
+    "第三方網站部署、真正帳號自動搬移"
+  ],
+  "isolation": "All browser acceptance checks used synthetic accounts in one agent-owned Ego task space. Real user saves, iCloud files and user-owned game tabs were not edited. Local server reads source/assets only.",
+  "references": [
+    "https://github.com/pp771007/idle-lineage-class/tree/5f00f4a86389aaa7309c24d7a7c1ab060c47b500"
+  ],
+  "backupDirectory": "<local backup directory>",
+  "unrelatedChanges": "Existing dirty files, project documentation and AGENTS.md were retained. No commit or deployment was performed.",
+  "browserTestSpace": {
+    "id": 2,
+    "finished": true,
+    "keptPages": []
+  }
+}

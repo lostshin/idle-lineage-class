@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-13T21:17:56.466Z",
+  "date": "2026-10-14T11:06:59.151Z",
   "reports": [
     {
       "name": "account transfer has independent selection-page buttons",
@@ -194,7 +194,7 @@
       "status": "PASS"
     },
     {
-      "name": "1330x900 100%: full mercenary nickname stays readable",
+      "name": "1330x900 100%: mercenary nickname stays on one line with full-name access and profession",
       "status": "PASS"
     },
     {
@@ -202,7 +202,7 @@
       "status": "PASS"
     },
     {
-      "name": "390x844 100%: full mercenary nickname stays readable",
+      "name": "390x844 100%: mercenary nickname stays on one line with full-name access and profession",
       "status": "PASS"
     },
     {
@@ -210,7 +210,7 @@
       "status": "PASS"
     },
     {
-      "name": "390x844 75%: full mercenary nickname stays readable",
+      "name": "390x844 75%: mercenary nickname stays on one line with full-name access and profession",
       "status": "PASS"
     },
     {
@@ -218,7 +218,7 @@
       "status": "PASS"
     },
     {
-      "name": "844x390 75%: full mercenary nickname stays readable",
+      "name": "844x390 75%: mercenary nickname stays on one line with full-name access and profession",
       "status": "PASS"
     },
     {

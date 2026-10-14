@@ -1,0 +1,18 @@
+(async()=>{
+const fs=await import('node:fs/promises'),task=await taskSpace(options.space),page=task.page('p1');
+const seed=await page.evaluate(()=>{if(!window.__villageData)throw Error('Synthetic village test storage required');return {...__villageData};});
+const init=(await page.cdp('Page.addScriptToEvaluateOnNewDocument',{source:`(()=>{window.__villageData=${JSON.stringify(seed)};window.__errors=[];const s={getItem:k=>__villageData[k]??null,setItem:(k,v)=>__villageData[k]=String(v),removeItem:k=>delete __villageData[k],key:i=>Object.keys(__villageData)[i]??null,get length(){return Object.keys(__villageData).length}};Object.defineProperty(window,'localStorage',{value:s,configurable:true});Object.defineProperty(window,'sessionStorage',{value:s,configurable:true});addEventListener('error',e=>__errors.push(e.message));})();`})).identifier;
+await page.goto('file://'+options.root+'/index.html?village-preview');await page.waitForFunction(()=>document.readyState==='complete'&&typeof startGame==='function');
+await page.cdp('Emulation.setEmulatedMedia',{media:'screen'});await page.cdp('Emulation.setDeviceMetricsOverride',{width:1920,height:1080,deviceScaleFactor:1,mobile:false});await page.cdp('Emulation.setTouchEmulationEnabled',{enabled:false,maxTouchPoints:1});
+await page.evaluate(()=>{_bgHeartbeatWorker?.terminate();_bgHeartbeatWorker=null;_getLzWorker=()=>null;setUiScale(100);currentSlot=1;loadGame();stopGameTimers();state.running=false;_showMobStatus=false;renderTownNPCMap(mapState.current);switchTab('clan',document.querySelector('[onclick="switchTab(\'clan\', this)"]'));});
+await page.waitForFunction(()=>Array.from(document.querySelectorAll('.tn-body')).every(i=>i.complete&&i.naturalWidth>0),undefined,{timeout:15000});
+async function print(name,w,h){const r=await page.cdp('Page.printToPDF',{printBackground:true,paperWidth:w/96,paperHeight:h/96,marginTop:0,marginBottom:0,marginLeft:0,marginRight:0,scale:1});await fs.mkdir(options.root+'/tmp/pdfs',{recursive:true});await fs.writeFile(options.root+'/tmp/pdfs/'+name+'.pdf',Buffer.from(r.data,'base64'));}
+const reports=[{name:'village labels are visible with battle status off',status:await page.evaluate(()=>Array.from(document.querySelectorAll('.tn-label')).every(e=>getComputedStyle(e).opacity==='1'))?'PASS':'FAIL'}];
+await print('village-clan-desktop',1920,1080);
+await page.cdp('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});await page.evaluate(()=>{document.getElementById('tab-clan').scrollIntoView({block:'start'});});await print('clan-buff-mobile',390,844);
+await page.cdp('Emulation.setDeviceMetricsOverride',{width:1920,height:1080,deviceScaleFactor:1,mobile:false});await page.evaluate(()=>openWarehouseWindow());
+reports.push({name:'warehouse preview retains last saved amount',status:await page.evaluate(()=>document.getElementById('wh-gold-amt').value==='67000')?'PASS':'FAIL'});await print('warehouse-amount-desktop',1920,1080);
+await page.cdp('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});await print('warehouse-amount-mobile',390,844);
+reports.push({name:'no visual fixture runtime errors',status:await page.evaluate(()=>__errors.length===0)?'PASS':'FAIL'});
+await page.cdp('Page.removeScriptToEvaluateOnNewDocument',{identifier:init});await fs.writeFile(options.artifacts+'/village-clan-warehouse-visual.json',JSON.stringify({method:'Ego Page.printToPDF with screen media rendered locally by sips',reports},null,2));console.log(reports);if(reports.some(r=>r.status==='FAIL'))throw Error('Village visual checks failed');
+})();

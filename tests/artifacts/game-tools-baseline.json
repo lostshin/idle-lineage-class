@@ -1,0 +1,161 @@
+{
+  "date": "2026-10-13T15:24:17.978Z",
+  "reports": [
+    {
+      "name": "sorting puts locked and rare gear ahead of unrelated ordinary types without data loss",
+      "status": "FAIL",
+      "error": "Error: false"
+    },
+    {
+      "name": "quick junk groups exclude relics at all enhancement limits",
+      "status": "FAIL",
+      "error": "Error: false"
+    },
+    {
+      "name": "quick enhancement UI offers +15 and honors lower equipment caps",
+      "status": "FAIL",
+      "error": "Error: false"
+    },
+    {
+      "name": "inventory search filters original grid and never changes inventory",
+      "status": "FAIL",
+      "error": "Error: JavaScript evaluation failed at line 0, column 0: ReferenceError: equipmentTools is not defined\n    at <anonymous>:2:68\n    at __egoPageEvaluate (<anonymous>:2:358)\n    at <anonymous>:3:9; expression: ()=>{const before=JSON.stringify(player.inv);equipmentTools.setSearch('wpn','猴子');renderTabs(true);const names=Array.from(document.querySelectorAll('#tab-wea...\npage.evaluate() callbacks run inside the Page and cannot access variables from the Node.js script. Define the value inside the callback or pass JSON data as the second argument."
+    },
+    {
+      "name": "junk memory removal only removes the selected preference",
+      "status": "FAIL",
+      "error": "Error: JavaScript evaluation failed at line 0, column 0: ReferenceError: equipmentTools is not defined\n    at <anonymous>:2:61\n    at __egoPageEvaluate (<anonymous>:2:154)\n    at <anonymous>:3:9; expression: ()=>{player.junkPrefs={a:true,b:true};equipmentTools.removeJunkMemory('a');return !player.junkPrefs.a&&player.junkPrefs.b===true;}\npage.evaluate() callbacks run inside the Page and cannot access variables from the Node.js script. Define the value inside the callback or pass JSON data as the second argument."
+    },
+    {
+      "name": "all gold deposit and withdrawal conserve gold",
+      "status": "FAIL",
+      "error": "Error: JavaScript evaluation failed at line 0, column 0: ReferenceError: equipmentTools is not defined\n    at <anonymous>:2:88\n    at __egoPageEvaluate (<anonymous>:2:301)\n    at <anonymous>:3:9; expression: ()=>{const before=player.gold;saveWarehouse({items:[],gold:100});equipmentTools.transferGold('deposit');const w=loadWarehouse();const ok=player.gold===0&&w.g...\npage.evaluate() callbacks run inside the Page and cannot access variables from the Node.js script. Define the value inside the callback or pass JSON data as the second argument."
+    },
+    {
+      "name": "failed gold transfer restores inventory and durable warehouse",
+      "status": "PASS"
+    },
+    {
+      "name": "relic plan preserves best and all locked copies and cannot sell protected ones",
+      "status": "FAIL",
+      "error": "Error: JavaScript evaluation failed at line 0, column 0: ReferenceError: equipmentTools is not defined\n    at <anonymous>:2:211\n    at __egoPageEvaluate (<anonymous>:2:368)\n    at <anonymous>:3:9; expression: ()=>{player.inv=[{id:'relic_monkey_staff',uid:'r1',cnt:2,en:0},{id:'relic_monkey_staff',uid:'r2',cnt:1,en:0,bless:true},{id:'relic_monkey_staff',uid:'r3',cnt...\npage.evaluate() callbacks run inside the Page and cannot access variables from the Node.js script. Define the value inside the callback or pass JSON data as the second argument."
+    },
+    {
+      "name": "relic recycling updates count and diamonds exactly once",
+      "status": "FAIL",
+      "error": "Error: JavaScript evaluation failed at line 0, column 0: ReferenceError: equipmentTools is not defined\n    at <anonymous>:2:63\n    at __egoPageEvaluate (<anonymous>:2:195)\n    at <anonymous>:3:9; expression: ()=>{const d=pandoraGetSharedDiamonds();equipmentTools.processRelics('diamonds',{r1:1});return player.inv.find(i=>i.uid==='r1').cnt===1&&pandoraGetSharedDiam...\npage.evaluate() callbacks run inside the Page and cannot access variables from the Node.js script. Define the value inside the callback or pass JSON data as the second argument."
+    },
+    {
+      "name": "failed relic operation restores diamonds and gear",
+      "status": "PASS"
+    },
+    {
+      "name": "single good-equipment sales still use the original interaction without new sell guard",
+      "status": "PASS"
+    },
+    {
+      "name": "automatic boss settings are exclusive and survive panel hiding",
+      "status": "FAIL",
+      "error": "Error: JavaScript evaluation failed at line 0, column 0: ReferenceError: battleAutomation is not defined\n    at <anonymous>:2:28\n    at __egoPageEvaluate (<anonymous>:2:232)\n    at <anonymous>:3:9; expression: ()=>{battleAutomation.setMode('hunt');battleAutomation.setMode('avoid');document.getElementById('tab-automation').classList.add('hidden');return player.confi...\npage.evaluate() callbacks run inside the Page and cannot access variables from the Node.js script. Define the value inside the callback or pass JSON data as the second argument."
+    },
+    {
+      "name": "barrier stock refills below 3 to 5 using native discounted prices",
+      "status": "FAIL",
+      "error": "Error: JavaScript evaluation failed at line 0, column 0: ReferenceError: battleAutomation is not defined\n    at <anonymous>:2:171\n    at __egoPageEvaluate (<anonymous>:2:294)\n    at <anonymous>:3:9; expression: ()=>{player.inv=[];player.gold=50000;player.config.barrierStock=true;const price=shopPrice(DB.items.scroll_magicbarrier.p);const before=player.gold;battleAut...\npage.evaluate() callbacks run inside the Page and cannot access variables from the Node.js script. Define the value inside the callback or pass JSON data as the second argument."
+    },
+    {
+      "name": "barrier refill is disabled per role and leaves stock of 3 untouched",
+      "status": "FAIL",
+      "error": "Error: JavaScript evaluation failed at line 0, column 0: ReferenceError: battleAutomation is not defined\n    at <anonymous>:2:123\n    at __egoPageEvaluate (<anonymous>:2:275)\n    at <anonymous>:3:9; expression: ()=>{player.inv=[{id:'scroll_magicbarrier',uid:'scroll-stock',cnt:3,en:0}];const before=player.gold;battleAutomation.refill();player.config.barrierStock=fals...\npage.evaluate() callbacks run inside the Page and cannot access variables from the Node.js script. Define the value inside the callback or pass JSON data as the second argument."
+    },
+    {
+      "name": "barrier stock buys only affordable units without negative currency",
+      "status": "FAIL",
+      "error": "Error: JavaScript evaluation failed at line 0, column 0: ReferenceError: battleAutomation is not defined\n    at <anonymous>:2:134\n    at __egoPageEvaluate (<anonymous>:2:244)\n    at <anonymous>:3:9; expression: ()=>{player.config.barrierStock=true;const price=shopPrice(DB.items.scroll_magicbarrier.p);player.gold=price*2;battleAutomation.refill();return player.gold==...\npage.evaluate() callbacks run inside the Page and cannot access variables from the Node.js script. Define the value inside the callback or pass JSON data as the second argument."
+    },
+    {
+      "name": "avoid selections are stored independently for each map",
+      "status": "FAIL",
+      "error": "Error: JavaScript evaluation failed at line 0, column 0: ReferenceError: battleAutomation is not defined\n    at <anonymous>:2:28\n    at __egoPageEvaluate (<anonymous>:2:219)\n    at <anonymous>:3:9; expression: ()=>{battleAutomation.setAvoid('training',['orc']);battleAutomation.setAvoid('giran_field',[]);return player.config.bossAvoid.training[0]==='orc'&&player.con...\npage.evaluate() callbacks run inside the Page and cannot access variables from the Node.js script. Define the value inside the callback or pass JSON data as the second argument."
+    },
+    {
+      "name": "boss hunting never burns a scroll on town or no-boss maps",
+      "status": "FAIL",
+      "error": "Error: JavaScript evaluation failed at line 0, column 0: ReferenceError: battleAutomation is not defined\n    at <anonymous>:2:28\n    at __egoPageEvaluate (<anonymous>:2:316)\n    at <anonymous>:3:9; expression: ()=>{battleAutomation.setMode('hunt');player.inv=[{id:'acc_116',uid:'ring',cnt:1,en:0},{id:'scroll_teleport',uid:'tp',cnt:5,en:0}];const old=mapState.current...\npage.evaluate() callbacks run inside the Page and cannot access variables from the Node.js script. Define the value inside the callback or pass JSON data as the second argument."
+    },
+    {
+      "name": "random-enhancement mode is opt-in, skips shops and respects original caps",
+      "status": "FAIL",
+      "error": "Error: JavaScript evaluation failed at line 0, column 0: ReferenceError: gameActivities is not defined\n    at <anonymous>:2:70\n    at __egoPageEvaluate (<anonymous>:2:401)\n    at <anonymous>:3:9; expression: ()=>{player.config.randomEnhance=false;const a=gameActivities.rollEnhance(DB.items.wpn_1,false);player.config.randomEnhance=true;const shop=gameActivities.ro...\npage.evaluate() callbacks run inside the Page and cannot access variables from the Node.js script. Define the value inside the callback or pass JSON data as the second argument."
+    },
+    {
+      "name": "traditional mode never rerolls existing gear or relics",
+      "status": "FAIL",
+      "error": "Error: JavaScript evaluation failed at line 0, column 0: ReferenceError: gameActivities is not defined\n    at <anonymous>:2:68\n    at __egoPageEvaluate (<anonymous>:2:216)\n    at <anonymous>:3:9; expression: ()=>{const before=JSON.stringify(player.inv);gameActivities.setTraditional(true);return JSON.stringify(player.inv)===before&&gameActivities.rollEnhance(DB.it...\npage.evaluate() callbacks run inside the Page and cannot access variables from the Node.js script. Define the value inside the callback or pass JSON data as the second argument."
+    },
+    {
+      "name": "training uses real combat while isolating currency, inventory and durable saves",
+      "status": "FAIL",
+      "error": "Error: JavaScript evaluation failed at line 0, column 0: ReferenceError: gameActivities is not defined\n    at <anonymous>:2:120\n    at __egoPageEvaluate (<anonymous>:2:342)\n    at <anonymous>:3:9; expression: ()=>{player.gold=50000;const before=saveStateJson(),raw=_lsGet('lineage_idle_save_'+currentSlot);gameActivities.enterTraining(['orc'],0);playerAttack();const...\npage.evaluate() callbacks run inside the Page and cannot access variables from the Node.js script. Define the value inside the callback or pass JSON data as the second argument."
+    },
+    {
+      "name": "race debit is persisted with ticket and rejected when funds are insufficient",
+      "status": "FAIL",
+      "error": "Error: JavaScript evaluation failed at line 0, column 0: ReferenceError: gameActivities is not defined\n    at <anonymous>:2:72\n    at __egoPageEvaluate (<anonymous>:2:378)\n    at <anonymous>:3:9; expression: ()=>{player.gold=100000;const before=player.gold;gameActivities.raceNow=()=>300001;gameActivities.bet(0,'gold',10000);const t=player.raceTickets.at(-1);let d...\npage.evaluate() callbacks run inside the Page and cannot access variables from the Node.js script. Define the value inside the callback or pass JSON data as the second argument."
+    },
+    {
+      "name": "race settlement and subsequent settlement never pay twice",
+      "status": "FAIL",
+      "error": "Error: JavaScript evaluation failed at line 0, column 0: ReferenceError: gameActivities is not defined\n    at <anonymous>:2:52\n    at __egoPageEvaluate (<anonymous>:2:287)\n    at <anonymous>:3:9; expression: ()=>{const id=1;const winner=gameActivities.race(id).winner;const t=player.raceTickets.at(-1);t.dogIdx=winner;gameActivities.raceNow=()=>600001;gameActivitie...\npage.evaluate() callbacks run inside the Page and cannot access variables from the Node.js script. Define the value inside the callback or pass JSON data as the second argument."
+    },
+    {
+      "name": "failed race debit restores both money and tickets",
+      "status": "FAIL",
+      "error": "Error: JavaScript evaluation failed at line 0, column 0: ReferenceError: gameActivities is not defined\n    at <anonymous>:2:28\n    at __egoPageEvaluate (<anonymous>:2:345)\n    at <anonymous>:3:9; expression: ()=>{gameActivities.raceNow=()=>600001;const before=JSON.stringify(player.raceTickets),gold=player.gold;__failKey='lineage_idle_save_'+currentSlot;let failed...\npage.evaluate() callbacks run inside the Page and cannot access variables from the Node.js script. Define the value inside the callback or pass JSON data as the second argument."
+    },
+    {
+      "name": "reimporting the same account never reopens already settled local race tickets",
+      "status": "FAIL",
+      "error": "Error: JavaScript evaluation failed at line 0, column 0: TypeError: Cannot read properties of undefined (reading 'at')\n    at <anonymous>:2:86\n    at __egoPageEvaluate (<anonymous>:2:321)\n    at <anonymous>:3:9; expression: ()=>{const doc=accountRoleDoc(currentSlot),t=doc.p.raceTickets.at(-1);if(!t)return false;const imported=JSON.parse(JSON.stringify(doc));imported.p.raceTicket..."
+    },
+    {
+      "name": "reference search reflects local DB and shows original native information",
+      "status": "FAIL",
+      "error": "Error: JavaScript evaluation failed at line 0, column 0: ReferenceError: gameReference is not defined\n    at <anonymous>:2:36\n    at __egoPageEvaluate (<anonymous>:2:151)\n    at <anonymous>:3:9; expression: ()=>{const r=gameReference.search('猴子');return r.some(x=>x.id==='relic_monkey_staff'&&x.name===DB.items.relic_monkey_staff.n);}\npage.evaluate() callbacks run inside the Page and cannot access variables from the Node.js script. Define the value inside the callback or pass JSON data as the second argument."
+    },
+    {
+      "name": "tracking extension adds hidden maps once without moving the player",
+      "status": "FAIL",
+      "error": "Error: false"
+    },
+    {
+      "name": "NPC roster keeps leaders and prunes old strangers without deleting contacts",
+      "status": "FAIL",
+      "error": "Error: JavaScript evaluation failed at line 0, column 0: ReferenceError: systemTools is not defined\n    at <anonymous>:2:214\n    at __egoPageEvaluate (<anonymous>:2:368)\n    at <anonymous>:3:9; expression: ()=>{const contacts=JSON.stringify(player.socialNpcContacts);const members={leader:{isLeader:true,clanId:'x',assignedAt:1}};for(let i=0;i<205;i++)members['s'...\npage.evaluate() callbacks run inside the Page and cannot access variables from the Node.js script. Define the value inside the callback or pass JSON data as the second argument."
+    },
+    {
+      "name": "power-saving changes rendering preferences without changing game tick",
+      "status": "FAIL",
+      "error": "Error: JavaScript evaluation failed at line 0, column 0: ReferenceError: systemTools is not defined\n    at <anonymous>:2:49\n    at __egoPageEvaluate (<anonymous>:2:265)\n    at <anonymous>:3:9; expression: ()=>{const before=TICK_MS;systemTools.setPower(true);const on=document.documentElement.classList.contains('power-saving');systemTools.setPower(false);return ...\npage.evaluate() callbacks run inside the Page and cannot access variables from the Node.js script. Define the value inside the callback or pass JSON data as the second argument."
+    },
+    {
+      "name": "diagnostics do not expose names, character documents or save contents",
+      "status": "FAIL",
+      "error": "Error: JavaScript evaluation failed at line 0, column 0: ReferenceError: systemTools is not defined\n    at <anonymous>:2:56\n    at __egoPageEvaluate (<anonymous>:2:205)\n    at <anonymous>:3:9; expression: ()=>{const report=JSON.stringify(systemTools.diagnostics());return !report.includes(player.name)&&!report.includes('enSeed')&&!report.includes('\"inv\"')&&repo...\npage.evaluate() callbacks run inside the Page and cannot access variables from the Node.js script. Define the value inside the callback or pass JSON data as the second argument."
+    },
+    {
+      "name": "party inspector floats without a modal backdrop and keeps native artwork",
+      "status": "FAIL",
+      "error": "Error: false"
+    },
+    {
+      "name": "large summary uses live AC and is readable at 75 percent",
+      "status": "FAIL",
+      "error": "Error: JavaScript evaluation failed at line 0, column 0: TypeError: Cannot read properties of null (reading 'textContent')\n    at <anonymous>:2:136\n    at __egoPageEvaluate (<anonymous>:2:259)\n    at <anonymous>:3:9; expression: ()=>{setUiScale(75);refreshPartyInspector();const e=document.querySelector('[data-party-summary=\"ac\"]');return e.textContent===document.getElementById('party..."
+    },
+    {
+      "name": "no uncaught runtime errors",
+      "status": "PASS"
+    }
+  ]
+}

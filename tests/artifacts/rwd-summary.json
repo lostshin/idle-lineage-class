@@ -1,0 +1,107 @@
+{
+  "sourceCommit": "b3fb21ce1960954adbbfcaa8f6dde9c8642d208b",
+  "modifiedFiles": [
+    "index.html",
+    "css/responsive.css",
+    "js/19-equipment-window.js",
+    "tests/rwd.e2e.js",
+    "tests/run-rwd.py"
+  ],
+  "sizes": [
+    [
+      320,
+      640
+    ],
+    [
+      390,
+      844
+    ],
+    [
+      768,
+      1024
+    ],
+    [
+      844,
+      390
+    ],
+    [
+      1024,
+      768
+    ],
+    [
+      1199,
+      800
+    ],
+    [
+      1330,
+      759
+    ],
+    [
+      1440,
+      900
+    ],
+    [
+      1920,
+      1080
+    ]
+  ],
+  "runs": [
+    {
+      "protocol": "http",
+      "checks": 221,
+      "passed": 221,
+      "report": "rwd-report-http.json"
+    },
+    {
+      "protocol": "file",
+      "checks": 221,
+      "passed": 221,
+      "report": "rwd-report-file.json"
+    }
+  ],
+  "additionalBattleChecks": {
+    "sizes": [
+      [
+        320,
+        640
+      ],
+      [
+        844,
+        390
+      ],
+      [
+        1024,
+        768
+      ],
+      [
+        1330,
+        759
+      ],
+      [
+        1920,
+        1080
+      ]
+    ],
+    "results": "5 PASS; battle bounds, map/log containment and separation from lower panels"
+  },
+  "checks": [
+    "node --check js/19-equipment-window.js",
+    "node --check tests/rwd.e2e.js",
+    "git diff --check"
+  ],
+  "rerun": [
+    "python3 tests/run-rwd.py",
+    "python3 tests/run-rwd.py --protocol file"
+  ],
+  "storage": "Synthetic in-memory browser storage. Personal saves and iCloud backup were not used by tests.",
+  "limitations": [
+    "Validated in Ego Chromium with emulated viewport and touch input. Physical iPhone/iPad Safari and packaged desktop host not tested."
+  ],
+  "screenshots": [
+    "rwd-desktop.png",
+    "rwd-tablet.png",
+    "rwd-mobile-settings.png",
+    "rwd-mobile-buffs.png",
+    "rwd-mobile-battle.png"
+  ]
+}

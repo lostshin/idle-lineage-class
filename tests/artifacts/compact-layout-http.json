@@ -1,0 +1,117 @@
+{
+  "date": "2026-10-14T05:13:02.862Z",
+  "reports": [
+    {
+      "name": "audio labels and sliders share one line",
+      "status": "PASS"
+    },
+    {
+      "name": "UI scaling control uses a single compact row",
+      "status": "PASS"
+    },
+    {
+      "name": "buff options use horizontal space without wrapping their text",
+      "status": "PASS"
+    },
+    {
+      "name": "member profession follows the nickname in both team views",
+      "status": "PASS"
+    },
+    {
+      "name": "desktop exposes two resizable column boundaries",
+      "status": "PASS"
+    },
+    {
+      "name": "1920px 100% dragging allocates spare width without shrinking the map",
+      "status": "PASS"
+    },
+    {
+      "name": "1920px 75% dragging allocates spare width without shrinking the map",
+      "status": "PASS"
+    },
+    {
+      "name": "1330px 100% dragging allocates spare width without shrinking the map",
+      "status": "PASS"
+    },
+    {
+      "name": "1330px 75% dragging allocates spare width without shrinking the map",
+      "status": "PASS"
+    },
+    {
+      "name": "resizing preserves the live battle scene size and aspect ratio",
+      "status": "PASS"
+    },
+    {
+      "name": "keyboard adjusts the column boundary and stores the layout",
+      "status": "PASS"
+    },
+    {
+      "name": "failed layout persistence leaves the saved preference intact and reports the failure",
+      "status": "PASS"
+    },
+    {
+      "name": "390x844 100% compact controls stay inside their panels",
+      "status": "PASS"
+    },
+    {
+      "name": "390x844 75% compact controls stay inside their panels",
+      "status": "PASS"
+    },
+    {
+      "name": "844x390 100% compact controls stay inside their panels",
+      "status": "PASS"
+    },
+    {
+      "name": "844x390 75% compact controls stay inside their panels",
+      "status": "PASS"
+    },
+    {
+      "name": "1024x768 100% compact controls stay inside their panels",
+      "status": "PASS"
+    },
+    {
+      "name": "gold donation remembers the number after the native rerender",
+      "status": "PASS"
+    },
+    {
+      "name": "diamond donation remembers its own number",
+      "status": "PASS"
+    },
+    {
+      "name": "remembering donation numbers preserves unrelated role settings",
+      "status": "PASS"
+    },
+    {
+      "name": "the last valid edited amount survives reopening before another donation",
+      "status": "PASS"
+    },
+    {
+      "name": "failed donation restores money and contribution while retaining the typed amount",
+      "status": "PASS"
+    },
+    {
+      "name": "custom column widths survive a full reload",
+      "status": "PASS"
+    },
+    {
+      "name": "donation amounts survive a full reload",
+      "status": "PASS"
+    },
+    {
+      "name": "donation defaults remain independent for another role",
+      "status": "PASS"
+    },
+    {
+      "name": "existing ally experience updates after a kill before returning to town",
+      "status": "PASS"
+    },
+    {
+      "name": "returning to town persists earned experience in the source role",
+      "status": "PASS"
+    },
+    {
+      "name": "no uncaught browser errors",
+      "status": "PASS"
+    }
+  ]
+}

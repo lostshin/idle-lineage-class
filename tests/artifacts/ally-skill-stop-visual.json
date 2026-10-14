@@ -1,0 +1,13 @@
+{
+  "method": "Ego Page.printToPDF screen media rendered locally by sips",
+  "reports": [
+    {
+      "name": "conversion and stop controls share their visible row",
+      "status": "PASS"
+    },
+    {
+      "name": "no visual fixture runtime errors",
+      "status": "PASS"
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "method": "Ego Page.printToPDF with screen media rendered locally by sips",
+  "reports": [
+    {
+      "name": "village labels are visible with battle status off",
+      "status": "PASS"
+    },
+    {
+      "name": "warehouse preview retains last saved amount",
+      "status": "PASS"
+    },
+    {
+      "name": "no visual fixture runtime errors",
+      "status": "PASS"
+    }
+  ]
+}

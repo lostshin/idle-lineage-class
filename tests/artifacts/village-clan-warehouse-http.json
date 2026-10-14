@@ -1,0 +1,72 @@
+{
+  "reports": [
+    {
+      "name": "village names remain visible when battle status display is off",
+      "status": "PASS"
+    },
+    {
+      "name": "clan Buff checkbox and state label keep their own horizontal space",
+      "status": "PASS"
+    },
+    {
+      "name": "warehouse gold input retains the requested deposit after rerender",
+      "status": "PASS"
+    },
+    {
+      "name": "battle status toggling does not hide village names",
+      "status": "PASS"
+    },
+    {
+      "name": "remembering the amount preserves unrelated role settings",
+      "status": "PASS"
+    },
+    {
+      "name": "valid edits survive reopening without making a transfer",
+      "status": "PASS"
+    },
+    {
+      "name": "invalid edited values keep the last valid amount",
+      "status": "PASS"
+    },
+    {
+      "name": "withdrawal retains its entered amount and the native money transfer",
+      "status": "PASS"
+    },
+    {
+      "name": "failed role writes cancel the deposit without losing money",
+      "status": "PASS"
+    },
+    {
+      "name": "failed warehouse writes restore the original balance",
+      "status": "PASS"
+    },
+    {
+      "name": "deposit amount survives a complete reload",
+      "status": "PASS"
+    },
+    {
+      "name": "another role retains its independent default amount",
+      "status": "PASS"
+    },
+    {
+      "name": "1920px 100% clan checkbox stays aligned and in its panel",
+      "status": "PASS"
+    },
+    {
+      "name": "1330px 75% clan checkbox stays aligned and in its panel",
+      "status": "PASS"
+    },
+    {
+      "name": "390px 100% clan checkbox stays aligned and in its panel",
+      "status": "PASS"
+    },
+    {
+      "name": "390px 75% clan checkbox stays aligned and in its panel",
+      "status": "PASS"
+    },
+    {
+      "name": "no runtime errors",
+      "status": "PASS"
+    }
+  ]
+}
