@@ -78,7 +78,7 @@ function partyAbilityStats(actor, stats) {
     finally {player=root;}
     return result;
 }
-function partyBonusSnapshot(actor,kind,owner=player,omit=null) {
+function partyBonusSnapshot(actor,kind,owner=player,omit=null,clanBuff=clanBuffSnapshot(actor)) {
     const root=player,flag=_recomputingAlly,minion=kind!=='ally'&&kind!=='player';
     function derive(withBuffs) {
         const copy=effectActorCopy(actor),others=[root,...(root.allies||[])].filter(a=>a!==actor).map(a=>effectActorCopy(a));
@@ -88,7 +88,7 @@ function partyBonusSnapshot(actor,kind,owner=player,omit=null) {
         try {
             player=copy;_recomputingAlly=kind==='ally';
             let d;
-            if(!minion) {recomputeStats();d={...copy.d,mhp:copy.mhp,mmp:copy.mmp};if(kind==='ally'){const aura=teamIlluAura(copy);if(aura){d.extraDmg+=(aura.ed||0);d.extraHit+=(aura.eh||0);d.magicDmg+=(aura.md||0);d.meleeDmg+=(aura.mel||0);}const rm=royalAllyMult();d.mhp=Math.floor(d.mhp*rm);d.mmp=Math.floor(d.mmp*rm);}d.castSeconds=castIntervalTicks(copy,false)/10;d=partyAbilityStats(copy,d);if(kind==='player'){d.aspd=playerAttackIntervalTicks(false)/10;d.potionBonus=getConPotionPct(d.con||0)+dollFieldVal('potionBonus')+playerEquipPotionBonusPct()+(copy._miscPotionBonus||0);}}
+            if(!minion) {recomputeStats(withBuffs?clanBuff?.stats||null:null);d={...copy.d,mhp:copy.mhp,mmp:copy.mmp};if(kind==='ally'){const aura=teamIlluAura(copy);if(aura){d.extraDmg+=(aura.ed||0);d.extraHit+=(aura.eh||0);d.magicDmg+=(aura.md||0);d.meleeDmg+=(aura.mel||0);}const rm=royalAllyMult();d.mhp=Math.floor(d.mhp*rm);d.mmp=Math.floor(d.mmp*rm);}d.castSeconds=castIntervalTicks(copy,false)/10;d=partyAbilityStats(copy,d);if(kind==='player'){d.aspd=playerAttackIntervalTicks(false)/10;d.potionBonus=getConPotionPct(d.con||0)+dollFieldVal('potionBonus')+playerEquipPotionBonusPct()+(copy._miscPotionBonus||0);}}
             else {player={...root,buffs:withBuffs?root.buffs:{},allies:others.filter(a=>accountRoleId(a)!==accountRoleId(root))};d=kind==='pet'?petDerive(copy):kind==='guard'?guardDerive(copy):_sumDeriveAny(copy,owner);d={...d,mhp:_supMhp(copy),mmp:(copy.mmp||0)+(d?.mmpBonus||0)};if(typeof d.er==='number')d.er=effResistPct(d.er);}
             d.ac=(d.ac||0)-teamAcBonus(copy,minion)+((kind==='ally'||kind==='pet')&&(_supStatuses(copy)?.disease||0)>0?8:0);
             d.damageReductionPct=(1-teamDmgReduceMult(minion)*(minion?1:avatarSelfDmgReduceMult(copy)))*100;
@@ -98,13 +98,13 @@ function partyBonusSnapshot(actor,kind,owner=player,omit=null) {
     const calculated=derive(true),base=omit?calculated:derive(false),delta={};for(const [k,v]of Object.entries(calculated))if(typeof v==='number'&&typeof base[k]==='number')delta[k]=Math.round((v-base[k])*100)/100;
     for(const key of Object.keys(EFFECT_FLAG_NAMES))if(calculated[key]&&!base[key])delta[key]=true;
     const total=kind==='ally'?{...partyAbilityStats(actor,actor.d),mhp:actor.mhp,mmp:actor.mmp,ac:(actor.d.ac||0)-teamAcBonus(actor)+((_supStatuses(actor)?.disease||0)>0?8:0),castSeconds:castIntervalTicks(actor,false)/10,damageReductionPct:(1-avatarSelfDmgReduceMult(actor))*100}:calculated;
-    return {total,delta,kind,calculated,base};
+    return {total,delta,kind,calculated,base,clanBuff:minion?null:clanBuff};
 }
 function partyAbilityNumber(snapshot, keys, suffix = '', seconds = false, buff = false) {
     const data = buff ? snapshot.delta : snapshot.total;
     if (!keys.some(k => typeof snapshot.total[k] === 'number')) return '—';
     let value = keys.reduce((n,k)=>n+(Number(data[k])||0),0);
-    if (seconds && snapshot.kind !== 'ally') value /= 10;
+    if (seconds && snapshot.kind !== 'ally' && snapshot.kind !== 'player') value /= 10;
     value = Math.round(value*100)/100;
     return (buff && value > 0 ? '+' : '') + value + suffix;
 }
@@ -115,17 +115,14 @@ function partyAbilityValue(snapshot, keys, suffix = '', seconds = false) {
     return '<span data-ability-total>'+total+'</span><small data-ability-buff'+(parseFloat(buff)===0||buff==='—'?' hidden':'')+' aria-label="Buff 加成 '+buff+'">'+label+'</small>';
 }
 function fitPartyAbilityValues() {
-    for (const field of document.querySelectorAll('#party-inspector [data-ability-field]')) {
+    for (const field of document.querySelectorAll('#party-inspector [data-ability-field],#tab-stats [data-ability-field]')) {
         field.style.fontSize = '';
         const total = field.querySelector('[data-ability-total]'), buff = field.querySelector('[data-ability-buff]');
+        if (!total || !buff) continue;
         const width = total.getBoundingClientRect().width + (buff.hidden ? 0 : buff.getBoundingClientRect().width);
         const available = field.getBoundingClientRect().width - 4 * getUiScale();
         if (width > available && available > 0) field.style.fontSize = (parseFloat(getComputedStyle(field).fontSize) * available / width) + 'px';
     }
-}
-function partySummaryHtml(snapshot,actor,live) {
-    const values=[['HP','hp',Math.floor(_supHp(actor))+' / '+Math.floor(_supMhp(actor))],['MP','mp',live.mmp?Math.floor(actor.mp||0)+' / '+Math.floor(live.mmp):'—'],['防禦 AC','ac',live.ac],['魔防 MR','mr',live.d.mr||0],['固定減傷','dr',live.d.dr||0],['迴避率','er',snapshot.total.er==null?'—':snapshot.total.er+'%']];
-    return '<div class="party-summary">'+values.map(([n,k,v])=>'<div class="party-summary-cell"><span>'+n+'</span><strong id="party-'+k+'" data-party-summary="'+k+'">'+v+'</strong></div>').join('')+'</div>';
 }
 const ABILITY_STAT_FIELDS = {str:['str'],dex:['dex'],con:['con'],int:['int'],wis:['wis'],cha:['cha'],mdmg:['meleeDmg','extraDmg'],mhit:['meleeHit','extraHit'],
         'mcrit-p':['meleeCrit'],mcritdmg:['meleeCritDmg'],rdmg:['rangedDmg','extraDmg'],rhit:['rangedHit','extraHit'],rcrit:['rangedCrit'],rcritdmg:['rangedCritDmg'],er:['er'],hpr:['hpR'],potion:['potionBonus'],dr:['dr'],movespeed:['moveSpeedPct'],spd:['aspd'],mgdmg:['magicDmg'],'mhit-mag':['magicHit'],sp:['extraMp'],mcrit:['magicCrit'],mgcritdmg:['magicCritDmg'],mpr:['mpR'],mpreduce:['mpReduce'],mpkill:['mpKillInterval'],mr:['mr'],resnone:['resNone'],resfire:['resFire'],reswater:['resWater'],reswind:['resWind'],researth:['resEarth']};
@@ -141,13 +138,42 @@ function partyBonusHtml(snapshot) {
         e.innerHTML=partyAbilityValue(snapshot,fields[key],suffix,key==='spd');e.dataset.abilityField=key;e.tabIndex=0;e.setAttribute('role','button');e.setAttribute('aria-label',e.dataset.abilityLabel+' 總能力 '+e.querySelector('[data-ability-total]').textContent+'，Buff 加成 '+e.querySelector('[data-ability-buff]').textContent);
     }
     shell.style.width='100%';shell.style.maxWidth='none';
-    const flags=data=>Object.entries(EFFECT_FLAG_NAMES).filter(([key])=>data[key]).map(([,n])=>n).join('、');
-    shell.querySelector('.ability-buffs').innerHTML='<div class="party-ability-vitals"><span>防禦 AC <strong id="party-ability-ac" data-ability-field="ac" data-ability-label="防禦 AC" tabindex="0" role="button">'+partyAbilityValue(snapshot,['ac'])+'</strong></span><span>HP 上限 <strong data-ability-field="mhp" data-ability-label="HP 上限" tabindex="0" role="button">'+partyAbilityValue(snapshot,['mhp'])+'</strong></span><span>MP 上限 <strong data-ability-field="mmp" data-ability-label="MP 上限" tabindex="0" role="button">'+partyAbilityValue(snapshot,['mmp'])+'</strong></span></div><p class="party-total-flags">總能力：'+partyEscape(flags(snapshot.total)||'無額外免疫')+'</p><p class="party-buff-flags">Buff 加成：'+partyEscape(flags(snapshot.delta)||'無額外免疫')+'</p><p>數值後的綠色括號為 Buff 加成。攻擊間隔與 AC 越低越有利。</p>';
+    shell.querySelector('.ability-buffs').innerHTML=abilityBonusNotesHtml(snapshot);
     return '<section id="party-bonus-window"><h3>總能力與 Buff 加成</h3><div class="party-art-scroll">'+shell.outerHTML+'</div></section>';
+}
+function abilityBonusNotesHtml(snapshot,prefix='party') {
+    const flags=data=>Object.entries(EFFECT_FLAG_NAMES).filter(([key])=>data[key]).map(([,n])=>n).join('、');
+    return '<div class="party-ability-vitals"><span>防禦 AC <strong id="'+prefix+'-ability-ac" data-ability-field="ac" data-ability-label="防禦 AC" tabindex="0" role="button">'+partyAbilityValue(snapshot,['ac'])+'</strong></span><span>HP 上限 <strong data-ability-field="mhp" data-ability-label="HP 上限" tabindex="0" role="button">'+partyAbilityValue(snapshot,['mhp'])+'</strong></span><span>MP 上限 <strong data-ability-field="mmp" data-ability-label="MP 上限" tabindex="0" role="button">'+partyAbilityValue(snapshot,['mmp'])+'</strong></span></div><p class="party-total-flags">總能力：'+partyEscape(flags(snapshot.total)||'無額外免疫')+'</p><p class="party-buff-flags">Buff 加成：'+partyEscape(flags(snapshot.delta)||'無額外免疫')+'</p><p>數值後的綠色括號為 Buff 加成。攻擊間隔與 AC 越低越有利。</p>';
+}
+let playerAbilityCache=null;
+function refreshPlayerAbility() {
+    const tab=document.getElementById('tab-stats');
+    if(!tab || tab.classList.contains('hidden'))return;
+    const active=values=>Object.keys(values||{}).filter(k=>values[k]>0).sort();
+    const signature=JSON.stringify([player.d,player.eq,player.cls,player.avatar,player.lv,player.mhp,player.mmp,player.poly,clanBuffSnapshot(player),active(player.buffs),active(player.statuses),(player.allies||[]).filter(Boolean).map(a=>[accountRoleId(a),a.lv,a.dead,a._downed,active(a.buffs)])]);
+    if(!playerAbilityCache || playerAbilityCache.actor!==player || playerAbilityCache.signature!==signature) {
+        playerAbilityCache={actor:player,signature,snapshot:partyBonusSnapshot(player,'player')};
+    }
+    const snapshot=playerAbilityCache.snapshot;
+    for(const [key,keys]of Object.entries(ABILITY_STAT_FIELDS)) {
+        const e=document.getElementById('dt-'+key);if(!e)continue;
+        e.dataset.abilityField=key;
+        if(['str','dex','con','int','wis','cha'].includes(key) && (_respec || (player.bonus||0)>0))continue;
+        const total=e.innerText;
+        e.innerHTML=partyAbilityValue(snapshot,keys,'',key==='spd');
+        e.querySelector('[data-ability-total]').textContent=total;
+    }
+    const notes=document.getElementById('player-ability-notes'),html=abilityBonusNotesHtml(snapshot,'player-bonus');
+    if(notes._abilityHtml!==html){notes.innerHTML=html;notes._abilityHtml=html;}
+    fitPartyAbilityValues();
 }
 
 function abilitySourceDetails(actor,kind,owner=player,includeBuffs=true) {
     const snapshot=partyBonusSnapshot(actor,kind,owner), sources=[];
+    if(includeBuffs&&snapshot.clanBuff) {
+        const without=partyBonusSnapshot(actor,kind,owner,null,null),clan=snapshot.clanBuff;
+        sources.push({type:'血盟 Buff',name:clan.name+' Lv.'+clan.level,stats:without.calculated});
+    }
     for (const [id,seconds] of Object.entries(includeBuffs?actor.buffs||{}:{})) if (seconds>0) {
         const without=partyBonusSnapshot(actor,kind,owner,copy=>{delete copy.buffs[id];});
         sources.push({type:'Buff',name:effectInfo(id).name,stats:without.calculated});
@@ -171,31 +197,18 @@ function abilitySourceLines(details,keys,seconds=false) {
         return value ? source.type+'：'+source.name+' '+(value>0?'+':'')+value : '';
     }).filter(Boolean);
 }
-function equipmentContributionHtml(actor,kind,owner=player) {
-    const details=abilitySourceDetails(actor,kind,owner,false),rows=[];
-    const fields={str:'力量',dex:'敏捷',con:'體質',int:'智力',wis:'精神',cha:'魅力',ac:'防禦 AC',mr:'魔防 MR',mhp:'HP 上限',mmp:'MP 上限',dr:'固定減傷',meleeDmg:'近距離傷害',rangedDmg:'遠距離傷害',extraDmg:'額外傷害',extraHit:'額外命中',magicDmg:'魔法傷害',extraMp:'魔法點數',hpR:'HP 恢復',mpR:'MP 恢復'};
-    for(const source of details.sources.filter(s=>s.type==='裝備')) {
-        const values=[];
-        for(const [key,label]of Object.entries(fields)) {
-            const value=Math.round(((details.snapshot.calculated[key]||0)-(source.stats[key]||0))*100)/100;
-            if(value)values.push(label+' '+(value>0?'+':'')+value);
-        }
-        if(values.length)rows.push('<li><strong>'+partyEscape(source.name)+'</strong>：'+partyEscape(values.join('、'))+'</li>');
-    }
-    return '<p>依目前裝備與 Buff，逐件移除比較；包含強化、屬性換算與套裝變化，數值不一定能直接相加。</p><ul>'+rows.join('')+'</ul>';
-}
 (function(){
     const tip=document.createElement('div');tip.id='party-ability-tip';tip.hidden=true;tip.setAttribute('role','tooltip');document.body.appendChild(tip);
     let target=null,signature='';
     function hide(){tip.hidden=true;target=null;signature='';}
     function show(event){
-        const e=event.target.closest('#party-inspector [data-ability-field],#tab-stats [id^="dt-"],#st-ac,#st-mr');
+        const e=event.target.closest('#party-inspector [data-ability-field],#tab-stats [data-ability-field],#tab-stats [id^="dt-"],#st-ac,#st-mr');
         const key=e?.dataset.abilityField||e?.id.replace('dt-','').replace('st-',''),keys=ABILITY_STAT_FIELDS[key]||(['ac','mhp','mmp'].includes(key)?[key]:null);
         if(!e||!keys)return;
         let actor=player,kind='player',owner=player;
         if(e.closest('#party-inspector')){const panel=document.getElementById('party-inspector');actor=partyMemberById(panel.dataset.kind,panel.dataset.id);kind=panel.dataset.kind;owner=kind==='merc-summon'?(player.allies||[]).find(a=>String(a._slot)===panel.dataset.id)||player:actor?._necroSkeleton?_necroOwnerByKey(actor._necroOwnerKey)||player:player;if(!actor)return;}
         const activeBuffs=a=>Object.keys(a.buffs||{}).filter(k=>a.buffs[k]>0).sort();
-        const next=JSON.stringify([actor.d,actor.eq,actor.hp,actor.curHp,actor.lv,activeBuffs(actor),[player,...(player.allies||[])].map(a=>[accountRoleId(a),activeBuffs(a)])]);
+        const next=JSON.stringify([actor.d,actor.eq,actor.hp,actor.curHp,actor.lv,clanBuffSnapshot(actor),activeBuffs(actor),[player,...(player.allies||[])].map(a=>[accountRoleId(a),activeBuffs(a)])]);
         if(target===e&&signature===next)return;
         signature=next;
         const details=abilitySourceDetails(actor,kind,owner),lines=abilitySourceLines(details,kind==='pet'&&key==='spd'?['atkItv']:keys,key==='spd');
@@ -207,6 +220,6 @@ function equipmentContributionHtml(actor,kind,owner=player) {
     document.addEventListener('focusin',show);document.addEventListener('mouseover',show);
     document.addEventListener('mouseout',e=>{if(target&&!target.contains(e.relatedTarget))hide();});
     document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!tip.hidden){hide();e.preventDefault();}});
-    document.addEventListener('scroll',hide,true);setInterval(()=>{if(target){if(!target.isConnected||!target.checkVisibility())hide();else show({target});}},250);
+    document.addEventListener('scroll',event=>{if(target&&(event.target===document||event.target.contains?.(target)))hide();},true);setInterval(()=>{if(target){if(!target.isConnected||!target.checkVisibility())hide();else show({target});}},250);
     document.addEventListener('DOMContentLoaded',()=>{for(const [key]of Object.entries(ABILITY_STAT_FIELDS)){const e=document.getElementById('dt-'+key);if(e){e.tabIndex=0;e.setAttribute('role','button');e.setAttribute('aria-label',(EFFECT_STAT_NAMES[key]||e.parentElement.querySelector('span')?.textContent||key)+'：查看加成來源');}}});
 })();

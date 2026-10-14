@@ -1,0 +1,27 @@
+// Failure cases: duplicate summary IDs, missing/expired Buff differences,
+// incorrect player attack-interval units, repeated full recomputation,
+// stale team buffs, hidden-tab work, and overwriting respec drafts or live state.
+// Native presentation helpers with a synthetic DOM/stat snapshot boundary.
+const fs=require('node:fs'),vm=require('node:vm'),path=require('node:path'),root=path.resolve(__dirname,'..'),reports=[];
+function node(text=''){
+    const n={innerText:text,textContent:text,style:{},dataset:{},attributes:{},classList:{contains:()=>false},parentElement:{querySelector:()=>({textContent:'合成能力'})},getBoundingClientRect:()=>({width:100}),setAttribute(k,v){this.attributes[k]=v;},insertAdjacentHTML(pos,html){this.html=(this.html||'')+html;}};
+    Object.defineProperty(n,'innerHTML',{get(){return this.html||'';},set(html){this.html=html;this.total={textContent:html.match(/data-ability-total>([^<]*)/)?.[1]||'',getBoundingClientRect:()=>({width:25})};this.buff={hidden:/data-ability-buff hidden/.test(html),textContent:html.match(/data-ability-buff[^>]*>([^<]*)/)?.[1]||'',getBoundingClientRect:()=>({width:25})};}});
+    n.querySelector=s=>s==='[data-ability-total]'?n.total:s==='[data-ability-buff]'?n.buff:null;return n;
+}
+const controls={'tab-stats':node(),'dt-str':node('13'),'dt-spd':node('1.20s'),'dt-buffs':node(),'player-ability-notes':node(),'player-ability-summary':node()};let calculations=0;
+const actor={name:'合成主角',cls:'mage',lv:40,hp:300,mhp:500,mp:90,mmp:200,d:{str:13,ac:-30,mr:80,dr:8,er:24},eq:{},buffs:{test:30},statuses:{},allies:[]};
+const ctx=vm.createContext({console,player:actor,_respec:null,getUiScale:()=>.8,clanBuffSnapshot:()=>null,document:{getElementById:id=>controls[id]||null,querySelectorAll:()=>[controls['dt-str'],controls['dt-spd']]},getComputedStyle:()=>({fontSize:'12px'}),EFFECT_STAT_NAMES:{str:'力量'},EFFECT_FLAG_NAMES:{immStone:'免疫石化'},partyEscape:v=>String(v).replaceAll('<','&lt;'),_supHp:a=>a.hp,_supMhp:a=>a.mhp,accountRoleId:a=>a.name,
+    partyBonusSnapshot:()=>{calculations++;const buff=actor.buffs.test>0;return {kind:'player',total:{str:actor.d.str,aspd:1.2,er:24,ac:-30,mhp:500,mmp:200},delta:{str:buff?3:0,aspd:buff?-.3:0},calculated:{},base:{}};}});
+const source=fs.readFileSync(path.join(root,'js/effect-details.js'),'utf8');vm.runInContext(source.slice(source.indexOf('function partyAbilityNumber('),source.indexOf('function abilitySourceDetails(')),ctx);
+function refresh(){controls['dt-buffs'].innerHTML='狀態：正常';if(typeof ctx.refreshPlayerAbility!=='function')throw Error('missing native player ability renderer');ctx.refreshPlayerAbility();}
+function check(name,fn){try{if(fn()!==true)throw Error('check returned false');reports.push({name,status:'PASS'});}catch(e){reports.push({name,status:'FAIL',error:String(e)});}}
+check('player attack interval and Buff difference stay in seconds',()=>ctx.partyAbilityValue({kind:'player',total:{aspd:1.2},delta:{aspd:-.3}},['aspd'],'s',true).includes('1.2s')&&ctx.partyAbilityValue({kind:'player',total:{aspd:1.2},delta:{aspd:-.3}},['aspd'],'s',true).includes('−0.3'));
+check('the removed summary renderer stays absent',()=>typeof ctx.partySummaryHtml==='undefined');
+check('main fields retain native IDs and live totals with an inline Buff difference',()=>{refresh();const e=controls['dt-str'];return e.dataset.abilityField==='str'&&e.total.textContent==='13'&&e.buff.textContent==='（＋3）'&&!e.buff.hidden&& !controls['player-ability-summary'].innerHTML;});
+check('HP changes leave live resources intact without recomputing the Buff snapshot every tick',()=>{const before=calculations;actor.hp=250;for(let i=0;i<10;i++){controls['dt-str'].innerText='13';refresh();}return calculations===before&&actor.hp===250;});
+check('expired self buffs refresh differences and hide zero additions',()=>{actor.buffs.test=0;refresh();return controls['dt-str'].buff.hidden;});
+check('team Buff expiration invalidates the snapshot while countdown ticks do not',()=>{actor.allies=[{name:'合成隊友',buffs:{aura:30}}];refresh();const before=calculations;actor.allies[0].buffs.aura=29;refresh();if(calculations!==before)return false;actor.allies[0].buffs.aura=0;refresh();return calculations===before+1;});
+check('respec drafts remain the displayed primary values without Buff additions',()=>{ctx._respec={draft:{str:8}};controls['dt-str'].innerText='18';refresh();return controls['dt-str'].innerText==='18'&&(!controls['dt-str'].buff||controls['dt-str'].buff.hidden);});
+check('hidden ability tabs do not recompute or mutate live state',()=>{const before=calculations,saved=JSON.stringify(actor);controls['tab-stats'].classList.contains=()=>true;actor.d.str=20;const changed=JSON.stringify(actor);refresh();return calculations===before&&JSON.stringify(actor)===changed&&saved!==changed;});
+const dir=path.join(root,process.argv.includes('--record')?'tests/artifacts':'tmp/test-runs');fs.mkdirSync(dir,{recursive:true});fs.writeFileSync(path.join(dir,'player-ability-'+(process.argv.includes('--baseline')?'baseline':'integration')+'.json'),JSON.stringify({method:'Native ability number/value/summary/player presentation helpers with synthetic DOM and stubbed stat snapshots; not browser layout, live recomputation or E2E',reports},null,2)+'\n');
+console.log(JSON.stringify({checks:reports.length,passed:reports.filter(r=>r.status==='PASS').length,failed:reports.filter(r=>r.status==='FAIL')},null,2));if(!process.argv.includes('--baseline')&&reports.some(r=>r.status==='FAIL'))process.exitCode=1;

@@ -1763,6 +1763,19 @@ function _clanSettleRole(p) {
     });
 }
 
+// Read-only projection of hourly eligibility for ability inspection.
+function clanBuffSnapshot(p) {
+    if (!p || !p.cls) return null;
+    let st = _clanReadState(), mode = clanModeKey(p);
+    let member = st && st.members[clanRoleId(p)];
+    if (!st || !st.modes[mode] || !member || member.mode !== mode || !member.buffOn) return null;
+    let now = Date.now();
+    let due = Math.max(0, Math.floor((now - (member.buffAt || now)) / CLAN_BUFF_HOUR_MS));
+    if (member.contribution - due * CLAN_BUFF_HOUR_COST < CLAN_BUFF_HOUR_COST) return null;
+    let level = clanLevelInfo(st.xp).level;
+    return { name:st.modes[mode].name, level:level, stats:Object.assign({}, CLAN_BUFF_BY_LEVEL[level]) };
+}
+
 function getClanBuffStats(p) {
     p = p || player;
     if (!p || !p.cls) return null;

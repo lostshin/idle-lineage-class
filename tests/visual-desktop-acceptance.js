@@ -1,0 +1,21 @@
+(async()=>{
+const fs=await import('node:fs/promises'),task=await taskSpace(options.space),page=task.page('p1'),previews=[];
+await page.evaluate(()=>{if(!window.__acceptanceData)throw Error('desktop-acceptance fixture required');saveGame();});
+await page.cdp('Emulation.setEmulatedMedia',{media:'screen'});
+async function capture(name,w,h){await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));const pdf=await page.cdp('Page.printToPDF',{printBackground:true,paperWidth:w/96,paperHeight:h/96,marginTop:0,marginBottom:0,marginLeft:0,marginRight:0,scale:1});await fs.mkdir(options.root+'/tmp/pdfs',{recursive:true});const filename='acceptance-'+name+'-'+options.protocol;await fs.writeFile(options.root+'/tmp/pdfs/'+filename+'.pdf',Buffer.from(pdf.data,'base64'));previews.push({file:filename+'.png',viewport:[w,h],displayScale:await page.evaluate(()=>document.getElementById('ui-scale-value').textContent),protocol:options.protocol});}
+for(const [w,h]of [[1920,1080],[1330,900]]){
+ await page.cdp('Emulation.setDeviceMetricsOverride',{width:w,height:h,deviceScaleFactor:1,mobile:false});await page.evaluate(()=>{setUiScale(80);player.buffs[__acceptanceBuff]=120;calcStats();updateUI();document.getElementById('party-inspector-close').click();switchTab('stats',document.querySelector('[onclick="switchTab(\'stats\', this)"]'));updateUI();});
+ await page.waitForFunction(()=>document.querySelector('#dt-str [data-ability-buff]:not([hidden])'));await capture('main-ability-'+w,w,h);
+ await page.evaluate(()=>{openPartyInspector('ally','2');player.allies[0].buffs[__acceptanceBuff]=120;_allyLevelRecompute(player.allies[0]);refreshPartyInspector();positionPartyInspector(true);});await capture('party-ability-'+w,w,h);
+ await page.click('#party-inspector-close');await page.click('[onclick="switchTab(\'equip\', this)"]');
+ for(const p of [0,1]){await page.click(p?'#equipment-window-next':'#equipment-window-prev');await page.waitForFunction(()=>[...document.querySelectorAll('#equipment-window-frame img')].every(i=>i.complete&&i.naturalWidth>0));await page.evaluate(()=>document.getElementById('equipment-window').scrollTop=0);await capture('main-equipment-'+p+'-'+w,w,h);}
+ await page.evaluate(()=>{openPartyInspector('ally','2');document.getElementById('party-tab-equipment').click();positionPartyInspector(true);});
+ for(const p of [0,1]){await page.click('[data-party-equipment-page="'+p+'"]');await page.waitForFunction(()=>[...document.querySelectorAll('#party-details img')].every(i=>i.complete&&i.naturalWidth>0));await page.evaluate(()=>document.getElementById('party-details').scrollTop=0);await capture('party-equipment-'+p+'-'+w,w,h);}
+ await page.click('#party-inspector-close');await page.click('#col-right [onclick^="switchTab(\'audit\'"]');await page.evaluate(()=>{_audit.start=Date.now()-10000;_dps.player=17000;_dps.summon=18000;_dps.guard=6000;for(const [i,p]of petsOutList().entries())_dpsAddPet(_dpsPetSrc(p),(i+1)*9000);renderAuditTab();});await capture('dps-'+w,w,h);
+}
+const seed=await page.evaluate(()=>({...__acceptanceData}));
+const init=(await page.cdp('Page.addScriptToEvaluateOnNewDocument',{source:`(()=>{window.__acceptanceData=${JSON.stringify(seed)};window.__errors=[];const s={getItem:k=>__acceptanceData[k]??null,setItem:(k,v)=>__acceptanceData[k]=String(v),removeItem:k=>delete __acceptanceData[k],key:i=>Object.keys(__acceptanceData)[i]??null,get length(){return Object.keys(__acceptanceData).length}};Object.defineProperty(window,'localStorage',{value:s,configurable:true});Object.defineProperty(window,'sessionStorage',{value:s,configurable:true});addEventListener('error',e=>__errors.push(e.message));})();`})).identifier;
+await page.goto(options.url+'?login-acceptance-preview');await page.waitForFunction(()=>document.readyState==='complete');await capture('login-1330',1330,900);
+await page.cdp('Page.removeScriptToEvaluateOnNewDocument',{identifier:init});
+await fs.writeFile(options.artifacts+'/desktop-acceptance-visual-'+options.protocol+'.json',JSON.stringify({method:'Ego screen-media PDF, converted locally to PNG at 96dpi; native browser fixture with synthetic characters',previews,errors:await page.evaluate(()=>__errors)},null,2));console.log({previews:previews.length,protocol:options.protocol});
+})();

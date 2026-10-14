@@ -44,7 +44,7 @@ function antHelperEarthResistanceBonus(value) {
 function antHelperGuardReductionPercent(magicResistance) {
     return Math.min(20, Math.floor((magicResistance || 0) * 0.10));
 }
-function recomputeStats() {
+function recomputeStats(clanBuffStats) {
     let p = player, d = p.d, b = p.base, a = p.alloc;
     if (typeof p.lv === 'number') p.lv = Math.max(1, Math.min(100, Math.floor(p.lv) || 1));   // 🛡️ 等級硬夾 [1,100]：即時中和「改 player.lv」的外掛，避免職業成長值被放大
 
@@ -674,7 +674,7 @@ d.mr += (baseMr + bonusMr);
     if(p.mastery === 'i_mana') p.mmp = Math.floor(p.mmp * 2);   // 🔮 魔力精通：MP 上限加倍（耗魔亦加倍，見 getMpCost）
     // 血盟 Buff：由角色自行開啟，每小時消耗貢獻；能力依全模式共用血盟等級決定。
     if (typeof getClanBuffStats === 'function') {
-        let _cb = getClanBuffStats(p);
+        let _cb = clanBuffStats === undefined ? getClanBuffStats(p) : clanBuffStats;
         if (_cb) {
             p.mhp += _cb.hp || 0;
             p.mmp += _cb.mp || 0;

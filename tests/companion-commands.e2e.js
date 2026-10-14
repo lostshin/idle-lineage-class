@@ -13,8 +13,8 @@ await check('a defeated target causes automatic retargeting without guard mode',
 await page.click('button[data-party-kind="ally"][data-party-id="2"]');
 await page.evaluate(()=>{player.allies[0].buffs.sk_shield=30;const strength=Object.entries(DB.skills).find(([,s])=>s.type==='buff'&&s.d?.str>0);if(strength)player.allies[0].buffs[strength[0]]=30;_allyLevelRecompute(player.allies[0]);refreshPartyInspector();});
 await check('buff numbers appear in parentheses after the total on the same line',()=>page.evaluate(()=>{const e=document.getElementById('party-ability-ac'),total=e.querySelector('[data-ability-total]'),buff=e.querySelector('[data-ability-buff]'),a=total.getBoundingClientRect(),b=buff.getBoundingClientRect();return buff.textContent==='（−2）'&&total.nextElementSibling===buff&&b.left>=a.right-1&&Math.min(a.bottom,b.bottom)>Math.max(a.top,b.top);}));
-await check('positive buffs use a plus sign in parentheses',()=>page.evaluate(()=>{const e=document.querySelector('[data-ability-field="str"] [data-ability-buff]');return e&&!e.hidden&&/^（＋\d/.test(e.textContent);}));
-await check('live total defenses and equipment immunities stay accurate',()=>page.evaluate(()=>document.querySelector('#party-ability-ac [data-ability-total]').textContent===document.getElementById('party-ac').textContent));
+await check('positive buffs use a plus sign in parentheses',()=>page.evaluate(()=>{const e=document.querySelector('#party-inspector [data-ability-field="str"] [data-ability-buff]');return e&&!e.hidden&&/^（＋\d/.test(e.textContent);}));
+await check('live total defenses and equipment immunities stay accurate',()=>page.evaluate(()=>document.querySelector('#party-ability-ac [data-ability-total]').textContent===String((player.allies[0].d.ac||0)-teamAcBonus(player.allies[0])+((_supStatuses(player.allies[0])?.disease||0)>0?8:0))));
 await check('the floating window has an accessible resize control',()=>page.evaluate(()=>!!document.getElementById('party-resize')&&document.getElementById('party-resize').getAttribute('aria-label')==='調整隊友視窗大小'));
 if(!options.baseline){
  const canResize=await page.evaluate(()=>!!document.getElementById('party-resize'));
@@ -39,7 +39,7 @@ if(!options.baseline){
  }
  await page.click('#party-inspector-close');
  await page.click('button[data-party-kind="pet"][data-party-id="controlled-pet"]');
- await check('pets still expose live status from the team menu',()=>page.evaluate(()=>!document.getElementById('party-inspector').hidden&&!!document.getElementById('party-hp')));
+ await check('pets still expose live status from the team menu',()=>page.evaluate(()=>!document.getElementById('party-inspector').hidden&&!!document.querySelector('#party-bonus-window [data-ability-field="mhp"] [data-ability-total]')));
  await page.click('#party-inspector-close');
  await page.click('button[data-party-kind="summon"][data-party-id="'+await page.evaluate(()=>__summon.uid)+'"]');
  await check('summons still expose live status from the team menu',()=>page.evaluate(()=>!document.getElementById('party-inspector').hidden));

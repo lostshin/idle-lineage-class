@@ -16,9 +16,9 @@
     <link rel="icon" type="image/png" href="assets/favicon.png">   <!-- 🖼️ 瀏覽器分頁圖示(favicon)：把你的圖放到 assets/favicon.png 即生效；可改 href 路徑或副檔名(.ico/.svg) -->
 
     <link rel="stylesheet" href="css/style.css?v=fbd980ee90">
-    <link rel="stylesheet" href="css/floating-ui.css?v=bc8be4ac7f">
+    <link rel="stylesheet" href="css/floating-ui.css?v=de83aa2f13">
     <link rel="stylesheet" href="css/tailwind-built.css?v=932535789f"><!-- 🔧 預編譯 Tailwind（取代執行期 JIT tailwind.js）：只含實際用到的 class，省 407KB runtime + 移除持續掃描 DOM 的成本。置於 style.css 之後以保留原 cascade（utility 平手時勝過自訂 class，與舊 JIT 注入順序一致） -->
-    <link rel="stylesheet" href="css/responsive.css?v=609799732b">
+    <link rel="stylesheet" href="css/responsive.css?v=148918c678">
 </head>
 <body class="h-screen w-screen overflow-hidden">
 
@@ -379,7 +379,7 @@
                         </div>
 
                         <div class="ability-hidden-values" aria-hidden="true"><span id="dt-edmg">0</span><span id="dt-ehit">0</span></div>
-                        <div id="dt-buffs" class="ability-buffs"></div>
+                        <div class="ability-buffs"><div id="dt-buffs"></div><div id="player-ability-notes"></div></div>
 
                         <div id="alloc-edit-bar" class="hidden ability-respec-overlay">
                             <span id="alloc-bar-label" class="ability-respec-points">0</span>
@@ -593,19 +593,19 @@
     <script src="js/00-data.js?v=5b30e05bfb"></script>
     <script src="js/game-layout.js?v=0c5d56ca90"></script>
 <script src="js/01-drops-config.js?v=a2874c759b"></script>
-<script src="js/02-stats-recompute.js?v=4bb09b45ab"></script>
+<script src="js/02-stats-recompute.js?v=cd26d8dcb6"></script>
     <script src="js/03-combat-core.js?v=150d86eba1"></script>
     <script src="js/04-combat-attack.js?v=1ed0d2d6ad"></script>
 <script src="js/05-kill-progression.js?v=00d67d428e"></script>
     <script src="js/06-status-allies.js?v=42882aefe4"></script>
     <script src="js/07-skills-cast.js?v=2ff536efb6"></script>
-<script src="js/08-items-equip.js?v=86cd31decc"></script>
+<script src="js/08-items-equip.js?v=9aaecd25a3"></script>
 <script src="js/09-vfx-render.js?v=c857bbe82c"></script>
-    <script src="js/effect-details.js?v=6931e257de"></script>
-    <script src="js/party-inspector.js?v=b7a4044bda"></script>
+    <script src="js/effect-details.js?v=b7639dc5d4"></script>
+    <script src="js/party-inspector.js?v=ae40d0cc91"></script>
     <script src="js/party-portrait-bounds.js?v=57f5054baa"></script>
     <script src="js/party-roster.js?v=007b361999"></script>
-    <script src="js/10-ui-tabs.js?v=bc14818ca2"></script>
+    <script src="js/10-ui-tabs.js?v=44c9881648"></script>
 <script src="js/11-world-map.js?v=7efa1000b7"></script>
 <script src="js/12-npc-quests.js?v=21b6fd7fba"></script>
 <script src="js/13-shop-save.js?v=f26b89afe1"></script>
@@ -614,14 +614,14 @@
 <script src="js/16-equip-book.js?v=06993d3f55"></script>
 <script src="js/18-misc-book.js?v=9a4bbc3677"></script>
 <script src="js/17-audio.js?v=8b26455c32"></script>
-<script src="js/19-equipment-window.js?v=ab117827ec"></script>
+<script src="js/19-equipment-window.js?v=b772361381"></script>
 <script src="js/20-warehouse-window.js?v=3efb907c43"></script>
 <script src="js/21-relic-book.js?v=40aef7ae9b"></script>
     <script src="js/23-summons.js?v=7dfe0c8454"></script>
     <script src="js/22-pets.js?v=9993e123bc"></script>
     <script src="js/companion-haste.js?v=f0447755fd"></script>
     <script src="js/24-pandora-relic-market.js?v=f4dc248558"></script>
-    <script src="js/25-clan-system.js?v=c0b9566793"></script>
+    <script src="js/25-clan-system.js?v=df9c6ebc7b"></script>
     <script src="js/26-world-channel.js?v=3299ebe24a"></script>
 <script src="js/28-pvp-arena.js?v=1347b3bd93"></script>
 <script src="js/29-siege-v2-data.js?v=379d78bb1e"></script>

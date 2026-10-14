@@ -33,7 +33,7 @@ function partyEquipmentHtml(actor,kind,id,page=0) {
     const toolbar=document.createElement('div');toolbar.className='party-equipment-toolbar';toolbar.appendChild(partyPortraitNode(actor,kind,24,32));
     const caption=document.createElement('span');caption.className='party-equipment-page-label';caption.title='懸浮或點選裝備查看資訊';caption.textContent=page?'特殊裝備':'一般裝備';toolbar.appendChild(caption);
     const host=document.createElement('div');host.className='equipment-window-slots';frame.appendChild(host);
-    const backdrop=document.createElement('img');backdrop.className='party-equipment-backdrop';backdrop.src='assets/ui/party-equipment-backdrop-v2-4x3.png';backdrop.alt='';backdrop.draggable=false;host.appendChild(backdrop);
+    const backdrop=document.createElement('img');backdrop.className='party-equipment-backdrop';backdrop.src=equipmentView.backdropUrl;backdrop.alt='';backdrop.draggable=false;host.appendChild(backdrop);
     if(!page){
         const figure=document.createElement('div');figure.className='party-paperdoll-figure';figure.setAttribute('aria-hidden','true');
         if(kind==='ally'){
@@ -45,7 +45,6 @@ function partyEquipmentHtml(actor,kind,id,page=0) {
     for(const pos of equipmentView.pages[page]) {
         const key=kind==='pet'&&pos.k==='armor'?'arm':pos.alt&&actor.eq?.[pos.alt]?pos.alt:pos.k;
         const item=actor.eq?.[key],slot=equipmentView.createSlot(item,pos);
-        slot.style.width='12%';slot.style.height='auto';
         slot.appendChild(partyEquipmentDefault(actor,pos));
         slot.dataset.equipmentSlot=key;
         const label=kind==='pet'&&key==='arm'?'寵物防具':kind==='pet'&&key==='wpn'?'寵物武器':ALLY_EQUIP_SLOT_NAME[key]||key;
@@ -72,7 +71,7 @@ function partyEquipmentHtml(actor,kind,id,page=0) {
     document.querySelector('#tab-automation > div').appendChild(setting);
     let selected = null, owner = null, timer = null, signature = '', returnFocus = null, drag = null, moved = false, userSize = null, sizing = null, opacity=100;
     let currentTab='ability',equipmentPage=0;
-    function selectTab(tab){panel.dispatchEvent(new MouseEvent('mousemove',{bubbles:true}));currentTab=tab;signature='';document.getElementById('party-details').scrollTop=0;refresh();}
+    function selectTab(tab){panel.dispatchEvent(new MouseEvent('mousemove',{bubbles:true}));currentTab=tab;signature='';document.getElementById('party-details').scrollTop=0;refresh();positionPanel();}
     document.getElementById('party-tab-ability').onclick=()=>selectTab('ability');
     document.getElementById('party-tab-equipment').onclick=()=>selectTab('equipment');
     const prefKey='lineage_party_window_v1';
@@ -135,17 +134,14 @@ function partyEquipmentHtml(actor,kind,id,page=0) {
         }
         const minion = selected.kind !== 'ally';
         const summonOwner = selected.kind === 'merc-summon' ? (player.allies || []).find(a => String(a._slot) === selected.id) : actor._necroSkeleton ? _necroOwnerByKey(actor._necroOwnerKey) || player : player;
-        const d = selected.kind === 'pet' ? petDerive(actor) || {} : selected.kind === 'guard' ? guardDerive(actor) : minion ? _sumDeriveAny(actor, summonOwner) : actor.d || {};
         const statuses = _supStatuses(actor) || {};
-        const ac = (d.ac || 0) - teamAcBonus(actor, minion) + ((selected.kind === 'ally' || selected.kind === 'pet') && statuses.disease > 0 ? 8 : 0);
         const debuffs = Object.entries(statusNames).filter(([key]) => statuses[key] > 0).map(([key, name]) => effectRow(key, name, secondsText(statuses[key] / 10), 'status')).join('') || '<li class="party-empty">目前沒有異常狀態</li>';
         const name = selected.kind === 'ally' ? actor._allyName || '隊友' : actor.form || actor.n || '隊友';
-        const mmp = selected.kind === 'pet' ? (actor.mmp || 0) + (d.mmpBonus || 0) : actor.mmp || 0;
         const condition = actor._downed || _supHp(actor) <= 0 ? '倒地' : DB.towns[mapState.current] ? '就緒' : '戰鬥中';
         const bonus = currentTab==='ability'?partyBonusSnapshot(actor, selected.kind, summonOwner):null;
         const html = currentTab==='equipment' ? partyEquipmentHtml(actor,selected.kind,selected.id,equipmentPage) : `<p class="party-caption">Lv.${actor.lv || 1} · <span id="party-condition">${condition}</span> · 即時更新</p>
             <h3>生效增益</h3><ul class="party-effects">${buffsFor(actor, minion)}</ul>
-            <h3>異常狀態</h3><ul class="party-effects party-debuffs">${debuffs}</ul>${partySummaryHtml(bonus,actor,{ac,d,mmp})}${partyBonusHtml(bonus)}`;
+            <h3>異常狀態</h3><ul class="party-effects party-debuffs">${debuffs}</ul>${partyBonusHtml(bonus)}`;
         for(const tab of ['ability','equipment']){const button=document.getElementById('party-tab-'+tab);button.setAttribute('aria-selected',String(currentTab===tab));button.tabIndex=currentTab===tab?0:-1;}
         document.getElementById('party-details').setAttribute('aria-labelledby','party-tab-'+currentTab);
         document.getElementById('party-title').textContent = name + (actor.cls && CLAN_CLASS_NAMES[actor.cls] ? '（'+CLAN_CLASS_NAMES[actor.cls]+'）' : '');
@@ -189,11 +185,8 @@ function partyEquipmentHtml(actor,kind,id,page=0) {
     }
     function fitEquipment(){
         const details=document.getElementById('party-details'),frame=details.querySelector('.party-equipment-frame');if(!frame)return;
-        const style=getComputedStyle(details),paddingY=parseFloat(style.paddingTop)+parseFloat(style.paddingBottom),paddingX=parseFloat(style.paddingLeft)+parseFloat(style.paddingRight);
-        const caption=details.querySelector('.party-caption'),empty=details.querySelector('.party-empty'),toolbar=details.querySelector('.party-equipment-toolbar'),weight=details.querySelector('.party-equipment-weight');
-        const contentHeight=(userSize?panel.clientHeight:parseFloat(panel.style.maxHeight||'0')-2)-panel.querySelector('header').offsetHeight-panel.querySelector('nav').offsetHeight;
-        const height=Math.max(24,Math.floor(contentHeight-paddingY-(caption?.offsetHeight||0)-(empty?.offsetHeight||0)-toolbar.offsetHeight-(weight?weight.offsetHeight+6:0)-8));
-        const width=Math.max(1,details.clientWidth-paddingX),canvasHeight=Math.min(height,width/.75),canvasWidth=canvasHeight*.75;
+        const style=getComputedStyle(details),paddingX=parseFloat(style.paddingLeft)+parseFloat(style.paddingRight);
+        const canvasWidth=Math.max(1,details.clientWidth-paddingX),layout=equipmentView.positionSlots(frame.querySelector('.equipment-window-slots'),canvasWidth,equipmentPage),canvasHeight=layout.height;
         frame.style.setProperty('--party-equipment-height',canvasHeight+'px');
         frame.style.setProperty('--party-equipment-canvas-width',canvasWidth+'px');
         frame.style.setProperty('--party-equipment-canvas-height',canvasHeight+'px');

@@ -3,11 +3,7 @@
 //    equipment-window-embedded、全專案無 remove/toggle），原「可拖曳浮動視窗」的拖曳三件套、關閉鈕、
 //    側欄清單（renderSidePanel/openEquipmentSidePanel/closeEquipmentSidePanel/plainItemName）、
 //    closeEquipmentWindow、fitEquipmentWindowToViewport 非嵌入分支——共約 150 行永不可達死碼全數移除。
-// 🗑️ 變身立繪引擎（_startMorphPortrait 三層 8fps 循環）一併移除：css/floating-ui.css 以
-//    `.equipment-morph-snapshot{display:none!important}` 無條件隱藏（現行 183×408 純裝備格底圖無立繪區），
-//    引擎只是在 display:none 子樹裡空轉探測圖檔＋跑 125ms interval（#17 計時器洩漏）。
-//    素材 assets/morphanim/ 仍供戰鬥區變身動畫（js/09 MORPH_ANIM_3DIR）使用，未動；
-//    日後若新底圖恢復立繪區，從 git 前版或 v3.5.86 的 js/19 找回 _startMorphPortrait 整組即可。
+// Share the teammate backdrop and static creation portrait; no animation timer.
 // 本面板保留：雙頁裝備格(renderSlots·第 2 頁＝席琳遺骸欄) ＋ 負重%(renderStats)。
 (function () {
     const PAGE_SLOTS = [
@@ -45,6 +41,32 @@
         ]
     ];
 
+    const EQUIPMENT_BACKDROP_URL = 'assets/ui/party-equipment-backdrop-v2-4x3.png';
+    function equipmentLayout(width, pageIndex) {
+        const scale = getUiScale(), size = Math.max(50 / scale, width * .12);
+        const spare = Math.max(0, width - size * 3), edge = Math.min(4 / scale, spare / 4);
+        const gapX = Math.min(4 / scale, Math.max(0, (spare - edge * 2) / 2)), gapY = 4 / scale;
+        const artHeight = width * 4 / 3, slots = [], bottoms = [0, 0, 0];
+        for (const pos of [...PAGE_SLOTS[pageIndex]].sort((a, b) => a.y - b.y)) {
+            const column = pos.x < 35 ? 0 : pos.x > 65 ? 2 : 1;
+            let x = width * pos.x / 100;
+            if (column === 0) x = Math.max(size / 2 + edge, Math.min(x, width / 2 - size - gapX));
+            if (column === 2) x = Math.min(width - size / 2 - edge, Math.max(x, width / 2 + size + gapX));
+            const y = Math.max(artHeight * pos.y / 100, size / 2 + edge, bottoms[column] + gapY + size / 2);
+            bottoms[column] = y + size / 2;
+            slots.push({ k: pos.k, alt: pos.alt, x, y });
+        }
+        return { width, height: Math.max(artHeight, ...bottoms.map(y => y + 36 / scale)), size, slots };
+    }
+    function positionEquipmentSlots(host, width, pageIndex) {
+        const layout = equipmentLayout(width, pageIndex);
+        for (const slot of host.querySelectorAll('[data-equipment-slot]')) {
+            const pos = layout.slots.find(p => p.k === slot.dataset.equipmentSlot || p.alt === slot.dataset.equipmentSlot || (p.k === 'armor' && slot.dataset.equipmentSlot === 'arm'));
+            slot.style.left = pos.x + 'px'; slot.style.top = pos.y + 'px';
+            slot.style.width = layout.size + 'px'; slot.style.height = layout.size + 'px';
+        }
+        return layout;
+    }
     let page = 0;
 
     function el(id) { return document.getElementById(id); }
@@ -63,7 +85,7 @@
     function syncEquipmentBackground() {
         const background = el('equipment-window-frame')?.querySelector('.equipment-window-bg');
         if (!background) return;
-        const src = equipmentTemplateUrl();
+        const src = EQUIPMENT_BACKDROP_URL;
         if (background.getAttribute('src') !== src) background.src = src;
     }
 
@@ -127,17 +149,29 @@
         }
         return slot;
     }
-    window.equipmentView = { pages: PAGE_SLOTS, templateUrl: equipmentTemplateUrl, createSlot: createEquipmentVisualSlot };
+    window.equipmentView = { pages: PAGE_SLOTS, templateUrl: equipmentTemplateUrl, createSlot: createEquipmentVisualSlot, backdropUrl: EQUIPMENT_BACKDROP_URL, layout: equipmentLayout, positionSlots: positionEquipmentSlots };
 
     function renderSlots() {
         if (typeof player === 'undefined' || !player || !player.eq) return;
         const host = el('equipment-window-slots');
         host.innerHTML = '';
+        if (page === 0) {
+            const figure = document.createElement('div');
+            figure.className = 'party-paperdoll-figure';
+            figure.setAttribute('aria-hidden', 'true');
+            const key = loadStartKeyFromSummary({ avatar: player.avatar, rawCls: player.cls });
+            const image = document.createElement('img');
+            image.src = loadFrameSrc(key, loadFirstFrame(key));
+            image.alt = ''; image.draggable = false;
+            figure.appendChild(image); host.appendChild(figure);
+        }
         PAGE_SLOTS[page].forEach(pos => {
             const actualKey = pos.alt && player.eq[pos.alt] ? pos.alt : pos.k;
             const item = player.eq[actualKey];
             const data = item && typeof DB !== 'undefined' && DB.items[item.id];
             const slot = createEquipmentVisualSlot(item, pos);
+            slot.appendChild(partyEquipmentDefault(player, pos));
+            slot.dataset.equipmentSlot = actualKey;
             if (item && data) {
                 slot.setAttribute('data-tip-uid', item.uid);
                 slot.setAttribute('data-tip-src', 'eq');
@@ -160,30 +194,24 @@
         pageTwo.setAttribute('aria-pressed', page === 1 ? 'true' : 'false');
     }
 
-    function fitEquipmentWindowToViewport() {   // 嵌入模式唯一版型：貼齊 #tab-content-panel、寬度以 183×408 底圖比例夾擠
+    function fitEquipmentWindowToViewport() {
         const frame = el('equipment-window-frame');
         const win = el('equipment-window');
         if (!frame || !win || win.classList.contains('hidden')) return;
         const host = el('tab-content-panel');
         if (!host) return;
-        const maxFrameWidth = 366;
-        if (innerWidth / getUiScale() <= 768) {
-            const mobileFrameWidth = Math.min(host.clientWidth, maxFrameWidth);
-            const mobileHeight = Math.ceil(mobileFrameWidth * 408 / 183);
+        if (matchMedia('(max-width: 768px)').matches) {
+            const mobileHeight = Math.ceil(host.clientWidth * 4 / 3) + 36;
             host.style.setProperty('--equipment-panel-height', mobileHeight + 'px');
         }
-        const frameWidth = Math.max(0, Math.min(
-            host.clientWidth,
-            maxFrameWidth,
-            Math.max(0, host.clientHeight - 36) * 183 / 408
-        ));
+        const frameWidth = win.clientWidth || host.clientWidth;
+        const layout = positionEquipmentSlots(el('equipment-window-slots'), frameWidth, page);
         win.style.inset = '0';
         win.style.width = '100%';
         win.style.height = '100%';
-        frame.style.left = '50%';
-        frame.style.top = '0';
         frame.style.setProperty('width', frameWidth + 'px', 'important');
-        frame.style.transform = 'translateX(-50%)';
+        frame.style.setProperty('height', layout.height + 'px');
+        frame.style.setProperty('--equipment-controls-top', (layout.height - 28 / getUiScale()) + 'px');
     }
 
     window.refreshEquipmentWindow = function () {
@@ -192,6 +220,7 @@
         syncEquipmentBackground();
         renderStats();
         renderSlots();
+        fitEquipmentWindowToViewport();
     };
 
     window.setEquipmentPanelEmbedded = function (visible) {
@@ -201,14 +230,14 @@
         if (host) {
             if (win.parentElement !== host) host.appendChild(win);
             host.classList.toggle('equipment-panel-host', visible);
-            if (!visible || innerWidth / getUiScale() > 768) host.style.removeProperty('--equipment-panel-height');
-            else host.style.setProperty('--equipment-panel-height', Math.ceil(Math.min(host.clientWidth, 366) * 408 / 183) + 'px');
+            if (!visible || !matchMedia('(max-width: 768px)').matches) host.style.removeProperty('--equipment-panel-height');
+            else host.style.setProperty('--equipment-panel-height', (Math.ceil(host.clientWidth * 4 / 3) + 36) + 'px');
         }
         win.classList.add('equipment-window-embedded');
         win.classList.toggle('hidden', !visible);
         win.setAttribute('aria-hidden', visible ? 'false' : 'true');
         if (!visible) return;
-        if (innerWidth / getUiScale() <= 768) {
+        if (matchMedia('(max-width: 768px)').matches) {
             const scroller = el('game-screen');
             if (scroller && host) {
                 const scrollerRect = scroller.getBoundingClientRect();
@@ -231,22 +260,12 @@
         if (!frame) return;
         const win = el('equipment-window');
         if (win) win.classList.add('equipment-window-embedded');
-        const contributions = document.createElement('details'); contributions.id = 'equipment-stat-contributions';
-        contributions.innerHTML = '<summary>裝備能力加成說明</summary><div></div>';
-        contributions.addEventListener('toggle', () => {
-            if (contributions.open) contributions.querySelector('div').innerHTML = equipmentContributionHtml(player,'player');
-        });
-        win.appendChild(contributions);
         const background = frame.querySelector('.equipment-window-bg');
-        if (background) {
-            background.onerror = function () {
-                this.onerror = null;
-                this.src = 'public/assets/login/EQ%20UI/' + encodeURIComponent('原圖.png') + '?v=20260713';
-            };
-            syncEquipmentBackground();
-        }
+        if (background) syncEquipmentBackground();
         el('equipment-window-prev').setAttribute('aria-label', '裝備第 1 頁');
         el('equipment-window-next').setAttribute('aria-label', '裝備第 2 頁');
+        el('equipment-window-prev').textContent = '裝備 1';
+        el('equipment-window-next').textContent = '裝備 2';
         el('equipment-window-prev').onclick = function () { page = 0; refreshEquipmentWindow(); };
         el('equipment-window-next').onclick = function () { page = 1; refreshEquipmentWindow(); };
         window.addEventListener('resize', fitEquipmentWindowToViewport);

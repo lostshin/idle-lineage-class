@@ -12,7 +12,7 @@ for(const [width,height,percent] of [[1330,900,100],[1330,900,75],[390,844,100],
  await page.evaluate(()=>{document.getElementById('squad-panel').scrollIntoView({block:'start'});openPartyInspector('ally','2');const input=document.getElementById('party-opacity');input.value='100';input.dispatchEvent(new Event('input'));});
  await check(`${width}x${height} ${percent}% party window is in bounds`,()=>page.evaluate(()=>{const p=document.getElementById('party-inspector').getBoundingClientRect();return p.left>=0&&p.top>=0&&p.right<=innerWidth+1&&p.bottom<=innerHeight+1;}));
  await page.evaluate(()=>document.getElementById('party-bonus-window').scrollIntoView({block:'start'}));
- await check(`${width}x${height} ${percent}% one card contains total and shield benefit`,()=>page.evaluate(()=>document.querySelectorAll('#party-bonus-window .ability-window-shell').length===1&&document.querySelector('#party-ability-ac [data-ability-buff]').textContent==='（−2）'&&document.querySelector('#party-ability-ac [data-ability-total]').textContent===document.getElementById('party-ac').textContent));
+ await check(`${width}x${height} ${percent}% one card contains total and shield benefit`,()=>page.evaluate(()=>document.querySelectorAll('#party-bonus-window .ability-window-shell').length===1&&document.querySelector('#party-ability-ac [data-ability-buff]').textContent==='（−2）'&&document.querySelector('#party-ability-ac [data-ability-total]').textContent===String((player.allies[0].d.ac||0)-teamAcBonus(player.allies[0])+((_supStatuses(player.allies[0])?.disease||0)>0?8:0))));
  await shot(`party-combined-${width}x${height}-${percent}`);
  await page.evaluate(()=>document.getElementById('party-inspector-close').click());
 }

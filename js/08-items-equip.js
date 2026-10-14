@@ -1334,18 +1334,16 @@ function renderStatusEffects() {
     renderStatusIconBar();
 
     // ===== 增益 BUFF =====
-    // The same icon bar is visible in both village and battle scenes.
-    let _bar = document.getElementById('status-icon-bar');
-    let _skipIconized = !!(_bar && _bar.getClientRects().length);
+    // Ability text is independent of the map icon bar visibility.
     let buffs = [];
-    if((player.buffs.haste>0 || player._equipHaste) && !_skipIconized) buffs.push(`<span class="text-emerald-400 font-bold">加速</span>`);
-    if(player.buffs.brave>0 && !_skipIconized) buffs.push(`<span class="text-fuchsia-400 font-bold">勇水</span>`);
-    if(player.buffs.blue>0 && !_skipIconized) buffs.push(`<span class="text-blue-400 font-bold">藍水</span>`);
-    if(player.buffs.cautious>0 && !_skipIconized) buffs.push(`<span class="text-violet-400 font-bold">慎水</span>`);
-    if(player.buffs.elfcookie>0 && !_skipIconized) buffs.push(`<span class="text-yellow-300 font-bold">精靈餅乾</span>`);
+    if((player.buffs.haste>0 || player._equipHaste)) buffs.push(`<span class="text-emerald-400 font-bold">加速</span>`);
+    if(player.buffs.brave>0) buffs.push(`<span class="text-fuchsia-400 font-bold">勇水</span>`);
+    if(player.buffs.blue>0) buffs.push(`<span class="text-blue-400 font-bold">藍水</span>`);
+    if(player.buffs.cautious>0) buffs.push(`<span class="text-violet-400 font-bold">慎水</span>`);
+    if(player.buffs.elfcookie>0) buffs.push(`<span class="text-yellow-300 font-bold">精靈餅乾</span>`);
     // 變身顯示：套裝變身(_setPoly，僅穿著時生效)優先於藥水變身，與 recomputeStats 的數值優先序一致 → 穿上惡魔/死亡騎士/克特套裝會立即取代卷軸變身的名稱顯示
     { let _polyDisp = player._setPoly || ((player.buffs.poly>0 && player.poly) ? player.poly : null);
-      if(_polyDisp && !_skipIconized) buffs.push(`<span class="${_polyDisp.c} font-bold">變身:${_polyDisp.n}</span>`); }
+      if(_polyDisp) buffs.push(`<span class="${_polyDisp.c} font-bold">變身:${_polyDisp.n}</span>`); }
 
     // 🤝 協力傭兵已改由「協力傭兵隊伍」面板(#squad-panel)顯示 HP/MP/EXP/狀態，移除此處「狀態」欄的重複「協力：XX」條目
     // 🐾 v3.2.17 誘捕狀態（新夥伴系統·7 種）；舊「夥伴：項圈」與 taming 顯示已隨項圈系統移除
@@ -1380,7 +1378,6 @@ function renderStatusEffects() {
                 }
                 continue;
             }
-            if(_skipIconized && STATUS_ICON_SKILLS[k]) continue;   // 🔧 v2.7.2 有圖示的技能增益→戰鬥中略過文字(改看右上狀態圖示)；無圖示技能/村莊仍顯示
             buffs.push(`<span class="${getBuffColor(k, DB.skills[k])} font-bold">${DB.skills[k].n}</span>`);
         }
     }
@@ -1408,7 +1405,6 @@ function renderStatusEffects() {
     let debuffs = [];
     for(let k in PLAYER_DEBUFF_NAME) {
         if(player.statuses[k] > 0) {
-            if(_skipIconized && PLAYER_DEBUFF_ICON[k]) continue;   // 🌩️ v3.5.94 有圖示的異常→戰鬥中略過文字(改看右上狀態圖示)，比照上方增益的 _skipIconized 慣例；無圖示的異常/村莊仍顯示文字
             let c = DEBUFF_COLORS[k] || 'text-red-400';
             debuffs.push(`<span class="${c} font-bold">${PLAYER_DEBUFF_NAME[k]}</span>`);
         }
@@ -1579,4 +1575,5 @@ function _updateUIImpl() {
         }
     }
     updateSummonLock();   // 同步召喚類技能互斥鎖定（含迷魅生效時鎖定召喚增益）
+    refreshPlayerAbility();
 }
