@@ -112,27 +112,31 @@
 
 ```bash
 python3 -m http.server 8000 --bind 127.0.0.1
-node --check js/companion-haste.js
+python3 scripts/check-local.py
 python3 scripts/update-cache.py
 python3 tests/run-rwd.py --help
 ```
 
+- 人類開發者入門看 `README.md`；本檔是代理工作規則，兩者不互相複製內容。
+- `.ignore` 讓 `rg` 略過 `assets/anim`、`classanim`、`morphanim` 的 20 萬張逐格圖；要搜那裡時用 `rg --no-ignore`。
+
 - E2E 需要 Python 3、`ego-browser` CLI 與 Ego；runner 自行啟動 HTTP 測試伺服器。
 - 使用瀏覽器前讀目前提供的 `ego-browser` 技能；只用已記載的 API，不猜 Playwright 方法。
 - 一個任務只建一個 TaskSpace；所有 runner **逐批共用同一個 space 與 p1**，不並行啟動 Ego 測試程序。
-- 首輪可用 `rwd --protocol http --keep-space`，讀輸出的 `spaceId`；之後每輪帶 `--space` 與 `--keep-space`。
+- 首輪可用 `rwd --protocol http --keep-space`，讀輸出的 `spaceId`；之後帶 `--space`。多個 suite／`--protocol both` 會在同一 space 依序執行、自動 keep-space、遇錯即停。
+- 測試報告預設寫入 `tmp/test-runs/`（不進 git）；要更新受追蹤的 `tests/artifacts/` 才加 `--record`（runner 與 `*.integration.js` 相同）；runner 可用 `--artifacts <目錄>` 指定其他輸出位置，與 `--record` 互斥。
 - 不用新空間救失敗／消失的空間；依技能在原空間恢復。成功後只呼叫一次 `finish({keep:[]})` 並等待完成。
-- 必跑 `rwd`、`ui-scale`、`gameplay`、`account-gameplay`、`companion-commands`，每個各跑 HTTP 與 file。
+- 必跑 `rwd`、`ui-scale`、`gameplay`、`account-gameplay`、`companion-commands`，每個各跑 HTTP 與 file：`--space <id> --suite required --protocol both`。
 - 相關 E2E：`compact-layout`、`party-refinements`、`party-equipment`、`village-clan-warehouse`、`skill-cards`、`ally-skill-stop`、`town-buffs-enhance`、`summon-display`。
 - TaskSpace 消失不能自行重建；使用者暫緩重建時，先完成本地工作並記錄待跑的瀏覽器檢查，後續不得把 Node VM／幾何替身說成瀏覽器 E2E 通過。
 - `visual-account-gameplay` 必須緊接 `account-gameplay --keep-space`，同一 space；中間不可先跑會替換合成資料的其他 suite。
-- 其他 `visual-*` 也要接對應的行為 fixture；fixtures 的全域儲存名稱不同，不可互換。
+- 其他 `visual-*` 也要接對應的行為 fixture；fixtures 的全域儲存名稱不同，不可互換。runner 會拒絕順序錯誤的組合。
 - 不直接改寵物記憶體陣列充當已儲存名冊；用原生 dirty／save 流程，避免下一次查詢把測試寵物清掉。
 - 若瀏覽器圖片擷取不可用：行為 suite 用 `--skip-screenshots`；畫面用 Ego screen-media PDF，再本機轉 PNG。
 - PDF 中間檔放 `tmp/pdfs/`，驗收後刪除；明確標示 PNG 的生成方式，不宣稱是直接瀏覽器截圖。
 - 桌機／窄螢幕及 75%／100% 預覽均須實際檢查；手機技能區須捲到 sticky HP／MP 列下方再擷取。
-- 驗證語法、`git diff --check`、資源 SHA 與 46 個鏡像檔；保留可重跑的 JSON 報告及代表性預覽。
-- 最新本地檢查：`node tests/dps-teleport.integration.js`、`node tests/spell-category.integration.js`、`node tests/equipment-cast.integration.js`、`node tests/equipment-proportions.integration.js`。只驗證各自標明的原生流程／幾何邊界。
+- 本地檢查一律跑 `python3 scripts/check-local.py`：JS 語法、`git diff --check`、`?v=` 資源 SHA、46 個鏡像檔 SHA 與全部 `tests/*.integration.js`。integration 只驗證各自標明的原生流程／幾何邊界，不等於瀏覽器 E2E。
+- 保留可重跑的 JSON 報告及代表性預覽；最近一次完整驗證以 git log 中最新的 `test:` commit 及其報告為準。
 - 報告檔名先讀 runner 實際輸出，不猜新檔名；引用前核對檔案存在、方法、版本與結果。歷史報告及早期預覽不得充作後續美術／排版驗證。
 - 桌面橋接替身與 file 協定不等於安裝版實測；本機 iCloud 複製／雜湊相符不等於遠端同步完成。
 - 必要檢查通過就交付；沒有新修改或具體疑慮，不重跑整套或展開額外調查。
@@ -148,17 +152,3 @@ python3 tests/run-rwd.py --help
 - commit 以單一功能範圍命名，例如 `fix: preserve village buffs across ally refresh`；不只寫 `1`／`q`。
 - push 前核對遠端／分支與差異，不 force push；未授權不推到 upstream 或改動別人的歷史。
 - PR／交付列出玩家可見變化、修改原因、modified files、實跑檢查與結果、預覽及未驗證平台。
-
-## 本次 Session 進度與證據
-
-- 前一批：隊友 EXP、夥伴加速、三欄／名牌／技能卡片、村莊 buff／名稱、金額記憶與持續強化已提交到 `origin/main`；基準 `182f7e4f2`。
-- [前一批完整 E2E](tests/artifacts/town-buffs-enhance-final-validation.json)：1,105／1,105 PASS，屬歷史版本；不代表本批也通過。
-- 本批程式：召喚圖示、召喚／護衛血條、DPS 名稱與共同起點、瞬移假 DPS、原版人形裝備／4：3 背景／預設底圖／負重，以及獨立施法小 tab 已實作。
-- [瞬移傷害驗證](tests/artifacts/dps-teleport-integration.json)：11／11 PASS；原版 100 萬 HP 頭目逃離誤計 100 萬傷害，修後為 0，真正傷害保留。
-- [施法與放大槽位驗證](tests/artifacts/spell-tab-equipment-final-validation.json)：29／29 本地整合／幾何 PASS；與前項合計 40 項，不能加總重跑／歷史報告灌大數字。
-- [DPS 共同起點](tests/artifacts/dps-bar-alignment-validation.json)：語法／快取／read-back 已過；六組螢幕／縮放的 E2E 斷言已更新，尚未執行。
-- [背景與負重素材紀錄](tests/artifacts/equipment-cast-final-validation.json)／[最新 prompt](output/imagegen/teammate-equipment-20261014-v2/production-4x3-prompt.json)；舊 4：3 前版與格狀預覽不是最新成品。
-- 最新狀態：使用者要求暫不重建消失的 Ego 空間；後期裝備、美術、施法小 tab、DPS 對齊尚待瀏覽器 HTTP／file E2E、畫面及安裝版實測。
-- iCloud 素材只驗證本機複製與 SHA 相符，遠端同步未獨立核驗；不讀寫玩家存檔。
-- [本批提交前檢查](tests/artifacts/session-20261014-publish-validation.json)：40／40 本地 PASS、108 份 JS 語法、105 資源 SHA、65 鏡像 SHA 與文件驗證通過；瀏覽器待驗狀態保留。
-- 分批提交／推送以 `git log` 與 `origin/main` 為準；本節不以未執行的測試或預期 push 當完成證據。

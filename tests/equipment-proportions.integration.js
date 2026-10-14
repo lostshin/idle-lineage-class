@@ -3,6 +3,7 @@
 // Geometry-only native renderer harness; does not replace browser visual QA.
 const fs=require('node:fs'),vm=require('node:vm'),path=require('node:path');
 const root=path.resolve(__dirname,'..'),baseline=process.argv.includes('--baseline');
+const outDir=path.join(root,process.argv.includes('--record')?'tests/artifacts':'tmp/test-runs');fs.mkdirSync(outDir,{recursive:true});
 const nodes=[];
 function node(){
     const values={},style={setProperty:(k,v)=>values[k]=v};
@@ -35,6 +36,6 @@ for(const [width,height]of [[480,900],[480,650],[640,320],[320,900],[320,240],[3
     reports.push({availableWidth:width,availableHeight:height,canvasWidth:w,canvasHeight:h,frameHeight:fh,status:Object.values(checks).every(Boolean)?'PASS':'FAIL',checks});
 }
 const result={method:'Native fitEquipment and equipment renderer in synthetic Node VM; geometry only, not browser layout or visual QA',reports};
-fs.writeFileSync(path.join(root,'tests/artifacts/equipment-larger-slots-'+(baseline?'baseline':'integration')+'.json'),JSON.stringify(result,null,2)+'\n');
+fs.writeFileSync(path.join(outDir,'equipment-larger-slots-'+(baseline?'baseline':'integration')+'.json'),JSON.stringify(result,null,2)+'\n');
 console.log(JSON.stringify({checks:reports.length,passed:reports.filter(r=>r.status==='PASS').length,failed:reports.filter(r=>r.status==='FAIL').map(r=>({size:[r.availableWidth,r.availableHeight],checks:r.checks}))},null,2));
 if(!baseline&&reports.some(r=>r.status==='FAIL'))process.exitCode=1;

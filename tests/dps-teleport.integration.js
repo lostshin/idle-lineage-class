@@ -7,6 +7,7 @@ const vm = require('node:vm');
 const path = require('node:path');
 const root = path.resolve(__dirname, '..');
 const baseline = process.argv.includes('--baseline');
+const outDir = path.join(root, process.argv.includes('--record') ? 'tests/artifacts' : 'tmp/test-runs');
 const controls = new Map();
 const ctx = vm.createContext({
     console, Date, Math, setTimeout, clearTimeout, setInterval:()=>0, clearInterval:()=>{},
@@ -58,7 +59,7 @@ check('stunned automatic escape neither consumes a scroll nor invents damage',`(
 check('an escaped boss cannot give its replacement phantom player threat',`(()=>{fixture();const s=_dpsSnap();doTeleport(false);const m={uid:'replacement',curHp:1,boss:true};mapState.mobs[0]=m;threatCommitDiff(s,player);return !m._threat||Object.keys(m._threat).length===0||m._threat;})()`);
 check('native same-target damage still creates real player threat',`(()=>{const b=fixture(1000),s=_dpsSnap();b.curHp-=50;threatCommitDiff(s,player);return b._threat?.P>0||b._threat;})()`);
 const report={method:'Synthetic Node VM; native autoActions, useItem, doTeleport, DPS and threat modules; not browser E2E',reports};
-fs.mkdirSync(path.join(root,'tests/artifacts'),{recursive:true});
-fs.writeFileSync(path.join(root,'tests/artifacts/dps-teleport-'+(baseline?'baseline':'integration')+'.json'),JSON.stringify(report,null,2));
+fs.mkdirSync(outDir,{recursive:true});
+fs.writeFileSync(path.join(outDir,'dps-teleport-'+(baseline?'baseline':'integration')+'.json'),JSON.stringify(report,null,2));
 console.log(JSON.stringify(report,null,2));
 if(!baseline&&reports.some(r=>r.status==='FAIL'))process.exitCode=1;

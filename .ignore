@@ -1,0 +1,4 @@
+# Exclude original animation frames from text searches.
+/assets/anim/
+/assets/classanim/
+/assets/morphanim/
