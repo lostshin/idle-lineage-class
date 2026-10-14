@@ -3417,3 +3417,7 @@ button.classic-skill-cell { cursor:pointer; }
 #settings-tools .m-dex-entry-newtab, #settings-tools .m-wiki-entry-newtab { flex:0 0 auto; width:auto !important; font-size:1.2rem; line-height:1; padding-left:14px; padding-right:14px; }
 #settings-tools #afk-stg-wrap { align-items:stretch; margin-top:0; }
 #settings-tools #afk-stg-menu { position:static; transform:none; margin:0; box-shadow:none; min-width:0; }
+/* 戒指／耳環「換掉哪一邊」選擇：按鈕直向排列，名稱完整顯示 */
+.acc-slot-actions { flex-direction:column; }
+/* 選角卡「傳統」勾選：原位置（右側 10%）落在神龕邊框圖的拱門柱上被蓋住，改放拱門開口正上方中央 */
+.load-slot-card .afk-trad-cb { left:50% !important; right:auto !important; transform:translateX(-50%); }

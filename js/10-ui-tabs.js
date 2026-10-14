@@ -1558,6 +1558,7 @@ function executeAutoSafeEnhance(targetUid, isEq, scrollId, goal) {
         result = `${prefix}消耗了 ${used} 張 ${scrollName}，<span class="text-yellow-400 font-bold">+${target.en} ${d.n} 發出銀色的光芒。</span>`;
     }
     logSys(result);
+    if (!isEq) target = invRestackEnhanced(target);   // 同強化值併回既有堆疊
 
     calcStats();
     renderTabs();
@@ -1599,6 +1600,7 @@ function executeCurseDeEnhance(targetUid, isEq, scrollId) {
     target.en -= 1;   // 100% 成功降 1 階（強化已改純機率→重爬時各階自然重新擲骰，無需重骰身份）
     let result = `消耗了 1 個 <span class="c-cursed">${scrollName}</span>，<span class="text-red-300 font-bold">${target.en < 0 ? target.en : '+' + target.en} ${d.n} 散發出黯淡的光芒。</span>`;
     logSys(result);
+    if (!isEq) target = invRestackEnhanced(target);   // 同強化值併回既有堆疊
 
     calcStats();
     renderTabs();

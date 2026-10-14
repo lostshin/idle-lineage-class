@@ -3111,13 +3111,13 @@ function alliesTick() {
         // 🩹 治癒每 tick 依自身施法冷卻判定，不再等待物理攻擊週期；施放後仍延後下一次一般攻擊，保留「治癒佔用一次行動」語意。
         if (!_ccBlock && !_castBlock && ally._healSkill && allyTryHeal(ally)) ally._atkCd = Math.max(ally._atkCd || 0, allyAtkSkillInterval(ally, ally._lastHealCastSupport !== false));
         // 回魔：基準每 160 ticks(16秒)，每 10 點精神縮短 10 ticks；+mpR 量不變。
-        let _aMpIv = wisMpRegenIntervalTicks((ally.d && ally.d.wis) || 0);
+        let _aMpIv = safeZoneRegenInterval(wisMpRegenIntervalTicks((ally.d && ally.d.wis) || 0));
         if (state.ticks % _aMpIv === 0 && (ally.mp||0) < (ally.mmp||0) && ((ally.d && ally.d.mpR) || 0) > 0) {   // 🔧 mpR 可能因套裝懲罰（黑暗妖精套裝 -7）為負 → 與玩家回魔一致，只在 >0 時回魔，避免扣傭兵MP
             ally.mp = Math.min(ally.mmp, (ally.mp||0) + ((ally.d && ally.d.mpR) || 0));
         }
         // 🩸 HP 自然再生（v2.6.16 用戶要求：全職傭兵通用·比照玩家 regenTick）：每 160 ticks，HP<上限且「HP自然恢復為正」(hpRegenMax>0 或 hpR>0)→ +roll(1,hpRegenMax)+hpR（龍騎傭兵改吃HP尤需→直接套用自身自然恢復量·若為 0 則保底最低 1，見下）
         // 🌀 v3.4.71 治癒能量風暴（TEAM_SHARE_BUFFS 共享而來）：維持中 HP 自然恢復間隔改 30 tick(3秒)·比照玩家 js/03 gameLoop _hpIv·MP 恢復不受影響
-        let _aHpIv = (ally.buffs && (ally.buffs.sk_heal_energy_storm || 0) > 0) ? ((DB.skills.sk_heal_energy_storm && DB.skills.sk_heal_energy_storm.hpRegenIv) || 30) : 160;
+        let _aHpIv = safeZoneRegenInterval((ally.buffs && (ally.buffs.sk_heal_energy_storm || 0) > 0) ? ((DB.skills.sk_heal_energy_storm && DB.skills.sk_heal_energy_storm.hpRegenIv) || 30) : 160);
         if (state.ticks % _aHpIv === 0 && (ally.curHp||0) < (ally.mhp||0)) {
             let _hrMax = (ally.d && ally.d.hpRegenMax) || 0, _hrFlat = (ally.d && ally.d.hpR) || 0;
             let _hr = (_hrMax > 0 ? roll(1, _hrMax) : 0) + _hrFlat;
@@ -3357,7 +3357,7 @@ function _reviveAllyDone(ally, via) {
 function reviveDownedMercsAtTown() {
     if (!player || !player.allies) return;
     let n = 0;
-    player.allies.forEach(a => { if (a) { let _wd = a._downed; a._downed = false; a.curHp = a.mhp; a.mp = a.mmp; a._reviveCd = 0; a.statuses = {}; if (_wd) n++; } });   // 🤝 Phase4：回村→全體傭兵回滿 HP/MP 並清除異常狀態（倒地者亦復活，計入訊息）
+    player.allies.forEach(a => { if (a) { let _wd = a._downed; a._downed = false; if (_wd) { a.curHp = Math.ceil(a.mhp / 2); a.mp = Math.max(a.mp || 0, Math.ceil(a.mmp / 2)); n++; } a._reviveCd = 0; a.statuses = {}; } });   // 🤝 回村：倒地傭兵復活到一半 HP/MP、全體清除異常；其餘不補滿（安全區自然恢復加快）狀態（倒地者亦復活，計入訊息）
     if (n) { try { logSys(`<span class="text-emerald-300">回到安全區，${n} 名倒地的協力傭兵已恢復。</span>`); } catch (e) {} try { renderSquadPanel(); } catch (e) {} }
 }
 // 🤝 傭兵升級重算戰力：暫時把全域 player 換成該傭兵跑 recomputeStats（純計算·比照 buildAlly），取得新等級的衍生戰力後還原；保留當前 HP/MP（夾到新上限·不滿血）。
@@ -3419,9 +3419,10 @@ function refreshAllyOnce(slotN) {
         fresh._darkStealthCd = cur._darkStealthCd || 0;
         fresh._waterVitalCd = cur._waterVitalCd || 0;
         _allyLevelRecompute(fresh);
-        fresh.curHp = fresh.mhp;
-        fresh.mp = fresh.mmp;
     }
+    // 刷新只更新來源裝備／經驗，沿用目前 HP/MP（夾到新上限），不因進安全區而補滿
+    fresh.curHp = Math.max(1, Math.min(fresh.mhp, Number.isFinite(cur.curHp) ? cur.curHp : fresh.mhp));
+    fresh.mp = Math.max(0, Math.min(fresh.mmp, Number.isFinite(cur.mp) ? cur.mp : fresh.mmp));
     fresh._hiredAt = Number(cur._hiredAt) || 0;   // 🧑‍🤝‍🧑 v3.7.93 重建快照不能重設招募時刻，否則每次進安全區都會把自己的獨佔順位往後推
     let idx = player.allies.findIndex(a => a && a._slot === slotN);
     if (idx !== -1) player.allies[idx] = fresh; else player.allies.push(fresh);
@@ -3863,9 +3864,9 @@ function closeAllyEquipmentManager() {
     let div = document.getElementById('interaction-content');
     if (div) renderAllyNPC(div);
 }
-function allyEquipItem(slotN, encodedUid) {
+function allyEquipItem(slotN, encodedUid, chosenSlot) {
     let itemUid = decodeURIComponent(String(encodedUid || ''));
-    let leader = player, leaderBefore = _allyCloneInventory(leader.inv), leaderChanged = false;
+    let leader = player, leaderBefore = _allyCloneInventory(leader.inv), leaderChanged = false, askSlot = null;
     let saved = _saveManagedAllyEquipment(slotN, source => {
         let snapshot = _allySnapshotEquipment(source);
         try {
@@ -3876,6 +3877,12 @@ function allyEquipItem(slotN, encodedUid) {
             if (!_allyCanEquipLeaderItem(source, item)) { logSys('<span class="text-slate-400">這名傭兵無法穿戴該裝備。</span>'); return; }
             if (def.isArrow && source.eq.wpn && DB.items[source.eq.wpn.id] && DB.items[source.eq.wpn.id].shahaBow) {
                 logSys('<span class="text-slate-400">沙哈之弓會自動使用無限箭矢，無需更換箭矢。</span>');
+                return;
+            }
+            // 傭兵的戒指／耳環欄都已裝備：先不動任何資料，回到隊長端詢問要換下哪一邊
+            let open = accessorySlots(def.slot);
+            if (open && open.length > 1 && !(chosenSlot && open.includes(chosenSlot)) && open.every(s => player.eq[s])) {
+                askSlot = { item: {...item}, open, equipped: Object.fromEntries(open.map(s => [s, {...player.eq[s]}])), name: source._allyName || source.name || '傭兵' };
                 return;
             }
             let count = def.isArrow ? Math.max(1, Math.floor(item.cnt || 1)) : 1;
@@ -3889,7 +3896,8 @@ function allyEquipItem(slotN, encodedUid) {
                 source.eq.arrow = null;
             }
             source.inv.push(transfer);
-            equipItem(transfer);
+            _accSlotPrompt = false;
+            try { equipItem(transfer, chosenSlot); } finally { _accSlotPrompt = true; }
             let equipped = Object.values(source.eq || {}).find(now => now && now._allyTransferToken === token);
             if (!equipped) { _allyRestoreEquipment(source, snapshot); return; }
             delete equipped._allyTransferToken;
@@ -3905,6 +3913,7 @@ function allyEquipItem(slotN, encodedUid) {
     });
     if (!saved && leaderChanged) { leader.inv = _allyCloneInventory(leaderBefore); updateUI(); }
     if (saved) { calcStats(); updateUI(); openAllyEquipmentManager(slotN); }
+    if (askSlot) chooseAccessorySlot(askSlot.item, askSlot.open, askSlot.equipped, s => allyEquipItem(slotN, encodedUid, s), askSlot.name + ' ');
 }
 function allyUnequipItem(slotN, slot) {
     let leader = player, leaderBefore = _allyCloneInventory(leader.inv), leaderChanged = false;

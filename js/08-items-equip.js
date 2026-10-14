@@ -949,7 +949,25 @@ function playerHasWindHelm() {
     return !!((player.eq && player.eq.helm && player.eq.helm.id === 'hlm_wind') || (player.inv && player.inv.some(i => i.id === 'hlm_wind')));
 }
 
-function equipItem(item) {
+// 多欄位飾品（戒指／耳環）依裝備視窗位置命名，供「換掉哪一邊」選擇。
+const ACC_SLOT_LABEL = { ear1:'左耳環', ear2:'右耳環', ring1:'左手戒指', ring2:'右手戒指', ring3:'左下戒指', ring4:'右下戒指' };
+let _accSlotPrompt = true;   // 傭兵換裝在隊長端先詢問欄位，交易中不可再跳視窗（此時 player 是傭兵）
+// 目前角色（player，傭兵換裝時為該傭兵）可用的戒指／耳環欄：戒指第3欄需 Lv76、第4欄需 Lv81；耳環第2欄需 Lv59。
+function accessorySlots(type) {
+    if (type === 'ring') return ['ring1', 'ring2'].concat(player.lv >= 76 ? ['ring3'] : [], player.lv >= 81 ? ['ring4'] : []);
+    if (type === 'ear') return ['ear1'].concat(player.lv >= 59 ? ['ear2'] : []);
+    return null;
+}
+// 可用的同類飾品欄都已裝備時，讓玩家選擇要換下哪一個。equipped＝各欄目前裝備（顯示用），onChoose(slot) 以指定欄位重新換裝。
+function chooseAccessorySlot(item, slots, equipped, onChoose, whose = '') {
+    closeModal();
+    let rows = slots.map(s => `<button class="btn" type="button" data-acc-slot="${s}">換下${ACC_SLOT_LABEL[s]}：${getItemFullName(equipped[s])}</button>`).join('');
+    let dialog = transferDialog('acc-slot-dialog', '選擇' + whose + '要替換的' + (slots[0].startsWith('ring') ? '戒指' : '耳環'), `<p class="transfer-note">要把 ${getItemFullName(item)} 換到哪一邊？</p><div class="transfer-actions acc-slot-actions">${rows}<button class="btn" type="button" data-acc-cancel>取消</button></div>`);
+    dialog.querySelectorAll('[data-acc-slot]').forEach(b => { b.onclick = () => { closeTransferDialog(dialog); onChoose(b.dataset.accSlot); }; });
+    dialog.querySelector('[data-acc-cancel]').onclick = () => closeTransferDialog(dialog);
+}
+
+function equipItem(item, chosenSlot) {
     let d = DB.items[item.id];
     // 🦴 v3.2.37 寵物裝備改個別裝備制：玩家無寵物裝備欄——請至寵物保管為單一寵物裝上（v3.7.7 保管人兩位）
     if (d && (d.slot === 'petwpn' || d.slot === 'petarm')) { logSys('<span class="text-amber-300">寵物裝備請到寵物保管（亞丁 包武／古魯丁 奧斯丁）為指定寵物裝上。</span>'); return; }
@@ -970,19 +988,15 @@ function equipItem(item) {
         return;
     }
 
-    if (slot === 'ring') {
-        if(!player.eq.ring1) slot = 'ring1';
-        else if(!player.eq.ring2) slot = 'ring2';
-        else if(player.lv >= 76 && !player.eq.ring3) slot = 'ring3';   // 第3戒指欄：需 Lv76
-        else if(player.lv >= 81 && !player.eq.ring4) slot = 'ring4';   // 第4戒指欄：需 Lv81
-        else slot = 'ring1';
-    }
-
-    // 🦻 耳環欄位分配：一開始 1 個（ear1），Lv59 開放第 2 個（ear2），最多 2 個
-    if (slot === 'ear') {
-        if(!player.eq.ear1) slot = 'ear1';
-        else if(player.lv >= 59 && !player.eq.ear2) slot = 'ear2';   // 第2耳環欄：需 Lv59
-        else slot = 'ear1';
+    // 💍 戒指：ring1/ring2，第3欄需 Lv76、第4欄需 Lv81；🦻 耳環：ear1，第2欄需 Lv59。
+    //    優先放空欄；可用欄都已裝備時，由玩家選擇要換下哪一個（只有一欄可用時直接替換）。
+    if (slot === 'ring' || slot === 'ear') {
+        let open = accessorySlots(slot);
+        let free = open.find(s => !player.eq[s]);
+        if (chosenSlot && open.includes(chosenSlot)) slot = chosenSlot;
+        else if (free) slot = free;
+        else if (open.length > 1 && _accSlotPrompt) { chooseAccessorySlot(item, open, player.eq, s => equipItem(item, s)); return; }
+        else slot = open[0];
     }
     // 🦻 不能同時裝備兩個名字相同的耳環
     if (slot === 'ear1' || slot === 'ear2') {
@@ -1197,6 +1211,7 @@ function doEnhance(targetUid, isEq = true) {
         result = `<span class="text-slate-400">${fn} 一瞬間發出銀色的光芒。</span>`;
     }
     logSys(result);
+    if (!isEq) target = invRestackEnhanced(target);   // 同強化值併回既有堆疊
     
     calcStats();
     renderTabs();

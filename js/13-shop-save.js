@@ -1660,7 +1660,7 @@ function loadGame() {
         state.ticks = d.ticks || 0;   // 🔧 還原 tick 計數：讓召喚物/迷魅以絕對 tick 記錄的 endTick 在重載後仍然有效
         // 修復：自動存檔可能在「死亡放置」期間把 player.dead=true 寫入存檔。
         // 讀檔一律以「在村莊甦醒、存活」載入，否則 tick() 會因 player.dead 提早 return，
-        // 導致載入後不出怪、且無復活按鈕可按而卡死。後續進村流程會補滿 HP/MP 並清除異常狀態。
+        // 導致載入後不出怪、且無復活按鈕可按而卡死。後續進村流程會把 HP≤0 的角色復活到一半 HP/MP 並清除異常狀態。
         player.dead = false;
         { let b1 = document.getElementById('btn-revive'); if(b1) b1.classList.add('hidden');
           let b2 = document.getElementById('btn-revive-inplace'); if(b2) b2.classList.add('hidden'); }

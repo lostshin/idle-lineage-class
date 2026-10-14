@@ -76,6 +76,7 @@ function partyEquipmentHtml(actor,kind,id,page=0) {
     document.getElementById('party-tab-ability').onclick=()=>selectTab('ability');
     document.getElementById('party-tab-equipment').onclick=()=>selectTab('equipment');
     const prefKey='lineage_party_window_v1';
+    const minPanelHeight=400;   // keeps the 4:3 equipment canvas large enough for readable sockets
     try { const p=JSON.parse(_lsGet(prefKey));if(p){if(Number.isFinite(p.width)&&p.width>=240&&Number.isFinite(p.height)&&p.height>=160)userSize={width:p.width,height:p.height};if(Number.isFinite(p.opacity))opacity=Math.max(30,Math.min(100,p.opacity));}}catch(e){}
     function applyOpacity(){panel.style.opacity=opacity/100;document.getElementById('party-opacity').value=opacity;document.getElementById('party-opacity-value').textContent=opacity+'%';}
     function persist(){const saved=_lsSet(prefKey,JSON.stringify({...userSize,opacity}))===true;document.getElementById('party-window-status').textContent=saved?'':'隊友視窗設定未儲存，請重試。';}
@@ -216,7 +217,7 @@ function partyEquipmentHtml(actor,kind,id,page=0) {
         const anchor=document.getElementById('squad-panel').getBoundingClientRect();
         const aligned=!narrow&&anchor.right+12+panel.getBoundingClientRect().width<=innerWidth-8&&anchor.top>=8&&anchor.top<innerHeight-240;
         panel.style.maxHeight=screenToUiPx(userSize?maxHeight:Math.min(maxHeight,innerHeight*(narrow?.60:.82),aligned&&!moved?innerHeight-anchor.top-8:innerHeight));
-        panel.style.height=userSize?screenToUiPx(Math.max(Math.min(240*z,maxHeight),Math.min(maxHeight,userSize.height*z))):'';
+        panel.style.height=userSize?screenToUiPx(Math.max(Math.min(minPanelHeight*z,maxHeight),Math.min(maxHeight,userSize.height*z))):'';
         const size=panel.getBoundingClientRect();
         const beside=anchor.right+12, below=anchor.bottom+12;
         const x=beside+size.width<=innerWidth-8?beside:anchor.left;
@@ -238,14 +239,14 @@ function partyEquipmentHtml(actor,kind,id,page=0) {
     for(const type of ['pointerup','pointercancel'])header.addEventListener(type,()=>drag=null);
     function resizePanel(width,height,x,y) {
         const z=getUiScale();
-        const w=Math.max(Math.min(320*z,innerWidth-16),Math.min(innerWidth-16,width)),h=Math.max(Math.min(240*z,innerHeight-16),Math.min(innerHeight-16,height));
+        const w=Math.max(Math.min(320*z,innerWidth-16),Math.min(innerWidth-16,width)),h=Math.max(Math.min(minPanelHeight*z,innerHeight-16),Math.min(innerHeight-16,height));
         userSize={width:w/z,height:h/z};moved=true;
         panel.style.left=screenToUiPx(Math.max(8,Math.min(innerWidth-w-8,x)));panel.style.top=screenToUiPx(Math.max(8,Math.min(innerHeight-h-8,y)));positionPanel();
     }
     for(const side of ['n','e','s','w','ne','nw','se','sw']) {
         const edge=document.createElement('div');edge.dataset.partyResize=side;edge.className='party-resize-edge';edge.tabIndex=0;edge.setAttribute('role','separator');edge.setAttribute('aria-label','調整隊友視窗大小');edge.title='拖曳邊界調整大小；方向鍵也可調整';if(side==='se')edge.id='party-resize';panel.appendChild(edge);
         edge.addEventListener('pointerdown',e=>{if(e.button!==0)return;const r=panel.getBoundingClientRect();sizing={id:e.pointerId,side,x:e.clientX,y:e.clientY,r};edge.setPointerCapture(e.pointerId);e.preventDefault();});
-        edge.addEventListener('pointermove',e=>{if(!sizing||sizing.id!==e.pointerId)return;const {r,side}=sizing,dx=e.clientX-sizing.x,dy=e.clientY-sizing.y;const w=r.width+(side.includes('w')?-dx:side.includes('e')?dx:0),h=r.height+(side.includes('n')?-dy:side.includes('s')?dy:0);resizePanel(w,h,side.includes('w')?r.right-Math.max(Math.min(320*getUiScale(),innerWidth-16),Math.min(innerWidth-16,w)):r.left,side.includes('n')?r.bottom-Math.max(Math.min(240*getUiScale(),innerHeight-16),Math.min(innerHeight-16,h)):r.top);});
+        edge.addEventListener('pointermove',e=>{if(!sizing||sizing.id!==e.pointerId)return;const {r,side}=sizing,dx=e.clientX-sizing.x,dy=e.clientY-sizing.y;const w=r.width+(side.includes('w')?-dx:side.includes('e')?dx:0),h=r.height+(side.includes('n')?-dy:side.includes('s')?dy:0);resizePanel(w,h,side.includes('w')?r.right-Math.max(Math.min(320*getUiScale(),innerWidth-16),Math.min(innerWidth-16,w)):r.left,side.includes('n')?r.bottom-Math.max(Math.min(minPanelHeight*getUiScale(),innerHeight-16),Math.min(innerHeight-16,h)):r.top);});
         for(const type of ['pointerup','pointercancel'])edge.addEventListener(type,()=>{if(sizing){sizing=null;persist();}});
         edge.addEventListener('keydown',e=>{const d={ArrowLeft:[-24,0],ArrowRight:[24,0],ArrowUp:[0,-24],ArrowDown:[0,24]}[e.key];if(!d)return;e.preventDefault();const r=panel.getBoundingClientRect();resizePanel(r.width+d[0],r.height+d[1],r.left,r.top);persist();});
     }

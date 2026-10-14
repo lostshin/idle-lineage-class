@@ -807,6 +807,18 @@ function invMergeBack(e) {
     if (e.lock) { ex.lock = true; ex.junk = false; }
     return true;
 }
+// 強化／詛咒降階會先拆出單件；完成後若與背包既有堆疊同簽章（含強化值）就併回去，回傳最後持有它的物件。
+function invRestackEnhanced(e) {
+    if (!e || e.gw || !Array.isArray(player.inv)) return e;
+    let at = player.inv.indexOf(e);
+    if (at < 0) return e;   // 已爆裝移除
+    let ex = player.inv.find(i => i !== e && !i.gw && !i.junk && sameItemSig(i, e));
+    if (!ex) return e;
+    player.inv.splice(at, 1);
+    ex.cnt = (ex.cnt || 1) + (e.cnt || 1);
+    if (e.lock) { ex.lock = true; ex.junk = false; }
+    return ex;
+}
 
 // ===== 🔧 架構#6：存檔版本與集中式預設值 =====
 // 存檔寫入 v 欄位（SAVE_VERSION）；loadGame 在跑完「轉換型」舊檔遷移後呼叫 applySaveDefaults()

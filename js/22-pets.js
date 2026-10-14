@@ -865,7 +865,7 @@ function petsTick() {
         if (p._downed) return;
         // 每 5 秒恢復（比照規格 HP恢復/MP恢復）
         let def = PET_BOOK[p.form];
-        if (state.ticks % 50 === 0) {
+        if (state.ticks % safeZoneRegenInterval(50) === 0) {
             { let _me = petMhpEff(p); if (p.hp < _me && def.hpReg) p.hp = Math.min(_me, p.hp + def.hpReg); }   // 🏺 v3.7.20 恢復上限含 petHpAll 光環
             let _mmpEff = p.mmp + (d.mmpBonus || 0);   // 🛡️ v3.2.37 寵物防具 精神：MP上限+5/點·MP恢復+1/點
             if (p.mp < _mmpEff && ((def.mpReg || 0) + (d.mpRegBonus || 0) > 0)) p.mp = Math.min(_mmpEff, p.mp + (def.mpReg || 0) + (d.mpRegBonus || 0));
@@ -1207,9 +1207,12 @@ function petsReviveAtTown() {
     if (!outs.length) return;
     let n = 0;
     outs.forEach(p => {
-        if (p._downed) { p._downed = false; p._reviveCd = 0; p._animAct = null; n++; petDevotionGrant(p); }   // 🏺 v3.6.44 回村復活亦觸發珍愛夥伴 buff
-        p.hp = petMhpEff(p);   // 🏺 v3.7.20 回村補滿含 petHpAll 光環
-        p.mp = (p.mmp || 0) + (((typeof petDerive === 'function' && petDerive(p)) || {}).mmpBonus || 0);
+        // 回村：倒地寵物復活到一半 HP/MP（上限含光環與精神加成）；其餘不補滿，靠安全區加快的自然恢復
+        if (p._downed) {
+            p._downed = false; p._reviveCd = 0; p._animAct = null; n++; petDevotionGrant(p);   // 🏺 v3.6.44 回村復活亦觸發珍愛夥伴 buff
+            p.hp = Math.ceil(petMhpEff(p) / 2);
+            p.mp = Math.max(p.mp || 0, Math.ceil(((p.mmp || 0) + (((typeof petDerive === 'function' && petDerive(p)) || {}).mmpBonus || 0)) / 2));
+        }
         p._statuses = newMobStatus();
     });
     petMarkDirty();

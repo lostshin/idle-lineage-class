@@ -1208,17 +1208,14 @@ function changeMap(force) {
         document.getElementById('town-name').innerText = tName;
         player.lastTownVisited = mapState.current;   // 🏘️ v3.0.94 記錄最後待過的安全區（「回村」按鈕改回此處·隨存檔持久）
         
-        // 瞬間恢復所有 HP 與 MP
-        player.hp = player.mhp;
-        player.mp = player.mmp;
+        // 進村不再補滿 HP/MP（改由安全區加快 50% 的自然恢復）；死亡回城（HP≤0：回城復活、死亡中讀檔、時空裂痕）才復活到一半
+        if (player.hp <= 0) { player.hp = Math.ceil(player.mhp / 2); player.mp = Math.max(player.mp || 0, Math.ceil(player.mmp / 2)); }
         try { if (typeof reviveDownedMercsAtTown === 'function') reviveDownedMercsAtTown(); } catch (e) {}   // 🤝 Phase 3：回村/回城免費復活全體倒地傭兵
         try { if (typeof petsReviveAtTown === 'function') petsReviveAtTown(); } catch (e) {}   // 🐾 v3.6.29 回村：出戰寵物倒地復活＋補滿 HP/MP＋清異常（比照傭兵·js/22）
         try { if (typeof refreshAllAllies === 'function') refreshAllAllies(); } catch (e) {}   // 🔄 v3.7.87 隊長進安全區＝自動刷新一次隊員資料（結算待領經驗＋依來源存檔重建戰力快照·取代 v2.6.68 只結算的 mercBankAlliesAtTown、與舊「重新招募」按鈕同動作）。⚠️ loadGame 也走 getHomeTown()+changeMap(true) 進到這裡→「隊長登入自動刷新」共用此掛點，勿再另外掛一次
         try { if (typeof mercExpClaimPending === 'function') mercExpClaimPending(); } catch (e) {}     // 🤝 v2.6.68 本角色回村/載入（loadGame 一律回家鄉村莊）：自動領取自己的待領經驗
         // 🏰 城堡護衛 v2：回城/回村補滿全部護衛 HP、清死亡倒數（castleGuardSync 依名冊重建·此處只補血）
         if (typeof player.guardsV2 !== 'undefined' && player.guardsV2) player.guardsV2.forEach(g => { if (g) { g.hp = g.mhp; g._downed = false; g._reviveAt = 0; g._diedAt = 0; } });
-        // 協力角色：進村莊一併回滿 MP（與玩家一致）
-        if (player.allies) player.allies.forEach(a => { if (a) a.mp = a.mmp; });
         // 進入村莊解除所有異常狀態（中毒/灼燒/燙傷/石化/麻痺/冰凍/暈眩/沉默/封印）
         // ⚠️ evilAura 必須列進來：整包覆蓋若少了這個鍵，js/03 的 for...in 到期還原迴圈永遠列舉不到它，
         //    已烙進 player.d 的 AC+10/ER−10 就再也回不去了。cleave 的攻速覆寫同理需要重算。
