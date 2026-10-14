@@ -1,0 +1,84 @@
+{
+  "scope": "Session documentation and authorized batch commit/push",
+  "baseline": "182f7e4f208c0eb2f791b8da0fba71e86bdf1c74",
+  "target": "origin/main",
+  "documentation": {
+    "path": "AGENTS.md",
+    "lines": 163,
+    "validator": "PASS"
+  },
+  "suites": [
+    {
+      "path": "tests/artifacts/dps-teleport-integration.json",
+      "method": "Synthetic Node VM; native autoActions, useItem, doTeleport, DPS and threat modules; not browser E2E",
+      "checks": 11,
+      "passed": 11
+    },
+    {
+      "path": "tests/artifacts/spell-category-integration.json",
+      "method": "Native spell logger and persistent source filters in synthetic Node VM; DOM/CSS visual behavior requires browser QA",
+      "checks": 7,
+      "passed": 7
+    },
+    {
+      "path": "tests/artifacts/equipment-cast-integration.json",
+      "method": "Synthetic Node VM: native castSkillInner, manualCast, allyMaintainBuffs, allyActWithSkillGate and read-only equipment presentation; render/stat recomputation stubbed",
+      "checks": 14,
+      "passed": 14
+    },
+    {
+      "path": "tests/artifacts/equipment-larger-slots-integration.json",
+      "method": "Native fitEquipment and equipment renderer in synthetic Node VM; geometry only, not browser layout or visual QA",
+      "checks": 8,
+      "passed": 8
+    }
+  ],
+  "checks": 40,
+  "passed": 40,
+  "syntaxCount": 108,
+  "syntaxFailures": [],
+  "pythonRunnerSyntax": "PASS",
+  "cacheCount": 105,
+  "cacheFailures": [],
+  "mirrorCount": 65,
+  "mirrorFailures": [],
+  "reportAbsolutePathAudit": "PASS",
+  "diffCheck": "PASS",
+  "limitations": [
+    "Late equipment artwork/default-slot/weight/cast-tab/DPS-alignment browser E2E and visuals remain deferred by user. Earlier full E2E and previews are historical.",
+    "Node VM and geometry integration do not verify browser rendering or the installed desktop app.",
+    "Local iCloud export SHA verified; remote sync not independently verified."
+  ],
+  "batchPlan": [
+    "DPS target identity correction",
+    "Independent spell action category",
+    "Companion equipment/status UI and supporting tests/assets",
+    "AGENTS and final validation summary"
+  ],
+  "runtimeBatches": [
+    {
+      "commit": "5eaf7baf538b3748a9976c130e87c9fb2ab53c31",
+      "title": "fix: exclude escaped and replaced targets from DPS damage",
+      "stagedResourceHashes": 105,
+      "stagedSyntax": "PASS"
+    },
+    {
+      "commit": "7900a85e8f4f57dec871b5024c64eed65b174791",
+      "title": "feat: add an independent spell action log category",
+      "stagedResourceHashes": 105,
+      "stagedSyntax": "PASS"
+    },
+    {
+      "commit": "bdbb04b3f3aecfd353c8097b9bab9cbebaea2ed4",
+      "title": "feat: refine companion equipment artwork and combat displays",
+      "stagedResourceHashes": 105,
+      "stagedSyntax": "PASS"
+    }
+  ],
+  "batchVerification": {
+    "DPS": "Native 11-case integration rerun against staged module bytes",
+    "cast": "Native 7-case source/filter integration rerun against staged module bytes",
+    "UI": "Staged JS syntax and 105 staged resource hashes; full 40-case worktree integration ran before batching",
+    "documentation": "AGENTS validator and 250-line bound"
+  }
+}
