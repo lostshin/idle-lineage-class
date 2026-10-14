@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-14T12:12:49.850Z",
+  "date": "2026-10-14T15:29:59.825Z",
   "reports": [
     {
       "name": "account transfer has independent selection-page buttons",
@@ -135,6 +135,22 @@
     },
     {
       "name": "account UI restores all roles, settings and shared progress",
+      "status": "PASS"
+    },
+    {
+      "name": "old per-role exports name their source slot",
+      "status": "PASS"
+    },
+    {
+      "name": "tampered, duplicated, mixed and oversized role batches are rejected before writing",
+      "status": "PASS"
+    },
+    {
+      "name": "role batch preview names the files and the progress it cannot carry",
+      "status": "PASS"
+    },
+    {
+      "name": "account import accepts several old role files at once",
       "status": "PASS"
     },
     {

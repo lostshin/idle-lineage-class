@@ -1,0 +1,41 @@
+{
+  "date": "2026-10-14T15:29:08.329Z",
+  "reports": [
+    {
+      "name": "an enhanced single rejoins the existing stack with the same enhancement",
+      "status": "PASS"
+    },
+    {
+      "name": "equipping a third ring asks which side to replace and keeps the other",
+      "status": "PASS"
+    },
+    {
+      "name": "an empty ring slot is still filled without asking",
+      "status": "PASS"
+    },
+    {
+      "name": "returning to a village keeps current HP and MP",
+      "status": "PASS"
+    },
+    {
+      "name": "safe zones restore HP and MP 50% faster",
+      "status": "PASS"
+    },
+    {
+      "name": "a mercenary with full ring slots is asked which side to replace without changing anything first",
+      "status": "PASS"
+    },
+    {
+      "name": "the chosen mercenary side is replaced and the old ring returns to the leader",
+      "status": "PASS"
+    },
+    {
+      "name": "dying and returning to town revives at half HP and MP",
+      "status": "PASS"
+    },
+    {
+      "name": "no runtime errors",
+      "status": "PASS"
+    }
+  ]
+}

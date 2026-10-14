@@ -1,28 +1,40 @@
 {
-  "date": "2026-10-14T03:27:30.063Z",
+  "date": "2026-10-14T15:29:32.441Z",
   "reports": [
     {
-      "name": "all nineteen requested defaults are registered and disabled",
+      "name": "the add-on switch panel and its floating entry are gone",
       "status": "PASS"
     },
     {
-      "name": "changing defaults does not write saved toggle choices",
+      "name": "the eighteen disabled add-ons are no longer loaded",
       "status": "PASS"
     },
     {
-      "name": "other original defaults remain enabled",
+      "name": "the fixed set keeps sale confirmation off and the remaining add-ons on, ignoring saved switches",
       "status": "PASS"
     },
     {
-      "name": "the actual toggle panel displays nineteen unchecked options",
+      "name": "the start menu no longer shows lookup, encyclopedia or other tools",
       "status": "PASS"
     },
     {
-      "name": "explicit saved choices take precedence over defaults on reload",
+      "name": "the settings tab holds lookup, encyclopedia and other tools once",
       "status": "PASS"
     },
     {
-      "name": "restore defaults also unchecks the requested nineteen",
+      "name": "the other tools menu opens fully inside the settings tab",
+      "status": "PASS"
+    },
+    {
+      "name": "the moved lookup button still opens its window",
+      "status": "PASS"
+    },
+    {
+      "name": "the moved encyclopedia button still opens its window",
+      "status": "PASS"
+    },
+    {
+      "name": "no runtime errors",
       "status": "PASS"
     }
   ]

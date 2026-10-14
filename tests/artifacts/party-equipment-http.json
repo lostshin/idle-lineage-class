@@ -13,15 +13,23 @@
       "status": "PASS"
     },
     {
-      "name": "teammate equipment uses a responsive native-icon grid instead of a list",
+      "name": "teammate equipment uses the original anatomical canvas instead of a list",
       "status": "PASS"
     },
     {
-      "name": "A shows an original teammate figure among all nineteen native equipment slots",
+      "name": "A loads its generated backdrop and original class-correct full-body artwork",
       "status": "PASS"
     },
     {
-      "name": "A places helmet above, weapons beside and armor below the central figure",
+      "name": "A widens its anatomical sheet while retaining square sockets and image proportions",
+      "status": "PASS"
+    },
+    {
+      "name": "every first-page socket has its native default artwork",
+      "status": "PASS"
+    },
+    {
+      "name": "equipment shows the selected teammate weight and explains its current effects",
       "status": "PASS"
     },
     {
