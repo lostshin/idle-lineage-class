@@ -1,0 +1,74 @@
+{
+  "status": "Code and synthetic native integration checks complete; browser UI/E2E deferred by user.",
+  "modifiedFiles": [
+    "assets/ui/party-equipment-backdrop-v2-4x3.png",
+    "css/responsive.css",
+    "index.html",
+    "js/01-drops-config.js",
+    "js/02-stats-recompute.js",
+    "js/06-status-allies.js",
+    "js/07-skills-cast.js",
+    "js/companion-haste.js",
+    "js/party-inspector.js",
+    "tests/party-equipment.e2e.js",
+    "tests/equipment-cast.integration.js",
+    "tests/equipment-proportions.integration.js"
+  ],
+  "features": {
+    "background": "Regenerated 1086x1448 image, exact height:width 4:3. Full image uses contain; no canvas crop or stretching. Native figure and item icons use contain; 19/9 socket pages fit in all eight geometry cases.",
+    "weight": "Selected ally live equipment weight, weight limit and percentage; 82-99% attack interval x2, 100%+ x3. Explain that existing ally spells and regen do not use player-only load restrictions. No combat rules changed.",
+    "castLog": "Explicit actor and skill, player/mercenary source. Successful automatic/manual/free/HP-only casts, healing, cleansing, summons, self-buff maintenance and sharing. Failed attempts and already-active buffs produce no cast action. Existing effect/damage records retained; offline log suppression retained.",
+    "defaultSlots": "Class-specific original equipment template placeholders for native first-page positions. Special eye/remains positions use grayscale original icons. Dim placeholder under actual gear, with native badges and read-only tooltips."
+  },
+  "background": {
+    "path": "assets/ui/party-equipment-backdrop-v2-4x3.png",
+    "width": 1086,
+    "height": 1448,
+    "heightToWidth": 1.3333333333333333,
+    "sha256": "f74069c485f369b46dbc3ef108b853fb0a8b925079a5a8231ed7dc2890995fd3",
+    "iCloudExportName": "隊友裝備－原版背景－高寬4比3.png",
+    "iCloudCopyMatches": true,
+    "remoteSyncVerified": false
+  },
+  "generationMode": "built-in image_gen",
+  "promptSet": "output/imagegen/teammate-equipment-20261014-v2/production-4x3-prompt.json",
+  "suites": [
+    {
+      "report": "tests/artifacts/equipment-cast-integration.json",
+      "checks": 14,
+      "passed": 14,
+      "failed": 0,
+      "method": "Synthetic Node VM: native castSkillInner, manualCast, allyMaintainBuffs, allyActWithSkillGate and read-only equipment presentation; render/stat recomputation stubbed"
+    },
+    {
+      "report": "tests/artifacts/equipment-proportions-integration.json",
+      "checks": 8,
+      "passed": 8,
+      "failed": 0,
+      "method": "Native fitEquipment and equipment renderer in synthetic Node VM; geometry only, not browser layout or visual QA"
+    },
+    {
+      "report": "tests/artifacts/dps-teleport-integration.json",
+      "checks": 11,
+      "passed": 11,
+      "failed": 0,
+      "method": "Synthetic Node VM; native autoActions, useItem, doTeleport, DPS and threat modules; not browser E2E"
+    }
+  ],
+  "totalChecks": 33,
+  "totalPassed": 33,
+  "integrityReport": "tests/artifacts/equipment-cast-integrity.json",
+  "checks": [
+    "104 JavaScript syntax checks: PASS",
+    "105 cache resource hashes: PASS",
+    "65 mirrored source hashes: PASS",
+    "9 special slot icons exist: PASS",
+    "git diff --check: PASS"
+  ],
+  "limitations": [
+    "Browser E2E, latest screen rendering and installed desktop verification remain deferred; user requested no new isolated TaskSpace.",
+    "Synthetic integration stubs rendering/stat recomputation; geometry harness is not browser layout QA.",
+    "Local iCloud copy SHA matched; remote sync not independently verified."
+  ],
+  "commitPush": "Not performed for this batch."
+}

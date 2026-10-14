@@ -9,26 +9,57 @@ function partyClassBadge(actor) {
     const name = CLAN_CLASS_NAMES[actor.cls];
     return name ? '<span class="party-class" data-party-class="'+partyEscape(actor.cls)+'">（'+partyEscape(name)+'）</span>' : '';
 }
+function partyEquipmentWeightHtml(actor,kind) {
+    if(kind!=='ally')return '';
+    const d=actor.d||{},pct=Math.max(0,Math.floor(Number(d.weightPct)||0)),tier=Math.max(0,Math.min(3,Number(d.loadTier)||0));
+    const amount=Number.isFinite(d.weightCurrent)&&Number.isFinite(d.weightLimit)?d.weightCurrent.toLocaleString()+' / '+d.weightLimit.toLocaleString()+' · ':'';
+    const effect=tier>=2?'一般攻擊間隔×'+(tier===2?2:3)+'；施法與自然恢復不受負重限制。':'一般攻擊、施法與自然恢復不受負重限制。';
+    return '<div class="party-equipment-weight" data-load-tier="'+tier+'"><strong>負重 '+amount+pct+'%</strong><span data-weight-effect>'+effect+'</span></div>';
+}
+function partyEquipmentDefault(actor,pos) {
+    const node=document.createElement('span');node.className='party-equipment-slot-default';node.dataset.equipmentDefault=pos.k;node.setAttribute('aria-hidden','true');
+    if(pos.k==='eye'||pos.k.startsWith('rem_')){
+        const data=DB.items[pos.k==='eye'?'acc_earth_dragon_eye':pos.k];
+        if(data){const image=document.createElement('img');image.src=getIconUrl(data);image.alt='';image.draggable=false;node.appendChild(image);}
+    }else{
+        node.style.backgroundImage='url("'+equipmentView.templateUrl(actor)+'")';
+        node.style.backgroundSize=(10000/pos.w)+'% '+(10000/pos.h)+'%';
+        node.style.backgroundPosition=((pos.x-pos.w/2)/(100-pos.w)*100)+'% '+((pos.y-pos.h/2)/(100-pos.h)*100)+'%';
+    }
+    return node;
+}
 function partyEquipmentHtml(actor,kind,id,page=0) {
-    const frame=document.createElement('div');frame.className='party-equipment-frame';
+    const frame=document.createElement('div');frame.className='party-equipment-frame'+(page?'':' party-paperdoll');
     const toolbar=document.createElement('div');toolbar.className='party-equipment-toolbar';toolbar.appendChild(partyPortraitNode(actor,kind,24,32));
     const caption=document.createElement('span');caption.className='party-equipment-page-label';caption.title='懸浮或點選裝備查看資訊';caption.textContent=page?'特殊裝備':'一般裝備';toolbar.appendChild(caption);
     const host=document.createElement('div');host.className='equipment-window-slots';frame.appendChild(host);
+    const backdrop=document.createElement('img');backdrop.className='party-equipment-backdrop';backdrop.src='assets/ui/party-equipment-backdrop-v2-4x3.png';backdrop.alt='';backdrop.draggable=false;host.appendChild(backdrop);
+    if(!page){
+        const figure=document.createElement('div');figure.className='party-paperdoll-figure';figure.setAttribute('aria-hidden','true');
+        if(kind==='ally'){
+            const key=loadStartKeyFromSummary({avatar:actor.avatar,rawCls:actor.cls}),image=document.createElement('img');
+            image.src=loadFrameSrc(key,loadFirstFrame(key));image.alt='';image.draggable=false;figure.appendChild(image);
+        }else figure.appendChild(partyPortraitNode(actor,kind,96,144));
+        host.appendChild(figure);
+    }
     for(const pos of equipmentView.pages[page]) {
         const key=kind==='pet'&&pos.k==='armor'?'arm':pos.alt&&actor.eq?.[pos.alt]?pos.alt:pos.k;
         const item=actor.eq?.[key],slot=equipmentView.createSlot(item,pos);
-        slot.style.cssText='';slot.dataset.equipmentSlot=key;
+        slot.style.width='12%';slot.style.height='auto';
+        slot.appendChild(partyEquipmentDefault(actor,pos));
+        slot.dataset.equipmentSlot=key;
         const label=kind==='pet'&&key==='arm'?'寵物防具':kind==='pet'&&key==='wpn'?'寵物武器':ALLY_EQUIP_SLOT_NAME[key]||key;
         const name=item&&DB.items[item.id]?_withAllyEquipmentContext(effectActorCopy(actor),()=>getItemFullName(item).replace(/<[^>]*>/g,'')):'';
         const slotLabel=document.createElement('span');slotLabel.className='party-equipment-label';slotLabel.textContent=label;slot.appendChild(slotLabel);
         slot.setAttribute('aria-label',label+' · '+(name||'尚未裝備'));
+        if(!item)slot.title=label+' · 尚未裝備';
         if(item&&DB.items[item.id]){slot.dataset.tipUid=item.uid||key;slot.dataset.tipSrc='party';slot.dataset.tipPartyKind=kind;slot.dataset.tipPartyId=id;slot.removeAttribute('title');}
         host.appendChild(slot);
     }
     for(let i=0;i<2;i++) {
         const button=document.createElement('button');button.type='button';button.className='btn party-equipment-page';button.textContent='裝備 '+(i+1);button.dataset.partyEquipmentPage=i;button.setAttribute('aria-label','裝備第 '+(i+1)+' 頁');button.setAttribute('aria-pressed',String(page===i));toolbar.appendChild(button);
     }
-    return '<div class="party-equipment-stage">'+toolbar.outerHTML+frame.outerHTML+'</div>'+(!Object.values(actor.eq||{}).some(Boolean)?'<p class="party-empty">目前沒有裝備。</p>':'');
+    return '<div class="party-equipment-stage">'+toolbar.outerHTML+partyEquipmentWeightHtml(actor,kind)+frame.outerHTML+'</div>'+(!Object.values(actor.eq||{}).some(Boolean)?'<p class="party-empty">目前沒有裝備。</p>':'');
 }
 (function () {
     const panel = document.createElement('aside');
@@ -158,14 +189,15 @@ function partyEquipmentHtml(actor,kind,id,page=0) {
     function fitEquipment(){
         const details=document.getElementById('party-details'),frame=details.querySelector('.party-equipment-frame');if(!frame)return;
         const style=getComputedStyle(details),paddingY=parseFloat(style.paddingTop)+parseFloat(style.paddingBottom),paddingX=parseFloat(style.paddingLeft)+parseFloat(style.paddingRight);
-        const caption=details.querySelector('.party-caption'),empty=details.querySelector('.party-empty'),toolbar=details.querySelector('.party-equipment-toolbar');
+        const caption=details.querySelector('.party-caption'),empty=details.querySelector('.party-empty'),toolbar=details.querySelector('.party-equipment-toolbar'),weight=details.querySelector('.party-equipment-weight');
         const contentHeight=(userSize?panel.clientHeight:parseFloat(panel.style.maxHeight||'0')-2)-panel.querySelector('header').offsetHeight-panel.querySelector('nav').offsetHeight;
-        const height=Math.max(24,Math.floor(contentHeight-paddingY-(caption?.offsetHeight||0)-(empty?.offsetHeight||0)-toolbar.offsetHeight-8));
-        const width=Math.max(1,details.clientWidth-paddingX),count=frame.querySelectorAll('[data-equipment-slot]').length;
-        const columns=Math.max(3,Math.min(8,Math.round(Math.sqrt(count*width/height)))),rows=Math.ceil(count/columns);
-        frame.style.setProperty('--party-equipment-height',height+'px');
-        frame.style.setProperty('--party-equipment-columns',columns);
-        frame.style.setProperty('--party-equipment-rows',rows);
+        const height=Math.max(24,Math.floor(contentHeight-paddingY-(caption?.offsetHeight||0)-(empty?.offsetHeight||0)-toolbar.offsetHeight-(weight?weight.offsetHeight+6:0)-8));
+        const width=Math.max(1,details.clientWidth-paddingX),canvasHeight=Math.min(height,width/.75),canvasWidth=canvasHeight*.75;
+        frame.style.setProperty('--party-equipment-height',canvasHeight+'px');
+        frame.style.setProperty('--party-equipment-canvas-width',canvasWidth+'px');
+        frame.style.setProperty('--party-equipment-canvas-height',canvasHeight+'px');
+        const portrait=frame.querySelector('.party-paperdoll-figure .party-roster-portrait');
+        if(portrait)portrait.style.transform='scale('+Math.min(canvasWidth*.88/96,canvasHeight*.83/144)+')';
     }
     function close() {
         panel.dispatchEvent(new MouseEvent('mousemove',{bubbles:true}));

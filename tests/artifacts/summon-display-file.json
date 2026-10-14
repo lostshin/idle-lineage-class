@@ -1,0 +1,96 @@
+{
+  "reports": [
+    {
+      "name": "active Summon uses its original skill image in the battle buff bar",
+      "status": "PASS"
+    },
+    {
+      "name": "summon and guard health fills retain a nonzero red height after roster decoration",
+      "status": "PASS"
+    },
+    {
+      "name": "normal teammate DPS names are fully readable beside the chart",
+      "status": "PASS"
+    },
+    {
+      "name": "Summon hover shows the native effect name and current remaining seconds",
+      "status": "PASS"
+    },
+    {
+      "name": "the teammate caster uses the same original summon icon in its floating view",
+      "status": "PASS"
+    },
+    {
+      "name": "all four native summoning skills have loadable original icons",
+      "status": "PASS"
+    },
+    {
+      "name": "expired summoning buff disappears instead of leaving a ghost icon",
+      "status": "PASS"
+    },
+    {
+      "name": "display refreshes do not spend resources or mutate combat companions",
+      "status": "PASS"
+    },
+    {
+      "name": "damaged summon and guard bars still reflect live native HP percentages",
+      "status": "PASS"
+    },
+    {
+      "name": "downed guards retain their native revival message",
+      "status": "PASS"
+    },
+    {
+      "name": "1920px 100% minion HP fills stay visible and inside their bars",
+      "status": "PASS"
+    },
+    {
+      "name": "1920px 100% DPS names, numbers and charts do not overlap",
+      "status": "PASS"
+    },
+    {
+      "name": "1920px 75% minion HP fills stay visible and inside their bars",
+      "status": "PASS"
+    },
+    {
+      "name": "1920px 75% DPS names, numbers and charts do not overlap",
+      "status": "PASS"
+    },
+    {
+      "name": "1330px 100% minion HP fills stay visible and inside their bars",
+      "status": "PASS"
+    },
+    {
+      "name": "1330px 100% DPS names, numbers and charts do not overlap",
+      "status": "PASS"
+    },
+    {
+      "name": "390px 100% minion HP fills stay visible and inside their bars",
+      "status": "PASS"
+    },
+    {
+      "name": "390px 100% DPS names, numbers and charts do not overlap",
+      "status": "PASS"
+    },
+    {
+      "name": "390px 75% minion HP fills stay visible and inside their bars",
+      "status": "PASS"
+    },
+    {
+      "name": "390px 75% DPS names, numbers and charts do not overlap",
+      "status": "PASS"
+    },
+    {
+      "name": "844px 75% minion HP fills stay visible and inside their bars",
+      "status": "PASS"
+    },
+    {
+      "name": "844px 75% DPS names, numbers and charts do not overlap",
+      "status": "PASS"
+    },
+    {
+      "name": "no duplicate ids or browser runtime errors",
+      "status": "PASS"
+    }
+  ]
+}

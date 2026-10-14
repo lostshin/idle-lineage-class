@@ -1,0 +1,19 @@
+{
+  "reports": [
+    {
+      "name": "active Summon uses its original skill image in the battle buff bar",
+      "status": "FAIL",
+      "error": "Error: false"
+    },
+    {
+      "name": "summon and guard health fills retain a nonzero red height after roster decoration",
+      "status": "FAIL",
+      "error": "Error: [{\"kind\":\"summon\",\"bar\":{\"x\":94,\"y\":488.9609375,\"width\":200,\"height\":13,\"top\":488.9609375,\"right\":294,\"bottom\":501.9609375,\"left\":94},\"fill\":{\"x\":95,\"y\":489.9609375,\"width\":198,\"height\":0,\"top\":489.9609375,\"right\":293,\"bottom\":489.9609375,\"left\":95}},{\"kind\":\"summon\",\"bar\":{\"x\":94,\"y\":556.9609375,\"width\":200,\"height\":13,\"top\":556.9609375,\"right\":294,\"bottom\":569.9609375,\"left\":94},\"fill\":{\"x\":95,\"y\":557.9609375,\"width\":198,\"height\":0,\"top\":557.9609375,\"right\":293,\"bottom\":557.9609375,\"left\":95}},{\"kind\":\"summon\",\"bar\":{\"x\":94,\"y\":624.9609375,\"width\":200,\"height\":13,\"top\":624.9609375,\"right\":294,\"bottom\":637.9609375,\"left\":94},\"fill\":{\"x\":95,\"y\":625.9609375,\"width\":198,\"height\":0,\"top\":625.9609375,\"right\":293,\"bottom\":625.9609375,\"left\":95}},{\"kind\":\"merc-summon\",\"bar\":{\"x\":94,\"y\":692.9609375,\"width\":200,\"height\":13,\"top\":692.9609375,\"right\":294,\"bottom\":705.9609375,\"left\":94},\"fill\":{\"x\":95,\"y\":693.9609375,\"width\":198,\"height\":0,\"top\":693.9609375,\"right\":293,\"bottom\":693.9609375,\"left\":95}},{\"kind\":\"guard\",\"bar\":{\"x\":94,\"y\":760.9609375,\"width\":200,\"height\":13,\"top\":760.9609375,\"right\":294,\"bottom\":773.9609375,\"left\":94},\"fill\":{\"x\":95,\"y\":761.9609375,\"width\":110.875,\"height\":0,\"top\":761.9609375,\"right\":205.875,\"bottom\":761.9609375,\"left\":95}}]"
+    },
+    {
+      "name": "normal teammate DPS names are fully readable beside the chart",
+      "status": "FAIL",
+      "error": "Error: false"
+    }
+  ]
+}

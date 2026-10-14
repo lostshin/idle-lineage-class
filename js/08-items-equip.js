@@ -1247,11 +1247,12 @@ function getBuffColor(k, def) {
     return 'text-amber-300';                          // 其他 (琥珀黃)
 }
 
-// 戰鬥畫面右上狀態 ICON（原版天堂風格）。本表＝「有圖示的持續增益」白名單；召喚、瞬發與缺圖技能不顯示。
+// Native persistent-effect icons; summoning uses the original skill artwork.
 // ⚠️ v3.5.94 修正舊註解的誤導：本表 ≠ assets/state-icons 資料夾內容。圖示 URL 全專案只有下方 renderStatusIconBar
 //    一處組裝，來源＝本表 ＋ 函式開頭幾個硬編藥水/誘捕/變身 buff ＋ PLAYER_DEBUFF_ICON ＋ 持續治療兩筆。
 //    資料夾裡沒被這幾處引用到的檔案就是孤兒（曾累積到 70 個），請搬進 tools/_archive/state-icons-unused/ 而非直接刪。
 const STATUS_ICON_SKILLS = {
+    'sk_summon':'召喚術','sk_zombie':'造屍術','sk_elf_summon':'召喚屬性精靈','sk_elf_summon2':'召喚強力屬性精靈',
     'sk_sunlight':'日光術','sk_shield':'保護罩','sk_holy_wpn':'神聖武器','sk_ench_wpn':'擬似魔法武器','sk_reveal':'無所遁形術','sk_load_up':'負重強化','sk_shield2':'鎧甲護持',
     'sk_dex_up':'通暢氣脈術','sk_magic_shield':'魔法屏障','sk_meditation':'冥想術','sk_haste_spell':'加速術','sk_str_up':'體魄強健術',
     'sk_bless_wpn':'祝福魔法武器','sk_greater_haste':'加速術','sk_berserk':'狂暴術','sk_holy_dash':'神聖疾走','sk_blizzard_storm':'冰雪颶風','sk_fire_prison':'火牢','sk_invisible':'隱身術','sk_heal_energy_storm':'治癒能量風暴',
@@ -1271,6 +1272,9 @@ const STATUS_ICON_SKILLS = {
     // 裝備法術沿用原法術圖示。
     'sk_helm_dex1':'通暢氣脈術','sk_helm_dex2':'加速術','sk_helm_str1':'擬似魔法武器','sk_helm_str2':'無所遁形術','sk_helm_str3':'體魄強健術'
 };
+function statusIconUrl(id, name) {
+    return DB.skills[id]?.summon ? 'assets/icons/skills/'+encodeURIComponent(name)+'.png' : 'assets/state-icons/'+encodeURIComponent(name)+'.jpg';
+}
 function renderStatusIconBar() {
     let bar=document.getElementById('status-icon-bar'); if(!bar||!player||!player.buffs)return;
     let host=document.getElementById(mapState.current.startsWith('town_')?'town-view':'battle-view');
@@ -1301,7 +1305,7 @@ function renderStatusIconBar() {
     let sig=rows.map(x=>x.name+'|'+x.label).join('||');
     if(bar.dataset.statusSig!==sig){
         bar.dataset.statusSig=sig;
-        bar.innerHTML=rows.map((x,i)=>{let title=x.label+(x.ticks>0?'｜剩餘 '+x.sec+' 秒':'');return `<div class="status-icon${x.ally?' status-icon--ally':''}" data-status-index="${i}" tabindex="0" data-effect-id="${x.effectId}" data-effect-seconds="${x.ticks>0?x.sec:''}" data-effect-source="${x.ally?'隊友提供':'自身'}" aria-label="${title}"><img src="assets/state-icons/${encodeURIComponent(x.icon||x.name)}.jpg" alt="${x.label}"></div>`;}).join('');
+        bar.innerHTML=rows.map((x,i)=>{let title=x.label+(x.ticks>0?'｜剩餘 '+x.sec+' 秒':'');return `<div class="status-icon${x.ally?' status-icon--ally':''}" data-status-index="${i}" tabindex="0" data-effect-id="${x.effectId}" data-effect-seconds="${x.ticks>0?x.sec:''}" data-effect-source="${x.ally?'隊友提供':'自身'}" aria-label="${title}"><img src="${statusIconUrl(x.effectId,x.icon||x.name)}" alt="${x.label}"></div>`;}).join('');
     } else {
         rows.forEach((x,i)=>{let icon=bar.querySelector(`[data-status-index="${i}"]`);if(!icon)return;icon.dataset.effectSeconds=x.ticks>0?x.sec:'';icon.setAttribute('aria-label',x.label+(x.ticks>0?'｜剩餘 '+x.sec+' 秒':''));});
     }

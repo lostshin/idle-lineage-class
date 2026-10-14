@@ -1,0 +1,66 @@
+{
+  "method": "Synthetic Node VM: native castSkillInner, manualCast, allyMaintainBuffs, allyActWithSkillGate and read-only equipment presentation; render/stat recomputation stubbed",
+  "reports": [
+    {
+      "name": "successful native player buff cast emits one player action",
+      "status": "FAIL",
+      "error": "Error: false"
+    },
+    {
+      "name": "already maintained player buff is not a new cast",
+      "status": "PASS"
+    },
+    {
+      "name": "insufficient player MP does not log a cast",
+      "status": "PASS"
+    },
+    {
+      "name": "manual teleport logs one successful cast",
+      "status": "FAIL",
+      "error": "Error: false"
+    },
+    {
+      "name": "manual cooldown does not invent a second cast",
+      "status": "PASS"
+    },
+    {
+      "name": "native ally self-buff maintenance logs once and spends normal MP",
+      "status": "FAIL",
+      "error": "Error: false"
+    },
+    {
+      "name": "active ally buff does not repeatedly log or spend MP",
+      "status": "PASS"
+    },
+    {
+      "name": "insufficient ally MP never produces a buff action",
+      "status": "PASS"
+    },
+    {
+      "name": "successful ally attack gate logs one action",
+      "status": "FAIL",
+      "error": "Error: false"
+    },
+    {
+      "name": "failed attack gate and ordinary attacks are not casts",
+      "status": "PASS"
+    },
+    {
+      "name": "free casts still have explicit actor attribution and escaped text",
+      "status": "FAIL",
+      "error": "Error: false"
+    },
+    {
+      "name": "selected ally weight displays its own percentage and actual attack penalty",
+      "status": "PASS"
+    },
+    {
+      "name": "weight thresholds describe ally effects without player-only penalties",
+      "status": "PASS"
+    },
+    {
+      "name": "companions without native weight data do not show invented percentages",
+      "status": "PASS"
+    }
+  ]
+}

@@ -146,10 +146,10 @@ function renderAuditTab() {
     let _dpsMax = Math.max(1, ..._dpsRows.map(r => r.dps));
     let _dpsHtml = _dpsRows.map(r => {
         let pct = Math.max(2, Math.round(r.dps / _dpsMax * 100));
-        return `<div class="flex items-center gap-2">`
-            + `<span class="shrink-0 text-slate-300 text-xs" style="width:88px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${r.name}">${r.name}</span>`
-            + `<div class="flex-1 bg-slate-900 rounded h-4 overflow-hidden"><div style="width:${pct}%;height:100%;background:${r.color};transition:width .3s;"></div></div>`
-            + `<span class="shrink-0 font-bold text-right text-xs" style="width:60px;color:${r.color};">${Math.round(r.dps).toLocaleString()}</span>`
+        return `<div class="audit-dps-row">`
+            + `<span class="audit-dps-name text-slate-300 text-xs" title="${partyEscape(r.name)}">${partyEscape(r.name)}</span>`
+            + `<div class="audit-dps-bar bg-slate-900 rounded h-4 overflow-hidden"><div style="width:${pct}%;height:100%;background:${r.color};transition:width .3s;"></div></div>`
+            + `<span class="audit-dps-value font-bold text-right text-xs" style="color:${r.color};">${Math.round(r.dps).toLocaleString()}</span>`
             + `</div>`;
     }).join('');
     el.innerHTML = `
@@ -175,7 +175,7 @@ function renderAuditTab() {
         </div>
         <div class="border-t border-slate-700 pt-2">
             <div class="text-emerald-300 font-bold mb-2">DPS 統計 <span class="text-slate-500 text-xs font-normal">（本圖每秒輸出·各傭兵獨立）</span></div>
-            <div class="flex flex-col gap-1.5">${_dpsHtml}</div>
+            <div class="audit-dps-chart">${_dpsHtml}</div>
         </div>
         <div class="border-t border-slate-700 pt-2">
             <div class="text-cyan-300 font-bold mb-1">自訂掉落追蹤</div>

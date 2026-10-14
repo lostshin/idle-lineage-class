@@ -1,0 +1,173 @@
+{
+  "method": "Native fitEquipment and equipment renderer in synthetic Node VM; geometry only, not browser layout or visual QA",
+  "reports": [
+    {
+      "availableWidth": 480,
+      "availableHeight": 900,
+      "canvasWidth": 453.6,
+      "canvasHeight": 810,
+      "frameHeight": 810,
+      "status": "PASS",
+      "checks": {
+        "widerAspect": true,
+        "shorter": true,
+        "inside": true,
+        "squareSockets": true,
+        "allSlotsInside": true,
+        "noOverlap": true,
+        "stable": true,
+        "slotCounts": true
+      }
+    },
+    {
+      "availableWidth": 480,
+      "availableHeight": 650,
+      "canvasWidth": 327.6,
+      "canvasHeight": 585,
+      "frameHeight": 585,
+      "status": "PASS",
+      "checks": {
+        "widerAspect": true,
+        "shorter": true,
+        "inside": true,
+        "squareSockets": true,
+        "allSlotsInside": true,
+        "noOverlap": true,
+        "stable": true,
+        "slotCounts": true
+      }
+    },
+    {
+      "availableWidth": 640,
+      "availableHeight": 320,
+      "canvasWidth": 161.28000000000003,
+      "canvasHeight": 288,
+      "frameHeight": 288,
+      "status": "PASS",
+      "checks": {
+        "widerAspect": true,
+        "shorter": true,
+        "inside": true,
+        "squareSockets": true,
+        "allSlotsInside": true,
+        "noOverlap": true,
+        "stable": true,
+        "slotCounts": true
+      }
+    },
+    {
+      "availableWidth": 320,
+      "availableHeight": 900,
+      "canvasWidth": 320,
+      "canvasHeight": 571.4285714285713,
+      "frameHeight": 571.4285714285713,
+      "status": "PASS",
+      "checks": {
+        "widerAspect": true,
+        "shorter": true,
+        "inside": true,
+        "squareSockets": true,
+        "allSlotsInside": true,
+        "noOverlap": true,
+        "stable": true,
+        "slotCounts": true
+      }
+    },
+    {
+      "availableWidth": 320,
+      "availableHeight": 240,
+      "canvasWidth": 120.96000000000001,
+      "canvasHeight": 216,
+      "frameHeight": 216,
+      "status": "PASS",
+      "checks": {
+        "widerAspect": true,
+        "shorter": true,
+        "inside": true,
+        "squareSockets": true,
+        "allSlotsInside": true,
+        "noOverlap": true,
+        "stable": true,
+        "slotCounts": true
+      }
+    },
+    {
+      "availableWidth": 358,
+      "availableHeight": 844,
+      "canvasWidth": 358,
+      "canvasHeight": 639.2857142857142,
+      "frameHeight": 639.2857142857142,
+      "status": "PASS",
+      "checks": {
+        "widerAspect": true,
+        "shorter": true,
+        "inside": true,
+        "squareSockets": true,
+        "allSlotsInside": true,
+        "noOverlap": true,
+        "stable": true,
+        "slotCounts": true
+      }
+    },
+    {
+      "availableWidth": 477,
+      "availableHeight": 1125,
+      "canvasWidth": 477,
+      "canvasHeight": 851.7857142857142,
+      "frameHeight": 851.7857142857142,
+      "status": "PASS",
+      "checks": {
+        "widerAspect": true,
+        "shorter": true,
+        "inside": true,
+        "squareSockets": true,
+        "allSlotsInside": true,
+        "noOverlap": true,
+        "stable": true,
+        "slotCounts": true
+      }
+    },
+    {
+      "availableWidth": 1330,
+      "availableHeight": 900,
+      "canvasWidth": 453.6,
+      "canvasHeight": 810,
+      "frameHeight": 810,
+      "status": "PASS",
+      "checks": {
+        "widerAspect": true,
+        "shorter": true,
+        "inside": true,
+        "squareSockets": true,
+        "allSlotsInside": true,
+        "noOverlap": true,
+        "stable": true,
+        "slotCounts": true
+      }
+    }
+  ],
+  "modifiedFiles": [
+    "js/party-inspector.js",
+    "css/responsive.css",
+    "index.html",
+    "tests/party-equipment.e2e.js",
+    "tests/equipment-proportions.integration.js"
+  ],
+  "background": "object-fit:cover; aspect retained with small centered vertical crop",
+  "characterAndItems": "object-fit:contain; entire images keep their original proportions",
+  "nativeSocketPages": [
+    19,
+    9
+  ],
+  "cacheCount": 105,
+  "cacheErrors": [],
+  "mirroredCount": 65,
+  "mirrorErrors": [],
+  "checks": [
+    "node tests/equipment-proportions.integration.js: 8/8 PASS",
+    "node --check js/party-inspector.js: PASS",
+    "node --check tests/party-equipment.e2e.js: PASS",
+    "git diff --check: PASS"
+  ],
+  "browserQA": "Deferred; user previously requested not to recreate the lost isolated space. Geometry harness does not replace browser visual verification."
+}

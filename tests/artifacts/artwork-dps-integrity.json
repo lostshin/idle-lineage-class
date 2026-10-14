@@ -1,0 +1,11 @@
+{
+  "syntaxCount": 101,
+  "syntaxFailures": [],
+  "mirroredCount": 65,
+  "mirroredFailures": [],
+  "cacheCount": 105,
+  "cacheFailures": [],
+  "originalClassPortraitCount": 16,
+  "missingClassPortraits": [],
+  "browserQA": "not run for latest artwork/DPS changes; user requested no new isolated TaskSpace"
+}

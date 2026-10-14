@@ -1,0 +1,21 @@
+{
+  "method": "Ego screen-media PDF rasterized locally by sips",
+  "reports": [
+    {
+      "name": "summon and guard fills remain red and have visible height",
+      "status": "PASS"
+    },
+    {
+      "name": "native summoning image loaded successfully",
+      "status": "PASS"
+    },
+    {
+      "name": "DPS teammate label remains fully readable",
+      "status": "PASS"
+    },
+    {
+      "name": "no visual fixture runtime errors",
+      "status": "PASS"
+    }
+  ]
+}

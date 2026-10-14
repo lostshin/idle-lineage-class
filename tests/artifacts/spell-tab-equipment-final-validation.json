@@ -1,0 +1,46 @@
+{
+  "modifiedFiles": [
+    "index.html",
+    "js/01-drops-config.js",
+    "css/style.css",
+    "js/party-inspector.js",
+    "tests/spell-category.integration.js",
+    "tests/equipment-cast.integration.js",
+    "tests/equipment-proportions.integration.js"
+  ],
+  "behavior": {
+    "spellTab": "Independent small pill in combat-filter-pills beside player/mercenary/summon. Both player and mercenary casts have cast category; actor identity remains in data-cast-source and text. No top-level log tab added. Persistent cast switch independent of existing source switches.",
+    "equipment": "Socket width 11% -> 12%, approximately 9.09% larger on both pages. Native anatomical centers unchanged, square slots; original images and uncropped 4:3 background remain proportional."
+  },
+  "suites": [
+    {
+      "report": "tests/artifacts/spell-category-integration.json",
+      "method": "Native spell logger and persistent source filters in synthetic Node VM; DOM/CSS visual behavior requires browser QA",
+      "checks": 7,
+      "passed": 7
+    },
+    {
+      "report": "tests/artifacts/equipment-cast-integration.json",
+      "method": "Synthetic Node VM: native castSkillInner, manualCast, allyMaintainBuffs, allyActWithSkillGate and read-only equipment presentation; render/stat recomputation stubbed",
+      "checks": 14,
+      "passed": 14
+    },
+    {
+      "report": "tests/artifacts/equipment-larger-slots-integration.json",
+      "method": "Native fitEquipment and equipment renderer in synthetic Node VM; geometry only, not browser layout or visual QA",
+      "checks": 8,
+      "passed": 8
+    }
+  ],
+  "totalChecks": 29,
+  "totalPassed": 29,
+  "syntaxCount": 104,
+  "syntaxFailures": [],
+  "cacheCount": 105,
+  "cacheFailures": [],
+  "mirroredCount": 65,
+  "mirroredFailures": [],
+  "diffCheck": "PASS",
+  "browserQA": "Deferred by user; synthetic integration/geometry checks do not replace browser visual verification.",
+  "commitPush": "Not performed."
+}

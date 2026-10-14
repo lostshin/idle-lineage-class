@@ -1,0 +1,20 @@
+{
+  "modifiedFiles": [
+    "css/responsive.css",
+    "js/05-kill-progression.js",
+    "index.html",
+    "tests/summon-display.e2e.js"
+  ],
+  "cause": "Each DPS row sized its name and numeric columns independently, shifting bar origins and available bar widths.",
+  "change": "Chart has shared name/bar/value grid columns; all rows inherit those columns via subgrid. Names keep a one-line title/ellipsis fallback in constrained widths. No DPS calculation changes.",
+  "checks": [
+    "node --check js/05-kill-progression.js: PASS",
+    "node --check tests/summon-display.e2e.js: PASS",
+    "git diff --check: PASS",
+    "read-back shared chart/grid and E2E alignment criteria: PASS"
+  ],
+  "cacheCount": 105,
+  "cacheFailures": [],
+  "browserE2E": "Not run; user previously deferred isolated TaskSpace recreation. Existing E2E now checks equal bar origin and width at all six viewport/scale combinations.",
+  "commitPush": "Not performed."
+}

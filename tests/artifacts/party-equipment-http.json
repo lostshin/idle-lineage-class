@@ -17,6 +17,14 @@
       "status": "PASS"
     },
     {
+      "name": "A shows an original teammate figure among all nineteen native equipment slots",
+      "status": "PASS"
+    },
+    {
+      "name": "A places helmet above, weapons beside and armor below the central figure",
+      "status": "PASS"
+    },
+    {
       "name": "roster names have no underline and use a consistent typeface",
       "status": "PASS"
     },

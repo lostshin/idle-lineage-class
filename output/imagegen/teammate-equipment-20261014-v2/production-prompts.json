@@ -1,0 +1,15 @@
+{
+  "mode": "built-in image_gen",
+  "reference": "public/assets/login/EQ UI/男法師.png",
+  "assets": [
+    {
+      "path": "assets/ui/party-equipment-backdrop-v1.png",
+      "prompt": "Use case: stylized-concept. Asset type: production equipment panel background bitmap, not a mockup. Reference image is an ORIGINAL classic Lineage equipment interface; match its restrained aged iron border, very dark olive brown dungeon palette and low-key late-1990s game raster artwork closely.\nCreate a portrait 1024x2048 EMPTY background texture plate for a paper-doll equipment window. A VERY THIN tarnished SILVER / dark iron bevel frame around all four edges, small understated silver corner ornaments, charcoal and muted olive brown worn masonry / leather interior. Perspective hint of an old stone floor at bottom, shadowed medieval hall behind. A subdued dim warm highlight in center, but NO figure. Outer silver border occupies only 2% of width. Do not use elaborate gold ornamental filigree. Entire canvas is the panel.\nNO slots, outlines, grid, icons, empty-item symbols, faces, humans, silhouettes, UI controls, text, numbers or labels. A native class-correct character and nineteen independent sockets will be laid above this backdrop by code. Keep middle dark and visually quiet to support item legibility. This is an actual background ASSET, not the full interface."
+    },
+    {
+      "path": "assets/ui/party-equipment-socket-v1.png",
+      "prompt": "Use case: stylized-concept. Asset type: production game UI reusable empty equipment socket bitmap.\nReference the ORIGINAL classic Lineage equipment interface for precise style. Generate ONE square empty icon socket 1024x1024, orthographic front-on. A very thin worn dark SILVER metal frame with tiny little silver diagonal corner brackets, outside rim no thicker than 4% of width. Flat inside is charcoal black leather with a little muted olive texture. Understated and low contrast, old 1990s Korean PC RPG raster art. Entire canvas is the square socket. Absolutely NO gold, oversized filigree, symbols, letters, icons, UI badges, text, count, picture of items, humanoid, glow, modern rounded corners or watermark. It must closely match the restrained silver black socket in the provided original, because it will be reused for all nineteen native equipment positions."
+    }
+  ],
+  "note": "Production texture assets only. Native item icons, 19/9 anatomical positions, E/enchantment/count badges, selected-actor equipment and class/gender-specific full-body creation art remain live overlays."
+}

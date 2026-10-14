@@ -1,0 +1,16 @@
+[
+  {
+    "suite": "party-equipment",
+    "protocol": "file",
+    "command": "python3 tests/run-rwd.py --suite party-equipment --protocol file --space 2 --keep-space --skip-screenshots",
+    "exitCode": 0,
+    "output": "{ spaceId: 2 }\n{ checks: 38, passed: 38, failed: [] }\n\n"
+  },
+  {
+    "suite": "summon-display",
+    "protocol": "http",
+    "command": "python3 tests/run-rwd.py --suite summon-display --protocol http --space 2 --keep-space --skip-screenshots",
+    "exitCode": 1,
+    "output": "Error: Summon display checks failed\n    at [eval]:25:324\n{ spaceId: 2 }\n{ name: 'active Summon uses its original skill image in the battle buff bar', error: 'Error: false' }\n{ checks: 23, passed: 22, failed: [ { name: 'active Summon uses its original skill image in the battle buff bar', status: 'FAIL', error: 'Error: false' } ] }\n\nego's nodejs process exited with code 1.\n"
+  }
+]

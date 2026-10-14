@@ -1,0 +1,62 @@
+{
+  "latestStatus": "DPS fix validated in synthetic native-module integration; original-style equipment artwork code complete, browser QA deferred by user",
+  "modifiedRuntimeFiles": [
+    "css/responsive.css",
+    "index.html",
+    "js/03-combat-core.js",
+    "js/05-kill-progression.js",
+    "js/08-items-equip.js",
+    "js/32-threat.js",
+    "js/effect-details.js",
+    "js/party-inspector.js"
+  ],
+  "DPS": {
+    "cause": "Index-based HP snapshots treated disappearing/replaced boss slots as zero HP, crediting all remaining HP as outgoing damage.",
+    "fix": "Preserve original target object references alongside numeric HP snapshots; credit only real HP loss. Reject replacement-target threat.",
+    "baselineReport": "tests/artifacts/dps-teleport-baseline.json",
+    "baselinePassed": 5,
+    "baselineFailed": 6,
+    "integrationReport": "tests/artifacts/dps-teleport-integration.json",
+    "passed": 11,
+    "failed": 0,
+    "command": "node tests/dps-teleport.integration.js",
+    "harnessLimitations": "Synthetic Node VM with render/stat recalculation boundaries; executes native autoActions, useItem, consume, doTeleport and DPS/threat modules. Not browser E2E or installed desktop verification."
+  },
+  "equipmentArtwork": {
+    "direction": "A classic paper doll refined to the user-provided original anatomical interface",
+    "assets": [
+      {
+        "path": "assets/ui/party-equipment-backdrop-v1.png",
+        "width": 887,
+        "height": 1774,
+        "sha256": "293fe73beeb570fbfb5e704b4e64e20fd7b4c3e0cfebc7fdf15667af919972b3"
+      },
+      {
+        "path": "assets/ui/party-equipment-socket-v1.png",
+        "width": 1254,
+        "height": 1254,
+        "sha256": "da4cfcb0ae7601a83bb3ea9f35bf24b9e1de98784ab7288ba228444ea2da28c4"
+      }
+    ],
+    "promptSet": "output/imagegen/teammate-equipment-20261014-v2/production-prompts.json",
+    "generationMode": "built-in image_gen",
+    "rendering": "Generated dark backdrop and silver socket overlays; native full-body creation artwork per selected teammate class/gender; native 19/9 slots, item art, badges and read-only tooltips. Aspect ratio retained inside available panel dimensions.",
+    "browserQA": "pending; user explicitly requested code completion without recreating lost isolated TaskSpace",
+    "previousGridPreviews": "superseded; not evidence of the current artwork implementation",
+    "iCloud": "Two production PNGs copied to the previously authorized design folder; SHA matches verified; remote sync not independently verified"
+  },
+  "integrityReport": "tests/artifacts/artwork-dps-integrity.json",
+  "commands": [
+    "python3 scripts/update-cache.py",
+    "node --check for all 101 loaded scripts",
+    "65 mirrored module SHA verification",
+    "105 JS/CSS cache SHA verification",
+    "16 native class/gender creation portraits checked",
+    "git diff --check"
+  ],
+  "outstanding": [
+    "Browser HTTP/file E2E and latest artwork visual QA deferred by user; previous complete suites predate these changes.",
+    "Installed desktop application not tested."
+  ],
+  "commitPush": "not performed for these changes"
+}

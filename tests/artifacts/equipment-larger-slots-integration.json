@@ -1,0 +1,157 @@
+{
+  "method": "Native fitEquipment and equipment renderer in synthetic Node VM; geometry only, not browser layout or visual QA",
+  "reports": [
+    {
+      "availableWidth": 480,
+      "availableHeight": 900,
+      "canvasWidth": 480,
+      "canvasHeight": 640,
+      "frameHeight": 640,
+      "status": "PASS",
+      "checks": {
+        "largerSockets": true,
+        "widerAspect": true,
+        "shorter": true,
+        "inside": true,
+        "squareSockets": true,
+        "allSlotsInside": true,
+        "noOverlap": true,
+        "stable": true,
+        "slotCounts": true
+      }
+    },
+    {
+      "availableWidth": 480,
+      "availableHeight": 650,
+      "canvasWidth": 480,
+      "canvasHeight": 640,
+      "frameHeight": 640,
+      "status": "PASS",
+      "checks": {
+        "largerSockets": true,
+        "widerAspect": true,
+        "shorter": true,
+        "inside": true,
+        "squareSockets": true,
+        "allSlotsInside": true,
+        "noOverlap": true,
+        "stable": true,
+        "slotCounts": true
+      }
+    },
+    {
+      "availableWidth": 640,
+      "availableHeight": 320,
+      "canvasWidth": 240,
+      "canvasHeight": 320,
+      "frameHeight": 320,
+      "status": "PASS",
+      "checks": {
+        "largerSockets": true,
+        "widerAspect": true,
+        "shorter": true,
+        "inside": true,
+        "squareSockets": true,
+        "allSlotsInside": true,
+        "noOverlap": true,
+        "stable": true,
+        "slotCounts": true
+      }
+    },
+    {
+      "availableWidth": 320,
+      "availableHeight": 900,
+      "canvasWidth": 320,
+      "canvasHeight": 426.6666666666667,
+      "frameHeight": 426.6666666666667,
+      "status": "PASS",
+      "checks": {
+        "largerSockets": true,
+        "widerAspect": true,
+        "shorter": true,
+        "inside": true,
+        "squareSockets": true,
+        "allSlotsInside": true,
+        "noOverlap": true,
+        "stable": true,
+        "slotCounts": true
+      }
+    },
+    {
+      "availableWidth": 320,
+      "availableHeight": 240,
+      "canvasWidth": 180,
+      "canvasHeight": 240,
+      "frameHeight": 240,
+      "status": "PASS",
+      "checks": {
+        "largerSockets": true,
+        "widerAspect": true,
+        "shorter": true,
+        "inside": true,
+        "squareSockets": true,
+        "allSlotsInside": true,
+        "noOverlap": true,
+        "stable": true,
+        "slotCounts": true
+      }
+    },
+    {
+      "availableWidth": 358,
+      "availableHeight": 844,
+      "canvasWidth": 358,
+      "canvasHeight": 477.3333333333333,
+      "frameHeight": 477.3333333333333,
+      "status": "PASS",
+      "checks": {
+        "largerSockets": true,
+        "widerAspect": true,
+        "shorter": true,
+        "inside": true,
+        "squareSockets": true,
+        "allSlotsInside": true,
+        "noOverlap": true,
+        "stable": true,
+        "slotCounts": true
+      }
+    },
+    {
+      "availableWidth": 477,
+      "availableHeight": 1125,
+      "canvasWidth": 477,
+      "canvasHeight": 636,
+      "frameHeight": 636,
+      "status": "PASS",
+      "checks": {
+        "largerSockets": true,
+        "widerAspect": true,
+        "shorter": true,
+        "inside": true,
+        "squareSockets": true,
+        "allSlotsInside": true,
+        "noOverlap": true,
+        "stable": true,
+        "slotCounts": true
+      }
+    },
+    {
+      "availableWidth": 1330,
+      "availableHeight": 900,
+      "canvasWidth": 675,
+      "canvasHeight": 900,
+      "frameHeight": 900,
+      "status": "PASS",
+      "checks": {
+        "largerSockets": true,
+        "widerAspect": true,
+        "shorter": true,
+        "inside": true,
+        "squareSockets": true,
+        "allSlotsInside": true,
+        "noOverlap": true,
+        "stable": true,
+        "slotCounts": true
+      }
+    }
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "mode": "built-in image_gen",
+  "selected": "A",
+  "images": [
+    {
+      "id": "A",
+      "name": "經典人形",
+      "path": "output/imagegen/teammate-equipment-20261014-v2/隊友裝備－A－經典人形.png",
+      "iCloudExportName": "隊友裝備－A－經典人形.png",
+      "sha256": "e311266a7df793f4db269e8e8c2dcf9993e5d43e4d08b51e6dc6a9559792329b",
+      "iCloudCopyMatches": true
+    },
+    {
+      "id": "B",
+      "name": "古典裝備櫃",
+      "path": "output/imagegen/teammate-equipment-20261014-v2/隊友裝備－B－古典裝備櫃.png",
+      "iCloudExportName": "隊友裝備－B－古典裝備櫃.png",
+      "sha256": "31397fa8905e205376e949cca670f37ac28d85a14281ea65f20c80711cff3b45",
+      "iCloudCopyMatches": true
+    },
+    {
+      "id": "C",
+      "name": "肖像裝備冊",
+      "path": "output/imagegen/teammate-equipment-20261014-v2/隊友裝備－C－肖像裝備冊.png",
+      "iCloudExportName": "隊友裝備－C－肖像裝備冊.png",
+      "sha256": "33835e7490b3f0900b32d0a386600a49cd91a2a4a4fd39de0200c14f739fccc0",
+      "iCloudCopyMatches": true
+    }
+  ],
+  "promptSet": "output/imagegen/teammate-equipment-20261014-v2/prompts.json",
+  "note": "Concept references only. Illustrated text, item values, portraits and slot counts are not production data. Native 19/9 slot pages and original actor/item data remain authoritative.",
+  "remoteSyncVerified": false,
+  "status": "4:3 uncropped background, native slot defaults, ally weight and cast action logging implemented; browser QA pending at user request",
+  "productionPromptSet": "output/imagegen/teammate-equipment-20261014-v2/production-prompts.json",
+  "productionAssets": [
+    {
+      "path": "assets/ui/party-equipment-backdrop-v1.png",
+      "sha256": "293fe73beeb570fbfb5e704b4e64e20fd7b4c3e0cfebc7fdf15667af919972b3",
+      "iCloudExportName": "隊友裝備－原版風格背景.png",
+      "iCloudCopyMatches": true
+    },
+    {
+      "path": "assets/ui/party-equipment-socket-v1.png",
+      "sha256": "da4cfcb0ae7601a83bb3ea9f35bf24b9e1de98784ab7288ba228444ea2da28c4",
+      "iCloudExportName": "隊友裝備－原版銀框素材.png",
+      "iCloudCopyMatches": true
+    }
+  ],
+  "latestProductionPromptSet": "output/imagegen/teammate-equipment-20261014-v2/production-4x3-prompt.json",
+  "latestProductionBackground": {
+    "path": "assets/ui/party-equipment-backdrop-v2-4x3.png",
+    "width": 1086,
+    "height": 1448,
+    "heightToWidth": 1.3333333333333333,
+    "sha256": "f74069c485f369b46dbc3ef108b853fb0a8b925079a5a8231ed7dc2890995fd3",
+    "iCloudExportName": "隊友裝備－原版背景－高寬4比3.png",
+    "iCloudCopyMatches": true,
+    "remoteSyncVerified": false
+  }
+}

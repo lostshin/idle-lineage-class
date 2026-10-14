@@ -764,6 +764,7 @@ d.mr += (baseMr + bonusMr);
         let _pct = _limit > 0 ? Math.floor(_cur / _limit * 100) : 999;
         let _tier = _pct <= 49 ? 0 : (_pct <= 81 ? 1 : (_pct <= 99 ? 2 : 3));
         d.weightPct = _pct; d.loadTier = _tier;
+        d.weightCurrent = _cur; d.weightLimit = _limit;
         if (_tier === 2) d.aspd = d.aspd * 2;        // 82~99%：攻擊速度 -100%（間隔×2）
         else if (_tier === 3) d.aspd = d.aspd * 3;   // 100%+：攻擊速度 -200%（間隔×3）
     }
