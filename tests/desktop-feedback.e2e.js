@@ -29,7 +29,7 @@ for(const tab of ['items','weapons','armors']){
   await page.click('#tab-'+tab+' [data-inventory-sort]');await page.click('#tab-'+tab+' .classic-sort-menu input');await check(`${tab}: automatic organize checkbox remains functional`,()=>page.evaluate(()=>player.inventoryAutoSort===false&&_roleReadSavePlayer(currentSlot).inventoryAutoSort===false));await page.evaluate(()=>toggleInventoryAutoSort(true));
  }
 }
-await page.evaluate(()=>{const el=document.getElementById('combat-log');el.replaceChildren();_combatLogLocked=false;for(const k of Object.keys(_combatFilter))_combatFilter[k]=k==='cast';applyCombatFilter();for(let i=0;i<45;i++)logCombat('合成施法歷史 '+i,'skill','cast');for(let i=0;i<200;i++)logCombat('合成普通攻擊 '+i,'player','player');initCombatLogLock();});
+await page.evaluate(()=>{switchLogTab('combat');const el=document.getElementById('combat-log');el.replaceChildren();_combatLogLocked=false;for(const k of Object.keys(_combatFilter))_combatFilter[k]=k==='cast';applyCombatFilter();for(let i=0;i<45;i++)logCombat('合成施法歷史 '+i,'skill','cast');for(let i=0;i<200;i++)logCombat('合成普通攻擊 '+i,'player','player');initCombatLogLock();});
 await check('hidden attack traffic does not discard cast history',()=>page.evaluate(()=>document.querySelectorAll('#combat-log [data-src="cast"]').length===45));
 await page.evaluate(()=>{const e=document.getElementById('combat-log');e.scrollTop=0;e.dispatchEvent(new Event('scroll'));});
 await check('cast-only history can scroll upward and lock automatic scrolling',()=>page.evaluate(()=>_combatLogLocked&&!document.getElementById('combat-log-unlock').classList.contains('hidden')));
