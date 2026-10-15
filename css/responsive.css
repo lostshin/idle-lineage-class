@@ -224,7 +224,7 @@
 .effect-icon span { overflow-wrap: anywhere; }
 .effect-icon small { font-size: 10px; white-space: nowrap; }
 .effect-icon:hover, .effect-icon:focus-visible { border-color: #e2c27c; outline: 1px solid #e2c27c; }
-#effect-tooltip { display: block; position: fixed; z-index: 150; pointer-events: none; box-sizing: border-box; max-height: calc(100dvh - 24px); overflow-y: auto; padding: 10px 12px; background: #15151cf5; border: 1px solid #a18156; color: #e8dfcb; border-radius: 3px; font-size: 13px; line-height: 1.6; }
+#effect-tooltip { white-space: pre-line; display: block; position: fixed; z-index: 150; pointer-events: auto; box-sizing: border-box; max-height: calc(100dvh - 24px); overflow-y: auto; padding: 10px 12px; background: #15151cf5; border: 1px solid #a18156; color: #e8dfcb; border-radius: 3px; font-size: 13px; line-height: 1.6; }
 #effect-tooltip[hidden] { display: none; }
 #map-name-tooltip { position:fixed; z-index:150; pointer-events:none; box-sizing:border-box; padding:4px 8px; background:#15151cf5; border:1px solid #a18156; color:#e8dfcb; border-radius:3px; font-size:13px; overflow-wrap:anywhere; }
 #map-name-tooltip[hidden] { display:none; }
@@ -256,7 +256,7 @@
 #party-details { min-height:0; max-height:none; overflow:auto; scrollbar-gutter:stable; overscroll-behavior:contain; }
 .party-art-scroll { max-width:100%; overflow:hidden; }
 .party-art-scroll .ability-window-shell { flex:none; }
-#party-ability-tip { position:fixed; z-index:155; padding:10px; color:#f0d59c; background:#17151af5; border:1px solid #a18156; font-size:13px; line-height:1.5; white-space:pre-line; pointer-events:none; max-width:calc(100vw - 24px); max-height:calc(100dvh - 24px); overflow:auto; }
+#party-ability-tip { position:fixed; z-index:155; padding:10px; color:#f0d59c; background:#17151af5; border:1px solid #a18156; font-size:13px; line-height:1.5; white-space:pre-line; pointer-events:auto; max-width:calc(100vw - 24px); max-height:calc(100dvh - 24px); overflow:auto; }
 #party-ability-tip[hidden] { display:none; }
 
 #party-inspector { background:#17161c!important; }
@@ -488,3 +488,8 @@
 :is(#party-bonus-window,#tab-stats) .party-ability-vitals [data-ability-field] { display:inline-flex; }
 
 @media(max-width:768px){ #party-inspector-close { min-height:44px; } }
+
+[data-effect-key], [data-effect-summary] { cursor: help; }
+[data-effect-summary] { color: #dfc38e; }
+:is(#tab-stats,#party-inspector) [data-ability-buff].ability-buff-unfavorable { color: #ef9b91; }
+[data-equipment-effects] { white-space: pre-line; font-size: 12px; line-height: 1.5; }

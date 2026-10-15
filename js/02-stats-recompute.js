@@ -44,7 +44,7 @@ function antHelperEarthResistanceBonus(value) {
 function antHelperGuardReductionPercent(magicResistance) {
     return Math.min(20, Math.floor((magicResistance || 0) * 0.10));
 }
-function recomputeStats(clanBuffStats) {
+function recomputeStats(clanBuffStats, preview = null) {
     let p = player, d = p.d, b = p.base, a = p.alloc;
     if (typeof p.lv === 'number') p.lv = Math.max(1, Math.min(100, Math.floor(p.lv) || 1));   // 🛡️ 等級硬夾 [1,100]：即時中和「改 player.lv」的外掛，避免職業成長值被放大
 
@@ -121,7 +121,7 @@ function recomputeStats(clanBuffStats) {
 
     // ❄️ 套裝「屬性」加成提前套用：力量/體質須在 Phase 2 換算近傷/HP 之前計入，才會實際吃進戰鬥與 HP；其餘 flat 加成（AC/HP+100/恢復/抗性）仍於 Phase 3 套裝段套用。
     { let _setEarly = {}, _ssEarly = {};
-      for (let _k in p.eq) { let _e = p.eq[_k]; if (!_e || _k === 'wpn' || _k === 'offwpn') continue; let _ed = DB.items[_e.id]; if (_ed && _ed.set && !_ssEarly[_e.id]) { _ssEarly[_e.id] = true; _setEarly[_ed.set] = (_setEarly[_ed.set] || 0) + 1; } }
+      for (let _k in p.eq) { let _e = p.eq[_k]; if (preview?.sets === false || !_e || _k === 'wpn' || _k === 'offwpn') continue; let _ed = DB.items[_e.id]; if (_ed && _ed.set && _ed.set !== preview?.omitSet && !_ssEarly[_e.id]) { _ssEarly[_e.id] = true; _setEarly[_ed.set] = (_setEarly[_ed.set] || 0) + 1; } }
       if (_setEarly['icequeen_charm'] >= 3) { d.str += 2; d.cha += 2; }   // 冰之女王魅力：力量+2/魅力+2（提前→力量實際吃近距傷害/命中/爆擊）
       if (_setEarly['frost'] >= 3) { d.con += 3; }                         // 寒冰：體質+3（提前→實際吃 HP 與 HP 自然恢復上限）
       if (_setEarly['orin'] >= 2) { d.str += 1; d.dex += 1; d.con += 1; d.int += 1; d.wis += 1; d.cha += 1; }   // 🔱 歐林西瑪：全六屬性+1（提前→實際吃進 AC/MR/HP/MP/近遠傷害/命中/爆擊等衍生值，否則只改顯示數字不入戰鬥）
@@ -129,7 +129,7 @@ function recomputeStats(clanBuffStats) {
       if (_setEarly['bluepirate'] >= 4) { d.int += 1; }   // 🏴‍☠️ 藍海賊套裝：智力+1（提前→吃進 MP/魔法；AC-1/HP+10 flat 於 Phase 3 套裝段）
     }
     // 🦻 詛咒耳環套裝：淨化之耳環 + 對應色詛咒耳環 同時裝備 → 屬性提前套用（吃進近/遠/魔/HP/MP 等衍生值）
-    { let _eqHas = id => Object.values(p.eq).some(e => e && e.id === id);
+    { let _eqHas = id => preview?.sets !== false && Object.values(p.eq).some(e => e && e.id === id);
       if (_eqHas('acc_purify_earring')) {
           if (_eqHas('acc_curse_red'))   { d.str += 2; d.con -= 2; }
           if (_eqHas('acc_curse_blue'))  { d.int += 2; d.wis -= 2; }
@@ -428,7 +428,7 @@ d.mr += (baseMr + bonusMr);
         applyBlessStats(d, e.bless, (ed.slot==='ring'||ed.slot==='amulet'||ed.slot==='belt'||ed.slot==='ear') ? 'acc' : 'arm');   // 祝福的/詛咒的
         applyAncStats(d, e.anc, (ed.slot==='ring'||ed.slot==='amulet'||ed.slot==='belt'||ed.slot==='ear') ? 'acc' : 'arm');   // 遠古系變體能力
         // 🔥 v3.0.77 屬性詞綴改版：只能存在於武器（額外傷害/魔法點數，於上方武器區塊計入）；舊防具/飾品屬性詞綴（元素抗性+MR）已廢除並由 loadGame 清除
-        if(ed.set && !_setSeen[e.id]) { _setSeen[e.id] = true; setCheck[ed.set] = (setCheck[ed.set]||0) + 1; }   // 🔧 以「不重複物品」計件：兩枚同款戒指只算 1 件，杜絕灌水湊套裝
+        if(preview?.sets !== false && ed.set !== preview?.omitSet && ed.set && !_setSeen[e.id]) { _setSeen[e.id] = true; setCheck[ed.set] = (setCheck[ed.set]||0) + 1; }   // 🔧 以「不重複物品」計件：兩枚同款戒指只算 1 件，杜絕灌水湊套裝
         
         // 🔧 架構#4：移除 ed.skAdd 死碼 —— 全資料庫無任何物品使用此欄位，且其語意（永久寫入 player.skills、
         // 卸裝不回收）與 grantSkills（每次重算先回收、卸裝即消失）矛盾，留著只會誘發未來的 bug。授予技能一律走 grantSkills。
@@ -496,7 +496,7 @@ d.mr += (baseMr + bonusMr);
     // 裝備上的舊詞綴(p.eq 其他欄的 seteff)保留顯示但「不再計入」；可由菈克希絲拆分成遺骸。
     // 同步寫入傭兵快照：buildAlly 換身重算時 p=ally，旗標自然存於傭兵物件上（傭兵存檔角色的遺骸欄同樣生效）
     let _shSets = {};
-    if (typeof SHERINE_REMAINS !== 'undefined') for (let _r of SHERINE_REMAINS) {
+    if (preview?.sets !== false && typeof SHERINE_REMAINS !== 'undefined') for (let _r of SHERINE_REMAINS) {
         let e = p.eq && p.eq[_r.id];
         if (e && e.seteff) { let g = e.seteff.slice(0, 2); _shSets[g] = (_shSets[g] || 0) + 1; }   // 計件＝帶該套裝名的「遺骸部位數」（8 格各算一件·部位天然不重複）
     }
@@ -614,9 +614,9 @@ d.mr += (baseMr + bonusMr);
     }
 
     // 🏺 v3.5.27 黑騎士的精銳長槍＋鎧衛隊的漆黑塔盾 同時裝備：近距離傷害 +15（格檔100%／經典模式亦可格檔＝js/04 受擊路徑）
-    if (p.eq && p.eq.wpn && p.eq.wpn.id === 'relic_bk_lance' && p.eq.shield && p.eq.shield.id === 'relic_guard_towershield') d.meleeDmg += 15;
+    if (preview?.sets !== false && p.eq && p.eq.wpn && p.eq.wpn.id === 'relic_bk_lance' && p.eq.shield && p.eq.shield.id === 'relic_guard_towershield') d.meleeDmg += 15;
     // 🏺 v3.7.20 盔甲內襯鎖鏈衣（T恤 liningChain）：裝備「防禦 6 以下」盔甲（def ac 0~6·ac 欄正值=AC−X）→ 額外 AC-10、MR+10（p 參數化→傭兵換身自動鏡像）
-    if (p.eq && p.eq.tshirt && p.eq.armor) {
+    if (preview?.sets !== false && p.eq && p.eq.tshirt && p.eq.armor) {
         let _lct = DB.items[p.eq.tshirt.id], _lca = DB.items[p.eq.armor.id];
         if (_lct && _lct.liningChain && _lca && (_lca.ac || 0) >= 0 && (_lca.ac || 0) <= 6) { d.ac -= 10; d.mr += 10; }
     }
@@ -624,7 +624,7 @@ d.mr += (baseMr + bonusMr);
     // 變形卷軸變身依目前武器分流：遠距離武器只能使用遠距離變身，其餘（含空手）只能使用近距離變身。
     // 換武器時 calcStats 會立即重抽相符類型；套裝／武器強制變身 _setPoly 仍保留原本專屬形態。
     // 此正規化對玩家與傭兵換身重算皆執行（player 為可換身全域·buildAlly/_allyLevelRecompute 期間指向傭兵）。
-    if(p.poly && p.buffs.poly > 0 && !polyFormMatchesEquippedWeapon(p.poly)) p.poly = getPolyState();
+    if(!preview?.readonly && p.poly && p.buffs.poly > 0 && !polyFormMatchesEquippedWeapon(p.poly)) p.poly = getPolyState();
     // 變身：套裝變身（_setPoly，僅穿著套裝時生效、卸下立即消失）優先於藥水變身（buffs.poly 計時）
     let _polyForm = p._setPoly || ((p.buffs.poly > 0 && p.poly) ? p.poly : null);
     if(_polyForm) {

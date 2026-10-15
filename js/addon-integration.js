@@ -64,3 +64,27 @@ document.addEventListener('DOMContentLoaded', () => {
     notice.before(card);
     for (const id of ['m-afk-nav-dex', 'm-afk-nav-wiki']) document.getElementById(id)?.remove();
 });
+
+// Let the mirrored add-on supply tracking/boss controls while the shared model owns buffs and sets.
+document.addEventListener('DOMContentLoaded', () => {
+    const render=window.renderStatusEffects;
+    window.renderStatusEffects=function () {
+        if(state.ff)return render.apply(this,arguments);
+        const host=document.getElementById('dt-buffs');
+        if(!host)return render.apply(this,arguments);
+        const previous=[...host.querySelectorAll('.afk-statusadd')];
+        const list=host.querySelector('[data-effect-list]');
+        if(list)while(list.nextSibling)list.nextSibling.remove();
+        const result=render.apply(this,arguments),extras=[...host.querySelectorAll('.afk-statusadd')];
+        const names=[...Object.keys(EFFECT_SET_THRESHOLDS).map(effectSetName),...effectDetailsSnapshot(player,'player').entries.map(e=>e.name)].map(name=>name.replace(/\s/g,''));
+        for(const node of extras){
+            const text=node.textContent.trim();
+            if(text==='血盟Buff'||names.includes(text.replace(/\s/g,''))){const sep=node.previousSibling;if(sep?.nodeType===3&&sep.textContent.trim()==='/')sep.remove();node.remove();continue;}
+            const id=node.classList.contains('afk-trackinfo')?'tracking':text.startsWith('迴避王')?'boss-avoid':text.startsWith('找王')?'boss-hunt':text;
+            node.dataset.addonEffect=id;
+            const old=previous.find(e=>e.dataset.addonEffect===id);
+            if(old){for(const a of node.attributes)old.setAttribute(a.name,a.value);old.textContent=node.textContent;node.replaceWith(old);}
+        }
+        return result;
+    };
+});

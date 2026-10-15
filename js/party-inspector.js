@@ -161,6 +161,10 @@ function partyEquipmentHtml(actor,kind,id,page=0) {
                 const old = Array.from(details.querySelectorAll('[data-effect-id]')).find(e => e.dataset.effectId === node.dataset.effectId && e.dataset.effectSource === node.dataset.effectSource);
                 if (old) { old.dataset.effectSeconds = node.dataset.effectSeconds; old.setAttribute('aria-label', node.getAttribute('aria-label')); old.querySelector('small').textContent = node.querySelector('small').textContent; old.className=node.className; node.replaceWith(old); }
             }
+            for(const node of draft.querySelectorAll('[data-effect-key],[data-effect-summary]')) {
+                const old=[...details.querySelectorAll('[data-effect-key],[data-effect-summary]')].find(e=>node.hasAttribute('data-effect-summary')?e.hasAttribute('data-effect-summary'):e.dataset.effectKey===node.dataset.effectKey);
+                if(old){old.textContent=node.textContent;node.replaceWith(old);}
+            }
             for(const node of draft.querySelectorAll('[data-ability-field]')) {
                 const old=details.querySelector('[data-ability-field="'+node.dataset.abilityField+'"]');
                 if(old){for(const a of node.attributes)old.setAttribute(a.name,a.value);old.innerHTML=node.innerHTML;node.replaceWith(old);}

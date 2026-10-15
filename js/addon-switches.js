@@ -1,6 +1,6 @@
 // Fixed add-on set: the switch panel is removed, so every loaded add-on runs except those listed here.
 (function () {
-    const off = new Set(['sellconfirm']);
+    const off = new Set(['sellconfirm','statpts']);
     const registry = [], byId = new Map(), overrides = new Map();
     window.AFK_TOGGLES = {
         register(spec) {

@@ -1760,8 +1760,9 @@ window.onload = () => {
     function sgn(v){ return (v>=0?'+':'') + v; }
     // ⚠️ 先定義者勝：多件物品可能共用同一張圖（例：沙哈之箭借用 箭.png），後者若覆蓋 key 會讓前者的 hover tooltip 顯示成後者。
     function buildMap(){ ICON2ID = {}; for(let id in DB.items){ let d = DB.items[id]; if(d){ let k = getIconUrl(d); if(!(k in ICON2ID)) ICON2ID[k] = id; } } }
+    let tipHost=null,tipOwner=null,tipCloseTimer=null,tipIdentity='';
     function getTip(){ if(!tipEl){ tipEl = document.createElement('div'); tipEl.className = 'game-tooltip'; document.body.appendChild(tipEl); } return tipEl; }
-    function hideTip(){ if(tipEl){ tipEl.style.display = 'none'; tipEl._id = null; } }   // ⚠️ 一併清單例快取鍵：鍵只含 uid，物品「原地」變動（強化 +N／碧恩屬性賦予）後 uid 不變 → 不清就會一直顯示改動前的舊內容
+    function hideTip(){ clearTimeout(tipCloseTimer);tipCloseTimer=null;tipHost=null;tipOwner=null;tipIdentity='';if(tipEl){ tipEl.style.display = 'none'; tipEl._id = null; } }   // ⚠️ 一併清單例快取鍵：鍵只含 uid，物品「原地」變動（強化 +N／碧恩屬性賦予）後 uid 不變 → 不清就會一直顯示改動前的舊內容
     // ===== 技能 tooltip（技能頁：游標移到技能上顯示能力）=====
     const SK_TYPE = { atk:'攻擊', heal:'治癒', buff:'增益', manual:'手動', convert:'轉換', summon:'召喚' };
     const SK_ELE = { fire:'火', water:'水', earth:'地', wind:'風', none:'無' };
@@ -1959,13 +1960,18 @@ window.onload = () => {
             return (player.inv || []).find(x => x.uid === uidv) || null;
         } catch(e){ return null; }
     }
-    document.addEventListener('mousemove', function(e){
+    function updateItemTip(e){
+        if(tipEl?.contains(e.target)){clearTimeout(tipCloseTimer);return;}
         let host = e.target && e.target.closest ? e.target.closest('.tip-host') : null;
         let ic = document.getElementById('interaction-content');
         let eb = document.getElementById('equip-book');
         // 技能頁 host（data-tip-skill）與收集冊 host（data-tip-id）不限於 NPC 互動面板；其餘 host 仍限定於 interaction-content
         let ok = host && ((ic && ic.contains(host)) || (eb && !eb.classList.contains('hidden') && eb.contains(host)) || host.hasAttribute('data-tip-skill') || host.hasAttribute('data-tip-id') || host.hasAttribute('data-tip-uid'));   // 🖱️ data-tip-uid（背包/裝備欄實例物品）不限面板，任何處 hover 即顯示完整資訊 tooltip
-        if(!ok){ hideTip(); return; }
+        if(!ok){if(!tipCloseTimer)tipCloseTimer=setTimeout(()=>{tipCloseTimer=null;hideTip();},160);return;}
+        if(e.type){clearTimeout(tipCloseTimer);tipCloseTimer=null;}
+        const identity=[host.dataset.tipSrc,host.dataset.tipUid,host.dataset.tipPartyKind,host.dataset.tipPartyId,host.dataset.tipSkill,host.dataset.tipId].join('|');
+        if(!e.type&&tipIdentity&&tipIdentity!==identity){hideTip();return;}
+        tipIdentity=identity;tipHost=host;tipOwner=player;
         let el = getTip();el.toggleAttribute('data-party-equipment',host.getAttribute('data-tip-src')==='party');
         let tSkill = host.getAttribute('data-tip-skill');
         let tUid = host.getAttribute('data-tip-uid');
@@ -1979,13 +1985,15 @@ window.onload = () => {
             let tSrc = host.getAttribute('data-tip-src') || 'inv';
             const partyActor = tSrc === 'party' ? partyMemberById(host.dataset.tipPartyKind, host.dataset.tipPartyId) : null;
             const partyItem = partyActor?.eq?.[host.dataset.equipmentSlot];
-            let key = 'I:' + tSrc + ':' + tUid + (tSrc === 'party' ? ':' + host.dataset.tipPartyKind + ':' + host.dataset.tipPartyId + ':' + (partyItem ? itemSig(partyItem) : '') : '');
+            let key = 'I:' + tSrc + ':' + tUid + (tSrc === 'party' ? ':' + host.dataset.tipPartyKind + ':' + host.dataset.tipPartyId + ':' + (partyItem ? itemSig(partyItem) : '') : '') + ((partyActor || tSrc==='eq') ? ':'+effectSignature(partyActor||player,partyActor?host.dataset.tipPartyKind:'player') : '');
             if(el._id !== key){
                 let it = tSrc === 'party' ? partyItem : findTipItem(tSrc, tUid);
                 if(!it){ hideTip(); return; }
                 const content = () => `<div class="font-bold text-base ${getItemColor(it)}" style="margin-bottom:4px;">${getItemFullName(it)}</div>`
                     + `<div class="text-slate-300" style="font-size:12px;line-height:1.5;">${buildItemDescHTML(it)}</div>`;
-                el.innerHTML = partyActor ? _withAllyEquipmentContext(effectActorCopy(partyActor), content) : content();
+                const actor=partyActor||player,kind=partyActor?host.dataset.tipPartyKind:'player',slot=partyActor?host.dataset.equipmentSlot:Object.keys(actor.eq||{}).find(k=>actor.eq[k]?.uid===tUid);
+                const effects=(partyActor||tSrc==='eq')&&slot?effectEquipmentDetailsHtml(actor,kind,it,slot):'';
+                el.innerHTML = (partyActor ? _withAllyEquipmentContext(effectActorCopy(partyActor), content) : content()) + effects;
                 el._id = key;
             }
         } else if(tId){
@@ -2012,13 +2020,19 @@ window.onload = () => {
             if(!id){ hideTip(); return; }
             if(el._id !== id){ el.innerHTML = buildItemTipHTML(id); el._id = id; }
         }
+        const equipment=['eq','party'].includes(host.dataset.tipSrc);el.style.pointerEvents=equipment?'auto':'none';
+        el.style.maxHeight=screenToUiPx(document.documentElement.clientHeight-24);el.style.overflowY='auto';
         el.style.display = 'block';
         let pad = 16, w = el.getBoundingClientRect().width, h = el.getBoundingClientRect().height;
         let x = e.clientX + pad, y = e.clientY + pad;
         if(x + w > window.innerWidth - 6) x = e.clientX - pad - w;
         if(y + h > window.innerHeight - 6) y = e.clientY - pad - h;
+        if(equipment){const r=host.getBoundingClientRect();x=Math.max(8,Math.min(r.right+8,document.documentElement.clientWidth-w-8));y=Math.max(8,Math.min(r.top,document.documentElement.clientHeight-h-8));}
         el.style.left = screenToUiPx(Math.max(4, x));
         el.style.top = screenToUiPx(Math.max(4, y));
-    });
-    document.addEventListener('mousedown', hideTip);
+    }
+    document.addEventListener('mousemove',updateItemTip);
+    document.addEventListener('mousedown',e=>{if(!tipEl?.contains(e.target))hideTip();});
+    document.addEventListener('keydown',e=>{if(e.key==='Escape'&&tipEl?.style.display==='block'){e.preventDefault();e.stopPropagation();hideTip();}},true);
+    setInterval(()=>{if(!tipHost)return;if(!tipHost.isConnected){const old=tipHost;tipHost=[...document.querySelectorAll('[data-tip-uid]')].find(n=>n.dataset.tipUid===old.dataset.tipUid&&n.dataset.tipSrc===old.dataset.tipSrc&&n.dataset.tipPartyId===old.dataset.tipPartyId)||old;}if(!tipHost.isConnected||!tipHost.checkVisibility()||tipOwner!==player||!tipHost.matches('[data-tip-uid],[data-tip-skill],[data-tip-id]')){hideTip();return;}if(['eq','party'].includes(tipHost.dataset.tipSrc)){const r=tipHost.getBoundingClientRect();updateItemTip({target:tipHost,clientX:r.left,clientY:r.top});}},250);
 })();

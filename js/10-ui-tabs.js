@@ -763,7 +763,7 @@ function relicPurposeLabels(d) {
     if (d.petDmgReduce) out.push(`寵物護甲（裝備的寵物受到傷害-${Math.round(d.petDmgReduce * 100)}%）`);
     if (d.petBleed) out.push('寵物出血（一般攻擊命中疊加8秒出血；每層每秒造成該次傷害20%，最多5層）');
     if (d.armguard) out.push('臂甲（裝於副手，可與雙手武器並用）');
-    if (d.resNone) out.push(`無屬性魔法抗性+${d.resNone}%`);
+    if (d.resNone) out.push(`無屬性魔法抗性+${d.resNone}（原始值；有效${effResistPct(d.resNone)}%）`);
     if (d.mrPerWis) out.push(`精神屏障（每1點最終精神，MR+${d.mrPerWis}）`);
     if (d.type === 'wpn' && d.mr) out.push(`魔防(MR)+${d.mr}`);
     if (d.mcrit) out.push(`近距離爆擊率+${d.mcrit}%`);
@@ -940,6 +940,102 @@ function dedupeGeneratedTooltipEffects(effects, d, options) {
 }
 
 const GENIE_WISH_LABEL = { hp60: 'HP +60', mp30: 'MP +30', md3: '近距離傷害 +3', rd3: '遠距離傷害 +3', mdmg2: '魔法傷害 +2', sp6: '額外魔法點數 +6', hpr10: 'HP 自然恢復量 +10', mpr5: 'MP 自然恢復量 +5', dr3: '傷害減免 +3', ac3: 'AC -3', mr6: 'MR +6', str1: '力量 +1', dex1: '敏捷 +1', int1: '智力 +1', wis1: '精神 +1', con1: '體質 +1', cha1: '魅力 +1' };   // 🏺 v3.6.44 巨靈的三個願望
+function itemEffectLabels(item) {
+    const d=DB.items[item.id];
+    if(!d)return [];
+        let _eff = [];
+        if (d.unBonus) _eff.push('不死／狼人加成（額外造成1D20傷害）');   // 🧹 v3.5.87 #128：unDice / sp:'elf' 全 DB.items 零定義（恆假死運算元）→ 只留 unBonus
+        if (d.eff === 'pierce')     _eff.push('穿透 ' + (d.pierceChance !== undefined ? d.pierceChance : 100) + '%（命中後追加攻擊另一名敵人）');
+        if (d.alsoPierce)           _eff.push('穿透 ' + (d.pierceChance !== undefined ? d.pierceChance : 100) + '%（命中後追加攻擊另一名敵人）');   // 主特效槽被占用時仍可附帶「穿透」；與無視硬皮的「貫穿」不同
+        if (d.eff === 'moonburst')  _eff.push('月光爆裂（命中時8%造成1D30＋強化×2風屬性魔法傷害·受魔法傷害公式與MR影響）');
+        if (d.eff === 'dice_death') _eff.push('即死（命中時1%使非首領目標死亡）');
+        if (d.eff === 'haste')      _eff.push('自我加速（裝備時常駐加速）');
+        if (d.eff === 'crush')      _eff.push('重擊（提高重擊機率，重擊取武器最大傷害）');
+        if (d.eff === 'cleave')     _eff.push('切割（重擊時攻速+20%，持續2秒）');
+        if (d.eff === 'combo')      _eff.push('雙擊 ' + (d.comboRate || 0) + '%（追加一次完整一般攻擊）');
+        if (d.weakExpose)           _eff.push('弱點曝光（命中12%疊加，供屠宰者增傷）');   // 🐉 鎖鏈劍：一般攻擊命中12%附加（最多3層）
+        if (d.vampPct)              _eff.push('吸取HP ' + Math.round(d.vampPct * 100) + '%（依本次傷害恢復）');
+        if (d.ignHardSkin)          _eff.push('貫穿（無視硬皮額外減傷）');   // 🗡️ 暗黑十字弓：攻擊無視硬皮額外減傷
+        if (d.redSpecter)           _eff.push('紅惡靈逆襲（4%＋每強化1%，造成水魔傷並吸取10%HP）');   // 👹 隱藏的魔族武器
+        if (d.blueSpecter)          _eff.push('藍惡靈奪魔（4%＋每強化1%，恢復3D6 MP）');   // 👹 隱藏的魔族武器
+        if (d.rapidfire)            _eff.push('連射 ' + d.rapidfire + '%（追加1～3箭，每箭30%傷害）');
+        if (d.block)                _eff.push('格檔 ' + d.block + '%（重擊時依此機率減半傷害；一般攻擊為上述機率的30%）');
+        if (d.immStone)             _eff.push('免疫石化');
+        if (d.immPoison)            _eff.push('免疫中毒');
+        if (d.unique)               _eff.push('唯一（最多裝備1個）');
+        if (d.eff === 'magicstrike') _eff.push('魔擊（攻擊時依力量觸發必中重擊）');
+        if (d.eff === 'magicburst') _eff.push('魔爆（傷害魔法時依智力觸發，追加該次總傷害30%的無屬性傷害）');   // 🔧 神官魔杖
+        if (d.meleeHitSpell)        _eff.push('命中施法（攻擊命中時施放' + (d.meleeHitSpell.skn || '附加法術') + '）');
+        if (d.spellProc) {
+            let _spellRate = (d.procRateBase || 1) + (d.procRatePerEn || 0) * capWpnEn(item.en || 0);
+            _eff.push(`攻擊施法 ${_spellRate}%（觸發${d.spellProc.skn || '附加法術'}）`);
+        }
+        if (d.procSkill) {
+            let _procName = (DB.skills[d.procSkill] && DB.skills[d.procSkill].n) || '技能';
+            let _procRate = (d.procRateBase || 1) + (d.procRatePerEn || 0) * capWpnEn(item.en || 0);
+            _eff.push(`${d.procOnHit ? '命中施法' : '攻擊施法'} ${_procRate}%（觸發${_procName}）`);
+        }
+        if (d.procSkill2 && d.procSkill2.skId) _eff.push(`攻擊施法 ${d.procSkill2.rate || 5}%（觸發${(DB.skills[d.procSkill2.skId] && DB.skills[d.procSkill2.skId].n) || '技能'}）`);   // 🌅 九尾妖狐的怒火：第二觸發槽
+        if (d.procPoisonPct) _eff.push(`附毒（命中附加每秒該次傷害${d.procPoisonPct.pct || 50}%的中毒，最多1層，持續${d.procPoisonPct.dur || 6}秒）`);   // 🌅 毒鵺的黑尾
+        if (d.iaiCrit) _eff.push('居合必定爆擊');   // 🌅 鐮鼬的尾刃
+        if (d.heavyBonusDmg) _eff.push(`重擊時額外傷害+${d.heavyBonusDmg}`);   // 🌅 牛鬼的斷角
+        if (d.procStatusSkill) {
+            let _statusName = (DB.skills[d.procStatusSkill.skId] && DB.skills[d.procStatusSkill.skId].n) || '異常狀態';
+            _eff.push(`異常攻擊 ${d.procStatusSkill.rate || 0}%（命中時造成${_statusName}）`);
+        }
+        if (d.procStatus && d.procStatus.kind) _eff.push(`異常攻擊 ${d.procStatus.rate || 0}%（攻擊時使目標${(typeof STATUS_NAME !== 'undefined' && STATUS_NAME[d.procStatus.kind]) || '異常狀態'} ${d.procStatus.dur || 6} 秒）`);   // 🕸️ v3.7.75 深紅之弩：束縛
+        if (d.procPoison)            _eff.push(`中毒 ${d.procPoison.rate || 0}%（命中時使目標中毒${d.procPoison.dur ? `，持續${d.procPoison.dur}秒` : ''}）`);
+        else if (d.procPoisonRate)   _eff.push(`中毒 ${d.procPoisonRate}%（命中時使目標中毒）`);
+        if (d.procInstakill) {
+            let _ik = d.procInstakill, _ikCond = _ik.tag === 'undead' ? '不死系' : (_ik.hpBelow ? `HP低於${Math.round(_ik.hpBelow * 100)}%` : '非首領');
+            _eff.push(`即死 ${Math.round((_ik.p || 0) * 100)}%（命中${_ikCond}目標時發動）`);
+        }
+        if (d.procBonusDmg)          _eff.push(`額外傷害 ${d.procBonusDmg.rate}%（攻擊時追加${d.procBonusDmg.dmg}點傷害）`);
+        if (d.procDmgReduce)         _eff.push(`傷害減免 ${d.procDmgReduce.rate}%（受傷時減少${d.procDmgReduce.amount}點傷害）`);
+        if (d.allLures)              _eff.push('視為持有全部誘捕狀態');
+        if (d.eleBonusDmg) {
+            let _bonusEleName = { fire:'火', water:'水', wind:'風', earth:'地' }[d.eleBonusDmg.ele] || '特定屬性';
+            _eff.push(`屬性專攻（攻擊${_bonusEleName}屬性敵人時額外傷害+${d.eleBonusDmg.dmg || d.eleBonusDmg.add || 0}）`);
+        }
+        if (d.counterAllEle)         _eff.push('一般攻擊剋制所有屬性敵人');
+        if (d.counterEles)           _eff.push(`一般攻擊剋制${d.counterEles.map(e => ({ earth: '地', wind: '風', fire: '火', water: '水' }[e] || e)).join('、')}屬性敵人（×1.4）`);
+        if (d.procBurn)              _eff.push(`灼燒${d.procBurn.rate ? ` ${d.procBurn.rate}%` : ''}（命中後每秒${d.procBurn.dmg || 10}點火傷，持續${d.procBurn.dur || 6}秒）`);
+        if (d.onHitEleDmg) {
+            let _eleName = { fire:'火焰', water:'寒冰', wind:'風雷', earth:'大地', none:'無屬性' }[d.onHitEleDmg.ele] || '屬性';
+            _eff.push(`${_eleName}附傷${d.onHitEleDmg.rate ? ` ${d.onHitEleDmg.rate}%` : ''}（命中時追加${d.onHitEleDmg.dmg}點傷害）`);
+        }
+        if (d.freeChill)             _eff.push('施放寒冰氣息不消耗魔力');
+        if (d.windHelm)              _eff.push('施放加速術／強力加速術不消耗魔力（裝備或放在背包皆有效）');   // 🌀 v3.5.87 風之頭盔：實作在 js/08 playerHasWindHelm（背包持有即生效），說明補上實際效果
+        if (d.noConsume && d.isArrow) _eff.push('箭矢不會消耗');
+        if (d.oneHand && d.isBow)    _eff.push('可單手持握');
+        if (d.ele && d.ele !== 'none') {
+            let _wpnEleName = { fire:'火', water:'水', wind:'風', earth:'地' }[d.ele] || d.ele;
+            _eff.push('一般攻擊化為' + _wpnEleName + '屬性');
+        }
+        if (d.skillDmgMult) {
+            let _skillNames = Object.keys(d.skillDmgMult).map(skId => `${(DB.skills[skId] && DB.skills[skId].n) || skId}×${d.skillDmgMult[skId]}`);
+            if (_skillNames.length) _eff.push('技能增幅（' + _skillNames.join('、') + '）');
+        }
+        if (d.autoCastMpMult && d.autoCastMpMult > 1) _eff.push(`自動施法代價（MP消耗×${d.autoCastMpMult}）`);
+        if (d.autoCastDmgMult && d.autoCastDmgMult > 1) _eff.push(`自動施法增幅（傷害×${d.autoCastDmgMult}）`);
+        if (d.silencedBonusDmg)      _eff.push(`沉默專攻（攻擊沉默目標額外傷害+${d.silencedBonusDmg}）`);
+        if (d.poisonedBonusDmg)      _eff.push(`中毒專攻（攻擊中毒目標額外傷害+${d.poisonedBonusDmg}）`);
+        if (d.slowedBonusDmg)        _eff.push(`緩速專攻（攻擊緩速目標額外傷害+${d.slowedBonusDmg}）`);
+        if (d.immParalyzeBonusDmg)   _eff.push(`強韌專攻（攻擊免疫麻痺目標額外傷害+${d.immParalyzeBonusDmg}）`);
+        if (typeof weaponHasBleed === 'function' && weaponHasBleed(item.id)) _eff.push('出血（命中疊加8秒流血，每秒造成該次傷害20%）');
+        if (typeof getWeaponTags === 'function' && getWeaponTags(item.id).includes('單手劍')) _eff.push('反擊（受一般攻擊命中時50%反擊；格檔時必定）');
+        if (typeof getWeaponTags === 'function' && getWeaponTags(item.id).includes('武士刀')) _eff.push('居合（無盾且迴避／敵人未命中時50%反擊）');
+        if (typeof getWeaponTags === 'function' && getWeaponTags(item.id).includes('單手鈍器')) _eff.push('鈍擊（命中時延遲目標攻擊1秒）');
+        if (typeof getWeaponTags === 'function' && getWeaponTags(item.id).includes('雙刀')) _eff.push('雙刃（有機率造成雙倍傷害）');
+        if (typeof getWeaponTags === 'function' && getWeaponTags(item.id).includes('鋼爪')) _eff.push('重擊 +5%（重擊取武器最大傷害）');
+        if (typeof WAND_LIGHTARROW_IDS !== 'undefined' && WAND_LIGHTARROW_IDS.includes(item.id)) _eff.push('共鳴（攻擊時依智力免費施放光箭）');
+        _eff.push(...weaponPurposeLabels(d));
+        if (d.relic) _eff.push(...relicPurposeLabels(d));
+        _eff = dedupeGeneratedTooltipEffects([...new Set(_eff)], d, { main:true });
+        _eff = filterClassicEffLabels(_eff, d);   // 🎮 經典模式：移除已停用特效字樣（classicOk 物品不過濾）
+    return _eff;
+}
+
 function buildItemDescHTML(item) {
     let d = DB.items[item.id];
     if(!d) return '';
@@ -1050,96 +1146,7 @@ function buildItemDescHTML(item) {
 
     // 👇 裝備特效標籤：顯示「名稱＋精簡機制說明」，讓玩家不必只靠特效名稱猜用途。涵蓋 武器/防具/飾品。
     if (d.type === 'wpn' || d.type === 'arm' || d.type === 'acc') {
-        let _eff = [];
-        if (d.unBonus) _eff.push('不死／狼人加成（額外造成1D20傷害）');   // 🧹 v3.5.87 #128：unDice / sp:'elf' 全 DB.items 零定義（恆假死運算元）→ 只留 unBonus
-        if (d.eff === 'pierce')     _eff.push('穿透 ' + (d.pierceChance !== undefined ? d.pierceChance : 100) + '%（命中後追加攻擊另一名敵人）');
-        if (d.alsoPierce)           _eff.push('穿透 ' + (d.pierceChance !== undefined ? d.pierceChance : 100) + '%（命中後追加攻擊另一名敵人）');   // 主特效槽被占用時仍可附帶「穿透」；與無視硬皮的「貫穿」不同
-        if (d.eff === 'moonburst')  _eff.push('月光爆裂（命中時8%造成1D30＋強化×2風屬性魔法傷害·受魔法傷害公式與MR影響）');
-        if (d.eff === 'dice_death') _eff.push('即死（命中時1%使非首領目標死亡）');
-        if (d.eff === 'haste')      _eff.push('自我加速（裝備時常駐加速）');
-        if (d.eff === 'crush')      _eff.push('重擊（提高重擊機率，重擊取武器最大傷害）');
-        if (d.eff === 'cleave')     _eff.push('切割（重擊時攻速+20%，持續2秒）');
-        if (d.eff === 'combo')      _eff.push('雙擊 ' + (d.comboRate || 0) + '%（追加一次完整一般攻擊）');
-        if (d.weakExpose)           _eff.push('弱點曝光（命中12%疊加，供屠宰者增傷）');   // 🐉 鎖鏈劍：一般攻擊命中12%附加（最多3層）
-        if (d.vampPct)              _eff.push('吸取HP ' + Math.round(d.vampPct * 100) + '%（依本次傷害恢復）');
-        if (d.ignHardSkin)          _eff.push('貫穿（無視硬皮額外減傷）');   // 🗡️ 暗黑十字弓：攻擊無視硬皮額外減傷
-        if (d.redSpecter)           _eff.push('紅惡靈逆襲（4%＋每強化1%，造成水魔傷並吸取10%HP）');   // 👹 隱藏的魔族武器
-        if (d.blueSpecter)          _eff.push('藍惡靈奪魔（4%＋每強化1%，恢復3D6 MP）');   // 👹 隱藏的魔族武器
-        if (d.rapidfire)            _eff.push('連射 ' + d.rapidfire + '%（追加1～3箭，每箭30%傷害）');
-        if (d.block)                _eff.push('格檔 ' + d.block + '%（重擊時依此機率減半傷害；一般攻擊為上述機率的30%）');
-        if (d.immStone)             _eff.push('免疫石化');
-        if (d.immPoison)            _eff.push('免疫中毒');
-        if (d.unique)               _eff.push('唯一（最多裝備1個）');
-        if (d.eff === 'magicstrike') _eff.push('魔擊（攻擊時依力量觸發必中重擊）');
-        if (d.eff === 'magicburst') _eff.push('魔爆（傷害魔法時依智力觸發，追加該次總傷害30%的無屬性傷害）');   // 🔧 神官魔杖
-        if (d.meleeHitSpell)        _eff.push('命中施法（攻擊命中時施放' + (d.meleeHitSpell.skn || '附加法術') + '）');
-        if (d.spellProc) {
-            let _spellRate = (d.procRateBase || 1) + (d.procRatePerEn || 0) * capWpnEn(item.en || 0);
-            _eff.push(`攻擊施法 ${_spellRate}%（觸發${d.spellProc.skn || '附加法術'}）`);
-        }
-        if (d.procSkill) {
-            let _procName = (DB.skills[d.procSkill] && DB.skills[d.procSkill].n) || '技能';
-            let _procRate = (d.procRateBase || 1) + (d.procRatePerEn || 0) * capWpnEn(item.en || 0);
-            _eff.push(`${d.procOnHit ? '命中施法' : '攻擊施法'} ${_procRate}%（觸發${_procName}）`);
-        }
-        if (d.procSkill2 && d.procSkill2.skId) _eff.push(`攻擊施法 ${d.procSkill2.rate || 5}%（觸發${(DB.skills[d.procSkill2.skId] && DB.skills[d.procSkill2.skId].n) || '技能'}）`);   // 🌅 九尾妖狐的怒火：第二觸發槽
-        if (d.procPoisonPct) _eff.push(`附毒（命中附加每秒該次傷害${d.procPoisonPct.pct || 50}%的中毒，最多1層，持續${d.procPoisonPct.dur || 6}秒）`);   // 🌅 毒鵺的黑尾
-        if (d.iaiCrit) _eff.push('居合必定爆擊');   // 🌅 鐮鼬的尾刃
-        if (d.heavyBonusDmg) _eff.push(`重擊時額外傷害+${d.heavyBonusDmg}`);   // 🌅 牛鬼的斷角
-        if (d.procStatusSkill) {
-            let _statusName = (DB.skills[d.procStatusSkill.skId] && DB.skills[d.procStatusSkill.skId].n) || '異常狀態';
-            _eff.push(`異常攻擊 ${d.procStatusSkill.rate || 0}%（命中時造成${_statusName}）`);
-        }
-        if (d.procStatus && d.procStatus.kind) _eff.push(`異常攻擊 ${d.procStatus.rate || 0}%（攻擊時使目標${(typeof STATUS_NAME !== 'undefined' && STATUS_NAME[d.procStatus.kind]) || '異常狀態'} ${d.procStatus.dur || 6} 秒）`);   // 🕸️ v3.7.75 深紅之弩：束縛
-        if (d.procPoison)            _eff.push(`中毒 ${d.procPoison.rate || 0}%（命中時使目標中毒${d.procPoison.dur ? `，持續${d.procPoison.dur}秒` : ''}）`);
-        else if (d.procPoisonRate)   _eff.push(`中毒 ${d.procPoisonRate}%（命中時使目標中毒）`);
-        if (d.procInstakill) {
-            let _ik = d.procInstakill, _ikCond = _ik.tag === 'undead' ? '不死系' : (_ik.hpBelow ? `HP低於${Math.round(_ik.hpBelow * 100)}%` : '非首領');
-            _eff.push(`即死 ${Math.round((_ik.p || 0) * 100)}%（命中${_ikCond}目標時發動）`);
-        }
-        if (d.procBonusDmg)          _eff.push(`額外傷害 ${d.procBonusDmg.rate}%（攻擊時追加${d.procBonusDmg.dmg}點傷害）`);
-        if (d.procDmgReduce)         _eff.push(`傷害減免 ${d.procDmgReduce.rate}%（受傷時減少${d.procDmgReduce.amount}點傷害）`);
-        if (d.allLures)              _eff.push('視為持有全部誘捕狀態');
-        if (d.eleBonusDmg) {
-            let _bonusEleName = { fire:'火', water:'水', wind:'風', earth:'地' }[d.eleBonusDmg.ele] || '特定屬性';
-            _eff.push(`屬性專攻（攻擊${_bonusEleName}屬性敵人時額外傷害+${d.eleBonusDmg.dmg || d.eleBonusDmg.add || 0}）`);
-        }
-        if (d.counterAllEle)         _eff.push('一般攻擊剋制所有屬性敵人');
-        if (d.counterEles)           _eff.push(`一般攻擊剋制${d.counterEles.map(e => ({ earth: '地', wind: '風', fire: '火', water: '水' }[e] || e)).join('、')}屬性敵人（×1.4）`);
-        if (d.procBurn)              _eff.push(`灼燒${d.procBurn.rate ? ` ${d.procBurn.rate}%` : ''}（命中後每秒${d.procBurn.dmg || 10}點火傷，持續${d.procBurn.dur || 6}秒）`);
-        if (d.onHitEleDmg) {
-            let _eleName = { fire:'火焰', water:'寒冰', wind:'風雷', earth:'大地', none:'無屬性' }[d.onHitEleDmg.ele] || '屬性';
-            _eff.push(`${_eleName}附傷${d.onHitEleDmg.rate ? ` ${d.onHitEleDmg.rate}%` : ''}（命中時追加${d.onHitEleDmg.dmg}點傷害）`);
-        }
-        if (d.freeChill)             _eff.push('施放寒冰氣息不消耗魔力');
-        if (d.windHelm)              _eff.push('施放加速術／強力加速術不消耗魔力（裝備或放在背包皆有效）');   // 🌀 v3.5.87 風之頭盔：實作在 js/08 playerHasWindHelm（背包持有即生效），說明補上實際效果
-        if (d.noConsume && d.isArrow) _eff.push('箭矢不會消耗');
-        if (d.oneHand && d.isBow)    _eff.push('可單手持握');
-        if (d.ele && d.ele !== 'none') {
-            let _wpnEleName = { fire:'火', water:'水', wind:'風', earth:'地' }[d.ele] || d.ele;
-            _eff.push('一般攻擊化為' + _wpnEleName + '屬性');
-        }
-        if (d.skillDmgMult) {
-            let _skillNames = Object.keys(d.skillDmgMult).map(skId => `${(DB.skills[skId] && DB.skills[skId].n) || skId}×${d.skillDmgMult[skId]}`);
-            if (_skillNames.length) _eff.push('技能增幅（' + _skillNames.join('、') + '）');
-        }
-        if (d.autoCastMpMult && d.autoCastMpMult > 1) _eff.push(`自動施法代價（MP消耗×${d.autoCastMpMult}）`);
-        if (d.autoCastDmgMult && d.autoCastDmgMult > 1) _eff.push(`自動施法增幅（傷害×${d.autoCastDmgMult}）`);
-        if (d.silencedBonusDmg)      _eff.push(`沉默專攻（攻擊沉默目標額外傷害+${d.silencedBonusDmg}）`);
-        if (d.poisonedBonusDmg)      _eff.push(`中毒專攻（攻擊中毒目標額外傷害+${d.poisonedBonusDmg}）`);
-        if (d.slowedBonusDmg)        _eff.push(`緩速專攻（攻擊緩速目標額外傷害+${d.slowedBonusDmg}）`);
-        if (d.immParalyzeBonusDmg)   _eff.push(`強韌專攻（攻擊免疫麻痺目標額外傷害+${d.immParalyzeBonusDmg}）`);
-        if (typeof weaponHasBleed === 'function' && weaponHasBleed(item.id)) _eff.push('出血（命中疊加8秒流血，每秒造成該次傷害20%）');
-        if (typeof getWeaponTags === 'function' && getWeaponTags(item.id).includes('單手劍')) _eff.push('反擊（受一般攻擊命中時50%反擊；格檔時必定）');
-        if (typeof getWeaponTags === 'function' && getWeaponTags(item.id).includes('武士刀')) _eff.push('居合（無盾且迴避／敵人未命中時50%反擊）');
-        if (typeof getWeaponTags === 'function' && getWeaponTags(item.id).includes('單手鈍器')) _eff.push('鈍擊（命中時延遲目標攻擊1秒）');
-        if (typeof getWeaponTags === 'function' && getWeaponTags(item.id).includes('雙刀')) _eff.push('雙刃（有機率造成雙倍傷害）');
-        if (typeof getWeaponTags === 'function' && getWeaponTags(item.id).includes('鋼爪')) _eff.push('重擊 +5%（重擊取武器最大傷害）');
-        if (typeof WAND_LIGHTARROW_IDS !== 'undefined' && WAND_LIGHTARROW_IDS.includes(item.id)) _eff.push('共鳴（攻擊時依智力免費施放光箭）');
-        _eff.push(...weaponPurposeLabels(d));
-        if (d.relic) _eff.push(...relicPurposeLabels(d));
-        _eff = dedupeGeneratedTooltipEffects([...new Set(_eff)], d, { main:true });
-        _eff = filterClassicEffLabels(_eff, d);   // 🎮 經典模式：移除已停用特效字樣（classicOk 物品不過濾）
+        const _eff = itemEffectLabels(item);
         if (_eff.length) desc += `<br><span class="text-rose-300 font-bold">特效：${_eff.join(' / ')}</span>`;
     }
     // 👆
