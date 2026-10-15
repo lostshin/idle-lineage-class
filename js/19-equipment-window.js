@@ -42,12 +42,12 @@
     ];
 
     const EQUIPMENT_BACKDROP_URL = 'assets/ui/party-equipment-backdrop-v2-4x3.png';
-    // Largest socket that keeps the tight centre column inside the artwork. Narrow columns keep this ratio
-    // (smaller sockets, never broken artwork); height-limited fits stop shrinking once sockets reach 50px.
-    const EQUIPMENT_SOCKET_RATIO = .135, EQUIPMENT_SOCKET_MIN = 50;
+    // Compact sockets matching the approved reference; the tight centre column may end just below the artwork.
+    // Narrow columns keep this ratio; height-limited fits stop shrinking once sockets reach 50px.
+    const EQUIPMENT_SOCKET_RATIO = .16, EQUIPMENT_SOCKET_GAP = .015, EQUIPMENT_SOCKET_MIN = 50;
     function equipmentLayout(width, pageIndex) {
         // Sockets stay proportional to the artwork so narrow canvases shrink instead of overlapping.
-        const scale = getUiScale(), size = width * EQUIPMENT_SOCKET_RATIO, gap = 1 / scale;
+        const scale = getUiScale(), size = width * EQUIPMENT_SOCKET_RATIO, gap = width * EQUIPMENT_SOCKET_GAP;
         const spare = Math.max(0, width - size * 3), edge = Math.min(gap, spare / 4);
         const gapX = Math.min(gap, Math.max(0, (spare - edge * 2) / 2)), gapY = gap;
         const artHeight = width * 4 / 3, slots = [], bottoms = [0, 0, 0];

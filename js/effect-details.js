@@ -512,7 +512,7 @@ function abilitySourceHtml(details,actor,kind,key,keys,seconds=false) {
 function effectEquipmentDetailsHtml(actor,kind,item,slot) {
     const snapshot=effectDetailsSnapshot(actor,kind),without=effectPreview(actor,kind,player,2,copy=>delete copy.eq[slot]).stats;
     const own=effectStatsLines(effectDelta(snapshot.stages[2].total,without)),d=DB.items[item.id];
-    const set=snapshot.entries.filter(e=>e.id==='set:'+d?.set||e.id==='remains:'+item.seteff?.slice(0,2));
+    const set=snapshot.entries.filter(e=>e.id==='set:'+d?.set||item.seteff&&e.id==='remains:'+item.seteff.slice(0,2));   // seteff is false on ordinary items
     const conditions=effectItemConditions(item,actor,false,kind);
     return '<div data-equipment-effects><strong>自身加成</strong><p>'+partyEscape(own.join('、')||'無固定能力加值')+'</p><strong>套裝效果</strong><p>'+partyEscape(set.map(e=>e.name+'：'+e.lines.join('、')).join('\n')||'尚未達套裝門檻或無套裝')+'</p><strong>條件／觸發特效</strong><p>'+partyEscape(conditions.join('\n')||'無額外條件特效')+'</p><p>自身加成包含強化、祝福／詛咒、遠古、屬性與願望；套裝及條件分列。乘算、取整與互斥依原生公式。</p></div>';
 }

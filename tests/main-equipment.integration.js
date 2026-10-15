@@ -32,7 +32,7 @@ function check(name,fn){try{if(fn()!==true)throw Error('check returned false');r
 check('both pages retain slot counts, square defaults and nonoverlapping coordinates',()=>{
     for(const [id,count]of [['equipment-window-prev',19],['equipment-window-next',9]]){
         panel.clientWidth=460;panel.clientHeight=700;ctx.setEquipmentPanelEmbedded(true);ids[id].onclick();
-        const ss=slots();if(ss.length!==count||ss.some(s=>Math.abs(parseFloat(s.style.width)-parseFloat(frame.values.width)*.135)>.01||Math.abs(parseFloat(s.style.width)-parseFloat(s.style.height))>.01||!s.children.some(c=>c.dataset.equipmentDefault)))return false;
+        const ss=slots();if(ss.length!==count||ss.some(s=>Math.abs(parseFloat(s.style.width)-parseFloat(frame.values.width)*.16)>.01||Math.abs(parseFloat(s.style.width)-parseFloat(s.style.height))>.01||!s.children.some(c=>c.dataset.equipmentDefault)))return false;
         const rects=ss.map(s=>{const w=parseFloat(s.style.width),h=parseFloat(s.style.height);return {x:parseFloat(s.style.left)-w/2,y:parseFloat(s.style.top)-h/2,w,h};});
         if(!rects.every((a,i)=>a.x>=0&&a.y>=0&&a.x+a.w<=460&&a.y+a.h<=parseFloat(frame.values.height)&&rects.slice(i+1).every(b=>Math.min(a.x+a.w,b.x+b.w)-Math.max(a.x,b.x)<=0||Math.min(a.y+a.h,b.y+b.h)-Math.max(a.y,b.y)<=0)))return false;
     }return true;
@@ -40,7 +40,7 @@ check('both pages retain slot counts, square defaults and nonoverlapping coordin
 check('native fit scales the artwork by width and height with proportional sockets',()=>{
     for(const [w,h]of [[300,700],[460,700],[300,320],[460,320]]){
         panel.clientWidth=w;panel.clientHeight=h;ctx.setEquipmentPanelEmbedded(true);
-        const width=parseFloat(frame.values.width);if(width<=0||width>w+.01||(parseFloat(frame.values.height)>h+.01&&width>50/.8/.135+.01)||(h>=700&&Math.abs(width-w)>.01)||slots().some(s=>Math.abs(parseFloat(s.style.width)-width*.135)>.01))return false;
+        const width=parseFloat(frame.values.width);if(width<=0||width>w+.01||(parseFloat(frame.values.height)>h+.01&&width>50/.8/.16+.01)||(h>=700&&Math.abs(width-w)>.01)||slots().some(s=>Math.abs(parseFloat(s.style.width)-width*.16)>.01))return false;
         for(let i=0;i<20;i++)ctx.setEquipmentPanelEmbedded(true);
         if(parseFloat(frame.values.width)!==width)return false;
     }return true;
@@ -63,7 +63,7 @@ check('rendering preserves actor state, native weight and enhancement badges',()
 });
 check('short panels shrink the artwork to fit, then keep 50px sockets and scroll',()=>{
     panel.clientWidth=900;panel.clientHeight=700;ctx.setEquipmentPanelEmbedded(true);const fitted=parseFloat(frame.values.width);
-    const shrinks=fitted<900&&parseFloat(frame.values.height)<=700.01&&slots().every(s=>Math.abs(parseFloat(s.style.width)-fitted*.135)<=.01);
+    const shrinks=fitted<900&&parseFloat(frame.values.height)<=700.01&&slots().every(s=>Math.abs(parseFloat(s.style.width)-fitted*.16)<=.01);
     panel.clientWidth=600;panel.clientHeight=400;ctx.setEquipmentPanelEmbedded(true);
     return !ids['equipment-window'].children.some(n=>n.id==='equipment-stat-contributions')&&shrinks&&parseFloat(frame.values.height)>400&&slots().every(s=>parseFloat(s.style.width)*.8>=49.99);
 });

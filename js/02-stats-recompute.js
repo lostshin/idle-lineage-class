@@ -788,47 +788,7 @@ function calcStats() {   // 🔧 架構#4：對外介面不變（重算 + UI 刷
     recomputeStats();
     applyElfBorder();
     updateUI();
-    applyDollCursor();   // 🪆 魔法娃娃：依 eq.doll 更新滑鼠游標（裝/卸/載入都會經過 calcStats）
 }
-// 🪆 娃娃游標點擊熱點光點：在滑鼠座標(＝cursor hotspot 4,4，點擊實際發生處)顯示淡淡圓點光；顏色＝娃娃名稱顏色。
-let _dollGlow = null, _dollGlowColorCache = {};
-function _dollNameColor(cls) {   // Tailwind 文字色 class → 實際 rgb（快取；供 currentColor 用）
-    cls = cls || 'text-slate-200';
-    if (_dollGlowColorCache[cls]) return _dollGlowColorCache[cls];
-    let e = document.createElement('span'); e.className = cls; e.style.cssText = 'position:absolute;left:-9999px;top:-9999px;opacity:0;pointer-events:none;';
-    document.body.appendChild(e); let c = getComputedStyle(e).color || 'rgb(226,232,240)'; document.body.removeChild(e);
-    _dollGlowColorCache[cls] = c; return c;
-}
-function _ensureDollGlow() {   // 單例：建立光點 div＋掛 mousemove/mouseleave（只掛一次）
-    if (_dollGlow || typeof document === 'undefined' || !document.body) return _dollGlow;
-    _dollGlow = document.createElement('div'); _dollGlow.id = 'doll-cursor-glow'; _dollGlow.classList.add('offscreen');   // 起始隱藏，待首次移動才現身（不在 0,0 閃一下）
-    document.body.appendChild(_dollGlow);
-    document.addEventListener('mousemove', function (ev) {
-        if (!_dollGlow.classList.contains('active')) return;   // 未裝娃娃：零成本略過
-        _dollGlow.style.left = ev.clientX + 'px'; _dollGlow.style.top = ev.clientY + 'px';
-        if (_dollGlow.classList.contains('offscreen')) _dollGlow.classList.remove('offscreen');
-    }, { passive: true });
-    document.addEventListener('mouseleave', function () { if (_dollGlow) _dollGlow.classList.add('offscreen'); }, { passive: true });   // 滑鼠離開視窗：隱藏，避免光點卡在邊緣
-    return _dollGlow;
-}
-// 🪆 魔法娃娃：裝備 slot:doll 時把滑鼠游標換成 assets/doll/<物品名稱>.png（可用 d.dollImg 自訂圖名）；未裝則回預設。游標圖需 ≤32×32 否則瀏覽器忽略→fallback auto
-function applyDollCursor() {
-    if (typeof document === 'undefined' || !document.body) return;
-    let e = player && player.eq && player.eq.doll;
-    let ed = e ? DB.items[e.id] : null;
-    if (ed) {
-        let img = ed.dollImg || ed.n;
-        document.body.style.cursor = "url('assets/doll/" + img + ".png') 4 4, auto";
-        document.body.classList.add('has-doll-cursor');     // 🪆 連可點擊處也套娃娃游標（見 css：body.has-doll-cursor *）
-        let glow = _ensureDollGlow();                        // 🪆 點擊熱點光點：顏色＝娃娃名稱顏色（currentColor）
-        if (glow) { glow.style.color = _dollNameColor(ed.c); glow.classList.add('active'); }
-    } else {
-        document.body.style.cursor = '';   // 未裝魔法娃娃 → 回預設游標
-        document.body.classList.remove('has-doll-cursor');  // 卸下娃娃：必須移除 class，否則全頁強制 inherit 'auto' 會失去手指提示
-        if (_dollGlow) _dollGlow.classList.remove('active');   // 🪆 卸下娃娃：關閉光點
-    }
-}
-
 // ===== 變形卷軸：變身資料（依規格文件） =====
 // 欄位：md/mh=近距離傷害/命中, rd/rh=遠距離傷害/命中, ed/eh=額外傷害/命中,
 //       mgd=魔法傷害, sp=額外魔法點數, mpr=MP自然恢復量, ac=AC(負值代表AC-x),

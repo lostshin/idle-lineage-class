@@ -325,7 +325,7 @@
 /* A: compact skill cards, with native Lineage frames and aligned controls. */
 .ally-skill-card { display:flex;flex-direction:column;gap:5px;min-width:0;padding:5px;border:5px solid transparent;border-image:url('../assets/ui/能力.png') 12 stretch;background:#19171a;container-type:inline-size;font-size:11px;line-height:1.35; }
 .ally-skill-card .party-member-heading { gap:4px;padding-bottom:4px;border-bottom:1px solid #655139; }
-.ally-skill-card .party-member-name { flex:1;color:#f6dc87;font-size:14px;font-weight:bold; }
+.ally-skill-card .party-member-name { flex:1;color:#f6dc87;font-size:14px;font-weight:bold;background:none;border:0;white-space:nowrap; }
 .ally-skill-card .party-class,.ally-skill-level { flex:none;color:#b9afa0;font-size:11px; }
 .ally-skill-controls,.ally-skill-rows { display:grid;gap:4px;min-width:0; }
 .ally-skill-row { display:grid;grid-template-columns:4em minmax(0,1fr) 8em;gap:4px;align-items:center;min-width:0;color:#83d7e0; }

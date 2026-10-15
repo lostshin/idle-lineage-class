@@ -1210,7 +1210,7 @@ const DB = {
         "pet_arm_cross":    { n: "寵物十字盔甲",   type: "arm", slot: "petarm", req: "all", safe: 0, maxEn: 5, p: 25000, c: "text-white", petAc: 13,                                    d: "胸口鑄有十字徽記的重護甲。", gachaWeight: 0 },
         "pet_arm_chain":    { n: "寵物鏈甲",       type: "arm", slot: "petarm", req: "all", safe: 0, maxEn: 5, p: 45000, c: "text-white", petAc: 20,                                    d: "細密鎖環編成的全身鏈甲。", gachaWeight: 0 },
         "pet_arm_mithril":  { n: "寵物米索莉盔甲", type: "arm", slot: "petarm", req: "all", safe: 0, maxEn: 5, p: 75000, c: "text-white", petAc: 12, petMr: 10, petInt: 1, petWis: 1, d: "米索莉鍛造的名匠護甲，輕盈而蘊含魔力。", gachaWeight: 0 },
-        // 🪆 魔法娃娃（slot:doll·全職業·裝備後滑鼠游標變成 assets/doll/<物品名稱>.png；亦帶屬性加成）。dollTier=階級(1~6)；袋子開出/合成取得（價格0·無法強化·不可賣）。
+        // 🪆 魔法娃娃（slot:doll·全職業·帶屬性加成；不改變滑鼠游標，assets/doll/ 圖檔目前未使用）。dollTier=階級(1~6)；袋子開出/合成取得（價格0·無法強化·不可賣）。
         // 特殊效果引擎欄位：procBonusDmg{rate,dmg}=攻擊機率額外傷害、procPoisonRate=攻擊機率中毒、procSkill+procRateBase=攻擊機率觸發技能、procDmgReduce{rate,amount}=受傷機率減免、abnormalResist=機率抵抗異常、freezeResist/stunResist=抵抗(100=免疫)、immParalyze/immSlow/immPoison=免疫、expBonus/goldBonus=經驗/金錢%、potionBonus=藥水恢復%、weightCap=負重、er/magicHit/extraMp/mdmg=ER/魔法命中/額外魔點/固定魔傷。
         // ===== 🦴 席琳遺骸（v3.1.68）：套裝效果新載體 =====
         // 8 部位遺骸（視為飾品·noEnhance·不可賦予屬性·潘朵拉權重0·重量0）。每件必附一種席琳詞綴(seteff·由掉落/伊奧/菈克希絲附加)，

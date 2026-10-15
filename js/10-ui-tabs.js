@@ -2694,7 +2694,7 @@ function renderSquadPanel() {
             let skillPct = (a._hpSkillPct != null) ? a._hpSkillPct : ((a._hpSafePct != null) ? a._hpSafePct : 0);
             let mpPct = (a._castMpPct != null) ? a._castMpPct : 0;   // 🆕 v2.6.27 施法MP門檻
             return `<div class="ally-skill-card">
-                <div class="party-member-heading"><span class="party-member-name" title="${partyEscape(a._allyName)}">${partyEscape(a._allyName)}</span>${partyClassBadge(a)}<span class="ally-skill-level">Lv.${a.lv || 1}</span></div>
+                <div class="party-member-heading">${partyNameButton('ally', s, a._allyName, 'party-member-name')}${partyClassBadge(a)}<span class="ally-skill-level">Lv.${a.lv || 1}</span></div>
                 <div class="ally-skill-controls"><div class="ally-skill-rows">
                     <div class="ally-skill-row ally-skill-attack"><span class="ally-skill-label">攻擊技能</span><select aria-label="${partyEscape(a._allyName)}：攻擊技能" onchange="setAllyAtkSkill('${s}', this.value)">${_allySkillOptions(a, 'atk', a._atkSkill || '')}</select><span class="ally-skill-gate" title="MP％ 高於此值才施放攻擊技（0 = 不限）。">MP&gt;<input aria-label="攻擊技能 MP 門檻" type="number" min="0" max="100" value="${mpPct}" onchange="setAllyCastMp('${s}', this.value)">%</span></div>
                     <div class="ally-skill-row ally-skill-heal"><span class="ally-skill-label">治癒魔法</span><select aria-label="${partyEscape(a._allyName)}：治癒魔法" onchange="setAllyHealSkill('${s}', this.value)">${_allySkillOptions(a, 'heal', a._healSkill || '')}</select><span class="ally-skill-gate" title="HP％ 低於此值才施放治癒。">HP&lt;<input aria-label="治癒魔法 HP 門檻" type="number" min="0" max="100" value="${hpPct}" onchange="setAllyHealHp('${s}', this.value)">%</span></div>
@@ -2703,7 +2703,7 @@ function renderSquadPanel() {
                 ${_allyAutoBuffChips(a)}
             </div>`;
         }).join('') + _pets.map(p => `<div class="ally-skill-card" data-pet-skill="${partyEscape(p.uid)}">
-            <div class="party-member-heading"><span class="party-member-name" title="${partyEscape(petDisplayName(p))}">${partyEscape(petDisplayName(p))}</span></div>
+            <div class="party-member-heading">${partyNameButton('pet', p.uid, petDisplayName(p), 'party-member-name')}</div>
             <div class="ally-potion-condition"><span class="ally-potion-label">喝水條件</span><label class="ally-skill-gate" title="HP 低於或等於此％時喝水，0 = 關閉。">HP≤<input aria-label="${partyEscape(petDisplayName(p))}：喝水 HP 門檻" type="number" min="0" max="95" value="${p.potPct || 0}" onchange="petSetPotPct('${p.uid}',this.value);this.value=petsOutList().find(p=>p.uid==='${p.uid}')?.potPct||0">%</label></div>
         </div>`).join('');
         _squadRebuilt = true;

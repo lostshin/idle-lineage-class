@@ -1,4 +1,4 @@
-// Verify proportional (13.5% width) square nonoverlapping sockets on both pages, width-and-height
+// Verify proportional (16% width) square nonoverlapping sockets on both pages, width-and-height
 // fitting that stops shrinking at 50 screen px sockets, and resize stability.
 // Geometry-only native renderer harness; does not replace browser visual QA.
 const fs=require('node:fs'),vm=require('node:vm'),path=require('node:path');
@@ -31,7 +31,7 @@ for(const scale of [.6,.75,.8,1])for(const [width,height]of [[260,900],[300,650]
     const noOverlap=rects.every(rows=>rows.every((r,i)=>rows.slice(i+1).every(b=>Math.min(r.x+r.w,b.x+b.w)-Math.max(r.x,b.x)<=.1||Math.min(r.y+r.h,b.y+b.h)-Math.max(r.y,b.y)<=.1)));
     const fitted=pages.map((slots,page)=>ctx.equipmentView.layout(ctx.equipmentView.fitWidth(width,height,page),page));
     const before=JSON.stringify(layouts);let stable=true;for(let i=0;i<100;i++)stable=stable&&before===JSON.stringify(pages.map((slots,page)=>ctx.equipmentView.layout(width,page)));
-    const checks={originalWidth:layouts.every(l=>l.width===width),proportionalSockets:layouts.every(l=>Math.abs(l.size-l.width*.135)<.01),squareSockets:all.every(r=>Math.abs(r.w-r.h)<.1),allSlotsInside:rects.every((rows,page)=>rows.every(r=>r.x>=0&&r.y>=0&&r.x+r.w<=width+.01&&r.y+r.h<=layouts[page].height-30/scale+.01)),noOverlap,stable,fitsAvailableHeight:fitted.every((l,page)=>l.width<=width+.01&&(l.height<=height+.01||l.width>=Math.min(width,50/scale/.135)-.01)),slotCounts:rects[0].length===19&&rects[1].length===9};
+    const checks={originalWidth:layouts.every(l=>l.width===width),proportionalSockets:layouts.every(l=>Math.abs(l.size-l.width*.16)<.01),squareSockets:all.every(r=>Math.abs(r.w-r.h)<.1),allSlotsInside:rects.every((rows,page)=>rows.every(r=>r.x>=0&&r.y>=0&&r.x+r.w<=width+.01&&r.y+r.h<=layouts[page].height-30/scale+.01)),noOverlap,stable,fitsAvailableHeight:fitted.every((l,page)=>l.width<=width+.01&&(l.height<=height+.01||l.width>=Math.min(width,50/scale/.16)-.01)),slotCounts:rects[0].length===19&&rects[1].length===9};
     reports.push({scale,availableWidth:width,availableHeight:height,layout:layouts.map(l=>({width:l.width,height:l.height,size:l.size})),fitted:fitted.map(l=>({width:l.width,height:l.height,size:l.size})),status:Object.values(checks).every(Boolean)?'PASS':'FAIL',checks});
 }
 const result={method:'Native equipment layout and equipment renderer in synthetic Node VM; geometry only, not browser layout or visual QA',reports};
