@@ -4,7 +4,7 @@ await page.evaluate(()=>{if(!window.__effectData)throw Error('effect-details fix
 await page.cdp('Emulation.setEmulatedMedia',{media:'screen'});
 async function print(name,w,h,selector){
  await page.evaluate(()=>{window.dispatchEvent(new Event('resize'));return new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));});
- await page.mouse.move(0,0);await page.hover(selector);await page.waitForFunction(()=>!document.getElementById('party-ability-tip').hidden||!document.getElementById('effect-tooltip').hidden||[...document.querySelectorAll('.game-tooltip')].some(e=>e.style.display==='block'));
+ await page.mouse.move(0,0);await page.waitForFunction(()=>document.getElementById('party-ability-tip').hidden&&document.getElementById('effect-tooltip').hidden);await page.hover(selector);await page.waitForFunction(()=>!document.getElementById('party-ability-tip').hidden||!document.getElementById('effect-tooltip').hidden||[...document.querySelectorAll('.game-tooltip')].some(e=>e.style.display==='block'));
  await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));
  const result=await page.evaluate(()=>{const tips=[document.getElementById('party-ability-tip'),document.getElementById('effect-tooltip'),...document.querySelectorAll('.game-tooltip')].filter(e=>e&&!e.hidden&&getComputedStyle(e).display!=='none'&&e.getBoundingClientRect().width);return tips.every(e=>{const r=e.getBoundingClientRect();return r.left>=0&&r.top>=0&&r.right<=document.documentElement.clientWidth+1&&r.bottom<=document.documentElement.clientHeight+1;});});
  reports.push({name:name+' tooltip stays within viewport',status:result?'PASS':'FAIL'});

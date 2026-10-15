@@ -256,7 +256,7 @@
 #party-details { min-height:0; max-height:none; overflow:auto; scrollbar-gutter:stable; overscroll-behavior:contain; }
 .party-art-scroll { max-width:100%; overflow:hidden; }
 .party-art-scroll .ability-window-shell { flex:none; }
-#party-ability-tip { position:fixed; z-index:155; padding:10px; color:#f0d59c; background:#17151af5; border:1px solid #a18156; font-size:13px; line-height:1.5; white-space:pre-line; pointer-events:auto; max-width:calc(100vw - 24px); max-height:calc(100dvh - 24px); overflow:auto; }
+#party-ability-tip { position:fixed; z-index:155; padding:10px; color:#f0d59c; background:#17151af5; border:1px solid #a18156; font-size:13px; line-height:1.5; white-space:pre-line; pointer-events:none; max-width:calc(100vw - 24px); max-height:calc(100dvh - 24px); overflow:auto; }
 #party-ability-tip[hidden] { display:none; }
 
 #party-inspector { background:#17161c!important; }

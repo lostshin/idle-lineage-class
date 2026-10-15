@@ -472,19 +472,24 @@ function abilitySourceHtml(details,actor,kind,key,keys,seconds=false) {
 }
 (function(){
     const tip=document.createElement('div');tip.id='party-ability-tip';tip.hidden=true;tip.setAttribute('role','tooltip');document.body.appendChild(tip);
-    let target=null,signature='',closeTimer=null,actorAtOpen=null,roleAtOpen=null;
-    function hide(){clearTimeout(closeTimer);tip.hidden=true;target=null;signature='';}
+    let target=null,signature='',actorAtOpen=null,roleAtOpen=null,pointer=null;
+    function hide(){tip.hidden=true;target=null;signature='';}
+    // Follows the pointer like the equipment tooltip (lower right, flipped at edges); keyboard focus anchors it under the field.
     function place(e){
-        const r=e.getBoundingClientRect(),host=(e.closest('#party-inspector')||e.closest('.ability-window-shell')||e).getBoundingClientRect(),width=document.documentElement.clientWidth,height=document.documentElement.clientHeight;
+        const width=document.documentElement.clientWidth,height=document.documentElement.clientHeight;
         tip.style.maxWidth=screenToUiPx(Math.min(430,width-24));tip.style.maxHeight=screenToUiPx(height-24);
-        const b=tip.getBoundingClientRect(),x=host.right+8+b.width<=width-8?host.right+8:host.left-b.width-8;
-        tip.style.left=screenToUiPx(Math.max(8,Math.min(width-b.width-8,x)));tip.style.top=screenToUiPx(Math.max(8,Math.min(height-b.height-8,r.bottom+8)));
+        tip.style.left=tip.style.top='0px';   // measure at the origin: a fixed box near the right edge is squeezed narrower
+        const b=tip.getBoundingClientRect();let x,y;
+        if(pointer){x=pointer.x+16;y=pointer.y+16;if(x+b.width>width-6)x=pointer.x-16-b.width;if(y+b.height>height-6)y=pointer.y-16-b.height;}
+        else{const r=e.getBoundingClientRect();x=r.left;y=r.bottom+8;}
+        tip.style.left=screenToUiPx(Math.max(4,Math.min(width-b.width-4,x)));tip.style.top=screenToUiPx(Math.max(4,Math.min(height-b.height-4,y)));
     }
     function show(event){
         const e=event.target.closest('#party-inspector [data-ability-field],#tab-stats [data-ability-field],#tab-stats [id^="dt-"],#st-ac,#st-mr');
         const key=e?.dataset.abilityField||e?.id.replace('dt-','').replace('st-',''),keys=ABILITY_STAT_FIELDS[key]||(['ac','mhp','mmp'].includes(key)?[key]:null);
         if(!e||!keys)return;
-        if(event.type)clearTimeout(closeTimer);
+        if(event.type==='focusin'&&!e.matches(':focus-visible'))return;   // mouse focus: the pointer already drives the tip
+        if(event.type)pointer=event.type==='focusin'||event.type==='click'&&!event.detail?null:{x:event.clientX,y:event.clientY};
         let actor=player,kind='player',owner=player;
         if(e.closest('#party-inspector')){const panel=document.getElementById('party-inspector');actor=partyMemberById(panel.dataset.kind,panel.dataset.id);kind=panel.dataset.kind;owner=kind==='merc-summon'?(player.allies||[]).find(a=>String(a._slot)===panel.dataset.id)||player:actor?._necroSkeleton?_necroOwnerByKey(actor._necroOwnerKey)||player:player;if(!actor)return;}
         if(!event.type&&target&&(actorAtOpen!==actor||roleAtOpen!==player)){hide();return;}
@@ -503,8 +508,8 @@ function abilitySourceHtml(details,actor,kind,key,keys,seconds=false) {
     }
     document.addEventListener('click',e=>{hide();show(e);});
     document.addEventListener('focusin',show);document.addEventListener('mouseover',show);
-    document.addEventListener('mouseout',e=>{if(target&&!target.contains(e.relatedTarget)&&!tip.contains(e.relatedTarget))closeTimer=setTimeout(hide,180);});
-    tip.addEventListener('mouseenter',()=>clearTimeout(closeTimer));tip.addEventListener('mouseleave',()=>{closeTimer=setTimeout(hide,180);});
+    document.addEventListener('mousemove',e=>{if(target&&pointer&&target.contains(e.target)){pointer={x:e.clientX,y:e.clientY};place(target);}});
+    document.addEventListener('mouseout',e=>{if(target&&!target.contains(e.relatedTarget))hide();});
     document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!tip.hidden){hide();e.preventDefault();}});
     document.addEventListener('scroll',event=>{if(target&&(event.target===document||event.target.contains?.(target)))hide();},true);setInterval(()=>{if(target){if(!target.isConnected||!target.checkVisibility())hide();else show({target});}},250);
     document.addEventListener('DOMContentLoaded',()=>{for(const [key]of Object.entries(ABILITY_STAT_FIELDS)){const e=document.getElementById('dt-'+key);if(e){e.tabIndex=0;e.setAttribute('role','button');e.setAttribute('aria-label',(EFFECT_STAT_NAMES[key]||e.parentElement.querySelector('span')?.textContent||key)+'：查看加成來源');}}});
