@@ -2027,7 +2027,8 @@ window.onload = () => {
         let x = e.clientX + pad, y = e.clientY + pad;
         if(x + w > window.innerWidth - 6) x = e.clientX - pad - w;
         if(y + h > window.innerHeight - 6) y = e.clientY - pad - h;
-        if(equipment){const r=host.getBoundingClientRect();x=Math.max(8,Math.min(r.right+8,document.documentElement.clientWidth-w-8));y=Math.max(8,Math.min(r.top,document.documentElement.clientHeight-h-8));}
+        // The hoverable equipment tip sits beside the whole canvas so it never covers a socket.
+        if(equipment){const r=host.getBoundingClientRect(),canvas=(host.closest('.party-equipment-frame,#equipment-window-frame')||host).getBoundingClientRect(),width=document.documentElement.clientWidth;x=canvas.right+8+w<=width-8?canvas.right+8:canvas.left-w-8;x=Math.max(8,Math.min(x,width-w-8));y=Math.max(8,Math.min(r.top,document.documentElement.clientHeight-h-8));}
         el.style.left = screenToUiPx(Math.max(4, x));
         el.style.top = screenToUiPx(Math.max(4, y));
     }

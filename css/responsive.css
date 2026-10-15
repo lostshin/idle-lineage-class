@@ -401,9 +401,9 @@
 .party-equipment-page[aria-pressed="true"] { color:#fff0d8;border-color:#c0935d;background:linear-gradient(#6e4932,#3d2b25); }
 .party-equipment-frame { position:relative;width:100%;height:var(--party-equipment-height,320px);min-width:0;box-sizing:border-box;background:#151412; }
 .party-equipment-frame .equipment-window-slots { display:block;inset:auto;left:50%;top:50%;width:var(--party-equipment-canvas-width,240px);height:var(--party-equipment-canvas-height,320px);transform:translate(-50%,-50%);container-type:size; }
-.equipment-window-embedded .equipment-window-bg { object-fit:contain; }
+.equipment-window-embedded .equipment-window-bg { object-fit:contain; object-position:center top; }
 .equipment-window-embedded .equipment-window-slots { container-type:size; }
-.party-equipment-backdrop { position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:center;pointer-events:none; }
+.party-equipment-backdrop { position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:center top;pointer-events:none; }
 .party-paperdoll-figure { position:absolute;left:6%;top:14%;width:88%;height:83%;display:flex;align-items:center;justify-content:center;overflow:hidden;pointer-events:none; }
 .party-paperdoll-figure > img { width:100%;height:100%;object-fit:contain;mix-blend-mode:screen;opacity:.8; }
 .party-paperdoll-figure .party-roster-portrait { flex:none;transform-origin:center; }
@@ -493,3 +493,22 @@
 [data-effect-summary] { color: #dfc38e; }
 :is(#tab-stats,#party-inspector) [data-ability-buff].ability-buff-unfavorable { color: #ef9b91; }
 [data-equipment-effects] { white-space: pre-line; font-size: 12px; line-height: 1.5; }
+
+/* Ability source tooltip: one row per source; base points, panacea and unified extra bonuses. */
+#party-ability-tip { white-space:normal; }
+#party-ability-tip > strong { display:block; margin-bottom:2px; }
+#party-ability-tip > p { margin:0; }
+#party-ability-tip [data-ability-line] { display:grid; grid-template-columns:5.5em 3.5em minmax(0,1fr); column-gap:6px; }
+#party-ability-tip [data-ability-line] b { font-weight:inherit; text-align:right; white-space:nowrap; }
+#party-ability-tip [data-ability-line] em { font-style:normal; overflow-wrap:anywhere; }
+#party-ability-tip [data-ability-line="panacea"] { color:#fb923c; }
+#party-ability-tip :is([data-ability-line="extra"],[data-ability-extra]) { color:#9bd3a5; }
+#party-ability-tip :is([data-ability-line],[data-ability-extra]).ability-buff-unfavorable { color:#ef9b91; }
+#party-ability-tip [data-ability-note] { margin-top:4px; color:#b8ae9a; font-size:12px; }
+:is(#party-bonus-window,#tab-stats) [data-ability-total][data-panacea] { color:#fb923c; }
+
+/* AC and active sets under the equipment canvas: one line per row, full text in the title. */
+.equipment-summary { flex:none; width:100%; min-width:0; box-sizing:border-box; padding:6px 8px; color:#d9d3c5; font-size:12px; line-height:1.5; }
+.equipment-summary > [data-equipment-ac] { display:block; color:#f0d59c; font-size:14px; }
+.equipment-summary p { margin:3px 0 0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.equipment-summary p strong { color:#d9bb7b; }

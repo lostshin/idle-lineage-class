@@ -384,7 +384,7 @@ function fitPartyAbilityValues() {
 }
 const ABILITY_STAT_FIELDS = {str:['str'],dex:['dex'],con:['con'],int:['int'],wis:['wis'],cha:['cha'],mdmg:['meleeDmg','extraDmg'],mhit:['meleeHit','extraHit'],
         'mcrit-p':['meleeCrit'],mcritdmg:['meleeCritDmg'],rdmg:['rangedDmg','extraDmg'],rhit:['rangedHit','extraHit'],rcrit:['rangedCrit'],rcritdmg:['rangedCritDmg'],er:['er'],hpr:['hpR'],potion:['potionBonus'],dr:['dr'],movespeed:['moveSpeedPct'],spd:['aspd'],mgdmg:['magicDmg'],'mhit-mag':['magicHit'],sp:['extraMp'],mcrit:['magicCrit'],mgcritdmg:['magicCritDmg'],mpr:['mpR'],mpreduce:['mpReduce'],mpkill:['mpKillInterval'],mr:['mr'],resnone:['resNone'],resfire:['resFire'],reswater:['resWater'],reswind:['resWind'],researth:['resEarth']};
-function partyBonusHtml(snapshot) {
+function partyBonusHtml(snapshot,actor=null) {
     const shell = document.querySelector('#tab-stats .ability-window-shell').cloneNode(true);
     shell.querySelectorAll('button,.ability-respec-overlay,.ability-hidden-values').forEach(e=>e.remove());
     const fields = {...ABILITY_STAT_FIELDS,spd:snapshot.kind==='pet'?['atkItv']:['aspd']};
@@ -393,7 +393,8 @@ function partyBonusHtml(snapshot) {
         if(!fields[key])continue;
         const suffix=['mcrit-p','mcritdmg','rcrit','rcritdmg','mcrit','mgcritdmg','er','potion','movespeed','mpreduce'].includes(key)?'%':['spd','mpkill'].includes(key)?'s':'';
         e.dataset.abilityLabel=['str','dex','con','int','wis','cha'].includes(key)?EFFECT_STAT_NAMES[key]:(e.parentElement.querySelector('span')?.textContent||key);
-        e.innerHTML=partyAbilityValue(snapshot,fields[key],suffix,key==='spd');e.dataset.abilityField=key;e.tabIndex=0;e.setAttribute('role','button');e.setAttribute('aria-label',e.dataset.abilityLabel+' 總能力 '+e.querySelector('[data-ability-total]').textContent+'，額外加成 '+e.querySelector('[data-ability-buff]').textContent);
+        e.innerHTML=partyAbilityValue(snapshot,fields[key],suffix,key==='spd');e.dataset.abilityField=key;
+        e.querySelector('[data-ability-total]').toggleAttribute('data-panacea',(actor?.panacea?.[key]||0)>0);e.tabIndex=0;e.setAttribute('role','button');e.setAttribute('aria-label',e.dataset.abilityLabel+' 總能力 '+e.querySelector('[data-ability-total]').textContent+'，額外加成 '+e.querySelector('[data-ability-buff]').textContent);
     }
     shell.style.width='100%';shell.style.maxWidth='none';
     shell.querySelector('.ability-buffs').innerHTML=abilityBonusNotesHtml(snapshot);
@@ -418,41 +419,56 @@ function refreshPlayerAbility() {
         const total=key==='spd'?effectNumber(snapshot.total.aspd)+'s':e.innerText;
         e.innerHTML=partyAbilityValue(snapshot,keys,'',key==='spd');
         e.querySelector('[data-ability-total]').textContent=total;
+        e.querySelector('[data-ability-total]').toggleAttribute('data-panacea',(player.panacea?.[key]||0)>0);
     }
     const notes=document.getElementById('player-ability-notes'),html=abilityBonusNotesHtml(snapshot,'player-bonus');
     if(notes._abilityHtml!==html){notes.innerHTML=html;notes._abilityHtml=html;}
     fitPartyAbilityValues();
 }
 
-function abilitySourceDetails(actor,kind,owner=player,includeBuffs=true) {
+function abilitySourceDetails(actor,kind,owner=player) {
     const snapshot=effectDetailsSnapshot(actor,kind,owner),sources=[];
+    // Each source is removed at its own category stage, so a category's sources add up to that category.
+    const add=(stage,name,omit)=>sources.push({stage,name,stats:omit?effectPreview(actor,kind,owner,stage,omit).stats:null});
     if(kind==='player'||kind==='ally'){
-        for(const [key,name]of Object.entries({cardDex:'卡片圖鑑',equipDex:'裝備圖鑑',miscDex:'道具圖鑑'})){
-            if(!Object.keys(player[key]||{}).length)continue;
-            const stats=effectPreview(actor,kind,owner,7,copy=>{copy[key]={};}).stats;
-            sources.push({type:'常駐',name,stats});
-        }
-        if(actor.mastery)sources.push({type:'精通',name:MASTERY_DATA[actor.cls]?.list?.[actor.mastery]?.n||'精通',stats:effectPreview(actor,kind,owner,7,copy=>{copy.mastery=null;}).stats});
-        for(const id of actor.skills||[])if(DB.skills[id]?.type==='passive')sources.push({type:'被動',name:DB.skills[id].n,stats:effectPreview(actor,kind,owner,7,copy=>{copy.skills=copy.skills.filter(s=>s!==id);}).stats});
+        for(const [key,name]of Object.entries({cardDex:'卡片圖鑑',equipDex:'裝備圖鑑',miscDex:'道具圖鑑'}))if(Object.keys(player[key]||{}).length)add(1,name,copy=>{copy[key]={};});
+        if(actor.mastery)add(1,MASTERY_DATA[actor.cls]?.list?.[actor.mastery]?.n||'精通',copy=>{copy.mastery=null;});
+        for(const id of actor.skills||[])if(DB.skills[id]?.type==='passive')add(1,DB.skills[id].n,copy=>{copy.skills=copy.skills.filter(s=>s!==id);});
     }
-    for(const [slot,item]of Object.entries(actor.eq||{}))if(item){
-        const without=effectPreview(actor,kind,owner,7,copy=>{delete copy.eq[slot];}).stats;
-        sources.push({type:'裝備',slot,name:getItemFullName(item).replace(/<[^>]+>/g,''),stats:without});
-    }
-    if(includeBuffs)for(const e of snapshot.entries.filter(e=>e.id.startsWith('buff:')||e.id.startsWith('aura:')||e.id==='clan')){
-        const without=effectPreview(actor,kind,owner,7,(copy,others)=>{if(e.id.startsWith('buff:'))delete copy.buffs[e.id.slice(5)];if(e.id.startsWith('aura:'))for(const a of others)delete a.buffs[e.skill];},e.id==='clan'?null:snapshot.clanBuff).stats;
-        sources.push({type:e.id==='clan'?'血盟 Buff':e.id.startsWith('aura:')?'隊伍 Buff':'Buff',name:e.id==='clan'?snapshot.clanBuff.name+' Lv.'+snapshot.clanBuff.level:e.name,stats:without});
+    for(const [slot,item]of Object.entries(actor.eq||{}))if(item)add(2,getItemFullName({...item,en:0}).replace(/<[^>]+>/g,''),copy=>{delete copy.eq[slot];});
+    for(const e of snapshot.entries){
+        if(e.id.startsWith('set:'))add(3,e.name,copy=>{copy._effectOmitSet=e.id.slice(4);});
+        else if(e.id.startsWith('remains:')||e.id.startsWith('combo:'))add(3,e.name);
+        else if(e.id==='clan')add(4,snapshot.clanBuff.name+' Lv.'+snapshot.clanBuff.level);
+        else if(e.id.startsWith('merc:'))add(5,e.name);
+        else if(e.id.startsWith('buff:')){const id=e.id.slice(5);add(effectBuffStage(id,actor),e.name,copy=>{delete copy.buffs[id];});}
+        else if(e.id.startsWith('aura:'))add(6,e.name,(copy,others)=>{for(const a of others)delete a.buffs[e.skill];});
+        else if(e.id.startsWith('status:')||e.id.startsWith('runtime:'))add(7,e.name);
     }
     return {snapshot,sources};
 }
-function abilitySourceLines(details,keys,seconds=false) {
+function abilitySourceHtml(details,actor,kind,key,keys,seconds=false) {
     const s=details.snapshot,scale=seconds&&s.kind!=='ally'&&s.kind!=='player'?10:1;
-    const value=data=>keys.reduce((n,k)=>n+(Number(data[k])||0),0)/scale;
-    const round=v=>Math.round(v*100)/100;
-    const lines=s.stages.map((stage,i)=>stage.name+'：'+effectNumber(round(value(stage.total))-(i?round(value(s.stages[i-1].total)):0))+(i?'；小計 '+effectNumber(value(stage.total)):''));
-    // Individual removals remain useful for item attribution; they are explicitly non-additive.
-    for(const source of details.sources){const delta=value(s.calculated)-value(source.stats);if(Math.abs(delta)>.0001)lines.push(source.type+'：'+source.name+' '+(delta>0?'+':'')+effectNumber(delta));}
-    return lines;
+    const round=v=>Math.round(v*100)/100,value=data=>round(keys.reduce((n,k)=>n+(Number(data[k])||0),0)/scale);
+    const lower=keys.some(k=>['ac','aspd','atkItv','castSeconds','mpKillInterval'].includes(k)),signed=v=>(v>0?'+':'')+effectNumber(v);
+    const row=(type,label,amount,name='',item=false)=>'<div data-ability-line="'+type+'"'+(item?' data-ability-item':'')+(type==='extra'&&(lower?amount>0:amount<0)?' class="ability-buff-unfavorable"':'')+'><span>'+partyEscape(label)+'</span><b>'+(amount==null?'':type==='extra'||label!=='初始點數'&&label!=='基礎'?signed(amount):effectNumber(amount))+'</b><em>'+partyEscape(name)+'</em></div>';
+    const rows=[],base=value(s.stages[0].total);let mixed=false;
+    if(['str','dex','con','int','wis','cha'].includes(key)&&(kind==='player'||kind==='ally')){
+        const points=actor.base?.[key]||0,alloc=actor.alloc?.[key]||0,panacea=actor.panacea?.[key]||0,rest=round(base-points-alloc-panacea);
+        rows.push(row('base','初始點數',points));
+        if(alloc)rows.push(row('base','升級配點',alloc));
+        if(panacea)rows.push(row('panacea','萬能藥',panacea));
+        if(rest)rows.push(row('base','職業／等級',rest));
+    } else rows.push(row('base','基礎',base));
+    for(let i=1;i<s.stages.length;i++){
+        const delta=round(value(s.stages[i].total)-value(s.stages[i-1].total));if(!delta)continue;
+        const own=details.sources.filter(x=>x.stage===i).map(x=>({name:x.name,delta:x.stats?round(value(s.stages[i].total)-value(x.stats)):null})).filter(x=>x.delta!==0);
+        if(own.length===1){rows.push(row('extra',EFFECT_STAGES[i],delta,own[0].name));continue;}
+        rows.push(row('extra',EFFECT_STAGES[i],delta,own.length>1?'（小計）':''));
+        for(const x of own)rows.push(row('extra','',x.delta,x.name,true));
+        if(own.length>1&&own.every(x=>x.delta!=null)&&round(own.reduce((n,x)=>n+x.delta,0))!==delta)mixed=true;
+    }
+    return rows.join('')+(mixed?'<p data-ability-note>※ 部分效果互斥／乘算，單項不能直接相加</p>':'');
 }
 (function(){
     const tip=document.createElement('div');tip.id='party-ability-tip';tip.hidden=true;tip.setAttribute('role','tooltip');document.body.appendChild(tip);
@@ -476,12 +492,13 @@ function abilitySourceLines(details,keys,seconds=false) {
         const next=effectSignature(actor,kind,owner);
         if(target===e&&signature===next){place(e);return;}
         signature=next;
-        const details=abilitySourceDetails(actor,kind,owner),lines=abilitySourceLines(details,kind==='pet'&&key==='spd'?['atkItv']:keys,key==='spd');
+        const statKeys=kind==='pet'&&key==='spd'?['atkItv']:keys,details=abilitySourceDetails(actor,kind,owner),s=details.snapshot;
         const label=e.dataset.abilityLabel||EFFECT_STAT_NAMES[key]||e.parentElement.querySelector('span')?.textContent||key;
-        const conversion=key==='sp'?'原始智力 SP '+getIntExtraMp(details.snapshot.total.int||0)+' → 有效 '+magicIntSp(details.snapshot.total)+'；其他 SP '+magicItemSp(details.snapshot.total)+'\n':key==='er'?'原始 ER '+details.snapshot.total.rawEr+' → 有效 '+details.snapshot.total.er+'%\n':key.startsWith('res')?'原始抗性 '+effectNumber(details.snapshot.total[keys[0]])+' → 有效 '+effResistPct(details.snapshot.total[keys[0]])+'%（'+(keys[0]==='resNone'?'僅無屬性魔法傷害':'對應屬性傷害')+'）\n':'';
-        const points=['str','dex','con','int','wis','cha'].includes(key)?'初始點數：'+(actor.base?.[key]||0)+'\n升級配點：'+(actor.alloc?.[key]||0)+'\n萬能藥：'+(actor.panacea?.[key]||0)+'\n':'';
-        const header=key==='ac'?partyAbilityNumber(details.snapshot,['ac'])+'（額外 '+partyAbilityNumber(details.snapshot,['ac'],'',false,true)+'）':e.textContent.trim();
-        target=e;tip.textContent=label+'：'+header+'\n'+points+conversion+(lines.join('\n')||'目前沒有改變此數值的 Buff 或裝備。')+'\n分類採相鄰階段差值，可加總對齊總值；狀態修正含原生即時戰鬥資料。個別來源為副本逐項移除比較，包含屬性換算、套裝與互斥，不能直接相加。';tip.hidden=false;
+        const conversion=key==='sp'?'原始智力 SP '+getIntExtraMp(s.total.int||0)+' → 有效 '+magicIntSp(s.total)+'；其他 SP '+magicItemSp(s.total):key==='er'?'原始 ER '+s.total.rawEr+' → 有效 '+s.total.er+'%':key.startsWith('res')?'原始抗性 '+effectNumber(s.total[keys[0]])+' → 有效 '+effResistPct(s.total[keys[0]])+'%（'+(keys[0]==='resNone'?'僅無屬性魔法傷害':'對應屬性傷害')+'）':'';
+        const total=e.querySelector('[data-ability-total]')?.textContent||partyAbilityNumber(s,statKeys,'',key==='spd'),extra=partyAbilityNumber(s,statKeys,'',key==='spd',true);
+        const raw=parseFloat(extra),lower=statKeys.some(k=>['ac','aspd','atkItv','castSeconds','mpKillInterval'].includes(k));
+        const header='<strong>'+partyEscape(label+' '+total)+(raw?'<span data-ability-extra'+((lower?raw>0:raw<0)?' class="ability-buff-unfavorable"':'')+'>（額外 '+partyEscape(extra)+'）</span>':'')+'</strong>';
+        target=e;tip.innerHTML=header+(conversion?'<p>'+partyEscape(conversion)+'</p>':'')+abilitySourceHtml(details,actor,kind,key,statKeys,key==='spd');tip.hidden=false;
         place(e);
     }
     document.addEventListener('click',e=>{hide();show(e);});
@@ -498,6 +515,17 @@ function effectEquipmentDetailsHtml(actor,kind,item,slot) {
     const set=snapshot.entries.filter(e=>e.id==='set:'+d?.set||e.id==='remains:'+item.seteff?.slice(0,2));
     const conditions=effectItemConditions(item,actor,false,kind);
     return '<div data-equipment-effects><strong>自身加成</strong><p>'+partyEscape(own.join('、')||'無固定能力加值')+'</p><strong>套裝效果</strong><p>'+partyEscape(set.map(e=>e.name+'：'+e.lines.join('、')).join('\n')||'尚未達套裝門檻或無套裝')+'</p><strong>條件／觸發特效</strong><p>'+partyEscape(conditions.join('\n')||'無額外條件特效')+'</p><p>自身加成包含強化、祝福／詛咒、遠古、屬性與願望；套裝及條件分列。乘算、取整與互斥依原生公式。</p></div>';
+}
+// AC and active set bonuses shown under the equipment canvas; each row stays on one line with a full title.
+function equipmentSummaryHtml(actor,kind,owner=player) {
+    const snapshot=effectDetailsSnapshot(actor,kind,owner);
+    const rows=snapshot.entries.filter(e=>e.id.startsWith('set:')||e.id.startsWith('remains:')||e.id.startsWith('combo:')).map(e=>{
+        const text=e.lines.filter(line=>!line.startsWith('目前穿著達生效門檻')).join('、');
+        return '<p data-equipment-set="'+partyEscape(e.id)+'" title="'+partyEscape(e.name+'：'+text)+'"><strong>'+partyEscape(e.name)+'</strong>：'+partyEscape(text)+'</p>';
+    });
+    const morph=snapshot.entries.find(e=>e.id==='set-poly');
+    if(morph)rows.push('<p data-equipment-set="set-poly" title="'+partyEscape(morph.name)+'">'+partyEscape(morph.name)+'</p>');
+    return '<strong data-equipment-ac>防禦 AC '+effectNumber(snapshot.total.ac)+'</strong>'+rows.join('');
 }
 function effectPermanentLines(actor) {
     const root=player,copy=effectActorCopy(actor),lines=[];

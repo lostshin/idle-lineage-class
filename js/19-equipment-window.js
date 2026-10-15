@@ -42,10 +42,14 @@
     ];
 
     const EQUIPMENT_BACKDROP_URL = 'assets/ui/party-equipment-backdrop-v2-4x3.png';
+    // Largest socket that keeps the tight centre column inside the artwork. Narrow columns keep this ratio
+    // (smaller sockets, never broken artwork); height-limited fits stop shrinking once sockets reach 50px.
+    const EQUIPMENT_SOCKET_RATIO = .135, EQUIPMENT_SOCKET_MIN = 50;
     function equipmentLayout(width, pageIndex) {
-        const scale = getUiScale(), size = Math.max(50 / scale, width * .12);
-        const spare = Math.max(0, width - size * 3), edge = Math.min(4 / scale, spare / 4);
-        const gapX = Math.min(4 / scale, Math.max(0, (spare - edge * 2) / 2)), gapY = 4 / scale;
+        // Sockets stay proportional to the artwork so narrow canvases shrink instead of overlapping.
+        const scale = getUiScale(), size = width * EQUIPMENT_SOCKET_RATIO, gap = 1 / scale;
+        const spare = Math.max(0, width - size * 3), edge = Math.min(gap, spare / 4);
+        const gapX = Math.min(gap, Math.max(0, (spare - edge * 2) / 2)), gapY = gap;
         const artHeight = width * 4 / 3, slots = [], bottoms = [0, 0, 0];
         for (const pos of [...PAGE_SLOTS[pageIndex]].sort((a, b) => a.y - b.y)) {
             const column = pos.x < 35 ? 0 : pos.x > 65 ? 2 : 1;
@@ -57,6 +61,19 @@
             slots.push({ k: pos.k, alt: pos.alt, x, y });
         }
         return { width, height: Math.max(artHeight, ...bottoms.map(y => y + 36 / scale)), size, slots };
+    }
+    // Widest canvas whose laid-out height fits; the fixed control band makes height non-linear, so bisect.
+    // Below the width where sockets reach 50px the canvas stops shrinking and its container scrolls.
+    function fitEquipmentWidth(width, height, pageIndex) {
+        const high = Math.max(1, width), floor = Math.min(high, EQUIPMENT_SOCKET_MIN / getUiScale() / EQUIPMENT_SOCKET_RATIO);
+        if (equipmentLayout(high, pageIndex).height <= height) return high;
+        let low = floor, top = high;
+        if (equipmentLayout(low, pageIndex).height > height) return low;
+        for (let i = 0; i < 20; i++) {
+            const mid = (low + top) / 2;
+            if (equipmentLayout(mid, pageIndex).height <= height) low = mid; else top = mid;
+        }
+        return low;
     }
     function positionEquipmentSlots(host, width, pageIndex) {
         const layout = equipmentLayout(width, pageIndex);
@@ -93,9 +110,16 @@
     //    那批座標是「上一版角色卡版型」留下的百分比，現行底圖（public/assets/login/EQ UI/<性別><職業>.png）
     //    已改成純裝備格版型、上面沒有任何欄位標籤。這些數值在「能力」分頁本來就有完整顯示；
     //    PVP 的真實指標是性向值 alignmentValue，單一顯示點在 js/10 的 PVP 面板，勿在此重複。
+    function renderSummary() {
+        const summary = el('equipment-window-summary');
+        if (!summary || typeof equipmentSummaryHtml !== 'function') return;
+        const html = equipmentSummaryHtml(player, 'player');
+        if (summary.innerHTML !== html) summary.innerHTML = html;
+    }
     function renderStats() {
         if (typeof player === 'undefined' || !player || !player.d) return;
         const d = player.d;
+        renderSummary();
         const weight = el('equipment-window-weight');
         if (weight) {
             const weightPct = Math.max(0, Math.round(Number(d.weightPct) || 0));
@@ -149,7 +173,7 @@
         }
         return slot;
     }
-    window.equipmentView = { pages: PAGE_SLOTS, templateUrl: equipmentTemplateUrl, createSlot: createEquipmentVisualSlot, backdropUrl: EQUIPMENT_BACKDROP_URL, layout: equipmentLayout, positionSlots: positionEquipmentSlots };
+    window.equipmentView = { pages: PAGE_SLOTS, templateUrl: equipmentTemplateUrl, createSlot: createEquipmentVisualSlot, backdropUrl: EQUIPMENT_BACKDROP_URL, layout: equipmentLayout, positionSlots: positionEquipmentSlots, fitWidth: fitEquipmentWidth };
 
     function renderSlots() {
         if (typeof player === 'undefined' || !player || !player.eq) return;
@@ -204,7 +228,8 @@
             const mobileHeight = Math.ceil(host.clientWidth * 4 / 3) + 36;
             host.style.setProperty('--equipment-panel-height', mobileHeight + 'px');
         }
-        const frameWidth = win.clientWidth || host.clientWidth;
+        const summary = el('equipment-window-summary');
+        const frameWidth = fitEquipmentWidth(win.clientWidth || host.clientWidth, (win.clientHeight || host.clientHeight) - (summary ? summary.offsetHeight : 0), page);
         const layout = positionEquipmentSlots(el('equipment-window-slots'), frameWidth, page);
         win.style.inset = '0';
         win.style.width = '100%';
@@ -213,6 +238,15 @@
         frame.style.setProperty('height', layout.height + 'px');
         frame.style.setProperty('--equipment-controls-top', (layout.height - 28 / getUiScale()) + 'px');
     }
+
+    // AC and set rows follow buffs between equipment changes; refit only when their height changes.
+    window.refreshEquipmentSummary = function () {
+        const win = el('equipment-window'), summary = el('equipment-window-summary');
+        if (!win || !summary || win.classList.contains('hidden')) return;
+        const height = summary.offsetHeight;
+        renderSummary();
+        if (summary.offsetHeight !== height) fitEquipmentWindowToViewport();
+    };
 
     window.refreshEquipmentWindow = function () {
         const win = el('equipment-window');

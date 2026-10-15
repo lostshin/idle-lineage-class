@@ -5,7 +5,7 @@
 const fs=require('node:fs'),vm=require('node:vm'),path=require('node:path'),root=path.resolve(__dirname,'..'),reports=[];
 function node(text=''){
     const n={innerText:text,textContent:text,style:{},dataset:{},attributes:{},classList:{contains:()=>false},parentElement:{querySelector:()=>({textContent:'合成能力'})},getBoundingClientRect:()=>({width:100}),setAttribute(k,v){this.attributes[k]=v;},insertAdjacentHTML(pos,html){this.html=(this.html||'')+html;}};
-    Object.defineProperty(n,'innerHTML',{get(){return this.html||'';},set(html){this.html=html;this.total={textContent:html.match(/data-ability-total>([^<]*)/)?.[1]||'',getBoundingClientRect:()=>({width:25})};this.buff={hidden:/data-ability-buff hidden/.test(html),textContent:html.match(/data-ability-buff[^>]*>([^<]*)/)?.[1]||'',getBoundingClientRect:()=>({width:25})};}});
+    Object.defineProperty(n,'innerHTML',{get(){return this.html||'';},set(html){this.html=html;this.total={textContent:html.match(/data-ability-total>([^<]*)/)?.[1]||'',attributes:{},toggleAttribute(k,on){if(on)this.attributes[k]='';else delete this.attributes[k];},getBoundingClientRect:()=>({width:25})};this.buff={hidden:/data-ability-buff hidden/.test(html),textContent:html.match(/data-ability-buff[^>]*>([^<]*)/)?.[1]||'',getBoundingClientRect:()=>({width:25})};}});
     n.querySelector=s=>s==='[data-ability-total]'?n.total:s==='[data-ability-buff]'?n.buff:null;return n;
 }
 const controls={'tab-stats':node(),'dt-str':node('13'),'dt-spd':node('1.20s'),'dt-buffs':node(),'player-ability-notes':node(),'player-ability-summary':node()};let calculations=0;

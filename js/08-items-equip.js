@@ -1497,4 +1497,5 @@ function _updateUIImpl() {
     }
     updateSummonLock();   // 同步召喚類技能互斥鎖定（含迷魅生效時鎖定召喚增益）
     refreshPlayerAbility();
+    if (typeof refreshEquipmentSummary === 'function') refreshEquipmentSummary();
 }

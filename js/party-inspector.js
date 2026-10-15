@@ -58,7 +58,7 @@ function partyEquipmentHtml(actor,kind,id,page=0) {
     for(let i=0;i<2;i++) {
         const button=document.createElement('button');button.type='button';button.className='btn party-equipment-page';button.textContent='裝備 '+(i+1);button.dataset.partyEquipmentPage=i;button.setAttribute('aria-label','裝備第 '+(i+1)+' 頁');button.setAttribute('aria-pressed',String(page===i));toolbar.appendChild(button);
     }
-    return '<div class="party-equipment-stage">'+toolbar.outerHTML+partyEquipmentWeightHtml(actor,kind)+frame.outerHTML+'</div>'+(!Object.values(actor.eq||{}).some(Boolean)?'<p class="party-empty">目前沒有裝備。</p>':'');
+    return '<div class="party-equipment-stage">'+toolbar.outerHTML+partyEquipmentWeightHtml(actor,kind)+frame.outerHTML+'<div class="equipment-summary" data-equipment-summary>'+equipmentSummaryHtml(actor,kind)+'</div></div>'+(!Object.values(actor.eq||{}).some(Boolean)?'<p class="party-empty">目前沒有裝備。</p>':'');
 }
 (function () {
     const panel = document.createElement('aside');
@@ -141,7 +141,7 @@ function partyEquipmentHtml(actor,kind,id,page=0) {
         const bonus = currentTab==='ability'?partyBonusSnapshot(actor, selected.kind, summonOwner):null;
         const html = currentTab==='equipment' ? partyEquipmentHtml(actor,selected.kind,selected.id,equipmentPage) : `<p class="party-caption">Lv.${actor.lv || 1} · <span id="party-condition">${condition}</span> · 即時更新</p>
             <h3>生效增益</h3><ul class="party-effects">${buffsFor(actor, minion)}</ul>
-            <h3>異常狀態</h3><ul class="party-effects party-debuffs">${debuffs}</ul>${partyBonusHtml(bonus)}`;
+            <h3>異常狀態</h3><ul class="party-effects party-debuffs">${debuffs}</ul>${partyBonusHtml(bonus, actor)}`;
         for(const tab of ['ability','equipment']){const button=document.getElementById('party-tab-'+tab);button.setAttribute('aria-selected',String(currentTab===tab));button.tabIndex=currentTab===tab?0:-1;}
         document.getElementById('party-details').setAttribute('aria-labelledby','party-tab-'+currentTab);
         document.getElementById('party-title').textContent = name + (actor.cls && CLAN_CLASS_NAMES[actor.cls] ? '（'+CLAN_CLASS_NAMES[actor.cls]+'）' : '');
@@ -190,7 +190,11 @@ function partyEquipmentHtml(actor,kind,id,page=0) {
     function fitEquipment(){
         const details=document.getElementById('party-details'),frame=details.querySelector('.party-equipment-frame');if(!frame)return;
         const style=getComputedStyle(details),paddingX=parseFloat(style.paddingLeft)+parseFloat(style.paddingRight);
-        const canvasWidth=Math.max(1,details.clientWidth-paddingX),layout=equipmentView.positionSlots(frame.querySelector('.equipment-window-slots'),canvasWidth,equipmentPage),canvasHeight=layout.height;
+        // Fit by the window frame (not content height) so the canvas never collapses on repeated refreshes.
+        const stage=frame.parentElement,chrome=[panel.querySelector('header'),panel.querySelector('.party-tabs'),stage.querySelector('.party-equipment-toolbar'),stage.querySelector('.party-equipment-weight'),stage.querySelector('[data-equipment-summary]')].filter(Boolean).reduce((n,e)=>{const s=getComputedStyle(e);return n+e.offsetHeight+(parseFloat(s.marginTop)||0)+(parseFloat(s.marginBottom)||0);},0);
+        const outerHeight=userSize?panel.clientHeight:parseFloat(panel.style.maxHeight)||panel.clientHeight;
+        const availableHeight=Math.max(1,outerHeight-chrome-parseFloat(style.paddingTop)-parseFloat(style.paddingBottom)-4);
+        const canvasWidth=equipmentView.fitWidth(details.clientWidth-paddingX,availableHeight,equipmentPage),layout=equipmentView.positionSlots(frame.querySelector('.equipment-window-slots'),canvasWidth,equipmentPage),canvasHeight=layout.height;
         frame.style.setProperty('--party-equipment-height',canvasHeight+'px');
         frame.style.setProperty('--party-equipment-canvas-width',canvasWidth+'px');
         frame.style.setProperty('--party-equipment-canvas-height',canvasHeight+'px');

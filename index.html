@@ -18,7 +18,7 @@
     <link rel="stylesheet" href="css/style.css?v=fbd980ee90">
     <link rel="stylesheet" href="css/floating-ui.css?v=de83aa2f13">
     <link rel="stylesheet" href="css/tailwind-built.css?v=932535789f"><!-- 🔧 預編譯 Tailwind（取代執行期 JIT tailwind.js）：只含實際用到的 class，省 407KB runtime + 移除持續掃描 DOM 的成本。置於 style.css 之後以保留原 cascade（utility 平手時勝過自訂 class，與舊 JIT 注入順序一致） -->
-    <link rel="stylesheet" href="css/responsive.css?v=8c1a290b49">
+    <link rel="stylesheet" href="css/responsive.css?v=cf90d93b6c">
 </head>
 <body class="h-screen w-screen overflow-hidden">
 
@@ -492,7 +492,7 @@
         </div>
     </div>
 
-    <section id="equipment-window" class="equipment-window hidden" aria-label="角色裝備" aria-hidden="true"><div id="equipment-window-frame" class="equipment-window-frame"><img class="equipment-window-bg" alt="" draggable="false"><button id="equipment-window-next" class="equipment-window-arrow equipment-window-next" type="button" aria-label="下一頁"></button><button id="equipment-window-prev" class="equipment-window-arrow equipment-window-prev" type="button" aria-label="上一頁"></button><div id="equipment-window-weight" class="equipment-window-weight" aria-live="polite">負重 0 %</div><!-- 🗑️ v3.5.84 移除 #equipment-window-stats（18 欄數值屬上一版角色卡版型）；🗑️ v3.5.87 整區刪除浮動視窗殘骸：drag/close/side-panel/morph-snapshot markup（js/19 已改純嵌入式·立繪被 CSS 無條件隱藏屬死 UI） --><div id="equipment-window-slots" class="equipment-window-slots"></div></div></section>
+    <section id="equipment-window" class="equipment-window hidden" aria-label="角色裝備" aria-hidden="true"><div id="equipment-window-frame" class="equipment-window-frame"><img class="equipment-window-bg" alt="" draggable="false"><button id="equipment-window-next" class="equipment-window-arrow equipment-window-next" type="button" aria-label="下一頁"></button><button id="equipment-window-prev" class="equipment-window-arrow equipment-window-prev" type="button" aria-label="上一頁"></button><div id="equipment-window-weight" class="equipment-window-weight" aria-live="polite">負重 0 %</div><!-- 🗑️ v3.5.84 移除 #equipment-window-stats（18 欄數值屬上一版角色卡版型）；🗑️ v3.5.87 整區刪除浮動視窗殘骸：drag/close/side-panel/morph-snapshot markup（js/19 已改純嵌入式·立繪被 CSS 無條件隱藏屬死 UI） --><div id="equipment-window-slots" class="equipment-window-slots"></div></div><div id="equipment-window-summary" class="equipment-summary"></div></section>
     <section id="warehouse-window" class="warehouse-window hidden" aria-label="共用倉庫" aria-hidden="true"><div id="warehouse-window-frame" class="warehouse-window-frame"><header id="warehouse-window-drag" class="warehouse-window-header"><div><h2>共用倉庫</h2><span>背包與倉庫之間存入／取出物品</span></div><button id="warehouse-window-close" type="button">Close</button></header><div id="warehouse-window-content" class="warehouse-window-content"></div></div></section>
 
     <!-- 物品操作 Modal -->
@@ -599,22 +599,22 @@
 <script src="js/05-kill-progression.js?v=00d67d428e"></script>
     <script src="js/06-status-allies.js?v=42882aefe4"></script>
     <script src="js/07-skills-cast.js?v=2ff536efb6"></script>
-<script src="js/08-items-equip.js?v=6418a0cc16"></script>
+<script src="js/08-items-equip.js?v=543fabcc79"></script>
 <script src="js/09-vfx-render.js?v=c857bbe82c"></script>
-    <script src="js/effect-details.js?v=5179861e70"></script>
-    <script src="js/party-inspector.js?v=a48fae542c"></script>
+    <script src="js/effect-details.js?v=402c76ee24"></script>
+    <script src="js/party-inspector.js?v=8b914872d9"></script>
     <script src="js/party-portrait-bounds.js?v=57f5054baa"></script>
     <script src="js/party-roster.js?v=007b361999"></script>
     <script src="js/10-ui-tabs.js?v=ca74a6090e"></script>
 <script src="js/11-world-map.js?v=7efa1000b7"></script>
 <script src="js/12-npc-quests.js?v=21b6fd7fba"></script>
 <script src="js/13-shop-save.js?v=59896506d9"></script>
-<script src="js/14-craft-pandora.js?v=4b1e288242"></script>
+<script src="js/14-craft-pandora.js?v=b1877c5a1b"></script>
 <script src="js/15-cards.js?v=42975a78a0"></script>
 <script src="js/16-equip-book.js?v=06993d3f55"></script>
 <script src="js/18-misc-book.js?v=9a4bbc3677"></script>
 <script src="js/17-audio.js?v=8b26455c32"></script>
-<script src="js/19-equipment-window.js?v=b772361381"></script>
+<script src="js/19-equipment-window.js?v=d7d408b3e3"></script>
 <script src="js/20-warehouse-window.js?v=3efb907c43"></script>
 <script src="js/21-relic-book.js?v=40aef7ae9b"></script>
     <script src="js/23-summons.js?v=7dfe0c8454"></script>
