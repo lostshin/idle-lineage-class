@@ -41,8 +41,9 @@
         ]
     ];
 
-    const EQUIPMENT_BACKDROP_URL = 'assets/ui/party-equipment-backdrop-v2-4x3.png';
-    // Compact sockets matching the approved reference; the tight centre column may end just below the artwork.
+    // Taller backdrop: the top 4:3 is the original artwork (socket positions use it); the extended floor holds the stacked centre column and controls.
+    const EQUIPMENT_BACKDROP_URL = 'assets/ui/party-equipment-backdrop-v3-tall.png', EQUIPMENT_BACKDROP_RATIO = 1716 / 1086;
+    // Compact sockets matching the approved reference.
     // Narrow columns keep this ratio; height-limited fits stop shrinking once sockets reach 50px.
     const EQUIPMENT_SOCKET_RATIO = .16, EQUIPMENT_SOCKET_GAP = .015, EQUIPMENT_SOCKET_MIN = 50;
     function equipmentLayout(width, pageIndex) {
@@ -60,7 +61,10 @@
             bottoms[column] = y + size / 2;
             slots.push({ k: pos.k, alt: pos.alt, x, y });
         }
-        return { width, height: Math.max(artHeight, ...bottoms.map(y => y + 36 / scale)), size, slots };
+        // Page controls sit on the extended floor: one socket gap above them, the frame border (18/1086 of the art) plus a gap below.
+        const controls = 20 / scale, margin = width * 18 / 1086 + gap;
+        const height = Math.max(width * EQUIPMENT_BACKDROP_RATIO, ...bottoms.map(y => y + gap + controls + margin));
+        return { width, height, controlsTop: height - margin - controls, size, slots };
     }
     // Widest canvas whose laid-out height fits; the fixed control band makes height non-linear, so bisect.
     // Below the width where sockets reach 50px the canvas stops shrinking and its container scrolls.
@@ -236,7 +240,7 @@
         win.style.height = '100%';
         frame.style.setProperty('width', frameWidth + 'px', 'important');
         frame.style.setProperty('height', layout.height + 'px');
-        frame.style.setProperty('--equipment-controls-top', (layout.height - 28 / getUiScale()) + 'px');
+        frame.style.setProperty('--equipment-controls-top', layout.controlsTop + 'px');
     }
 
     // AC and set rows follow buffs between equipment changes; refit only when their height changes.

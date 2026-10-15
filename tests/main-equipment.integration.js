@@ -38,7 +38,7 @@ check('both pages retain slot counts, square defaults and nonoverlapping coordin
     }return true;
 });
 check('native fit scales the artwork by width and height with proportional sockets',()=>{
-    for(const [w,h]of [[300,700],[460,700],[300,320],[460,320]]){
+    for(const [w,h]of [[300,760],[460,760],[300,320],[460,320]]){
         panel.clientWidth=w;panel.clientHeight=h;ctx.setEquipmentPanelEmbedded(true);
         const width=parseFloat(frame.values.width);if(width<=0||width>w+.01||(parseFloat(frame.values.height)>h+.01&&width>50/.8/.16+.01)||(h>=700&&Math.abs(width-w)>.01)||slots().some(s=>Math.abs(parseFloat(s.style.width)-width*.16)>.01))return false;
         for(let i=0;i<20;i++)ctx.setEquipmentPanelEmbedded(true);
@@ -47,7 +47,7 @@ check('native fit scales the artwork by width and height with proportional socke
 });
 check('main backdrop uses teammate artwork and first-page figure follows actor gender',()=>{
     ids['equipment-window-prev'].onclick();const figure=()=>host.children.find(n=>n.className==='party-paperdoll-figure')?.children[0];
-    if(!bg.src?.includes('party-equipment-backdrop-v2-4x3.png')||!figure()?.src.includes('m_mage'))return false;
+    if(!bg.src?.includes('party-equipment-backdrop-v3-tall.png')||!figure()?.src.includes('m_mage'))return false;
     actor.avatar='女法師';ctx.refreshEquipmentWindow();if(!figure()?.src.includes('f_mage'))return false;
     ids['equipment-window-next'].onclick();return !figure()&&ids['equipment-window-next'].getAttribute('aria-pressed')==='true';
 });
