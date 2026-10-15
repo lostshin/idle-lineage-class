@@ -262,6 +262,24 @@ function effectSummary(actor,kind,snapshot) {
     return lines;
 }
 const EFFECT_SET_THRESHOLDS={leather:4,bone:3,dk:4,silver:4,oasis:4,gnome:3,mage:2,kurt:4,steel:5,mr:3,guard:3,kinglord:4,demon:4,darkelf:3,orin:2,icequeen_charm:3,frost:3,bluepirate:4,emperor:5,priest:5};
+// Direct bonuses verified against the early-attribute and flat set stages in recomputeStats.
+// Derived differences remain available through abilitySourceDetails.
+const EFFECT_SET_LINES={
+    leather:['四件套裝：AC－3'],bone:['三件套裝：AC－2、HP＋10'],
+    dk:['四件套裝：AC－4、變身真‧死亡騎士'],silver:['四件套裝：AC－3'],
+    oasis:['四件套裝：AC－3'],gnome:['三件套裝：AC－1、HP＋5'],
+    mage:['兩件套裝：MP＋50、MP 恢復＋1'],kurt:['四件套裝：AC－4、變身真‧克特'],
+    steel:['五件套裝：AC－2、固定減傷＋2'],mr:['三件套裝：MR＋5'],guard:['三件套裝：AC－1'],
+    kinglord:['四件套裝：魅力＋3、HP／MP 各＋30、HP／MP 恢復各＋10'],
+    demon:['四件套裝：AC－2、HP 恢復＋5、變身惡魔'],
+    darkelf:['三件套裝：力量－2、敏捷＋2、AC－3、HP 恢復－2、MP 恢復－7、變身高等黑暗精靈'],
+    orin:['兩件套裝：六項屬性各＋1、AC－5、HP＋50'],
+    icequeen_charm:['三件套裝：力量／魅力各＋2、AC－5、HP＋100、MP 恢復＋4、水屬性抗性＋20'],
+    frost:['三件套裝：體質＋3、AC－5、HP＋100、HP 恢復＋8、MP 恢復＋4、MR＋15、水屬性抗性＋20'],
+    bluepirate:['四件套裝：智力＋1、AC－1、HP＋10'],
+    emperor:['五件套裝：AC－20、HP＋100、MP＋20、HP 恢復＋10、攻擊速度＋30%、近／遠距離傷害各＋5'],
+    priest:['五件套裝：AC－50、MR＋50、HP＋300、MP 恢復＋30、近／遠／魔法爆擊率各＋5%、近／遠／魔法爆擊傷害各＋50%']
+};
 function effectSetName(code) {
     const extra={orin:'歐林西瑪套裝',icequeen_charm:'冰之女王魅力套裝',frost:'寒冰套裝',bluepirate:'藍海賊套裝',emperor:'真．冥皇套裝',priest:'司祭苦行套裝'};
     return Object.values(DB.sets).find(s=>s.items?.some(id=>DB.items[id]?.set===code))?.n||extra[code]||code;
@@ -271,7 +289,7 @@ function effectStatsLines(delta) {
     const names={...EFFECT_STAT_NAMES,aspd:'攻擊間隔',castSeconds:'施法間隔',moveSpeedPct:'移動速度',potionBonus:'藥水恢復量',damageReductionPct:'承受傷害減少',extraMp:'原始額外 SP',petGearDmg:'寵物裝備傷害加值',petGearHit:'寵物裝備命中加值',skillFlat:'寵物技能固定加值',resNone:'無屬性抗性',meleeCritDmg:'近距離爆擊傷害',rangedCritDmg:'遠距離爆擊傷害',magicCritDmg:'魔法爆擊傷害'};
     return Object.entries(delta).filter(([k,v])=>names[k]&&typeof v==='number'&&Math.abs(v)>.0001).map(([k,v])=>names[k]+' '+(v>0?'+':'')+effectNumber(v)+(units[k]||''));
 }
-function effectItemConditions(item,actor,activeOnly=false,kind='player') {
+function effectItemConditions(item,actor,kind='player') {
     const d=DB.items[item.id];if(!d)return [];
     const hp=actor.curHp??actor.hp??0,mp=actor.mp||0,wpn=DB.items[actor.eq?.wpn?.id],poly=actor._setPoly||actor.buffs?.poly>0&&actor.poly;
     // Conditional abilities are listed only while their actor-side condition holds.
@@ -280,15 +298,14 @@ function effectItemConditions(item,actor,activeOnly=false,kind='player') {
     try{player=actor;labels=itemEffectLabels(item);}finally{player=root;}
     for(const [key,name]of Object.entries({freeze:'冰凍',stun:'暈眩',paralyze:'麻痺',sleep:'睡眠',slow:'緩速',poison:'中毒',burn:'灼燒',blind:'闇盲',silence:'沉默',stone:'石化'})){const cap=key[0].toUpperCase()+key.slice(1);if(d['imm'+cap])labels.push('免疫'+name+'（限原生支援此免疫的異常判定）');if(d[key+'Resist'])labels.push(name+'抵抗 +'+d[key+'Resist']+' 個百分點（與其他來源相加，最高 100%）');}
     if(d.abnormalResist)labels.push('異常抵抗 +'+d.abnormalResist+' 個百分點（與各類抵抗相加，最高 100%）');
-    if(!activeOnly&&['relic_bk_lance','relic_guard_towershield'].includes(item.id)){const pair=actor.eq?.wpn?.id==='relic_bk_lance'&&actor.eq?.shield?.id==='relic_guard_towershield';labels.push('長槍／塔盾組合：'+(pair?'生效':'未達配對條件')+'；近距離傷害加值 +15，格檔重擊 100%／一般 100%，成功時物理傷害減半。');}
     if(d.extraAtk)labels.push('額外一般攻擊 +'+d.extraAtk+' 次（沿用原生攻擊判定）');
     if(d.skillDmgMult)for(const [id,mult]of Object.entries(d.skillDmgMult))labels.push((DB.skills[id]?.n||id)+'傷害 ×'+mult+'（僅指定技能）');
     if(d.raceDr)labels.push('受到'+d.raceDr.race+'傷害減少 '+d.raceDr.pct+'%（物理／魔法，乘算）');
     if(d.expBonus)labels.push('經驗獲得量 +'+d.expBonus+'%');
     if(d.goldBonus)labels.push('金幣獲得量 +'+d.goldBonus+'%');
     if(d.potionBonus&&!d.relic)labels.push('藥水恢復量 +'+d.potionBonus+'%');
-    if(kind==='ally'){const unsupported=['快速再生','魔力枯竭回復','瀕危急救'];if(d.slot!=='doll')unsupported.push('治癒藥水恢復量','藥水恢復量');const removed=labels.filter(line=>unsupported.some(prefix=>line.startsWith(prefix)));labels=labels.filter(line=>!unsupported.some(prefix=>line.startsWith(prefix)));if(!activeOnly&&removed.length)labels.push('主角限定，隊友未使用以下裝備路徑：'+removed.join('、'));}
-    if(activeOnly)labels=labels.filter(line=>!/(?:^唯一|^裝備限制|^臂甲|命中時|命中疊加|命中附加|命中後|攻擊時|受擊|每.*秒.*觸發|對滿血|滿血斬殺|專攻|剋星|斬殺|觸發|機率|連射|雙擊|重擊|施放|施法代價)/.test(line)&&gates.every(([prefix,on])=>!line.startsWith(prefix)||on));
+    if(kind==='ally'){const unsupported=['快速再生','魔力枯竭回復','瀕危急救'];if(d.slot!=='doll')unsupported.push('治癒藥水恢復量','藥水恢復量');labels=labels.filter(line=>!unsupported.some(prefix=>line.startsWith(prefix)));}
+    labels=labels.filter(line=>!/(?:^唯一|^裝備限制|^臂甲|命中時|命中疊加|命中附加|命中後|攻擊時|受擊|每.*秒.*觸發|對滿血|滿血斬殺|專攻|剋星|斬殺|觸發|機率|連射|雙擊|重擊|施放|施法代價)/.test(line)&&gates.every(([prefix,on])=>!line.startsWith(prefix)||on));
     return [...new Set(labels)];
 }
 function effectEntries(actor,kind,owner,snapshot) {
@@ -327,13 +344,11 @@ function effectEntries(actor,kind,owner,snapshot) {
         for(const [slot,item]of Object.entries(actor.eq||{}))if(item){
             const d=DB.items[item.id];if(!d)continue;
             if(d.set&&!['wpn','offwpn'].includes(slot)&&!seen.has(item.id)){counts[d.set]=(counts[d.set]||0)+1;seen.add(item.id);}
-            const lines=effectItemConditions(item,actor,true,kind);
+            const lines=effectItemConditions(item,actor,kind);
             if(lines.length)add('equip:'+slot,d.n,'裝備（強化／祝福／遠古／屬性／願望已計入）',lines);
         }
         for(const [code,count]of Object.entries(counts))if(count>=EFFECT_SET_THRESHOLDS[code]){
-            const without=effectPreview(actor,kind,owner,3,copy=>{copy._effectOmitSet=code;}).stats;
-            // Set totals come from the native set-enabled/disabled stages, never DB.sets display text.
-            add('set:'+code,effectSetName(code),'套裝 '+count+' 件（門檻 '+EFFECT_SET_THRESHOLDS[code]+' 件）',['目前穿著達生效門檻；卸裝後即移除。',...effectStatsLines(effectDelta(snapshot.stages[3].total,without))]);
+            add('set:'+code,effectSetName(code),'套裝 '+count+' 件（門檻 '+EFFECT_SET_THRESHOLDS[code]+' 件）',EFFECT_SET_LINES[code]);
         }
         const sh={};for(const r of SHERINE_REMAINS){const e=actor.eq?.[r.id];if(e?.seteff){const g=e.seteff.slice(0,2);sh[g]=(sh[g]||0)+1;}}
         for(const [group,count]of Object.entries(sh))if(count>=2)add('remains:'+group,group+' '+Math.min(5,count)+'/5','遺骸套裝',(SHERINE_SET_TEXT[group]||[]).filter((_,i)=>count>=[2,3,5][i]));
@@ -514,13 +529,6 @@ function abilitySourceHtml(details,actor,kind,key,keys,seconds=false) {
     document.addEventListener('scroll',event=>{if(target&&(event.target===document||event.target.contains?.(target)))hide();},true);setInterval(()=>{if(target){if(!target.isConnected||!target.checkVisibility())hide();else show({target});}},250);
     document.addEventListener('DOMContentLoaded',()=>{for(const [key]of Object.entries(ABILITY_STAT_FIELDS)){const e=document.getElementById('dt-'+key);if(e){e.tabIndex=0;e.setAttribute('role','button');e.setAttribute('aria-label',(EFFECT_STAT_NAMES[key]||e.parentElement.querySelector('span')?.textContent||key)+'：查看加成來源');}}});
 })();
-function effectEquipmentDetailsHtml(actor,kind,item,slot) {
-    const snapshot=effectDetailsSnapshot(actor,kind),without=effectPreview(actor,kind,player,2,copy=>delete copy.eq[slot]).stats;
-    const own=effectStatsLines(effectDelta(snapshot.stages[2].total,without)),d=DB.items[item.id];
-    const set=snapshot.entries.filter(e=>e.id==='set:'+d?.set||item.seteff&&e.id==='remains:'+item.seteff.slice(0,2));   // seteff is false on ordinary items
-    const conditions=effectItemConditions(item,actor,false,kind);
-    return '<div data-equipment-effects><strong>自身加成</strong><p>'+partyEscape(own.join('、')||'無固定能力加值')+'</p><strong>套裝效果</strong><p>'+partyEscape(set.map(e=>e.name+'：'+e.lines.join('、')).join('\n')||'尚未達套裝門檻或無套裝')+'</p><strong>條件／觸發特效</strong><p>'+partyEscape(conditions.join('\n')||'無額外條件特效')+'</p><p>自身加成包含強化、祝福／詛咒、遠古、屬性與願望；套裝及條件分列。乘算、取整與互斥依原生公式。</p></div>';
-}
 // AC and active set bonuses shown under the equipment canvas; each row stays on one line with a full title.
 function equipmentSummaryHtml(actor,kind,owner=player) {
     const snapshot=effectDetailsSnapshot(actor,kind,owner);

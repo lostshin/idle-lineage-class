@@ -492,7 +492,6 @@
 [data-effect-key], [data-effect-summary] { cursor: help; }
 [data-effect-summary] { color: #dfc38e; }
 :is(#tab-stats,#party-inspector) [data-ability-buff].ability-buff-unfavorable { color: #ef9b91; }
-[data-equipment-effects] { white-space: pre-line; font-size: 12px; line-height: 1.5; }
 
 /* Ability source tooltip: one row per source; base points, panacea and unified extra bonuses. */
 #party-ability-tip { white-space:normal; }

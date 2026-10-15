@@ -1990,9 +1990,7 @@ window.onload = () => {
                 if(!it){ hideTip(); return; }
                 const content = () => `<div class="font-bold text-base ${getItemColor(it)}" style="margin-bottom:4px;">${getItemFullName(it)}</div>`
                     + `<div class="text-slate-300" style="font-size:12px;line-height:1.5;">${buildItemDescHTML(it)}</div>`;
-                const actor=partyActor||player,kind=partyActor?host.dataset.tipPartyKind:'player',slot=partyActor?host.dataset.equipmentSlot:Object.keys(actor.eq||{}).find(k=>actor.eq[k]?.uid===tUid);
-                const effects=(partyActor||tSrc==='eq')&&slot?effectEquipmentDetailsHtml(actor,kind,it,slot):'';
-                el.innerHTML = (partyActor ? _withAllyEquipmentContext(effectActorCopy(partyActor), content) : content()) + effects;
+                el.innerHTML = partyActor ? _withAllyEquipmentContext(effectActorCopy(partyActor), content) : content();
                 el._id = key;
             }
         } else if(tId){
