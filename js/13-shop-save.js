@@ -303,17 +303,6 @@ function migrateSaves(){
     let oldS = _lsGet('lineage_idle_save');
     if(oldS && !_lsGet('lineage_idle_save_1')) _lzSetStoredRaw('lineage_idle_save_1', oldS);
 }
-// 🗑️ v3.7.94 清掉離線掛機（js/27，已整檔刪除）留下的 localStorage 殘骸：
-//    checkpoint／catchup／claim／profile 四種 key 都以 `lineage_idle_offline_v1_` 開頭，現在沒有任何讀取者，
-//    留著只是白佔配額（本專案的 localStorage 配額本來就吃緊）。存檔內的 player.offlineHunt 由 loadGame 順手刪除。
-(function _purgeOfflineLeftovers(){
-    try {
-        if(typeof localStorage === 'undefined') return;
-        Object.keys(localStorage)
-            .filter(k => String(k).indexOf('lineage_idle_offline_v1_') === 0)
-            .forEach(k => { try { localStorage.removeItem(k); } catch(e){} });
-    } catch(e){}
-})();
 // 🗑️ v3.5.83 移除 anySaveExists()：唯一用途是顯示主選單的 #btn-load，而該按鈕早已從 HTML 移除
 //    （主選單只剩「開始遊戲」→ openLoadSelect），四處 `btnLoad &&` 守衛全部恆為 null 短路。
 // 🗑️ v3.7.94 用戶指定移除離線掛機（js/27 整檔刪除）：登入畫面的「掛機中」徽章、離線收益明細與其
@@ -665,7 +654,8 @@ function loadBackToMenu(){
 
 function returnToCharacterSelect(){
     if(typeof player === 'undefined' || !player || !player.cls) return false;
-    _flushSaveNow();   // 🗑️ v3.7.94 原本走 js/27 的 offlinePrepareCharacterSelect（存檔＋寫離線快照）；離線掛機移除後只留最終存檔
+    if(typeof offlinePrepareCharacterSelect === 'function') offlinePrepareCharacterSelect();
+    else _flushSaveNow();
 
     if(typeof stopGameTimers === 'function') stopGameTimers();
     if(typeof state !== 'undefined' && state) state.running = false;
@@ -1459,7 +1449,6 @@ function loadGame() {
         //    舊文案多寫的「仍可用『刪除角色』清空」正好點名此情境唯一看不見的那顆按鈕，故移除。
         let d; try { d = JSON.parse(s); } catch(e){ alert('此存檔位的資料已毀損，無法載入。\n此欄位在載入畫面會顯示為空；請改用其他存檔位，或回報此問題。'); return; }
         player = d.p; mapState = d.ms;
-        delete player.offlineHunt;   // 🗑️ v3.7.94 離線掛機已移除：舊存檔的逐地圖速率快照沒有讀取者，載入即丟掉（否則每次存檔都白帶一份）
         normalizeFacingRefsForSave();   // 舊存檔若含 v3.2.12 面向物件副本，載入時立即轉為 UID／隊員鍵並移除物件參照
         if (typeof applyGlobalAutoSellSettings === 'function') applyGlobalAutoSellSettings();   // 🔧 v2.6.91 功能5：載入角色時套用全域自動販賣設定（8 角色共用時覆蓋本檔規則）
         if (!player.enSeed) player.enSeed = 'es' + _seedHash((player.name || '') + '|' + (player.cls || '') + '|lz').toString(36);   // 🎲 舊存檔無強化種子：由角色名+職業決定論衍生（重匯入同一份舊檔也得相同種子→不能靠重匯入重洗強化）

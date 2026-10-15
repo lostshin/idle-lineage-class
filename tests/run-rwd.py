@@ -10,7 +10,7 @@ import threading
 
 SUITES = ['rwd','ui-scale','gameplay','account-gameplay','visual-account-gameplay','companion-commands','game-tools','pwa','visual-game-tools','addon-defaults','compact-layout','party-refinements','party-equipment','visual-party-equipment','village-clan-warehouse','visual-village-clan-warehouse','ally-skill-stop','visual-ally-skill-stop','skill-cards','visual-skill-cards','town-buffs-enhance','visual-town-buffs-enhance','summon-display','visual-summon-display','play-fixes','desktop-feedback','visual-desktop-feedback']
 REQUIRED = ['rwd','ui-scale','gameplay','account-gameplay','companion-commands']
-SUITES += ['desktop-acceptance','visual-desktop-acceptance','ability-cleanup','tooltip-stability','clan-ability']
+SUITES += ['desktop-acceptance','visual-desktop-acceptance','ability-cleanup','tooltip-stability','clan-ability','offline-rewards']
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--desktop-only', action='store_true', help='Skip mobile and tablet viewport checks')

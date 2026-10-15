@@ -1304,9 +1304,7 @@ let _echoFree = false;        // 🏅 迴響精通：免費連發旗標（連發
 let _royalFreeCast = false;   // 👑 魔法精通：一般攻擊命中 10% 免MP額外施放選定攻擊技的旗標
 
 let state = { running: false, ticks: 0, pDmgTick: 0, ff: false, ffSmall: false, inTick: false };
-// 🗑️ v3.7.94 用戶指定移除離線掛機（js/27 整檔刪除）：現在只剩「網頁還開著」這一軌——
-//    切分頁／縮小的背景期間由下方 Worker 心跳持續跑，被節流到的差額則於回前景時補幀補跑（state.ff 補跑重建）。
-//    **真正關閉網頁＝進度完全停止**，重開不再有任何離線結算。
+// Open tabs use real tick catchup; closed-page rewards are settled separately by js/27.
 const TICK_MS = 100;                 // 一個邏輯 tick 代表的真實時間
 const JUNK_AUTOSELL_TICKS = 100;    // 🗑️ 廢品自動賣出間隔：10 秒（100 tick × 100ms·2026-07-01 由 1800/3分鐘改快）；玩家手動標示廢品會把倒數重置為此值（標完 10 秒無新動作才賣）。⚠️自動賣出這條路徑不 saveGame(見 autoSellJunk)，靠其他既有存檔點落地
 const MERC_EXP_SHARE = 0.5;          // ⚠️已停用：v3.7.62 起主玩家、未倒地傭兵與寵物各得完整經驗；常數只留給舊外部引用
@@ -1426,7 +1424,7 @@ if (typeof window !== 'undefined' && window.addEventListener) {
 //    前景不走此路徑（100ms 主迴圈負責）；Worker 建立失敗時自動退回既有的節流喚醒＋回前景差額補跑。
 //    file:// 下外部 Worker 檔會被擋，須用 Blob URL 建立。
 //    ⚠️限制：分頁被瀏覽器整個凍結／丟棄（省電模式、記憶體回收）時 message 也不會送達，
-//    該情境由回前景的差額補跑兜底（v3.7.94 起已無離線結算這條退路）。
+//    該情境由回前景的差額補跑兜底；真正關頁則由 js/27 結算離線收益。
 let _bgHeartbeatWorker = null;
 (function _initBgHeartbeat() {
     if (typeof window === 'undefined' || typeof Worker === 'undefined' || typeof Blob === 'undefined'

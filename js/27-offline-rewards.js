@@ -1900,7 +1900,8 @@
     const _offlineOriginalSaveGame = window.saveGame;
     if (typeof _offlineOriginalSaveGame === 'function') {
         window.saveGame = function () {
-            if (!_offlineInternalSave && typeof catchupActive === 'function' && catchupActive()) {
+            if (_offlineRoleDetached) return false;
+            if (!_offlineInternalSave && !window.__fb5CloseFlush && typeof catchupActive === 'function' && catchupActive()) {
                 if (typeof deferCatchupSave === 'function') return deferCatchupSave();
                 return false;
             }
