@@ -121,12 +121,12 @@ await check('long absences cap rewards at 12 hours and explain the cap', () => p
 }, base));
 base = await sample(3);
 await reopen(59000, 3);
-await check('absences shorter than one minute produce no offline award', () => page.evaluate(base => player.gold === base.gold && !document.getElementById('offline-reward-modal'), base));
+await check('absences shorter than one minute produce no offline award and explain why', () => page.evaluate(base => player.gold === base.gold && !document.getElementById('offline-reward-modal') && document.getElementById('sys-log').textContent.includes('離線時間不足 1 分鐘'), base));
 await check('loading a different role keeps its own identity and sample', () => page.evaluate(base => accountRoleId(player) === base.roleId && player.offlineHunt?.profiles?.some(p => p.map === 'training') && player.name === '合成離線角色3', base));
 await page.evaluate(() => {setMapSelectors(getHomeTown()); changeMap(true); saveGame();});
 const townGold = await page.evaluate(() => player.gold);
 await reopen(120000, 3);
-await check('closing in town does not award an old hunting profile', () => page.evaluate(gold => player.gold === gold && !document.getElementById('offline-reward-modal'), townGold));
+await check('closing in town does not award an old hunting profile and explains why', () => page.evaluate(gold => player.gold === gold && !document.getElementById('offline-reward-modal') && document.getElementById('sys-log').textContent.includes('不在可離線掛機的狩獵地圖'), townGold));
 base = await sample(4);
 await page.evaluate(() => {returnToCharacterSelect();});
 const menu = await page.evaluate(() => ({raw:_lsGet('lineage_idle_save_4')}));
@@ -171,7 +171,7 @@ await page.evaluate(() => {
 });
 const noSampleGold = await page.evaluate(() => player.gold);
 await reopen(120000, 8);
-await check('a new hunter without a combat sample receives no invented rewards', () => page.evaluate(gold => player.gold === gold && !document.getElementById('offline-reward-modal'), noSampleGold));
+await check('a new hunter without a combat sample receives no invented rewards and is told why', () => page.evaluate(gold => player.gold === gold && !document.getElementById('offline-reward-modal') && document.getElementById('sys-log').textContent.includes('本次沒有離線收益'), noSampleGold));
 await check('no uncaught browser runtime errors', () => page.evaluate(() => __offlineTest.errors.length === 0 || __offlineTest.errors));
 await page.goto('about:blank');
 await open();

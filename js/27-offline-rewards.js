@@ -312,6 +312,7 @@
         player.offlineHunt = {
             v: OFFLINE_VERSION,
             eligible: raw.eligible === true,
+            blockReason: typeof raw.blockReason === 'string' ? raw.blockReason : '',
             bossUnlocked: raw.bossUnlocked !== false,
             bossUnlockedAt: Math.max(0, Math.floor(_offlineFinite(raw.bossUnlockedAt, 0))),
             awaySince: Math.max(0, Math.floor(_offlineFinite(raw.awaySince, 0))),
@@ -371,19 +372,24 @@
         return typeof PURE_BOSS_MAPS !== 'undefined' && Array.isArray(PURE_BOSS_MAPS) && PURE_BOSS_MAPS.includes(map);
     }
 
+    // 不符合時記下原因，下次載入沒有收益時告訴玩家為什麼。
+    let _offlineBlockReason = '';
+    function _offlineBlocked(reason) { _offlineBlockReason = reason; return false; }
     function _offlineCanSnapshot(now, profile) {
+        _offlineBlockReason = '';
         if (typeof state === 'undefined' || !state || !state.running) return false;
-        if (typeof player === 'undefined' || !player || !player.cls || player.dead) return false;
-        if (typeof currentRoleIsMercenary === 'function' && currentRoleIsMercenary()) return false;
+        if (typeof player === 'undefined' || !player || !player.cls) return false;
+        if (player.dead) return _offlineBlocked('離開時角色已死亡。');
+        if (typeof currentRoleIsMercenary === 'function' && currentRoleIsMercenary()) return _offlineBlocked('傭兵角色不產生離線收益。');
         if (!player.offlineHunt) return false;
-        if (typeof mapState === 'undefined' || !mapState || !_offlineValidHuntMap(mapState.current)) return false;
+        if (typeof mapState === 'undefined' || !mapState || !_offlineValidHuntMap(mapState.current)) return _offlineBlocked('離開時不在可離線掛機的狩獵地圖（村莊、副本與攻城區不計）。');
         // 死亡後只鎖離線頭目戰；普通狩獵區復活後仍可重新建立掛機快照。
-        if (player.offlineHunt.bossUnlocked === false && _offlineBossRoomMap(mapState.current)) return false;
-        if (player.siege && player.siege.active) return false;
-        if (state.prideClimb || state.riftRun) return false;
-        if (!profile || profile.map !== String(mapState.current) || profile.killsPerMin <= 0) return false;
+        if (player.offlineHunt.bossUnlocked === false && _offlineBossRoomMap(mapState.current)) return _offlineBlocked('離線頭目戰尚未解鎖，需再次擊敗頭目。');
+        if (player.siege && player.siege.active) return _offlineBlocked('離開時正在攻城。');
+        if (state.prideClimb || state.riftRun) return _offlineBlocked('離開時正在進行特殊挑戰。');
+        if (!profile || profile.map !== String(mapState.current) || profile.killsPerMin <= 0) return _offlineBlocked('尚未在此地圖建立擊殺樣本（同一地圖狩獵至少 15 秒、擊殺 3 隻以上）。');
         if (_offlineRuntime && _offlineRuntime.map === String(mapState.current) && _offlineRuntime.lastKillAt > 0 &&
-            now - _offlineRuntime.lastKillAt > OFFLINE_RECENT_KILL_MS) return false;
+            now - _offlineRuntime.lastKillAt > OFFLINE_RECENT_KILL_MS) return _offlineBlocked('離開前超過 5 分鐘沒有擊殺。');
         return true;
     }
 
@@ -608,6 +614,7 @@
         let profile = _offlineCommitProfile(activityNow, st);
         let eligible = _offlineCanSnapshot(activityNow, profile);
         st.eligible = eligible;
+        st.blockReason = eligible ? '' : _offlineBlockReason;
         st.awaySince = snapshotNow;
         st.map = eligible ? String(mapState.current) : '';
         st.mapName = eligible ? _offlineMapName(mapState.current) : '';
@@ -1657,6 +1664,7 @@
                 }
                 source = {
                     eligible: cpSnapshot.eligible === true,
+                    blockReason: typeof cpSnapshot.blockReason === 'string' ? cpSnapshot.blockReason : '',
                     bossUnlocked: cpSnapshot.bossUnlocked !== false,
                     awaySince: Math.max(0, Math.floor(_offlineFinite(cpSnapshot.awaySince, cpActive))),
                     map: cpSnapshot.map ? String(cpSnapshot.map) : '',
@@ -1674,6 +1682,15 @@
 
             let bossLocked = source.bossUnlocked === false && profile && profile.bossRoom === true;
             if (mercBlocked || !source.eligible || bossLocked || !profile || profile.map !== source.map || elapsed < OFFLINE_MIN_MS || profile.killsPerMin <= 0) {
+                // 重新開啟時說明為什麼沒有離線收益，避免玩家以為結算壞掉。
+                if (reason === 'load' && from > 0 && typeof logSys === 'function') {
+                    let why = mercBlocked ? '傭兵角色不產生離線收益。' :
+                        elapsed < OFFLINE_MIN_MS ? '離線時間不足 1 分鐘（' + _offlineFormatDuration(rawElapsed) + '）。' :
+                        !source.eligible ? (source.blockReason || '離開時不符合離線掛機條件。') :
+                        bossLocked ? '離線頭目戰尚未解鎖，需再次擊敗頭目。' :
+                        '尚未在此地圖建立擊殺樣本（同一地圖狩獵至少 15 秒、擊殺 3 隻以上）。';
+                    logSys('<span class="text-amber-300 font-bold">本次沒有離線收益：' + why + '</span>');
+                }
                 _offlineResetRuntime(typeof mapState !== 'undefined' && mapState ? mapState.current : '');
                 _offlinePrepareSnapshot(now);
                 return false;
