@@ -225,6 +225,7 @@ python3 tests/run-rwd.py --help
 
 ## GitHub Pages 部署
 
+- GitHub CLI 查詢／操作明確加 `--repo lostshin/idle-lineage-class`，API 用完整 repo 路徑；fork 預設可能指向 upstream。部署以 HEAD SHA 與 run ID 核對，CLI `workflowName` 與 API `name` 不保證相同。
 - 已確認入口：<https://lostshin.github.io/idle-lineage-class/>；`origin` 為 `lostshin/idle-lineage-class`，Pages 從 `main:/` 發布（`build_type:legacy`，GitHub 產生建置工作），不需新增本機建置或 workflow。
 - 使用者授權部署後，先 `git fetch origin`，核對分支、遠端、落後／超前與**全部待推送 commit**；確認本地驗證與工作樹後，以 `git push origin main` 發布。`tmp/` 素材／報告不可加入，不能誤推 `upstream`。
 - push 成功不代表已上線；追蹤這次 HEAD 的 `pages build and deployment`，等 build／deploy 成功。長操作用背景程序並定期回報，不因正常等待重新推送或重建。
@@ -238,5 +239,5 @@ python3 tests/run-rwd.py --help
 - `warehouse-830/completion.json` 與 `source-consistency.json` 記錄來源比對；`warehouse-list-file.json` 是 runner 開始時的來源 SHA，不把收尾補記的 SHA 冒充它。此前提示測試在 `warehouse-redesign/`，屬不同驗證批次，不能混算為最新 682 項。
 - 預設尺寸證據：`warehouse-830/default-preview.json` 實測 830×600、8 個縮放把手、無錯誤；`warehouse-default-830x600-file.png` 是獨立合成 fixture 的 Ego screen-media PDF 經 pypdfium2 96 dpi 轉 PNG。`warehouse-list-*` 圖有先拖曳縮放，不能當作預設尺寸圖。
 - 已收到 `finished 3`、exit 0，無待跑 runner；後續收尾只核對既有報告與來源，未重跑 E2E。未測安裝版、iCloud、行動／平板；資料缺失時不得宣稱重新驗證。
-- 本次分批提交、Pages run 與公開資源 SHA 證據在 `tmp/test-runs/session-release-20261016/`；以該次 HEAD 的 Actions 與 HTTPS 實測為準，不以 push 成功代替部署完成。
+- 程式已由 Pages run [38781580180](https://github.com/lostshin/idle-lineage-class/actions/runs/38781580180)（HEAD `a8853f643`）發布，9 個執行期資源 HTTP 200／SHA 相符；後續規則提交不改程式，最終 HEAD 的部署證據見 `tmp/test-runs/session-release-20261016/`。
 - Round C 的「來源多色括號／高度擠壓畫布／輪詢 tooltip」方向已否決；備份僅在 `tmp/test-runs/round-c-snapshot-20261015/` 供追溯，勿恢復。
