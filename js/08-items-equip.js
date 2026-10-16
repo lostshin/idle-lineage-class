@@ -1393,7 +1393,7 @@ function _updateUIImpl() {
     document.getElementById('status-panel').style.backgroundImage = `url('assets/character/${bgImageName}.png')`;
     document.getElementById('status-panel').classList.add('bg-top'); // 確保圖片從頂部對齊
 
-    document.getElementById('st-ac').innerText = player.d.ac;
+    document.getElementById('st-ac').innerText = player.d.ac - teamAcBonus(player) + ((player.statuses?.disease || 0) > 0 ? 8 : 0);
     document.getElementById('st-mr').innerText = player.d.mr;
     document.getElementById('st-gold').innerText = player.gold.toLocaleString();
     

@@ -48,6 +48,36 @@ await check('main equipment hover keeps the original item description without th
 }
 if(!options.baseline){
 await page.evaluate(()=>{window.__withEffectActor=fn=>{const original=player,run=state.running,ticks=state.ticks,map=mapState.current;try{player=effectActorCopy(original);player.allies=[];player.buffs={};player.statuses={};player.eq={};player.skills=[];player.config.autoBuffSkills={};player.mastery=null;player.hp=1;player.mp=1;state.running=false;return fn(player);}finally{player=original;state.running=run;state.ticks=ticks;mapState.current=map;calcStats();}};});
+for(const scenario of [
+    {name:'without a team aura',bonus:0},
+    {name:'with teammate Earth Blessing',ally:{sk_elf_earthbless:30},bonus:7},
+    {name:'with teammate Shining Shield',ally:{sk_royal_shield:30},bonus:8},
+    {name:'with both teammate defense auras',ally:{sk_elf_earthbless:30,sk_royal_shield:30},bonus:15},
+    {name:'without counting the royal own shield twice',own:{sk_royal_shield:30},ally:{sk_royal_shield:30},bonus:0},
+    {name:'with own Earth Blessing already included',own:{sk_elf_earthbless:30},bonus:0},
+    {name:'after the aura expires',ally:{sk_elf_earthbless:30},transition:'expire',bonus:0},
+    {name:'after the provider falls',ally:{sk_elf_earthbless:30},transition:'down',bonus:0},
+    {name:'after the provider leaves',ally:{sk_elf_earthbless:30},transition:'leave',bonus:0},
+    {name:'with disease alone',disease:true,bonus:0},
+    {name:'with disease and a teammate aura',ally:{sk_elf_earthbless:30},disease:true,bonus:7},
+    {name:'after disease ends',disease:true,transition:'cure',bonus:0}
+])await check('royal header and equipment AC match combat '+scenario.name,()=>page.evaluate(scenario=>{
+    try{return __withEffectActor(p=>{
+        p.cls='royal';p.avatar='王子';p.lv=45;p.buffs=scenario.own||{};
+        p.statuses=scenario.disease?{disease:100}:{};
+        const ally=buildAlly('2');ally.buffs=scenario.ally||{};ally._downed=false;p.allies=[ally];
+        recomputeStats();const raw=p.d.ac;updateUI();
+        if(scenario.transition==='expire')ally.buffs.sk_elf_earthbless=0;
+        if(scenario.transition==='down')ally._downed=true;
+        if(scenario.transition==='leave')p.allies=[];
+        if(scenario.transition==='cure')p.statuses.disease=0;
+        updateUI();
+        const expected=raw-scenario.bonus+((p.statuses.disease||0)>0?8:0);
+        const header=Number(document.getElementById('st-ac').textContent);
+        const equipment=document.querySelector('#equipment-window-summary [data-equipment-ac]')?.textContent;
+        return header===expected&&equipment==='防禦 AC '+expected&&p.d.ac===raw||{header,equipment,expected,raw};
+    });}finally{updateUI();}
+},scenario));
 await check('all eight classes keep native totals and additive source categories',()=>page.evaluate(()=>__withEffectActor(p=>{for(const cls of ['knight','elf','mage','dark','illusion','dragon','warrior','royal']){p.cls=cls;p.lv=60;p.eq={wpn:{id:'wpn_katana',en:7,bless:true,anc:true,attr:'fire1',uid:'class-weapon',cnt:1}};recomputeStats();const s=effectDetailsSnapshot(p,'player');for(const k of ['str','dex','con','int','wis','cha','ac','mr','dr','meleeDmg','rangedDmg','magicDmg','extraMp'])if(s.total[k]!==p.d[k])return {cls,k,preview:s.total[k],live:p.d[k]};}return true;})));
 await check('Orin set summary and status list only direct bonuses while ability sources retain derived values',()=>page.evaluate(()=>__withEffectActor(p=>{for(const id of Object.keys(DB.items).filter(k=>DB.items[k].set==='orin'))p.eq[DB.items[id].slot]={id,uid:id,en:0,cnt:1,bless:false,anc:false,attr:false,seteff:false};recomputeStats();const before=JSON.stringify(p),snapshot=effectDetailsSnapshot(p,'player'),e=snapshot.entries.find(e=>e.id==='set:orin'),html=equipmentSummaryHtml(p,'player'),text='兩件套裝：六項屬性各＋1、AC－5、HP＋50';const a=effectDetailsSnapshot(p,'ally');return e?.lines.join('、')===text&&html.includes(text)&&a.entries.find(e=>e.id==='set:orin')?.lines.join('、')===text&&!/命中|傷害|MP/.test(e.lines.join(''))&&snapshot.stages[3].delta.mhp>50&&abilitySourceDetails(p,'player').snapshot.stages[3].delta.mhp===snapshot.stages[3].delta.mhp&&JSON.stringify(p)===before;})));
 await check('equipment removal updates the open-source model without leaving bonuses',()=>page.evaluate(()=>__withEffectActor(p=>{const id=Object.keys(DB.items).find(k=>DB.items[k].str>0&&DB.items[k].slot==='gloves');p.eq.gloves={id,uid:'remove-glove',en:3,cnt:1};recomputeStats();const a=effectDetailsSnapshot(p,'player');delete p.eq.gloves;recomputeStats();const b=effectDetailsSnapshot(p,'player');return a.total.str>b.total.str&&!b.entries.some(e=>e.id==='equip:gloves');})));
