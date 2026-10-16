@@ -1,0 +1,209 @@
+{
+  "method": "Only unreferenced named intermediate/baseline artifacts removed; final evidence and its referenced files retained.",
+  "removed": [
+    {
+      "path": "tests/artifacts/archive/2026-10-17/account-gameplay-baseline.json",
+      "bytes": 2027,
+      "sha256": "aa03e611ceb4baa333d6d121542d0cbc5a7baad3a9d5fd2662318189668cbf63",
+      "reason": "Unreferenced historical baseline, preview, failed/incomplete run or debug log; retained final-report reference closure excludes it."
+    },
+    {
+      "path": "tests/artifacts/archive/2026-10-17/addon-defaults-baseline.json",
+      "bytes": 800,
+      "sha256": "073e9991ba10106ac3af198742e24b9a4cb1e8d98d028d32404e5d41e1f9003d",
+      "reason": "Unreferenced historical baseline, preview, failed/incomplete run or debug log; retained final-report reference closure excludes it."
+    },
+    {
+      "path": "tests/artifacts/archive/2026-10-17/cccc-homepage-20261015/previews.json",
+      "bytes": 2345,
+      "sha256": "ba6a3619ca566bef928bf87b86b7a61413b6bdae7f0c9211b73d01b19a4a6641",
+      "reason": "Unreferenced historical baseline, preview, failed/incomplete run or debug log; retained final-report reference closure excludes it."
+    },
+    {
+      "path": "tests/artifacts/archive/2026-10-17/compact-layout-baseline.json",
+      "bytes": 1119,
+      "sha256": "6b9264bc78997a314578b1548b8139cc97f67b5df90bd0dca5b99a69f19a5ad1",
+      "reason": "Unreferenced historical baseline, preview, failed/incomplete run or debug log; retained final-report reference closure excludes it."
+    },
+    {
+      "path": "tests/artifacts/archive/2026-10-17/companion-commands-baseline.json",
+      "bytes": 1191,
+      "sha256": "50310f11208944779b5dc7b279f69f33f6ad08cedbdd563d83899900f8391894",
+      "reason": "Unreferenced historical baseline, preview, failed/incomplete run or debug log; retained final-report reference closure excludes it."
+    },
+    {
+      "path": "tests/artifacts/archive/2026-10-17/dps-teleport-baseline.json",
+      "bytes": 1672,
+      "sha256": "ba0c262c68db5fafb825a95532caa0a926df41e18c9dacc085d2d7b3d62483fc",
+      "reason": "Unreferenced historical baseline, preview, failed/incomplete run or debug log; retained final-report reference closure excludes it."
+    },
+    {
+      "path": "tests/artifacts/archive/2026-10-17/equipment-cast-baseline.json",
+      "bytes": 1886,
+      "sha256": "73d55961e81a0dd19c4dff4a6d5766de6cb2731835472daed5f70d8a408b435a",
+      "reason": "Unreferenced historical baseline, preview, failed/incomplete run or debug log; retained final-report reference closure excludes it."
+    },
+    {
+      "path": "tests/artifacts/archive/2026-10-17/equipment-larger-slots-baseline.json",
+      "bytes": 3823,
+      "sha256": "661cbccb1a88c09f6a41fb5059011312df48d88b58ba6cc11955558084384f2f",
+      "reason": "Unreferenced historical baseline, preview, failed/incomplete run or debug log; retained final-report reference closure excludes it."
+    },
+    {
+      "path": "tests/artifacts/archive/2026-10-17/equipment-proportions-baseline.json",
+      "bytes": 3639,
+      "sha256": "e065e186c14a20610c6c8857b38331520d0e1819040ca6bb5d791a0c46e16065",
+      "reason": "Unreferenced historical baseline, preview, failed/incomplete run or debug log; retained final-report reference closure excludes it."
+    },
+    {
+      "path": "tests/artifacts/archive/2026-10-17/game-tools-baseline.json",
+      "bytes": 16707,
+      "sha256": "7d4506bedef7bc7f77e9e48b09502dd69e534d9decfb47bfbd1fcacbfe2402ed",
+      "reason": "Unreferenced historical baseline, preview, failed/incomplete run or debug log; retained final-report reference closure excludes it."
+    },
+    {
+      "path": "tests/artifacts/archive/2026-10-17/gameplay-baseline.json",
+      "bytes": 1093,
+      "sha256": "8e660330f9f362d8050ccbf321f1620a4cfb002787f27e81e8f6b121641e2eba",
+      "reason": "Unreferenced historical baseline, preview, failed/incomplete run or debug log; retained final-report reference closure excludes it."
+    },
+    {
+      "path": "tests/artifacts/archive/2026-10-17/party-equipment-paperdoll-baseline.json",
+      "bytes": 1310,
+      "sha256": "95f943f80337936afd5b99a1e271017ad2b44f6c04317f57ae7e16937959c7aa",
+      "reason": "Unreferenced historical baseline, preview, failed/incomplete run or debug log; retained final-report reference closure excludes it."
+    },
+    {
+      "path": "tests/artifacts/archive/2026-10-17/party-equipment-redesign-cloud-previews.json",
+      "bytes": 1598,
+      "sha256": "9b20c8e9303d752e562e4f6216ab238e8a802c16a5b2439a2e8844032335cd69",
+      "reason": "Unreferenced historical baseline, preview, failed/incomplete run or debug log; retained final-report reference closure excludes it."
+    },
+    {
+      "path": "tests/artifacts/archive/2026-10-17/party-equipment-resize-baseline.json",
+      "bytes": 805,
+      "sha256": "cec263c3b109cb88d8658371176f66db7f5e3394cfc97b5198a893b88e10087e",
+      "reason": "Unreferenced historical baseline, preview, failed/incomplete run or debug log; retained final-report reference closure excludes it."
+    },
+    {
+      "path": "tests/artifacts/archive/2026-10-17/party-equipment-short-diagnostic.json",
+      "bytes": 792,
+      "sha256": "091bcdeacc0cbdd3bb9e19c5a360554d749ade36e87e0ad14248cb0f490917e5",
+      "reason": "Unreferenced historical baseline, preview, failed/incomplete run or debug log; retained final-report reference closure excludes it."
+    },
+    {
+      "path": "tests/artifacts/archive/2026-10-17/party-grid-cloud-previews.json",
+      "bytes": 1056,
+      "sha256": "727b565cd6a461fc623a9403e8dad8e15d794ede38dcf4a620b61d6707accb2b",
+      "reason": "Unreferenced historical baseline, preview, failed/incomplete run or debug log; retained final-report reference closure excludes it."
+    },
+    {
+      "path": "tests/artifacts/archive/2026-10-17/party-refinements-baseline.json",
+      "bytes": 1046,
+      "sha256": "fe2f2f0f02565dadf3e1bdf7d4dde8c0e6aa39bcf8faa518f20e4521d7bc9910",
+      "reason": "Unreferenced historical baseline, preview, failed/incomplete run or debug log; retained final-report reference closure excludes it."
+    },
+    {
+      "path": "tests/artifacts/archive/2026-10-17/rwd-baseline.json",
+      "bytes": 9369,
+      "sha256": "708afbfb47c8edd200fc0e4e34c9e34a83dfbd403a72397654e5e265cb2da160",
+      "reason": "Unreferenced historical baseline, preview, failed/incomplete run or debug log; retained final-report reference closure excludes it."
+    },
+    {
+      "path": "tests/artifacts/archive/2026-10-17/skill-cards-cloud-previews.json",
+      "bytes": 1058,
+      "sha256": "5a49af01ec46807395e6922b74ea21aab57dacce1d8ecac4a7f192374a09e122",
+      "reason": "Unreferenced historical baseline, preview, failed/incomplete run or debug log; retained final-report reference closure excludes it."
+    },
+    {
+      "path": "tests/artifacts/archive/2026-10-17/skill-cards-combat-before.json",
+      "bytes": 369,
+      "sha256": "a21e517f9ce10e2bd9fb3cd16498e69560c0ccd14fc95e9b65caa3c181f78614",
+      "reason": "Unreferenced historical baseline, preview, failed/incomplete run or debug log; retained final-report reference closure excludes it."
+    },
+    {
+      "path": "tests/artifacts/archive/2026-10-17/spell-category-baseline.json",
+      "bytes": 1146,
+      "sha256": "07f86cf9bb0f8a23efbba3a1417b3ea1e4b0a325505a5306b05fd6011dff04c0",
+      "reason": "Unreferenced historical baseline, preview, failed/incomplete run or debug log; retained final-report reference closure excludes it."
+    },
+    {
+      "path": "tests/artifacts/archive/2026-10-17/summon-display-baseline.json",
+      "bytes": 1942,
+      "sha256": "1dd26f31ac51257bef975a2b901f368653e50e294e02dd5e13517a6f3458e26b",
+      "reason": "Unreferenced historical baseline, preview, failed/incomplete run or debug log; retained final-report reference closure excludes it."
+    },
+    {
+      "path": "tests/artifacts/archive/2026-10-17/summon-display-desktop-75-preview.png",
+      "bytes": 634286,
+      "sha256": "9590a89fb546d984aadcaa73340f104a65841decadf2ba6c9f15ab528856299a",
+      "reason": "Unreferenced historical baseline, preview, failed/incomplete run or debug log; retained final-report reference closure excludes it."
+    },
+    {
+      "path": "tests/artifacts/archive/2026-10-17/summon-display-desktop-preview.png",
+      "bytes": 955735,
+      "sha256": "a46d1bb7cb4ce67875090f96675c547f69d59792845e75650a13611fa2c97564",
+      "reason": "Unreferenced historical baseline, preview, failed/incomplete run or debug log; retained final-report reference closure excludes it."
+    },
+    {
+      "path": "tests/artifacts/archive/2026-10-17/summon-display-mobile-75-preview.png",
+      "bytes": 238486,
+      "sha256": "aca39cbda90c0a57b6d110404e17446bd982a1e5624abefef5d3f136ede43262",
+      "reason": "Unreferenced historical baseline, preview, failed/incomplete run or debug log; retained final-report reference closure excludes it."
+    },
+    {
+      "path": "tests/artifacts/archive/2026-10-17/summon-display-mobile-preview.png",
+      "bytes": 215146,
+      "sha256": "020f3b704ad89c39b32097eb006361c9b338993d8a18694b27cbfc143e7c8c69",
+      "reason": "Unreferenced historical baseline, preview, failed/incomplete run or debug log; retained final-report reference closure excludes it."
+    },
+    {
+      "path": "tests/artifacts/archive/2026-10-17/summon-dps-mobile-75-preview.png",
+      "bytes": 94303,
+      "sha256": "239a5450eedfc1714e298487cdc2e6ec1e6cf9de99d9f3d11887cb3b3539f9c9",
+      "reason": "Unreferenced historical baseline, preview, failed/incomplete run or debug log; retained final-report reference closure excludes it."
+    },
+    {
+      "path": "tests/artifacts/archive/2026-10-17/summon-dps-mobile-preview.png",
+      "bytes": 96219,
+      "sha256": "f57bafeef3739a98923990d90992466571d3c16d12ceb5a7c238e04ad3dfd73d",
+      "reason": "Unreferenced historical baseline, preview, failed/incomplete run or debug log; retained final-report reference closure excludes it."
+    },
+    {
+      "path": "tests/artifacts/archive/2026-10-17/summon-health-mobile-75-preview.png",
+      "bytes": 112759,
+      "sha256": "45b6ab8ee2613d2ca9f95c6b550ed796978dc09feda4c6401c1947549ab5dde3",
+      "reason": "Unreferenced historical baseline, preview, failed/incomplete run or debug log; retained final-report reference closure excludes it."
+    },
+    {
+      "path": "tests/artifacts/archive/2026-10-17/summon-health-mobile-preview.png",
+      "bytes": 148729,
+      "sha256": "2ae9085d1e15793d218ef0d5762de2adf64d765a4d3c3531e58fa1109d99071a",
+      "reason": "Unreferenced historical baseline, preview, failed/incomplete run or debug log; retained final-report reference closure excludes it."
+    },
+    {
+      "path": "tests/artifacts/archive/2026-10-17/tools-relic-preview-file.png",
+      "bytes": 536226,
+      "sha256": "4b78d0971c05033a30da2b68aba8ee38201e86869d1907683c9a22fa2d7990fa",
+      "reason": "Unreferenced historical baseline, preview, failed/incomplete run or debug log; retained final-report reference closure excludes it."
+    },
+    {
+      "path": "tests/artifacts/archive/2026-10-17/tools-relic-preview-http.png",
+      "bytes": 549796,
+      "sha256": "64343b84240b561a8fd69e05650312d4477168c120fe42b84de702ac5f1e21f5",
+      "reason": "Unreferenced historical baseline, preview, failed/incomplete run or debug log; retained final-report reference closure excludes it."
+    },
+    {
+      "path": "tests/artifacts/archive/2026-10-17/town-buffs-enhance-cloud-previews.json",
+      "bytes": 1689,
+      "sha256": "872d0a5144892062229b78a9e25f539052c0a1331ef2511f5bcb87cdfb5f67c1",
+      "reason": "Unreferenced historical baseline, preview, failed/incomplete run or debug log; retained final-report reference closure excludes it."
+    },
+    {
+      "path": "tests/artifacts/archive/2026-10-17/village-party-cloud-previews.json",
+      "bytes": 1766,
+      "sha256": "57ce9bf39822dbb3a2af0d42560126f73c52ead7c323b343ec7f2e0bd2d64c38",
+      "reason": "Unreferenced historical baseline, preview, failed/incomplete run or debug log; retained final-report reference closure excludes it."
+    }
+  ]
+}

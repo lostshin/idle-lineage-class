@@ -6,7 +6,7 @@ await page.evaluate(()=>{_bgHeartbeatWorker?.terminate();_bgHeartbeatWorker=null
 async function check(name,fn){try{const result=await fn();if(result!==true)throw Error(JSON.stringify(result));reports.push({name,status:'PASS'});}catch(e){reports.push({name,status:'FAIL',error:String(e)});console.log({failed:name,error:String(e)});}await fs.writeFile(options.artifacts+'/game-tools-'+(options.baseline?'baseline':options.protocol)+'.json',JSON.stringify({date:new Date().toISOString(),reports},null,2));}
 await check('all mirrored files match the pinned published source hashes',async()=>{
  const {createHash}=await import('node:crypto'),source=JSON.parse(await fs.readFile(options.root+'/tests/addon-source.json','utf8'));const results=[];
- for(const f of source.files){const hash=createHash('sha256').update(await fs.readFile(options.root+'/'+f.path)).digest('hex');results.push({...f,actual:hash,status:hash===f.sha256?'PASS':'FAIL'});}
+ for(const f of source.files){const hash=createHash('sha256').update(await fs.readFile(options.root+'/'+(f.localPath||f.path))).digest('hex');results.push({...f,actual:hash,status:hash===f.sha256?'PASS':'FAIL'});}
  await fs.writeFile(options.artifacts+'/addon-source-parity.json',JSON.stringify({...source,files:results},null,2));return results.every(r=>r.status==='PASS');
 });
 await check('original modules are loaded and rewritten tools are absent',()=>page.evaluate(()=>!!window.AFK_TOGGLES&&!!window.AFK_TRAD&&!!window.AFK_BOSSAVOID&&!!window.AFK_BOSSRING&&!!window.AFK_RELICBATCH&&!!window.__race&&!document.querySelector('script[src*="game-activities.js"]')&&!document.getElementById('native-game-tools')));

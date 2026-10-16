@@ -1,0 +1,12 @@
+{
+  "archive": "archive/2026-10-17",
+  "retainedDocumentedReports": [],
+  "recordOutput": ".",
+  "defaultLocalReports": "../../tmp/test-runs",
+  "archiveManifest": "archive/2026-10-17/moves.json",
+  "preExistingMissingDocumentLinks": [
+    "tests/artifacts/settings-report-http.json",
+    "tests/artifacts/settings-report-file.json"
+  ],
+  "cleanupManifest": "archive/2026-10-17/cleanup.json"
+}

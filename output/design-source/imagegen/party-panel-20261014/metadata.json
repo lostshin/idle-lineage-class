@@ -1,0 +1,27 @@
+{
+  "mode": "built-in image_gen",
+  "type": "ui-mockup",
+  "reference": "assets/ui/能力.png",
+  "variants": {
+    "A": "經典卡片",
+    "B": "緊湊名冊",
+    "C": "統一名牌"
+  },
+  "status": "implemented using original game artwork and original controls",
+  "selected": "C",
+  "iCloudFolder": "<iCloud preview folder>",
+  "removedVariants": [
+    {
+      "id": "A",
+      "name": "A－經典卡片",
+      "sha256": "6c864592b17f03c7fc753a3b0e167e7d26f44dfcfc02283b0056dc9d8ef038e1",
+      "reason": "Not selected; retained selected variant C"
+    },
+    {
+      "id": "B",
+      "name": "B－緊湊名冊",
+      "sha256": "fb8e98ea3db1320a5b87f2e7c7b1f7acbb263a91185194c7e9de005bfd91274c",
+      "reason": "Not selected; retained selected variant C"
+    }
+  ]
+}

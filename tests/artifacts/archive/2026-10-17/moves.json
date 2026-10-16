@@ -1,0 +1,2674 @@
+{
+  "recordedAt": "2026-10-16T18:36:29.013182+00:00",
+  "sourceCommit": "d9c4f2eb906da11ae0282754adaedcd427654cb8",
+  "method": "Moved without editing historical contents. Original paths in reports refer to their original source versions.",
+  "files": [
+    {
+      "from": "tests/artifacts/party-refine-1330-75-http.png",
+      "to": "tests/artifacts/archive/2026-10-17/party-refine-1330-75-http.png",
+      "sha256": "61fbc09a30058bc270c3fc8bc0f76d7bd0f50e602b9feb4007667ca68d693546",
+      "bytes": 922373,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/commands-guard-390-75-file.png",
+      "to": "tests/artifacts/archive/2026-10-17/commands-guard-390-75-file.png",
+      "sha256": "36e32da2222fd698319b048415efa1b58138a58093914e064a85168d176b82c6",
+      "bytes": 341700,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/party-combined-390x844-75-file.png",
+      "to": "tests/artifacts/archive/2026-10-17/party-combined-390x844-75-file.png",
+      "sha256": "cb3125620c588d2719ff8116c467ecd93fac1a045462768aa809f92a6dd355bb",
+      "bytes": 145551,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/village-maintenance-mobile-preview.png",
+      "to": "tests/artifacts/archive/2026-10-17/village-maintenance-mobile-preview.png",
+      "sha256": "ef8081e2841d47cfa4d5872d46b00332521860e14589d208d94290f40cffe7c9",
+      "bytes": 203387,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/summon-display-integrity.json",
+      "to": "tests/artifacts/archive/2026-10-17/summon-display-integrity.json",
+      "sha256": "8ed43e654629191cf2816ab8d860522f850d2ae137afd458cb8da3a76888a85a",
+      "bytes": 141,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/enhancement-retained-desktop-preview.png",
+      "to": "tests/artifacts/archive/2026-10-17/enhancement-retained-desktop-preview.png",
+      "sha256": "97e91745138b0096ab30a9e450c16d41f2b2af70976228868f7d00905ae38091",
+      "bytes": 836315,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/tools-home-390-75-http.png",
+      "to": "tests/artifacts/archive/2026-10-17/tools-home-390-75-http.png",
+      "sha256": "c5648a099350aff6e262c4c987ca6f9141b13648822497c2cfe3da9cfe939f99",
+      "bytes": 270909,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/companion-commands-baseline.json",
+      "to": "tests/artifacts/archive/2026-10-17/companion-commands-baseline.json",
+      "sha256": "50310f11208944779b5dc7b279f69f33f6ad08cedbdd563d83899900f8391894",
+      "bytes": 1191,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/addon-search-visual-http.png",
+      "to": "tests/artifacts/archive/2026-10-17/addon-search-visual-http.png",
+      "sha256": "de47f8703ecd8d73abe9cc0899626a2d673e4e1ec8a4455102fcbf2e931ce541",
+      "bytes": 1068804,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/party-equipment-file.json",
+      "to": "tests/artifacts/archive/2026-10-17/party-equipment-file.json",
+      "sha256": "c7ed881061fea52735f2f414073bce27cb9a73b51e324e947d1dd085098f1174",
+      "bytes": 4484,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/addon-drops-file.png",
+      "to": "tests/artifacts/archive/2026-10-17/addon-drops-file.png",
+      "sha256": "89bae2d09dcd4a5fcabaebea25008423bb269dde3632f752f9768618f3a6abdc",
+      "bytes": 305035,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/ally-skill-stop-final-validation.json",
+      "to": "tests/artifacts/archive/2026-10-17/ally-skill-stop-final-validation.json",
+      "sha256": "d7f932de27da2f19503b7bc862dc16cc4d194d2d7ea2233dfa0382fec02f1fd8",
+      "bytes": 4845,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/ally-skill-stop-baseline.json",
+      "to": "tests/artifacts/archive/2026-10-17/ally-skill-stop-baseline.json",
+      "sha256": "631fd33cef4ff4b9847151f4e87b1f51b983546209014be36595c43892076320",
+      "bytes": 1081,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/gameplay-report-http.json",
+      "to": "tests/artifacts/archive/2026-10-17/gameplay-report-http.json",
+      "sha256": "b6706c85003b2133f8990c4e32b0b76a30f6c9b560fce04c9f53696193f61852",
+      "bytes": 2945,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/compact-844-100-http.png",
+      "to": "tests/artifacts/archive/2026-10-17/compact-844-100-http.png",
+      "sha256": "3068c60aa7c07c0dd2f92a7186c2a7e94fc9de12bae357804ed7678064cb4b3d",
+      "bytes": 273853,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/account-party-ability-http.png",
+      "to": "tests/artifacts/archive/2026-10-17/account-party-ability-http.png",
+      "sha256": "13ebc6c261ef39c102e35a72011d7c6f8be2fd577b8379373dd46eef36dae4ea",
+      "bytes": 943496,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/tools-training-picker-file.png",
+      "to": "tests/artifacts/archive/2026-10-17/tools-training-picker-file.png",
+      "sha256": "67826e41776ae577776caf0810f2cbd8aae00196512bb39346297004629e9294",
+      "bytes": 419336,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/addon-defaults-file.json",
+      "to": "tests/artifacts/archive/2026-10-17/addon-defaults-file.json",
+      "sha256": "948581006f03ea61566c5030e1d9cd33b4a6f1c628020acead44a5eac168a5c1",
+      "bytes": 1046,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/party-refinements-file.json",
+      "to": "tests/artifacts/archive/2026-10-17/party-refinements-file.json",
+      "sha256": "be4c9ff531dd5c51616d6b52e716b01667d049cce07216c9508cd64eda431cc9",
+      "bytes": 3727,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/floating-party-844-75-file.png",
+      "to": "tests/artifacts/archive/2026-10-17/floating-party-844-75-file.png",
+      "sha256": "ab21bf75e115e6c27691c74f574021eef9316d89cb4f78c2158faf47bfb9c50d",
+      "bytes": 262601,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/party-inline-resize-844-75-file.png",
+      "to": "tests/artifacts/archive/2026-10-17/party-inline-resize-844-75-file.png",
+      "sha256": "b9d260eed2017762b7390ccdd2572efee94d5e5e3d8684096f475ae0874c63d3",
+      "bytes": 341986,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/addon-training-http.png",
+      "to": "tests/artifacts/archive/2026-10-17/addon-training-http.png",
+      "sha256": "00164eae1b38eb5be442359b3613a37b9cc42b616dcf5874930a68925f40d650",
+      "bytes": 1101622,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/tools-reference-http.png",
+      "to": "tests/artifacts/archive/2026-10-17/tools-reference-http.png",
+      "sha256": "2acdf7c4b59159d37fbc474e68be9c363ea2bb65ad825ec1ce57777917df13c6",
+      "bytes": 306118,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/addon-defaults-baseline.json",
+      "to": "tests/artifacts/archive/2026-10-17/addon-defaults-baseline.json",
+      "sha256": "073e9991ba10106ac3af198742e24b9a4cb1e8d98d028d32404e5d41e1f9003d",
+      "bytes": 800,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/party-inline-resize-390-100-http.png",
+      "to": "tests/artifacts/archive/2026-10-17/party-inline-resize-390-100-http.png",
+      "sha256": "e2971bc38b6417c370afb854337e83cb1db879daf3b6f7a6d4c4c7c45508050c",
+      "bytes": 186235,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/party-equipment-mobile-75-preview.png",
+      "to": "tests/artifacts/archive/2026-10-17/party-equipment-mobile-75-preview.png",
+      "sha256": "48c7213865eed72b8b879ae8f87ce716e5c4855c171f83de5fd5d4a6c59bf26d",
+      "bytes": 123194,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/tools-system-1330-100-file.png",
+      "to": "tests/artifacts/archive/2026-10-17/tools-system-1330-100-file.png",
+      "sha256": "9da247a9dc1cf19353d4b7edf4f193dfa03855422d7d894d77495484ee599cf3",
+      "bytes": 640076,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/gameplay-party-desktop.png",
+      "to": "tests/artifacts/archive/2026-10-17/gameplay-party-desktop.png",
+      "sha256": "bdd82fea76aa0f6a4ebf2a15ae074d8d3ca8b9b257ec8af8b0691fe30905a35a",
+      "bytes": 1012598,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/account-quick-junk.png",
+      "to": "tests/artifacts/archive/2026-10-17/account-quick-junk.png",
+      "sha256": "acd05774ae7af08c4e6a36e10a0ceddbbd2021b1ef4462fb7225414ad181e318",
+      "bytes": 1234133,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/skill-cards-final-runs.json",
+      "to": "tests/artifacts/archive/2026-10-17/skill-cards-final-runs.json",
+      "sha256": "af8976f95efe742e353f5696ee81b70a325e55f937f22c6f79d9abf1dde7bea0",
+      "bytes": 5875,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/gameplay-name.png",
+      "to": "tests/artifacts/archive/2026-10-17/gameplay-name.png",
+      "sha256": "b5ade7403d71bd67e85b64c004a41cfdcf9c0b9482c28a7358010dedac8b983f",
+      "bytes": 1125810,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/tools-inventory-sort-http.png",
+      "to": "tests/artifacts/archive/2026-10-17/tools-inventory-sort-http.png",
+      "sha256": "df30f581ab8ea3d19214c564e9a23272f7ad06a5d6b7c173c56e6ef3c2dd5d07",
+      "bytes": 1114078,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/town-buffs-enhance-visual.json",
+      "to": "tests/artifacts/archive/2026-10-17/town-buffs-enhance-visual.json",
+      "sha256": "a96b41a58cc1ff2c960088a08fd216a6b61fcadb547de7bcb12b83ab3d9fd3a9",
+      "bytes": 897,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/skill-cards-visual.json",
+      "to": "tests/artifacts/archive/2026-10-17/skill-cards-visual.json",
+      "sha256": "3fb5f734654fb33f2384d4fc8262f91f9b4cbf8e13c2ce3490f6fc781d3cf6f3",
+      "bytes": 400,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/compact-1330-75-file.png",
+      "to": "tests/artifacts/archive/2026-10-17/compact-1330-75-file.png",
+      "sha256": "8ccf6094f8f6bfa6ab54f74131ebb1fd29f71622a192f1bef14fefb9670636ba",
+      "bytes": 850995,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/ui-scale-100.png",
+      "to": "tests/artifacts/archive/2026-10-17/ui-scale-100.png",
+      "sha256": "8d490dbd216a7f7cfd78f904ec53882fcddb23844f8d612a9d4559f946312fdc",
+      "bytes": 927938,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/tools-relic-preview-http.png",
+      "to": "tests/artifacts/archive/2026-10-17/tools-relic-preview-http.png",
+      "sha256": "64343b84240b561a8fd69e05650312d4477168c120fe42b84de702ac5f1e21f5",
+      "bytes": 549796,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/party-equipment-paperdoll-baseline.json",
+      "to": "tests/artifacts/archive/2026-10-17/party-equipment-paperdoll-baseline.json",
+      "sha256": "95f943f80337936afd5b99a1e271017ad2b44f6c04317f57ae7e16937959c7aa",
+      "bytes": 1310,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/party-equipment-redesign-integrity.json",
+      "to": "tests/artifacts/archive/2026-10-17/party-equipment-redesign-integrity.json",
+      "sha256": "7d10ea992eae8369f436043d961a97fdeb80212640f5b5602a25935161fac5eb",
+      "bytes": 178,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/account-summons-desktop.png",
+      "to": "tests/artifacts/archive/2026-10-17/account-summons-desktop.png",
+      "sha256": "5892c099245631ec1e3a98f4a257832a2519e3a1fd959ac2d68b1f7bfb59209c",
+      "bytes": 1242621,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/addon-drops-http.png",
+      "to": "tests/artifacts/archive/2026-10-17/addon-drops-http.png",
+      "sha256": "a6f9187a3454e14a1769823aea7c402f3ae437fa5676214b3a0425f41550180d",
+      "bytes": 304260,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/compact-844-100-file.png",
+      "to": "tests/artifacts/archive/2026-10-17/compact-844-100-file.png",
+      "sha256": "9aecdd7874b38a3bfef61c90d36372e21a677d86fede04b5491466e13e21bb28",
+      "bytes": 273813,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/account-rename-desktop.png",
+      "to": "tests/artifacts/archive/2026-10-17/account-rename-desktop.png",
+      "sha256": "cbf72f0b7ae69ed23b1cf463ce6c0dc72e72318a7d838b4c1bec8983cdb622f3",
+      "bytes": 568414,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/account-party-ability-file.png",
+      "to": "tests/artifacts/archive/2026-10-17/account-party-ability-file.png",
+      "sha256": "0db8a00bca08fe4b4bd425e3ec7b66cbd7565a50af49140cf15f6b5dda3adf18",
+      "bytes": 950809,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/roster-c-desktop-preview.png",
+      "to": "tests/artifacts/archive/2026-10-17/roster-c-desktop-preview.png",
+      "sha256": "0a5e062435fc6805e4798d0b7abc69b53e79872016f7e2cc21900e63b465e370",
+      "bytes": 1001415,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/party-refinement-runs.json",
+      "to": "tests/artifacts/archive/2026-10-17/party-refinement-runs.json",
+      "sha256": "0d2ab687d5c3caab946c4ce115930f06d578056c13e2cf630b767e23cdae3106",
+      "bytes": 9900,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/spell-category-baseline.json",
+      "to": "tests/artifacts/archive/2026-10-17/spell-category-baseline.json",
+      "sha256": "07f86cf9bb0f8a23efbba3a1417b3ea1e4b0a325505a5306b05fd6011dff04c0",
+      "bytes": 1146,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/tools-training-picker-http.png",
+      "to": "tests/artifacts/archive/2026-10-17/tools-training-picker-http.png",
+      "sha256": "a80ed5ee54343261f64c009fd96f51d2948a718d904bc3a7a6ab7794e73ca710",
+      "bytes": 421181,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/account-party-ability-390x844-75.png",
+      "to": "tests/artifacts/archive/2026-10-17/account-party-ability-390x844-75.png",
+      "sha256": "9c0f669a97f0cd6aa4c0892f451dbae3478af0bb3c2bfc90671801d65bb75ded",
+      "bytes": 215866,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/account-party-desktop.png",
+      "to": "tests/artifacts/archive/2026-10-17/account-party-desktop.png",
+      "sha256": "2dbb7d6e3c48206586914819fe4fa0221dd5c39adbe5a176c8d96abb6b61a13e",
+      "bytes": 979699,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/item-toolbar-parallel-preview.png",
+      "to": "tests/artifacts/archive/2026-10-17/item-toolbar-parallel-preview.png",
+      "sha256": "5778c1c1079e14833e8615320f3d4bc7b6122ec61d7ed4083e09963eda97d5cf",
+      "bytes": 966893,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/enhancement-retained-mobile-preview.png",
+      "to": "tests/artifacts/archive/2026-10-17/enhancement-retained-mobile-preview.png",
+      "sha256": "ba1a3fa6b0f26c918d205fe9b17c48b24b8c59f2dd1907c91b71daf669263017",
+      "bytes": 112129,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/party-combined-390x844-75-http.png",
+      "to": "tests/artifacts/archive/2026-10-17/party-combined-390x844-75-http.png",
+      "sha256": "4d73b62732db7f678ba2a1d2d2be7b98405f5e37003c1401371462b34ed242ab",
+      "bytes": 147003,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/party-refine-1330-75-file.png",
+      "to": "tests/artifacts/archive/2026-10-17/party-refine-1330-75-file.png",
+      "sha256": "dd0221b60a6ef91146a1bf2876f2c54b4f139c107370ffc65423c01e66452f81",
+      "bytes": 908612,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/commands-guard-390-75-http.png",
+      "to": "tests/artifacts/archive/2026-10-17/commands-guard-390-75-http.png",
+      "sha256": "ab3f1a030a99e8ae6c6290611adab20e63337eef22c0620688ec6636f4be8987",
+      "bytes": 329661,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/ally-skill-stop-integrity.json",
+      "to": "tests/artifacts/archive/2026-10-17/ally-skill-stop-integrity.json",
+      "sha256": "b58677d481a351405088ec25a2ef09e8573afd73a85456148b389bf4fb22934e",
+      "bytes": 178,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/account-import-mobile-75.png",
+      "to": "tests/artifacts/archive/2026-10-17/account-import-mobile-75.png",
+      "sha256": "b246fa4d9227d05789126daa5d1974eada9a2da23cdce0a5130e2cf5e93be109",
+      "bytes": 80662,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/account-import-desktop.png",
+      "to": "tests/artifacts/archive/2026-10-17/account-import-desktop.png",
+      "sha256": "67b2f4723245134703413a5bc33c6b0059b5e97866ae6a22fdf6289e753890d4",
+      "bytes": 464814,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/addon-search-visual-file.png",
+      "to": "tests/artifacts/archive/2026-10-17/addon-search-visual-file.png",
+      "sha256": "993ebd5f8a50266ce034e8cbe3d88b1dfbcc4ca841d49422b9d5975a7fa572a7",
+      "bytes": 1068779,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/tools-home-390-75-file.png",
+      "to": "tests/artifacts/archive/2026-10-17/tools-home-390-75-file.png",
+      "sha256": "90494c6df4f83360f9c4f6cb0e4bdbfac9472df5ff2c8f49e3ee21bd41cc15fb",
+      "bytes": 267119,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/account-gameplay-baseline.json",
+      "to": "tests/artifacts/archive/2026-10-17/account-gameplay-baseline.json",
+      "sha256": "aa03e611ceb4baa333d6d121542d0cbc5a7baad3a9d5fd2662318189668cbf63",
+      "bytes": 2027,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/party-equipment-narrow-tall-preview.png",
+      "to": "tests/artifacts/archive/2026-10-17/party-equipment-narrow-tall-preview.png",
+      "sha256": "8f7af7769679ebef528caf7ed575b33c056d8432bc3c63a953790f4dd13a1dcb",
+      "bytes": 1000671,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/tools-inventory-sort-file.png",
+      "to": "tests/artifacts/archive/2026-10-17/tools-inventory-sort-file.png",
+      "sha256": "8d1740b65e161adaceb5504df852e6773ed5e7ec09541c5b7852e1ad05a4fd9b",
+      "bytes": 1091808,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/compact-1330-75-http.png",
+      "to": "tests/artifacts/archive/2026-10-17/compact-1330-75-http.png",
+      "sha256": "16e815dd7894bc766a6e2b2fa25575a5edf7cea384ae4025dec83ad1f2c7b268",
+      "bytes": 850962,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/equipment-proportions-validation.json",
+      "to": "tests/artifacts/archive/2026-10-17/equipment-proportions-validation.json",
+      "sha256": "09cc0814adaa2f6ba52926b86db74a4df7582fe6d34b7ab132872eab39768933",
+      "bytes": 4499,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/compact-desktop-diagnostic.png",
+      "to": "tests/artifacts/archive/2026-10-17/compact-desktop-diagnostic.png",
+      "sha256": "9e5522a7241f57280e2dde07364d270a5fd90da946898cc0f0c4b8f1cda96bc8",
+      "bytes": 1567981,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/tools-relic-preview-file.png",
+      "to": "tests/artifacts/archive/2026-10-17/tools-relic-preview-file.png",
+      "sha256": "4b78d0971c05033a30da2b68aba8ee38201e86869d1907683c9a22fa2d7990fa",
+      "bytes": 536226,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/skill-cards-design-baseline.json",
+      "to": "tests/artifacts/archive/2026-10-17/skill-cards-design-baseline.json",
+      "sha256": "67a5a70fba50b59173fb857739e7c48cc123cd7f7dd3ae033a6b1a10adb82583",
+      "bytes": 429,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/account-party-844x390-75.png",
+      "to": "tests/artifacts/archive/2026-10-17/account-party-844x390-75.png",
+      "sha256": "61378a2535d31880f8b66332c18069d631012f1595e51b6d31f2371c88f8dfdc",
+      "bytes": 131349,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/village-party-cloud-previews.json",
+      "to": "tests/artifacts/archive/2026-10-17/village-party-cloud-previews.json",
+      "sha256": "57ce9bf39822dbb3a2af0d42560126f73c52ead7c323b343ec7f2e0bd2d64c38",
+      "bytes": 1766,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/account-party-ability-1330x900-100.png",
+      "to": "tests/artifacts/archive/2026-10-17/account-party-ability-1330x900-100.png",
+      "sha256": "24499296fa6edee056f2a866ac3317e277b5ef4084e88b7aa0c3a23c0fa5cfea",
+      "bytes": 1034506,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/party-inline-resize-844-75-http.png",
+      "to": "tests/artifacts/archive/2026-10-17/party-inline-resize-844-75-http.png",
+      "sha256": "e3975148050627d8a4383cce6956c8a2ab5b8036ec2060ce3938e7569fe5b476",
+      "bytes": 341979,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/floating-party-844-75-http.png",
+      "to": "tests/artifacts/archive/2026-10-17/floating-party-844-75-http.png",
+      "sha256": "1c49e415b5861908442e5e1d2070395801cb6c5d3f3c75171754c1d5e25c0196",
+      "bytes": 262298,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/rwd-tablet.png",
+      "to": "tests/artifacts/archive/2026-10-17/rwd-tablet.png",
+      "sha256": "4c4ce972c4c2eac56dd1487af839db623887f84b20602712504c811f08c072e0",
+      "bytes": 349616,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/ally-skill-stop-mobile-75-preview.png",
+      "to": "tests/artifacts/archive/2026-10-17/ally-skill-stop-mobile-75-preview.png",
+      "sha256": "0f911daaf5f850f1d24e04f6a8da3863096d6b4d5481f2ab79b660f807b4e940",
+      "bytes": 131530,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/party-refinements-http.json",
+      "to": "tests/artifacts/archive/2026-10-17/party-refinements-http.json",
+      "sha256": "be4c9ff531dd5c51616d6b52e716b01667d049cce07216c9508cd64eda431cc9",
+      "bytes": 3727,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/equipment-cast-integration.json",
+      "to": "tests/artifacts/archive/2026-10-17/equipment-cast-integration.json",
+      "sha256": "00cc9519ebc7293fe1e374befd0a000fb97864539ce9fac616bc3a22611011d0",
+      "bytes": 1731,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/addon-training-file.png",
+      "to": "tests/artifacts/archive/2026-10-17/addon-training-file.png",
+      "sha256": "07945c111667ca7aaa7dfde39ae37c9b3b0bf492be23a0cd37f33fe87a82bac2",
+      "bytes": 1111028,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/addon-defaults-http.json",
+      "to": "tests/artifacts/archive/2026-10-17/addon-defaults-http.json",
+      "sha256": "73e4558868dc60b5edc6b4df0bd8c0ff6ee30688b6f566bc9e5e6ab4f85b7a05",
+      "bytes": 1046,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/tools-reference-file.png",
+      "to": "tests/artifacts/archive/2026-10-17/tools-reference-file.png",
+      "sha256": "7a7bd46ab54941710c43e1da08783b137ef6c6ed02c1f90ed76d64e25e839d0c",
+      "bytes": 306107,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/party-inline-resize-390-100-file.png",
+      "to": "tests/artifacts/archive/2026-10-17/party-inline-resize-390-100-file.png",
+      "sha256": "c04ba783e722f1ef353ed74ca8f1454ce151fd7ebcda89cc36c91c5dacc2eb4c",
+      "bytes": 191427,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/gameplay-report-file.json",
+      "to": "tests/artifacts/archive/2026-10-17/gameplay-report-file.json",
+      "sha256": "a021e4563af1af41cef0a91755a30c21fd6965677f7d0c8125b805b13acd5324",
+      "bytes": 2945,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/party-equipment-http.json",
+      "to": "tests/artifacts/archive/2026-10-17/party-equipment-http.json",
+      "sha256": "c7ed881061fea52735f2f414073bce27cb9a73b51e324e947d1dd085098f1174",
+      "bytes": 4484,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/tools-system-1330-100-http.png",
+      "to": "tests/artifacts/archive/2026-10-17/tools-system-1330-100-http.png",
+      "sha256": "adaeaab53e10458fe160d166f4e5fd117d189c6a4833c16255af4f6273c03bc6",
+      "bytes": 634326,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/village-party-final-validation.json",
+      "to": "tests/artifacts/archive/2026-10-17/village-party-final-validation.json",
+      "sha256": "6159ba878dc67abc9a888aec8dc5ab0167a151a2b29da2d19880b365146e2c22",
+      "bytes": 7495,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/game-tools-summary.json",
+      "to": "tests/artifacts/archive/2026-10-17/game-tools-summary.json",
+      "sha256": "447ab036ba53779a900b08c49700b3d3d553b3399eef62a1e06023c91d473931",
+      "bytes": 21317,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/summon-display-desktop-preview.png",
+      "to": "tests/artifacts/archive/2026-10-17/summon-display-desktop-preview.png",
+      "sha256": "a46d1bb7cb4ce67875090f96675c547f69d59792845e75650a13611fa2c97564",
+      "bytes": 955735,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/skill-cards-final-validation.json",
+      "to": "tests/artifacts/archive/2026-10-17/skill-cards-final-validation.json",
+      "sha256": "306136a490865ff461f5780d1d115fcc2458306efb4ad07c9837c93ed758510b",
+      "bytes": 5032,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/commands-guard-1330-100-file.png",
+      "to": "tests/artifacts/archive/2026-10-17/commands-guard-1330-100-file.png",
+      "sha256": "a289593cde6bcde53e7043d6da159ef6b8d13384da10aff13c139512ff5b0f6b",
+      "bytes": 1274783,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/gameplay-party-390x844-100.png",
+      "to": "tests/artifacts/archive/2026-10-17/gameplay-party-390x844-100.png",
+      "sha256": "2bd09835ad2b20110c077b89476f540b6a7b9108d7c01e5ffab05a584a6a5933",
+      "bytes": 109453,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/village-ui-original-baseline.json",
+      "to": "tests/artifacts/archive/2026-10-17/village-ui-original-baseline.json",
+      "sha256": "74bde249a05186418b92c7d90b71c8f6d5502b88db5017a869c556e969f58f61",
+      "bytes": 319,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/account-party-390x844-100.png",
+      "to": "tests/artifacts/archive/2026-10-17/account-party-390x844-100.png",
+      "sha256": "f4f4bfb7bfb3614b9b0029d3d13e51f51e28077f8310da3c65905d06846fe175",
+      "bytes": 186280,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/village-clan-warehouse-visual.json",
+      "to": "tests/artifacts/archive/2026-10-17/village-clan-warehouse-visual.json",
+      "sha256": "0fa9acbc5b9013cae553eeaba68f639f6782260abdf2ea32b43b0087e4a68b9c",
+      "bytes": 385,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/party-equipment-final-runs.json",
+      "to": "tests/artifacts/archive/2026-10-17/party-equipment-final-runs.json",
+      "sha256": "4f4ef3204f96cd8315d55f09a22f386a2df5a3f2ec2caa24e724084c90471c36",
+      "bytes": 6711,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/compact-1920-100-http.png",
+      "to": "tests/artifacts/archive/2026-10-17/compact-1920-100-http.png",
+      "sha256": "9fe872ee6e3b3a83eca0d6a426b5459de403fc7860ce2f3ba13ee4a587ae76bd",
+      "bytes": 1494521,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/party-equipment-desktop-preview.png",
+      "to": "tests/artifacts/archive/2026-10-17/party-equipment-desktop-preview.png",
+      "sha256": "0b84d58243267152af2c15d7384e0468b572255c6e2709e6907633f2310235a8",
+      "bytes": 938848,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/rwd-summary.json",
+      "to": "tests/artifacts/archive/2026-10-17/rwd-summary.json",
+      "sha256": "e5ec6192fc7a6550b1819de8f5e6eaa17f4327a5b01c5b9e6ccd24281d96ff62",
+      "bytes": 1814,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/compact-1920-75-file.png",
+      "to": "tests/artifacts/archive/2026-10-17/compact-1920-75-file.png",
+      "sha256": "65a8e4a4ed86bf62400bab8528ba1ee432dad073325b6a14bda13bb6a5af27df",
+      "bytes": 1028071,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/addon-search-http.png",
+      "to": "tests/artifacts/archive/2026-10-17/addon-search-http.png",
+      "sha256": "0b566cb384109cf5413dc08a1b02f6c92a5771c9eb7f5f56554f139de4cc0c96",
+      "bytes": 1040884,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/companion-commands-file.json",
+      "to": "tests/artifacts/archive/2026-10-17/companion-commands-file.json",
+      "sha256": "c8b521bba87a14e930dc02dddc7ff36667d1d0f89f760cb304431c5a7e9b5ffc",
+      "bytes": 2359,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/tools-inventory-search-file.png",
+      "to": "tests/artifacts/archive/2026-10-17/tools-inventory-search-file.png",
+      "sha256": "6c4884928b54fb6193ba2999260c826213e2c4fbcc703cc7a8369ef429783df7",
+      "bytes": 1086066,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/party-equipment-resize-progress.json",
+      "to": "tests/artifacts/archive/2026-10-17/party-equipment-resize-progress.json",
+      "sha256": "e1d09cd5fbb26fe054b8dcf5e03068efacc23ccb731f7cf0d2329d0d484f42a1",
+      "bytes": 945,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/commands-guard-390-100-http.png",
+      "to": "tests/artifacts/archive/2026-10-17/commands-guard-390-100-http.png",
+      "sha256": "10e6da895ddd4fadbee3fc379c4017ae10fd96601801036cb737b00b8d21302e",
+      "bytes": 295474,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/tools-home-844-75-file.png",
+      "to": "tests/artifacts/archive/2026-10-17/tools-home-844-75-file.png",
+      "sha256": "0fbce4cc6f90d9e6a91d994a198eeb89a8e5797d11d2052e0a10515cb990039f",
+      "bytes": 221384,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/spell-tab-equipment-final-validation.json",
+      "to": "tests/artifacts/archive/2026-10-17/spell-tab-equipment-final-validation.json",
+      "sha256": "fe819a67f6d0d100eb6c44bd7f932828cdcca3b05aabb686e14168576bb681d1",
+      "bytes": 1965,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/rwd-mobile-battle.png",
+      "to": "tests/artifacts/archive/2026-10-17/rwd-mobile-battle.png",
+      "sha256": "e6e2562e4eaa0573382f5fafa58a94ab50c825d9f51daa8e5285c3094fa81dcd",
+      "bytes": 297405,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/party-inline-resize-1330-100-file.png",
+      "to": "tests/artifacts/archive/2026-10-17/party-inline-resize-1330-100-file.png",
+      "sha256": "f180e527e0ff288cbf40eea4ea516a18669ff84e713acd0c30db028ffff2160f",
+      "bytes": 988426,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/addon-syntax-report.json",
+      "to": "tests/artifacts/archive/2026-10-17/addon-syntax-report.json",
+      "sha256": "e5f2a30f9653d515a6bdc8b61cf56987f1ffa17bc469abcaac482c23125cf94f",
+      "bytes": 41,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/tools-dograce-http.png",
+      "to": "tests/artifacts/archive/2026-10-17/tools-dograce-http.png",
+      "sha256": "4ce8cd273b3a0d6e57ebf8b860daed98d75d65a79f5bf06eb105f4f23d63b193",
+      "bytes": 309416,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/party-refine-1920-100-http.png",
+      "to": "tests/artifacts/archive/2026-10-17/party-refine-1920-100-http.png",
+      "sha256": "ffbc739a720922939afed397c1fa8d496882ac4ff0c6dd4da46179e0733ef56b",
+      "bytes": 1531650,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/town-buffs-enhance-final-runs.json",
+      "to": "tests/artifacts/archive/2026-10-17/town-buffs-enhance-final-runs.json",
+      "sha256": "c441fbb5c4a2ed68b84491d1583dff699eeb19d6b4cfea1fa9b67e8f6377eb38",
+      "bytes": 6455,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/summon-display-mobile-preview.png",
+      "to": "tests/artifacts/archive/2026-10-17/summon-display-mobile-preview.png",
+      "sha256": "020f3b704ad89c39b32097eb006361c9b338993d8a18694b27cbfc143e7c8c69",
+      "bytes": 215146,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/floating-party-390-75-http.png",
+      "to": "tests/artifacts/archive/2026-10-17/floating-party-390-75-http.png",
+      "sha256": "6f4e4008446ba8527ec4b163823c05c040bf48f5cf5c5e50edd030174f9bd5ea",
+      "bytes": 192320,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/party-inline-resize-390-75-http.png",
+      "to": "tests/artifacts/archive/2026-10-17/party-inline-resize-390-75-http.png",
+      "sha256": "0633f9d91d4e7eca2281e9ff3d5751e113b54642909ad743db33badaca5116d5",
+      "bytes": 277108,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/account-gameplay-summary.json",
+      "to": "tests/artifacts/archive/2026-10-17/account-gameplay-summary.json",
+      "sha256": "afc760ba1319e54c6e92f830551263d3e722d27060d41b8d6db2e39082c6b52d",
+      "bytes": 9357,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/commands-attack-390-75-http.png",
+      "to": "tests/artifacts/archive/2026-10-17/commands-attack-390-75-http.png",
+      "sha256": "9e26bbe2b1da57d6f3406dd419e3531c340672e9fdb4cf757b254568523e2285",
+      "bytes": 330059,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/party-refinements-baseline.json",
+      "to": "tests/artifacts/archive/2026-10-17/party-refinements-baseline.json",
+      "sha256": "fe2f2f0f02565dadf3e1bdf7d4dde8c0e6aa39bcf8faa518f20e4521d7bc9910",
+      "bytes": 1046,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/compact-filled-844-100.png",
+      "to": "tests/artifacts/archive/2026-10-17/compact-filled-844-100.png",
+      "sha256": "b1a2daf113b47e3dae59148ea3d826358df06198018ea6661e628e261a4cb65b",
+      "bytes": 147408,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/compact-settings-844-100-file.png",
+      "to": "tests/artifacts/archive/2026-10-17/compact-settings-844-100-file.png",
+      "sha256": "286ae2bd6428b8ef723c30299d988f81741c7f8b997b57e4ed602aa7531dc8a1",
+      "bytes": 144801,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/gameplay-quick-junk.png",
+      "to": "tests/artifacts/archive/2026-10-17/gameplay-quick-junk.png",
+      "sha256": "283e8b3f68204bc5b587dfbb5e570867035f937003280c72d72a7f940a68cbcc",
+      "bytes": 1116843,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/compact-1920-100-file.png",
+      "to": "tests/artifacts/archive/2026-10-17/compact-1920-100-file.png",
+      "sha256": "9324080b33baf785e9f810f3172ccb458d2a8ff385f62e31aacb1577044486ff",
+      "bytes": 1494452,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/roster-c-visual.json",
+      "to": "tests/artifacts/archive/2026-10-17/roster-c-visual.json",
+      "sha256": "fd68fbf8c184028e17567778fc9d489e151745cd26be1bb54225bc14f7265172",
+      "bytes": 391,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/compact-1920-75-http.png",
+      "to": "tests/artifacts/archive/2026-10-17/compact-1920-75-http.png",
+      "sha256": "f07f393333fa53e9a892c134bf034bb099c38d04b79af2019183fd04a1b8700a",
+      "bytes": 1028367,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/addon-search-file.png",
+      "to": "tests/artifacts/archive/2026-10-17/addon-search-file.png",
+      "sha256": "a042a5a373ae8c8987929609aae86e9e3cfd4ce3b2d72eb7261e23c204e240ec",
+      "bytes": 1052669,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/equipment-cast-integrity.json",
+      "to": "tests/artifacts/archive/2026-10-17/equipment-cast-integrity.json",
+      "sha256": "c880ee22a045b2770dfe927056a62bd7d2d9f9374cd11b98f7a7cd569d4ce427",
+      "bytes": 656,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/party-equipment-resize-baseline.json",
+      "to": "tests/artifacts/archive/2026-10-17/party-equipment-resize-baseline.json",
+      "sha256": "cec263c3b109cb88d8658371176f66db7f5e3394cfc97b5198a893b88e10087e",
+      "bytes": 805,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/tools-inventory-search-http.png",
+      "to": "tests/artifacts/archive/2026-10-17/tools-inventory-search-http.png",
+      "sha256": "e66753268fcc4075cd8f2c56153a38f9ded6a9b93e94b7333c2d15811f49052d",
+      "bytes": 1108412,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/rwd-mobile-buffs.png",
+      "to": "tests/artifacts/archive/2026-10-17/rwd-mobile-buffs.png",
+      "sha256": "8e2476e353fcf8de2a62b1fac01e6bba80d0158b14b06bad3e21d5e2317944dd",
+      "bytes": 119539,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/tools-home-844-75-http.png",
+      "to": "tests/artifacts/archive/2026-10-17/tools-home-844-75-http.png",
+      "sha256": "29f12a8755ac27d1b76cf575e6e101f1d771724f5bfa02eee9396c0de76ecb5d",
+      "bytes": 224284,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/skill-cards-baseline.json",
+      "to": "tests/artifacts/archive/2026-10-17/skill-cards-baseline.json",
+      "sha256": "2409c0b21927af52bd1d9d5eb7151d9a996ee1ea869ada49740fd2db92278e86",
+      "bytes": 544,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/gameplay-toolbar-layout.json",
+      "to": "tests/artifacts/archive/2026-10-17/gameplay-toolbar-layout.json",
+      "sha256": "1baea28ae104e9d1de9ad8a0378fe06fb88b70c0181e36ee9da00d4454237118",
+      "bytes": 613,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/summon-display-mobile-75-preview.png",
+      "to": "tests/artifacts/archive/2026-10-17/summon-display-mobile-75-preview.png",
+      "sha256": "aca39cbda90c0a57b6d110404e17446bd982a1e5624abefef5d3f136ede43262",
+      "bytes": 238486,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/commands-guard-390-100-file.png",
+      "to": "tests/artifacts/archive/2026-10-17/commands-guard-390-100-file.png",
+      "sha256": "38740d7f0dc7e01e5d7cc301e5376ba03886132fd05747f1caedb3c186f1a19a",
+      "bytes": 304558,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/enhancement-retained-desktop-75-preview.png",
+      "to": "tests/artifacts/archive/2026-10-17/enhancement-retained-desktop-75-preview.png",
+      "sha256": "905999b4e16f62f19692739f0c253212087bf126ca731769e265522089077430",
+      "bytes": 668157,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/account-party-1330x900-75.png",
+      "to": "tests/artifacts/archive/2026-10-17/account-party-1330x900-75.png",
+      "sha256": "e800b5314fcb189d99e39566536b949b2d8aa2516e644713a1b856138c8d18fe",
+      "bytes": 880434,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/commands-guard-1330-100-http.png",
+      "to": "tests/artifacts/archive/2026-10-17/commands-guard-1330-100-http.png",
+      "sha256": "ffa00f2665fea86fc0c73c4b23f20a02edf75b188d1e6bfa8b5bfed69546df0f",
+      "bytes": 1254555,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/account-party-ability-buff.png",
+      "to": "tests/artifacts/archive/2026-10-17/account-party-ability-buff.png",
+      "sha256": "8c31edaf49112333d368411c4177f34e377d85d07c5941dbe2f51f7be584f99c",
+      "bytes": 1034525,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/compact-filled-390-75.png",
+      "to": "tests/artifacts/archive/2026-10-17/compact-filled-390-75.png",
+      "sha256": "79815b80fa357bd1fb61157154bd50e96f1abeee2cf785b081b4cab121aa56fa",
+      "bytes": 130068,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/warehouse-amount-desktop-preview.png",
+      "to": "tests/artifacts/archive/2026-10-17/warehouse-amount-desktop-preview.png",
+      "sha256": "f9a24722b3721bb5da6e0812656290337fd4025133de6afb235af9c438882417",
+      "bytes": 397888,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/final-validation.json",
+      "to": "tests/artifacts/archive/2026-10-17/final-validation.json",
+      "sha256": "1a695623ea4f15f0d12832f95fdd2807e90e10f4478130b63435ac1a085ccc59",
+      "bytes": 3473,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/skill-cards-cloud-previews.json",
+      "to": "tests/artifacts/archive/2026-10-17/skill-cards-cloud-previews.json",
+      "sha256": "5a49af01ec46807395e6922b74ea21aab57dacce1d8ecac4a7f192374a09e122",
+      "bytes": 1058,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/equipment-larger-slots-integration.json",
+      "to": "tests/artifacts/archive/2026-10-17/equipment-larger-slots-integration.json",
+      "sha256": "cc9a3df4712eecb635a23b0094e0f8790e10df54f658335398c8055caffcfc50",
+      "bytes": 3815,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/village-maintenance-mobile-75-preview.png",
+      "to": "tests/artifacts/archive/2026-10-17/village-maintenance-mobile-75-preview.png",
+      "sha256": "2c01554321c6767efe124ad260a0efbbe68c344f30e156ac3c7bba3f220ee5d8",
+      "bytes": 228044,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/account-selection-desktop.png",
+      "to": "tests/artifacts/archive/2026-10-17/account-selection-desktop.png",
+      "sha256": "11d75444ebd0fd42a976d5fa5e7036ca6490ed28bd316218a55255edcdf2ea37",
+      "bytes": 923658,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/party-inline-resize-390-75-file.png",
+      "to": "tests/artifacts/archive/2026-10-17/party-inline-resize-390-75-file.png",
+      "sha256": "a3900487b3c38d2fafddfadfcedbaeb053f82b4727402c6162f30238f2d48176",
+      "bytes": 280120,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/floating-party-390-75-file.png",
+      "to": "tests/artifacts/archive/2026-10-17/floating-party-390-75-file.png",
+      "sha256": "3f6ea1340bc58844b990b61db320c0cc15ad012590d14ca501763cac4fc04811",
+      "bytes": 192400,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/compact-final-runs.json",
+      "to": "tests/artifacts/archive/2026-10-17/compact-final-runs.json",
+      "sha256": "b35a651ccb5b017cae35a29c04431bb1e50215d794cf73f087d6d706d23d9a9c",
+      "bytes": 7450,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/gameplay-party-844x390-75.png",
+      "to": "tests/artifacts/archive/2026-10-17/gameplay-party-844x390-75.png",
+      "sha256": "7e721f0b9f9d8e503e42f761edca30cc2610d4d82ecc984b18312f4855d4f551",
+      "bytes": 177048,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/party-equipment-redesign-baseline.json",
+      "to": "tests/artifacts/archive/2026-10-17/party-equipment-redesign-baseline.json",
+      "sha256": "5feddc725babcb4b879952162534d4ad649e76d9cbce8e8dc14cb922c43d92f1",
+      "bytes": 941,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/commands-attack-390-75-file.png",
+      "to": "tests/artifacts/archive/2026-10-17/commands-attack-390-75-file.png",
+      "sha256": "9e826ffc1b9c80a4bf504ef5e30462054184c0325f4ab2237dc6db312e8a4655",
+      "bytes": 341630,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/rwd-desktop.png",
+      "to": "tests/artifacts/archive/2026-10-17/rwd-desktop.png",
+      "sha256": "61ef128aabcc4e8596df1ed529220d0e1ac31ee589f360197a13905ac853e865",
+      "bytes": 945639,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/skill-cards-mobile-75-preview.png",
+      "to": "tests/artifacts/archive/2026-10-17/skill-cards-mobile-75-preview.png",
+      "sha256": "918f77ff676e89d7a344fdd2e19c5c3b584788eaa6e9df287e9c74dedaa0d6f7",
+      "bytes": 96583,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/compact-settings-844-100-http.png",
+      "to": "tests/artifacts/archive/2026-10-17/compact-settings-844-100-http.png",
+      "sha256": "286ae2bd6428b8ef723c30299d988f81741c7f8b997b57e4ed602aa7531dc8a1",
+      "bytes": 144801,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/summon-display-visual.json",
+      "to": "tests/artifacts/archive/2026-10-17/summon-display-visual.json",
+      "sha256": "e709848b19a8cf26cca72837edc88411ccf5c0a41fca07076a8e9138c8d1e101",
+      "bytes": 472,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/release-validation-20261014.json",
+      "to": "tests/artifacts/archive/2026-10-17/release-validation-20261014.json",
+      "sha256": "cc608882a4ebcdced683924d30f5298fa344aa9f8da7731238c4a40908a4dea3",
+      "bytes": 4581,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/party-inline-resize-1330-100-http.png",
+      "to": "tests/artifacts/archive/2026-10-17/party-inline-resize-1330-100-http.png",
+      "sha256": "650c996c6d396ea79a1c1bc60e90c616a2f0bfe5bc629a578ae9a366dc541dfb",
+      "bytes": 987928,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/skill-cards-desktop-preview.png",
+      "to": "tests/artifacts/archive/2026-10-17/skill-cards-desktop-preview.png",
+      "sha256": "6860b7deebe7b027980694c13f272ae39a1614103f570d9e6f8c6bb7997bbc02",
+      "bytes": 964588,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/tools-dograce-file.png",
+      "to": "tests/artifacts/archive/2026-10-17/tools-dograce-file.png",
+      "sha256": "f0d498e7d40d8c939b6b90100785ce4a63d572548f0273d23443ed4bfeac7c47",
+      "bytes": 309382,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/party-refine-1920-100-file.png",
+      "to": "tests/artifacts/archive/2026-10-17/party-refine-1920-100-file.png",
+      "sha256": "0318c3b897c70b1cc2c830dc626d276c541396b3ce96514ba7f329e980deb410",
+      "bytes": 1509111,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/town-buffs-enhance-integrity.json",
+      "to": "tests/artifacts/archive/2026-10-17/town-buffs-enhance-integrity.json",
+      "sha256": "8ed43e654629191cf2816ab8d860522f850d2ae137afd458cb8da3a76888a85a",
+      "bytes": 141,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/companion-commands-http.json",
+      "to": "tests/artifacts/archive/2026-10-17/companion-commands-http.json",
+      "sha256": "39b9f1f91e74bda890011874062db15c54650ac05e9a385a346737c91e35e4d2",
+      "bytes": 2359,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/compact-syntax-check.json",
+      "to": "tests/artifacts/archive/2026-10-17/compact-syntax-check.json",
+      "sha256": "d5f838a28d90a133063bd9df369a79b7127d21d333e1944940aa7101f72b2901",
+      "bytes": 80,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/party-combined-1330x900-75-file.png",
+      "to": "tests/artifacts/archive/2026-10-17/party-combined-1330x900-75-file.png",
+      "sha256": "311d0c485947233e034da241f44c2c87ab59e08649ced9d31c5a28bab3c9b94a",
+      "bytes": 815864,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/account-party-1330x900-100.png",
+      "to": "tests/artifacts/archive/2026-10-17/account-party-1330x900-100.png",
+      "sha256": "7d5672d84ccc080e2a37cc9835d5a65628b3518d29c8dea55e023f31985d6ba5",
+      "bytes": 980095,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/village-maintenance-desktop-75-preview.png",
+      "to": "tests/artifacts/archive/2026-10-17/village-maintenance-desktop-75-preview.png",
+      "sha256": "097ed9d3a3af557b486cfc12032c453e9baed5de4c94c89bea140afc5dc5ba0b",
+      "bytes": 675932,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/compact-844-75-http.png",
+      "to": "tests/artifacts/archive/2026-10-17/compact-844-75-http.png",
+      "sha256": "dee61bd85f983ae82b058a4c2a684b55024a88d3cd44ec85310d3074d9a7c195",
+      "bytes": 399329,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/paperdoll-summon-final-runs.json",
+      "to": "tests/artifacts/archive/2026-10-17/paperdoll-summon-final-runs.json",
+      "sha256": "0ef4a585ae7be0991cde01c5a1ce8ec32ae157a03f54c5e42a66541c3872e281",
+      "bytes": 891,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/skill-cards-mobile-preview.png",
+      "to": "tests/artifacts/archive/2026-10-17/skill-cards-mobile-preview.png",
+      "sha256": "4100f93caaf83603d4dea0044de1cee2d2b5fae8902e06eb15d9ac63e7ead7f2",
+      "bytes": 102748,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/tools-home-1330-100-file.png",
+      "to": "tests/artifacts/archive/2026-10-17/tools-home-1330-100-file.png",
+      "sha256": "cf8e270b55c30d0d05c43df2859e5f8e9beb653f7182be044420ddcafebc7fa8",
+      "bytes": 1219732,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/compact-settings-1024-100-file.png",
+      "to": "tests/artifacts/archive/2026-10-17/compact-settings-1024-100-file.png",
+      "sha256": "998843c14385140dd17dc31680b2d82db9126cb18ab6df11b3d95604ffcd7b73",
+      "bytes": 366224,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/party-opacity-60-file.png",
+      "to": "tests/artifacts/archive/2026-10-17/party-opacity-60-file.png",
+      "sha256": "a0320fd05b01265f6e1978ab0f1c72c44d86395dc0f5ff606363071e96da69da",
+      "bytes": 1098627,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/equipment-cast-final-validation.json",
+      "to": "tests/artifacts/archive/2026-10-17/equipment-cast-final-validation.json",
+      "sha256": "475d8f79215f1bb6581e68e6a2edeb55e993bc89dafcb3a745e96602bf4e9d43",
+      "bytes": 3680,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/ally-skill-stop-mobile-preview.png",
+      "to": "tests/artifacts/archive/2026-10-17/ally-skill-stop-mobile-preview.png",
+      "sha256": "1206251ef09ea22b383bbea5a6da62943cf4ce38aefec5fca5a86bd743f32d3a",
+      "bytes": 150333,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/account-buff-hover.png",
+      "to": "tests/artifacts/archive/2026-10-17/account-buff-hover.png",
+      "sha256": "6675f1c58eb1e42794f6e67dcedce8157458a260d5a7be2a70a458265e1aa07a",
+      "bytes": 1235911,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/party-combined-1330x900-100-http.png",
+      "to": "tests/artifacts/archive/2026-10-17/party-combined-1330x900-100-http.png",
+      "sha256": "129c690f0d5195fa3e12a01e4e3ce850669e07fc78d6c43a2aaf35aaf1143d1f",
+      "bytes": 920820,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/account-import-mobile-100.png",
+      "to": "tests/artifacts/archive/2026-10-17/account-import-mobile-100.png",
+      "sha256": "b58e2e1d931e0bc5c7fe8a3b386b125f1c6a797bc5edbffd88c6907b49bf16c9",
+      "bytes": 81083,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/party-refinement-combat-parity.json",
+      "to": "tests/artifacts/archive/2026-10-17/party-refinement-combat-parity.json",
+      "sha256": "be38c56753a2e5c5ffd37600be503983fb37da0d9953828807f4cc273a175098",
+      "bytes": 1460,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/tools-system-390-75-file.png",
+      "to": "tests/artifacts/archive/2026-10-17/tools-system-390-75-file.png",
+      "sha256": "648efed1243a8f2a02bbc1fbcbb7959fd093ff65b0ea4e71da958a1660e56a26",
+      "bytes": 144085,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/gameplay-party-390x844-75.png",
+      "to": "tests/artifacts/archive/2026-10-17/gameplay-party-390x844-75.png",
+      "sha256": "3013fefedce411f78537f9f67351402d577e60d8f5af2404ac7a7b4d9cf5e90f",
+      "bytes": 158960,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/skill-cards-http.json",
+      "to": "tests/artifacts/archive/2026-10-17/skill-cards-http.json",
+      "sha256": "9d5311e85f50907c52e90501b29b44877b64675be62c08fed77bdfb53316a4cd",
+      "bytes": 2676,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/native-combat-parity.json",
+      "to": "tests/artifacts/archive/2026-10-17/native-combat-parity.json",
+      "sha256": "439c91c55bb701359013649fccbbcdc969092ab4a86ec352bf3db3173836a157",
+      "bytes": 1087,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/floating-party-390-100-file.png",
+      "to": "tests/artifacts/archive/2026-10-17/floating-party-390-100-file.png",
+      "sha256": "c494e7ecc415555a616c0a67a9229d794a5ebab463bc698f23fe798783156d9c",
+      "bytes": 135386,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/village-party-integrity.json",
+      "to": "tests/artifacts/archive/2026-10-17/village-party-integrity.json",
+      "sha256": "7d10ea992eae8369f436043d961a97fdeb80212640f5b5602a25935161fac5eb",
+      "bytes": 178,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/rwd-report-http.json",
+      "to": "tests/artifacts/archive/2026-10-17/rwd-report-http.json",
+      "sha256": "bd714658403d003571facddee5d1e79ef02e8f57215e42b86aca00e9320fb38d",
+      "bytes": 19822,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/visual-game-tools-file.json",
+      "to": "tests/artifacts/archive/2026-10-17/visual-game-tools-file.json",
+      "sha256": "a43649ab519e5776c306d28845c3f9aa4f1ff821fa86c8714a5c2dbd349e926f",
+      "bytes": 1757,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/addon-source-parity.json",
+      "to": "tests/artifacts/archive/2026-10-17/addon-source-parity.json",
+      "sha256": "e2a06ba5b8369ed81e261e9dfa45a5d6dcc6505fcd7ac5f7f92ae3a9d0b35247",
+      "bytes": 11038,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/compact-battle-desktop-file.png",
+      "to": "tests/artifacts/archive/2026-10-17/compact-battle-desktop-file.png",
+      "sha256": "c423377d07e7cbfa05d203f588818a0e22a7467de4561bf82ab7e502d9da111f",
+      "bytes": 1543629,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/dps-teleport-integration.json",
+      "to": "tests/artifacts/archive/2026-10-17/dps-teleport-integration.json",
+      "sha256": "f348b936ad26a9f9c7c5b12479a1e7da7b4c7793b91eecbadc9b25f4465c2bc7",
+      "bytes": 1429,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/roster-c-final-validation.json",
+      "to": "tests/artifacts/archive/2026-10-17/roster-c-final-validation.json",
+      "sha256": "ccc98e73d22df6e6dbe3123e4a92f02f1a4ddb99e8ebc8c11b32f16856d1f117",
+      "bytes": 8211,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/pwa-file.json",
+      "to": "tests/artifacts/archive/2026-10-17/pwa-file.json",
+      "sha256": "ecde2802dcfa2c1e6e930171a88000409010bb6d1aed2b77dc098146de9940db",
+      "bytes": 255,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/compact-settings-390-100-file.png",
+      "to": "tests/artifacts/archive/2026-10-17/compact-settings-390-100-file.png",
+      "sha256": "7125d21e80ecf2b4b25c04e8ffd1307fdceb1aa03e2c1dcf955de6ba89403997",
+      "bytes": 108367,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/account-rename-mobile-75.png",
+      "to": "tests/artifacts/archive/2026-10-17/account-rename-mobile-75.png",
+      "sha256": "da0aa95768e357167442bbec3fc92516fe1a2ce47ae4af68bebfc857739e63c2",
+      "bytes": 98790,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/tools-training-battle-file.png",
+      "to": "tests/artifacts/archive/2026-10-17/tools-training-battle-file.png",
+      "sha256": "1eae61db3192eef433e8280628be60046dae6a57f2f143a128ba5f8d40a0c99b",
+      "bytes": 1129806,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/compact-settings-390-75-file.png",
+      "to": "tests/artifacts/archive/2026-10-17/compact-settings-390-75-file.png",
+      "sha256": "c92b6e63815f0578cf80f588fd8243c91fc79978bc8fbb37c937ba956fbe265a",
+      "bytes": 113041,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/summon-health-mobile-preview.png",
+      "to": "tests/artifacts/archive/2026-10-17/summon-health-mobile-preview.png",
+      "sha256": "2ae9085d1e15793d218ef0d5762de2adf64d765a4d3c3531e58fa1109d99071a",
+      "bytes": 148729,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/equipment-cast-baseline.json",
+      "to": "tests/artifacts/archive/2026-10-17/equipment-cast-baseline.json",
+      "sha256": "73d55961e81a0dd19c4dff4a6d5766de6cb2731835472daed5f70d8a408b435a",
+      "bytes": 1886,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/account-gameplay-http.json",
+      "to": "tests/artifacts/archive/2026-10-17/account-gameplay-http.json",
+      "sha256": "b1db6b8573057e2c3f9bb39f9a0e6abc378a36499e86fe45a5049687a22ce0c9",
+      "bytes": 7081,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/commands-attack-390-100-http.png",
+      "to": "tests/artifacts/archive/2026-10-17/commands-attack-390-100-http.png",
+      "sha256": "f596c66a3b65927863bbe04b85301c504c219b8752568e920dfbcaf5a53329d0",
+      "bytes": 295403,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/equipment-proportions-baseline.json",
+      "to": "tests/artifacts/archive/2026-10-17/equipment-proportions-baseline.json",
+      "sha256": "e065e186c14a20610c6c8857b38331520d0e1819040ca6bb5d791a0c46e16065",
+      "bytes": 3639,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/party-combined-390x844-100-http.png",
+      "to": "tests/artifacts/archive/2026-10-17/party-combined-390x844-100-http.png",
+      "sha256": "9f824bb0612ec3ec332a0cad020edfc8e0158b7ccefbf6a03d032da5546a3483",
+      "bytes": 131459,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/play-fixes-http.json",
+      "to": "tests/artifacts/archive/2026-10-17/play-fixes-http.json",
+      "sha256": "828e1b1c0af9935c6a9424037dcd010ed635809d1bbf37cdac36b75fb0b4aa14",
+      "bytes": 1060,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/compact-1024-100-file.png",
+      "to": "tests/artifacts/archive/2026-10-17/compact-1024-100-file.png",
+      "sha256": "7a314734241304ec950cfff5e7c535c70197f9564422d64c8ff9ebda67cb650a",
+      "bytes": 924658,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/town-buffs-enhance-http.json",
+      "to": "tests/artifacts/archive/2026-10-17/town-buffs-enhance-http.json",
+      "sha256": "59d12e34c9cc9fde0a2155201bbede16cb4ab67a3965e397122fab45250ae150",
+      "bytes": 4000,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/party-refine-844-75-http.png",
+      "to": "tests/artifacts/archive/2026-10-17/party-refine-844-75-http.png",
+      "sha256": "f11010acb2cc7faf0514a8912186798cc6b81048009a95e36f34c02c138dc92b",
+      "bytes": 365520,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/account-rename-mobile-100.png",
+      "to": "tests/artifacts/archive/2026-10-17/account-rename-mobile-100.png",
+      "sha256": "09203b27784ea6d0e1ec90f0032e5db86e273746084ac5fd0964c0546468b753",
+      "bytes": 103506,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/floating-party-1330-100-file.png",
+      "to": "tests/artifacts/archive/2026-10-17/floating-party-1330-100-file.png",
+      "sha256": "96c9376a40b498591e9466c30eb0b1cb144e2ae0f019a6b66ca858300dc93a06",
+      "bytes": 861165,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/village-clan-warehouse-http.json",
+      "to": "tests/artifacts/archive/2026-10-17/village-clan-warehouse-http.json",
+      "sha256": "221b25a12b50d192a119771506832dd30d3895f8c46cbb1528ccd1cca604a49b",
+      "bytes": 1847,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/party-grid-integrity.json",
+      "to": "tests/artifacts/archive/2026-10-17/party-grid-integrity.json",
+      "sha256": "7d10ea992eae8369f436043d961a97fdeb80212640f5b5602a25935161fac5eb",
+      "bytes": 178,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/ally-skill-stop-http.json",
+      "to": "tests/artifacts/archive/2026-10-17/ally-skill-stop-http.json",
+      "sha256": "2827e5034fa3c8320839f02397f487dc92496102e96e3fe776afe1c12cf9fea4",
+      "bytes": 1749,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/party-refinement-integrity.json",
+      "to": "tests/artifacts/archive/2026-10-17/party-refinement-integrity.json",
+      "sha256": "7f358cb509676c04fd3af04e28a337f6bb2926d7111181884cd80922a71f1574",
+      "bytes": 139,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/town-buffs-enhance-final-validation.json",
+      "to": "tests/artifacts/archive/2026-10-17/town-buffs-enhance-final-validation.json",
+      "sha256": "e02d8c6debb562cd3a3b2e015db6ebd35a976f6307fa90bfd6653757e1486a0d",
+      "bytes": 6310,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/rwd-mobile-settings.png",
+      "to": "tests/artifacts/archive/2026-10-17/rwd-mobile-settings.png",
+      "sha256": "631e338305c840187350f818ca8fbfb81ce44d4ef69d3a4f36eef70eb6303c3a",
+      "bytes": 115289,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/account-gameplay-file.json",
+      "to": "tests/artifacts/archive/2026-10-17/account-gameplay-file.json",
+      "sha256": "111f0ec583df3eb3cb7c9d5b3fa94289e95bf2602279523d9db9060ab6b7fa44",
+      "bytes": 7081,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/party-combined-1330x900-100-file.png",
+      "to": "tests/artifacts/archive/2026-10-17/party-combined-1330x900-100-file.png",
+      "sha256": "84425a1a9c8a2f548027c26dff7892eb8a2ffe843407130215418461d0c50b88",
+      "bytes": 920863,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/tools-system-390-75-http.png",
+      "to": "tests/artifacts/archive/2026-10-17/tools-system-390-75-http.png",
+      "sha256": "8b06f90fc3e49f2f6cd9a5ff347760d3df590e3c7f1311116d8af2678fa37742",
+      "bytes": 147254,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/party-equipment-redesign-final-runs.json",
+      "to": "tests/artifacts/archive/2026-10-17/party-equipment-redesign-final-runs.json",
+      "sha256": "4d151de3b10f3514e70e94c4517e7bfa5f30bcb64ca6aa04871cf6bfb1516699",
+      "bytes": 6358,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/floating-party-390-100-http.png",
+      "to": "tests/artifacts/archive/2026-10-17/floating-party-390-100-http.png",
+      "sha256": "39e354bf0ab6f0960ee3cca73ec8cc632ef55264f2221991e5e416c35340bf93",
+      "bytes": 135379,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/compact-battle-desktop-http.png",
+      "to": "tests/artifacts/archive/2026-10-17/compact-battle-desktop-http.png",
+      "sha256": "113c3e03b7db584ff8681fa7a584ad65f4c5f0c6ea150895ee59d199794ae1b7",
+      "bytes": 1517522,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/pwa-http.json",
+      "to": "tests/artifacts/archive/2026-10-17/pwa-http.json",
+      "sha256": "3de1104543d12c556e9fdd3c01e7e53b3eb7dfdf3c338232db4b3c01a9db41f5",
+      "bytes": 676,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/summon-dps-mobile-preview.png",
+      "to": "tests/artifacts/archive/2026-10-17/summon-dps-mobile-preview.png",
+      "sha256": "f57bafeef3739a98923990d90992466571d3c16d12ceb5a7c238e04ad3dfd73d",
+      "bytes": 96219,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/ally-skill-stop-file.json",
+      "to": "tests/artifacts/archive/2026-10-17/ally-skill-stop-file.json",
+      "sha256": "2827e5034fa3c8320839f02397f487dc92496102e96e3fe776afe1c12cf9fea4",
+      "bytes": 1749,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/party-combined-1330x900-75-http.png",
+      "to": "tests/artifacts/archive/2026-10-17/party-combined-1330x900-75-http.png",
+      "sha256": "90061539eea69e6e41ff0d9c8329ef5e5b27378957a70f02d5a2903c429a7205",
+      "bytes": 813635,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/party-refinement-settings-desktop.png",
+      "to": "tests/artifacts/archive/2026-10-17/party-refinement-settings-desktop.png",
+      "sha256": "edb7bbe082746535881c66c1748c3466265f00748e67ae30e4aadb222c3b8e7d",
+      "bytes": 1792205,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/party-grid-resize-regression.json",
+      "to": "tests/artifacts/archive/2026-10-17/party-grid-resize-regression.json",
+      "sha256": "8525ab036490b13e250db112c211e679912226b88eda7c36b434ae3201667ead",
+      "bytes": 1556,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/village-clan-warehouse-file.json",
+      "to": "tests/artifacts/archive/2026-10-17/village-clan-warehouse-file.json",
+      "sha256": "221b25a12b50d192a119771506832dd30d3895f8c46cbb1528ccd1cca604a49b",
+      "bytes": 1847,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/game-tools-baseline.json",
+      "to": "tests/artifacts/archive/2026-10-17/game-tools-baseline.json",
+      "sha256": "7d4506bedef7bc7f77e9e48b09502dd69e534d9decfb47bfbd1fcacbfe2402ed",
+      "bytes": 16707,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/account-party-ability-total.png",
+      "to": "tests/artifacts/archive/2026-10-17/account-party-ability-total.png",
+      "sha256": "269fa7201ba7c9fb90256c9c7c24d8ce134cc42aad947174c80d66814f855f09",
+      "bytes": 1034469,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/compact-844-75-file.png",
+      "to": "tests/artifacts/archive/2026-10-17/compact-844-75-file.png",
+      "sha256": "3b524e9e78b6598816d36f66595560ddd576e872724af427ff0c0b6582650896",
+      "bytes": 399273,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/ally-skill-stop-final-runs.json",
+      "to": "tests/artifacts/archive/2026-10-17/ally-skill-stop-final-runs.json",
+      "sha256": "d46937e5d0e83b5117cdb90c70425f250bc8ab6427835ebabadfa09bc3790f0a",
+      "bytes": 5707,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/town-buffs-enhance-file.json",
+      "to": "tests/artifacts/archive/2026-10-17/town-buffs-enhance-file.json",
+      "sha256": "59d12e34c9cc9fde0a2155201bbede16cb4ab67a3965e397122fab45250ae150",
+      "bytes": 4000,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/compact-settings-1024-100-http.png",
+      "to": "tests/artifacts/archive/2026-10-17/compact-settings-1024-100-http.png",
+      "sha256": "9f39185f0d9ede3cab84b4133b710272c272f2314b09881eef1d5023fcb47e98",
+      "bytes": 366243,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/tools-home-1330-100-http.png",
+      "to": "tests/artifacts/archive/2026-10-17/tools-home-1330-100-http.png",
+      "sha256": "c4a54e34e2561207fe0750c0263debc25be22e0d6df6723c6ea4539ecccdb73f",
+      "bytes": 1210018,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/party-combined-initial.png",
+      "to": "tests/artifacts/archive/2026-10-17/party-combined-initial.png",
+      "sha256": "4b8fe2470672926cfad7063308e8ca377d6ee6af9fc88dc807c793b3f01ceee2",
+      "bytes": 1082908,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/party-opacity-60-http.png",
+      "to": "tests/artifacts/archive/2026-10-17/party-opacity-60-http.png",
+      "sha256": "de6460ca56929b7d9232ae78fc5ab542ee0cf1b7780f5e9f2b0ba675dde05298",
+      "bytes": 1102199,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/play-fixes-file.json",
+      "to": "tests/artifacts/archive/2026-10-17/play-fixes-file.json",
+      "sha256": "ee33d06d1c04b2b8af3bc612d79f9e8970eb9b18e65e44a0ab4e6f38ec38a77d",
+      "bytes": 1060,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/ui-scale-summary.json",
+      "to": "tests/artifacts/archive/2026-10-17/ui-scale-summary.json",
+      "sha256": "6e70e9d20a3acee82c7395544e092ae79850889bff9159ca1cbcf29c93e435ae",
+      "bytes": 1990,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/commands-attack-390-100-file.png",
+      "to": "tests/artifacts/archive/2026-10-17/commands-attack-390-100-file.png",
+      "sha256": "84e6081ac9579677382e1de1acd7b874d1b64a9c0dd01ae7d47f5c46e56ba3f0",
+      "bytes": 305144,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/party-combined-390x844-100-file.png",
+      "to": "tests/artifacts/archive/2026-10-17/party-combined-390x844-100-file.png",
+      "sha256": "40001f4dd2dc85f842eba904b1b7d61d1a18add313a0f63647c46074bc11008a",
+      "bytes": 131473,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/session-20261014-publish-validation.json",
+      "to": "tests/artifacts/archive/2026-10-17/session-20261014-publish-validation.json",
+      "sha256": "1c2f8e7bdb8e121ff84cf37d620e4614a28c0f19985328ba0c1706ea45aed795",
+      "bytes": 3179,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/summon-health-mobile-75-preview.png",
+      "to": "tests/artifacts/archive/2026-10-17/summon-health-mobile-75-preview.png",
+      "sha256": "45b6ab8ee2613d2ca9f95c6b550ed796978dc09feda4c6401c1947549ab5dde3",
+      "bytes": 112759,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/gameplay-summary.json",
+      "to": "tests/artifacts/archive/2026-10-17/gameplay-summary.json",
+      "sha256": "aa3f492ba8c8de8c1709fed62d2e15d0450d2268340155c7f5ef39482f0767e8",
+      "bytes": 3765,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/compact-1024-100-http.png",
+      "to": "tests/artifacts/archive/2026-10-17/compact-1024-100-http.png",
+      "sha256": "586718c84c170e197b57e62d6ff1d5ffb9979bf5791ad4eee35e7413fe54f79e",
+      "bytes": 924776,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/ui-scale-75.png",
+      "to": "tests/artifacts/archive/2026-10-17/ui-scale-75.png",
+      "sha256": "1e077ca0f391266f45ee90fa322d4676df76a028c20375d9c3ed73b5671b49ef",
+      "bytes": 766956,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/floating-party-1330-100-http.png",
+      "to": "tests/artifacts/archive/2026-10-17/floating-party-1330-100-http.png",
+      "sha256": "1bc43d9d2dfa5b540b7d441d14db54b9b20adbfc15e47d7d86b04f9acaa3795e",
+      "bytes": 873223,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/party-refine-844-75-file.png",
+      "to": "tests/artifacts/archive/2026-10-17/party-refine-844-75-file.png",
+      "sha256": "e360c45a845b220ea8707c1e77e66024504be4d04d9f19baed613f75c8d6ecfe",
+      "bytes": 365052,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/feature-assessment.json",
+      "to": "tests/artifacts/archive/2026-10-17/feature-assessment.json",
+      "sha256": "4863220f75dfcc94d61201e4a6fa6af67d8e1f3aa87e04175a319bd794815083",
+      "bytes": 1598,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/village-clan-warehouse-baseline.json",
+      "to": "tests/artifacts/archive/2026-10-17/village-clan-warehouse-baseline.json",
+      "sha256": "20413fa83a499020c78645881bfbf8ff82cf39f16301f68ba712cea938643fdc",
+      "bytes": 407,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/skill-cards-tool-recovery.json",
+      "to": "tests/artifacts/archive/2026-10-17/skill-cards-tool-recovery.json",
+      "sha256": "2615133583e65ce1d7441d50f55d69d4ab5ca36b01aedc22d2125680fadf06a6",
+      "bytes": 728,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/village-clan-desktop-preview.png",
+      "to": "tests/artifacts/archive/2026-10-17/village-clan-desktop-preview.png",
+      "sha256": "de00228a5f7c4c0e5e6b54272fb14ef024e7b9f5e286847f3c5c96169e7a74f1",
+      "bytes": 807986,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/visual-game-tools-http.json",
+      "to": "tests/artifacts/archive/2026-10-17/visual-game-tools-http.json",
+      "sha256": "9519095f0c581f5e96195790d459d8f189d3614ce687930794d4e36c827419fc",
+      "bytes": 1757,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/compact-settings-390-100-http.png",
+      "to": "tests/artifacts/archive/2026-10-17/compact-settings-390-100-http.png",
+      "sha256": "7125d21e80ecf2b4b25c04e8ffd1307fdceb1aa03e2c1dcf955de6ba89403997",
+      "bytes": 108367,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/rwd-report-file.json",
+      "to": "tests/artifacts/archive/2026-10-17/rwd-report-file.json",
+      "sha256": "0f4213f99cbea5663ac7276e45ac50b828fa9f7a6812fe18ba5b61529eb02a86",
+      "bytes": 19822,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/roster-c-integrity.json",
+      "to": "tests/artifacts/archive/2026-10-17/roster-c-integrity.json",
+      "sha256": "51b2a7fe94d518facb20fd140bc256e8b09586cdbffdc07c32d06ecf6d387c55",
+      "bytes": 172,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/skill-cards-file.json",
+      "to": "tests/artifacts/archive/2026-10-17/skill-cards-file.json",
+      "sha256": "9d5311e85f50907c52e90501b29b44877b64675be62c08fed77bdfb53316a4cd",
+      "bytes": 2676,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/artwork-dps-integrity.json",
+      "to": "tests/artifacts/archive/2026-10-17/artwork-dps-integrity.json",
+      "sha256": "bef322efc9ef3ccbcf6f85dce0fa90d8c944aa47f4c30005d7b5274f3bcc403b",
+      "bytes": 308,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/tools-training-battle-http.png",
+      "to": "tests/artifacts/archive/2026-10-17/tools-training-battle-http.png",
+      "sha256": "e78f04ea319f17999b6f665f97de5a36217ef8836db7fb264e3b1e8c63dceaba",
+      "bytes": 1151963,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/compact-settings-390-75-http.png",
+      "to": "tests/artifacts/archive/2026-10-17/compact-settings-390-75-http.png",
+      "sha256": "c92b6e63815f0578cf80f588fd8243c91fc79978bc8fbb37c937ba956fbe265a",
+      "bytes": 113041,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/party-equipment-runs.json",
+      "to": "tests/artifacts/archive/2026-10-17/party-equipment-runs.json",
+      "sha256": "1200e09430754e9214bb7fc8c9fbfacee1edaa983b337c19e6ff749a950a70ff",
+      "bytes": 1010,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/party-equipment-wide-short-preview.png",
+      "to": "tests/artifacts/archive/2026-10-17/party-equipment-wide-short-preview.png",
+      "sha256": "c178dfe6f2a45b03ab24b87b63dcfbc3d4133ac7726ae309c90c453c888288eb",
+      "bytes": 815301,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/village-party-final-runs.json",
+      "to": "tests/artifacts/archive/2026-10-17/village-party-final-runs.json",
+      "sha256": "b720ad2abd17f932d569b97742dfac52bca6d946a2e0e99a4a82820f8c637d0a",
+      "bytes": 8882,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/addon-integration-runs.json",
+      "to": "tests/artifacts/archive/2026-10-17/addon-integration-runs.json",
+      "sha256": "5a15dc86c6d964561fba58abd83bcd2fb95f6d56156976181f36ce345cd80f07",
+      "bytes": 2367,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/summon-dps-mobile-75-preview.png",
+      "to": "tests/artifacts/archive/2026-10-17/summon-dps-mobile-75-preview.png",
+      "sha256": "239a5450eedfc1714e298487cdc2e6ec1e6cf9de99d9f3d11887cb3b3539f9c9",
+      "bytes": 94303,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/summon-display-desktop-75-preview.png",
+      "to": "tests/artifacts/archive/2026-10-17/summon-display-desktop-75-preview.png",
+      "sha256": "9590a89fb546d984aadcaa73340f104a65841decadf2ba6c9f15ab528856299a",
+      "bytes": 634286,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/tools-system-844-75-http.png",
+      "to": "tests/artifacts/archive/2026-10-17/tools-system-844-75-http.png",
+      "sha256": "cb2a87e3c7dcc3b1fbccc814ff93b27c717d8475b94775582d98860983878ed5",
+      "bytes": 41009,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/account-party-ability-1330x900-75.png",
+      "to": "tests/artifacts/archive/2026-10-17/account-party-ability-1330x900-75.png",
+      "sha256": "8f8429cdf861df21c92434de569eed264ce8685117b114135eccbc367a5bfd71",
+      "bytes": 940045,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/tools-home-390-100-file.png",
+      "to": "tests/artifacts/archive/2026-10-17/tools-home-390-100-file.png",
+      "sha256": "8df0261f8b9fbeaaad57ab12b7400ceefd30b8088c0e52e4a11b7308284f2cbb",
+      "bytes": 399452,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/skill-cards-integrity.json",
+      "to": "tests/artifacts/archive/2026-10-17/skill-cards-integrity.json",
+      "sha256": "9d82299d80d16e625641041da31fc86f9273a49288e28b86e8ae45f6b6d5317d",
+      "bytes": 295,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/party-grid-cloud-previews.json",
+      "to": "tests/artifacts/archive/2026-10-17/party-grid-cloud-previews.json",
+      "sha256": "727b565cd6a461fc623a9403e8dad8e15d794ede38dcf4a620b61d6707accb2b",
+      "bytes": 1056,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/game-tools-http.json",
+      "to": "tests/artifacts/archive/2026-10-17/game-tools-http.json",
+      "sha256": "43033d66f883ae2107d863bb1f28919bd25a48d010c856c25f1ce730b55bf1d2",
+      "bytes": 2618,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/skill-cards-wide-preview.png",
+      "to": "tests/artifacts/archive/2026-10-17/skill-cards-wide-preview.png",
+      "sha256": "8365a79afdc66a2a9451dc06aa8e7a814db0228646a28825de213fc64cd96017",
+      "bytes": 1017205,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/compact-390-100-http.png",
+      "to": "tests/artifacts/archive/2026-10-17/compact-390-100-http.png",
+      "sha256": "fc70880970d2d484e27d15cdcedf3bffbed59d420cb7c05389eb0e1fa243e0ce",
+      "bytes": 256340,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/ui-scale-report-http.json",
+      "to": "tests/artifacts/archive/2026-10-17/ui-scale-report-http.json",
+      "sha256": "b971a0f44eceea00bcd4b5caf88238f11269b6df4d8c5a6a070f45fe48354f4e",
+      "bytes": 10295,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/ally-experience-assessment-http.json",
+      "to": "tests/artifacts/archive/2026-10-17/ally-experience-assessment-http.json",
+      "sha256": "70a2ebd99663672695e22de7b05d398b3ce7ea267bd4fd524e4a51e166b7429c",
+      "bytes": 242,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/summon-display-file.json",
+      "to": "tests/artifacts/archive/2026-10-17/summon-display-file.json",
+      "sha256": "777d82c50896fbd44db8c11249037f58de7345a9495fbab9a79aac1ff72229f1",
+      "bytes": 2824,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/party-inline-resize-1330-75-file.png",
+      "to": "tests/artifacts/archive/2026-10-17/party-inline-resize-1330-75-file.png",
+      "sha256": "7013eb1fd323562a93a2dae988d871ee21bb9e4bc76259673146c75e72fd3ca0",
+      "bytes": 865346,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/tools-system-390-100-http.png",
+      "to": "tests/artifacts/archive/2026-10-17/tools-system-390-100-http.png",
+      "sha256": "b6fb1911276b3ede5bf90712ca97045c3a0eb5c077eabf07c8f81a911fdab473",
+      "bytes": 195110,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/compact-390-75-file.png",
+      "to": "tests/artifacts/archive/2026-10-17/compact-390-75-file.png",
+      "sha256": "9775066ea7a35e44c4ff8664d4901f70f804a8f5a6f13c5516d850ae3c0cdf34",
+      "bytes": 327210,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/account-party-390x844-75.png",
+      "to": "tests/artifacts/archive/2026-10-17/account-party-390x844-75.png",
+      "sha256": "3e42d903dc0a553b385b470371aba8cee6a79bcd59ad65c458fafb2dac1bded5",
+      "bytes": 188580,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/summon-display-baseline.json",
+      "to": "tests/artifacts/archive/2026-10-17/summon-display-baseline.json",
+      "sha256": "1dd26f31ac51257bef975a2b901f368653e50e294e02dd5e13517a6f3458e26b",
+      "bytes": 1942,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/party-refinement-ability-desktop.png",
+      "to": "tests/artifacts/archive/2026-10-17/party-refinement-ability-desktop.png",
+      "sha256": "70fda672425b2b0b64e2fb726781f5f7807f99775ca7c00a794f3c99fb5bf389",
+      "bytes": 1556984,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/compact-layout-file.json",
+      "to": "tests/artifacts/archive/2026-10-17/compact-layout-file.json",
+      "sha256": "1956bace588a74130485d103a30250a32a6930d9a78bb337e1e4f39326f79ef2",
+      "bytes": 3168,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/compact-regression-runs.json",
+      "to": "tests/artifacts/archive/2026-10-17/compact-regression-runs.json",
+      "sha256": "ce3d69bc54c159eab5346807962b6d904e484448a2613307cd56d239aff72d3e",
+      "bytes": 15528,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/artwork-dps-validation.json",
+      "to": "tests/artifacts/archive/2026-10-17/artwork-dps-validation.json",
+      "sha256": "2901d2b82e78a1d5aa2dd2bbf3fe12dd4e43811a8ef914081acd4df043bb43ea",
+      "bytes": 3118,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/town-enhance-pointer.json",
+      "to": "tests/artifacts/archive/2026-10-17/town-enhance-pointer.json",
+      "sha256": "3b9f12f24b7f41d506ad243ccd71e9041832f55410b8df5817a005455cdc3e17",
+      "bytes": 374,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/party-refine-390-75-file.png",
+      "to": "tests/artifacts/archive/2026-10-17/party-refine-390-75-file.png",
+      "sha256": "57a7670a2ac57d603b07a780f5a7c4f235d7da7c3886e57658e0884e00a8be90",
+      "bytes": 290598,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/account-visual-report.json",
+      "to": "tests/artifacts/archive/2026-10-17/account-visual-report.json",
+      "sha256": "f2bc40e113c26284dad4c4657cc8cef8c69afc13739a7c090fc757f0a3c54e3b",
+      "bytes": 1542,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/addon-defaults-file.png",
+      "to": "tests/artifacts/archive/2026-10-17/addon-defaults-file.png",
+      "sha256": "d1592ef77e005efad9cb05dbc5fb5038c0ef56a2a720fdf29b7b2b67e40c2d74",
+      "bytes": 551836,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/account-party-buff-hover.png",
+      "to": "tests/artifacts/archive/2026-10-17/account-party-buff-hover.png",
+      "sha256": "1c0d7e3cb76cadccae8266a744dbe1a1ac26ee44fa74c1b882d03c01a9d46b97",
+      "bytes": 984879,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/clan-buff-mobile-preview.png",
+      "to": "tests/artifacts/archive/2026-10-17/clan-buff-mobile-preview.png",
+      "sha256": "2f0fc7ac6a510f16734f01d5ad053e733237a1a102c80a81d9f3a851b34f4f70",
+      "bytes": 101070,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/compact-layout-baseline.json",
+      "to": "tests/artifacts/archive/2026-10-17/compact-layout-baseline.json",
+      "sha256": "6b9264bc78997a314578b1548b8139cc97f67b5df90bd0dca5b99a69f19a5ad1",
+      "bytes": 1119,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/party-equipment-redesign-cloud-previews.json",
+      "to": "tests/artifacts/archive/2026-10-17/party-equipment-redesign-cloud-previews.json",
+      "sha256": "9b20c8e9303d752e562e4f6216ab238e8a802c16a5b2439a2e8844032335cd69",
+      "bytes": 1598,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/party-grid-final-runs.json",
+      "to": "tests/artifacts/archive/2026-10-17/party-grid-final-runs.json",
+      "sha256": "9eff2538499842db6dcae40820836c392ce401ec540bb0a4a8bf5f497a647545",
+      "bytes": 4563,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/compact-filled-390-100.png",
+      "to": "tests/artifacts/archive/2026-10-17/compact-filled-390-100.png",
+      "sha256": "23dc478bda7c8e0058d8886c5bff892d1e92c6a1eafc69571bbd882347dc814e",
+      "bytes": 106453,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/roster-c-desktop-75-preview.png",
+      "to": "tests/artifacts/archive/2026-10-17/roster-c-desktop-75-preview.png",
+      "sha256": "93211fa1a1686e87130c3b4dc1125a28e6f2ae4ed45b9a25de38e99a7464cedd",
+      "bytes": 690893,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/commands-attack-1330-100-file.png",
+      "to": "tests/artifacts/archive/2026-10-17/commands-attack-1330-100-file.png",
+      "sha256": "3bcc561beea14dd727861a425433f70c385996580af58a9ae89f8cbc603ce4b9",
+      "bytes": 1275091,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/equipment-proportions-integration.json",
+      "to": "tests/artifacts/archive/2026-10-17/equipment-proportions-integration.json",
+      "sha256": "172fc1fb4ff70c2e9b3fe87164e3d4dfe0fc3c2c7555e13f144584a44a1f9090",
+      "bytes": 3567,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/spell-category-integration.json",
+      "to": "tests/artifacts/archive/2026-10-17/spell-category-integration.json",
+      "sha256": "a9aeccef10658f025cdf99a219ff9d4c62e601c6a1f45e54f9100d003b9a3ffe",
+      "bytes": 991,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/party-inline-resize-844-100-http.png",
+      "to": "tests/artifacts/archive/2026-10-17/party-inline-resize-844-100-http.png",
+      "sha256": "b948ef7d1a104611bd8dfb3ce3ecad068ecd4e2660be23085844a62f3ebfbe53",
+      "bytes": 270461,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/ally-skill-stop-combat-hash.json",
+      "to": "tests/artifacts/archive/2026-10-17/ally-skill-stop-combat-hash.json",
+      "sha256": "08b4d38d79ff81a1d136ae6ebc75406975a21bfaf288c616a62048ac2a81c876",
+      "bytes": 230,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/party-combined-844x390-100-http.png",
+      "to": "tests/artifacts/archive/2026-10-17/party-combined-844x390-100-http.png",
+      "sha256": "3f31039f605b6b0b44a18850839fe410b0563544420cd1dd790f89bc3cfa358d",
+      "bytes": 127945,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/addon-dograce-file.png",
+      "to": "tests/artifacts/archive/2026-10-17/addon-dograce-file.png",
+      "sha256": "f5679c868bdfea026ba82548fd93726d5a2e46ecc448b52f9981f7d3cc27709f",
+      "bytes": 941577,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/integration-runs.json",
+      "to": "tests/artifacts/archive/2026-10-17/integration-runs.json",
+      "sha256": "9fc220ca27e327259b48b8f8967bfecbe52917de2941ae7301a94fc1cddc13bf",
+      "bytes": 2586,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/party-combined-844x390-75-http.png",
+      "to": "tests/artifacts/archive/2026-10-17/party-combined-844x390-75-http.png",
+      "sha256": "09175cab18b957cbd3ba8bf0376708a39f317faa1bcf57e03ab3f4673156dc5b",
+      "bytes": 144357,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/compact-settings-844-75-http.png",
+      "to": "tests/artifacts/archive/2026-10-17/compact-settings-844-75-http.png",
+      "sha256": "a9cf0c79c468d0160f02cbdd6f9a2c60dacfa1b266eb48f479a39b06a957951e",
+      "bytes": 168619,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/party-equipment-mobile-preview.png",
+      "to": "tests/artifacts/archive/2026-10-17/party-equipment-mobile-preview.png",
+      "sha256": "7c5ca379565bfc2135ad42462c2df3e40059cb579b695e2eccdda62fdc4a6973",
+      "bytes": 91135,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/account-party-ability-844x390-75.png",
+      "to": "tests/artifacts/archive/2026-10-17/account-party-ability-844x390-75.png",
+      "sha256": "e2db282653c4f18a4fa9b2f25aba93fe9b0c5ba0692024070882e033dfaf27a3",
+      "bytes": 152923,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/compact-1330-100-http.png",
+      "to": "tests/artifacts/archive/2026-10-17/compact-1330-100-http.png",
+      "sha256": "64f5d2864dfc75a05fb6dc0d3548c4be633266a6ebd7ace2bfb27bf273f0c8f0",
+      "bytes": 1045820,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/party-refine-390-100-file.png",
+      "to": "tests/artifacts/archive/2026-10-17/party-refine-390-100-file.png",
+      "sha256": "fd27ec841e082051722b2ae0ff4d3d53a5eca2a29119fe2e20174844ff3349f3",
+      "bytes": 264217,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/town-buffs-enhance-cloud-previews.json",
+      "to": "tests/artifacts/archive/2026-10-17/town-buffs-enhance-cloud-previews.json",
+      "sha256": "872d0a5144892062229b78a9e25f539052c0a1331ef2511f5bcb87cdfb5f67c1",
+      "bytes": 1689,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/party-equipment-desktop-75-preview.png",
+      "to": "tests/artifacts/archive/2026-10-17/party-equipment-desktop-75-preview.png",
+      "sha256": "bdcd744cd4d37c4ad8f7f9fbebdb90a492be514f8e8cb4557ca5839aa1b437c0",
+      "bytes": 729037,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/warehouse-amount-mobile-preview.png",
+      "to": "tests/artifacts/archive/2026-10-17/warehouse-amount-mobile-preview.png",
+      "sha256": "081e3a50110f8d4c19af7333aeb6f239b132ec110cc80df29e5995c8a709f133",
+      "bytes": 82148,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/skill-cards-desktop-75-preview.png",
+      "to": "tests/artifacts/archive/2026-10-17/skill-cards-desktop-75-preview.png",
+      "sha256": "18ebd76f5df17f69e192aaa104143f13629a888874166bd6d399a4f7f52049b5",
+      "bytes": 691748,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/compact-filled-1920-75.png",
+      "to": "tests/artifacts/archive/2026-10-17/compact-filled-1920-75.png",
+      "sha256": "a213005bf91265438af890eb249616be119245619e13b23926c2f6c97a6b5a54",
+      "bytes": 1103514,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/party-inline-resize-1330-75-http.png",
+      "to": "tests/artifacts/archive/2026-10-17/party-inline-resize-1330-75-http.png",
+      "sha256": "746bbb5d2354397ba2689172bfccf1f36ca5760ab0f8713a595d0062d6dc16a7",
+      "bytes": 856414,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/compact-390-75-http.png",
+      "to": "tests/artifacts/archive/2026-10-17/compact-390-75-http.png",
+      "sha256": "e91061cc2c39f1cc54ab2b891fd9380c749b561f2b90ce96b824818569644288",
+      "bytes": 327163,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/tools-system-390-100-file.png",
+      "to": "tests/artifacts/archive/2026-10-17/tools-system-390-100-file.png",
+      "sha256": "df2056ea22e0871848690d5ae8426d982897f51e73131fe03fff56b9c53ddd03",
+      "bytes": 207933,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/compact-layout-http.json",
+      "to": "tests/artifacts/archive/2026-10-17/compact-layout-http.json",
+      "sha256": "618f51b338c52ce115d2246a6ff480f25818d62114ef426fd5ad1eb9bd5c2e85",
+      "bytes": 3168,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/party-equipment-baseline.json",
+      "to": "tests/artifacts/archive/2026-10-17/party-equipment-baseline.json",
+      "sha256": "5feddc725babcb4b879952162534d4ad649e76d9cbce8e8dc14cb922c43d92f1",
+      "bytes": 941,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/skill-cards-combat-before.json",
+      "to": "tests/artifacts/archive/2026-10-17/skill-cards-combat-before.json",
+      "sha256": "a21e517f9ce10e2bd9fb3cd16498e69560c0ccd14fc95e9b65caa3c181f78614",
+      "bytes": 369,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/compact-filled-1920-100.png",
+      "to": "tests/artifacts/archive/2026-10-17/compact-filled-1920-100.png",
+      "sha256": "42c5af9e119895c4015aee5effe9ae9f20a367d908e8070d8ef322e40a98eb9a",
+      "bytes": 1536858,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/tools-system-844-75-file.png",
+      "to": "tests/artifacts/archive/2026-10-17/tools-system-844-75-file.png",
+      "sha256": "a9ab6c12adac2ee37ba4f9fb81d67d0f71d2660fc0035c49cd81270645394fa7",
+      "bytes": 38857,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/gameplay-sort-desktop.png",
+      "to": "tests/artifacts/archive/2026-10-17/gameplay-sort-desktop.png",
+      "sha256": "ee318caa0d723f257f6f7b4f419d89df526edec28a0f74de5d3f6398a839808f",
+      "bytes": 1118609,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/tools-home-390-100-http.png",
+      "to": "tests/artifacts/archive/2026-10-17/tools-home-390-100-http.png",
+      "sha256": "b2137018ad7b7df69f149023bb2443e143a1260d445aa41e9cb752332e661c32",
+      "bytes": 379607,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/account-party-ability-390x844-100.png",
+      "to": "tests/artifacts/archive/2026-10-17/account-party-ability-390x844-100.png",
+      "sha256": "b0ba9080d0e5310a97aa9cb7971bd27c492d6a106da5974f59aa1b73706d3741",
+      "bytes": 227357,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/ally-skill-stop-desktop-preview.png",
+      "to": "tests/artifacts/archive/2026-10-17/ally-skill-stop-desktop-preview.png",
+      "sha256": "f0c3e8ea226fdadddf8bef4234b65536349b6e0b73108e311b686390591936ab",
+      "bytes": 981225,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/village-maintenance-desktop-preview.png",
+      "to": "tests/artifacts/archive/2026-10-17/village-maintenance-desktop-preview.png",
+      "sha256": "73303e82a7d30b07a79ae206d575aac858bbe25f131d10f268b695a56ced3f54",
+      "bytes": 956548,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/enhancement-retained-mobile-75-preview.png",
+      "to": "tests/artifacts/archive/2026-10-17/enhancement-retained-mobile-75-preview.png",
+      "sha256": "aac5da9052344325ccdbb706e34d2be7caf990727db3b64465553cc0963be1a7",
+      "bytes": 143090,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/compact-390-100-file.png",
+      "to": "tests/artifacts/archive/2026-10-17/compact-390-100-file.png",
+      "sha256": "85bd527273f635c333d69d7d73507f3d4f88aca9b8cab437b1548b8916933be2",
+      "bytes": 256470,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/ui-scale-report-file.json",
+      "to": "tests/artifacts/archive/2026-10-17/ui-scale-report-file.json",
+      "sha256": "29867cf2f861b4448e4b1c0d6b5f711768ac8155df5df3abe6936890180bc9da",
+      "bytes": 10295,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/dps-teleport-baseline.json",
+      "to": "tests/artifacts/archive/2026-10-17/dps-teleport-baseline.json",
+      "sha256": "ba0c262c68db5fafb825a95532caa0a926df41e18c9dacc085d2d7b3d62483fc",
+      "bytes": 1672,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/party-refinement-final-validation.json",
+      "to": "tests/artifacts/archive/2026-10-17/party-refinement-final-validation.json",
+      "sha256": "fae3397257dac989cc5f882732a59fce3a35e15b5e3fba24c981d496742d061b",
+      "bytes": 9120,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/commands-attack-1330-100-http.png",
+      "to": "tests/artifacts/archive/2026-10-17/commands-attack-1330-100-http.png",
+      "sha256": "687a5e81f9286f2e008876e25a63fc1960a4ea48cd951dd9740cb8c98735cae9",
+      "bytes": 1253818,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/dps-bar-alignment-validation.json",
+      "to": "tests/artifacts/archive/2026-10-17/dps-bar-alignment-validation.json",
+      "sha256": "fa73dea9ce9861677a8e937d197de88791a0a532788e831d8eff287b30744765",
+      "bytes": 941,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/party-equipment-short-diagnostic.json",
+      "to": "tests/artifacts/archive/2026-10-17/party-equipment-short-diagnostic.json",
+      "sha256": "091bcdeacc0cbdd3bb9e19c5a360554d749ade36e87e0ad14248cb0f490917e5",
+      "bytes": 792,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/game-tools-file.json",
+      "to": "tests/artifacts/archive/2026-10-17/game-tools-file.json",
+      "sha256": "965b27327b44a64e35534dc5883ee56df174bbb8e4fb843a4c98ad4c3d82444d",
+      "bytes": 2618,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/party-inline-resize-844-100-file.png",
+      "to": "tests/artifacts/archive/2026-10-17/party-inline-resize-844-100-file.png",
+      "sha256": "b948ef7d1a104611bd8dfb3ce3ecad068ecd4e2660be23085844a62f3ebfbe53",
+      "bytes": 270461,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/party-combined-844x390-100-file.png",
+      "to": "tests/artifacts/archive/2026-10-17/party-combined-844x390-100-file.png",
+      "sha256": "a3759a3063a0b4fb884a2a4cd154be4b1d605e234a2a149aecbd0228c3da8404",
+      "bytes": 127947,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/party-combined-844x390-75-file.png",
+      "to": "tests/artifacts/archive/2026-10-17/party-combined-844x390-75-file.png",
+      "sha256": "cf9cf02c4f5715dc86acb8de256b0423f960e362650bdae60f88cc26d76653ac",
+      "bytes": 144484,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/compact-settings-844-75-file.png",
+      "to": "tests/artifacts/archive/2026-10-17/compact-settings-844-75-file.png",
+      "sha256": "a9cf0c79c468d0160f02cbdd6f9a2c60dacfa1b266eb48f479a39b06a957951e",
+      "bytes": 168619,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/ally-skill-stop-visual.json",
+      "to": "tests/artifacts/archive/2026-10-17/ally-skill-stop-visual.json",
+      "sha256": "d3ab9cd74b19054f28b5cd98bdefa07b96cf980f3b6b285dee544ad2e99452a4",
+      "bytes": 286,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/party-equipment-redesign-final-validation.json",
+      "to": "tests/artifacts/archive/2026-10-17/party-equipment-redesign-final-validation.json",
+      "sha256": "21f7998fb2476677b00d9e02e34680ddfbebe8de567caf1b5e3393e04641c59f",
+      "bytes": 6276,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/addon-dograce-http.png",
+      "to": "tests/artifacts/archive/2026-10-17/addon-dograce-http.png",
+      "sha256": "6ff028c9ce6ea7e1a088756e3bcc8e023086c99ac8ae1db706cb21c56207a692",
+      "bytes": 930692,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/compact-1330-100-file.png",
+      "to": "tests/artifacts/archive/2026-10-17/compact-1330-100-file.png",
+      "sha256": "0250158efce564e00177d0f7f4045f61cae8cc51b6d804eeb5386139330c6327",
+      "bytes": 1045706,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/party-refine-390-100-http.png",
+      "to": "tests/artifacts/archive/2026-10-17/party-refine-390-100-http.png",
+      "sha256": "5c2930a33ebcb4887c3c6464b874cfd5f932248bdaf2a923cd878dce07b3a634",
+      "bytes": 266980,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/compact-final-validation.json",
+      "to": "tests/artifacts/archive/2026-10-17/compact-final-validation.json",
+      "sha256": "79def867f00dd6ee5c6e6b37a22a8d29ef3820b9a2c612b2a4691d72d9cc1fe2",
+      "bytes": 7222,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/town-buffs-enhance-baseline.json",
+      "to": "tests/artifacts/archive/2026-10-17/town-buffs-enhance-baseline.json",
+      "sha256": "29b765b89de2ab57902c240bdca182c9f4e305fed5e369b848519b80096cde3f",
+      "bytes": 2008,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/ally-skill-stop-desktop-75-preview.png",
+      "to": "tests/artifacts/archive/2026-10-17/ally-skill-stop-desktop-75-preview.png",
+      "sha256": "ddbe25eb4923fb4c4304b18df26c900cfc0812bf5575df749fd8e29ac848deea",
+      "bytes": 666981,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/equipment-larger-slots-baseline.json",
+      "to": "tests/artifacts/archive/2026-10-17/equipment-larger-slots-baseline.json",
+      "sha256": "661cbccb1a88c09f6a41fb5059011312df48d88b58ba6cc11955558084384f2f",
+      "bytes": 3823,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/summon-display-final-runs.json",
+      "to": "tests/artifacts/archive/2026-10-17/summon-display-final-runs.json",
+      "sha256": "9a262d11e1fb9263792054d165acfdcd6ae48d9f0fd01f2658fc46ad096b45a7",
+      "bytes": 5311,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/party-refine-390-75-http.png",
+      "to": "tests/artifacts/archive/2026-10-17/party-refine-390-75-http.png",
+      "sha256": "0096ea0264600bff6da71a135a069093dd8cef7cd219d93770b9a794bf1550c8",
+      "bytes": 289644,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/rwd-baseline.json",
+      "to": "tests/artifacts/archive/2026-10-17/rwd-baseline.json",
+      "sha256": "708afbfb47c8edd200fc0e4e34c9e34a83dfbd403a72397654e5e265cb2da160",
+      "bytes": 9369,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/gameplay-baseline.json",
+      "to": "tests/artifacts/archive/2026-10-17/gameplay-baseline.json",
+      "sha256": "8e660330f9f362d8050ccbf321f1620a4cfb002787f27e81e8f6b121641e2eba",
+      "bytes": 1093,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/summon-display-http.json",
+      "to": "tests/artifacts/archive/2026-10-17/summon-display-http.json",
+      "sha256": "777d82c50896fbd44db8c11249037f58de7345a9495fbab9a79aac1ff72229f1",
+      "bytes": 2824,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/ally-experience-assessment-file.json",
+      "to": "tests/artifacts/archive/2026-10-17/ally-experience-assessment-file.json",
+      "sha256": "70a2ebd99663672695e22de7b05d398b3ce7ea267bd4fd524e4a51e166b7429c",
+      "bytes": 242,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/cccc-homepage-20261015/gameplay-report-http.json",
+      "to": "tests/artifacts/archive/2026-10-17/cccc-homepage-20261015/gameplay-report-http.json",
+      "sha256": "2eeaa64bddc98dbf413ab2e196e3e45b5fa924474945795eba262b5433075a8b",
+      "bytes": 2945,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/cccc-homepage-20261015/cccc-home-390-75.png",
+      "to": "tests/artifacts/archive/2026-10-17/cccc-homepage-20261015/cccc-home-390-75.png",
+      "sha256": "79cf39e94c4d8da596a4e32884ed4fb73160992b8045c95095ff372c02b2ef77",
+      "bytes": 144539,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/cccc-homepage-20261015/gameplay-report-file.json",
+      "to": "tests/artifacts/archive/2026-10-17/cccc-homepage-20261015/gameplay-report-file.json",
+      "sha256": "442160c1f2955a2c4de628056cac9698944f79ca29d3c6f96beca81d3d00ae88",
+      "bytes": 2945,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/cccc-homepage-20261015/companion-commands-file.json",
+      "to": "tests/artifacts/archive/2026-10-17/cccc-homepage-20261015/companion-commands-file.json",
+      "sha256": "018f783a0f08d64a86013d4efdda17132ec7c49eaaffd841920b11af39a52568",
+      "bytes": 2359,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/cccc-homepage-20261015/cccc-selection-844-75.png",
+      "to": "tests/artifacts/archive/2026-10-17/cccc-homepage-20261015/cccc-selection-844-75.png",
+      "sha256": "de45e661f4070f985a420d35a72bd69fec4fe06896f243e7756792b4c3eb107d",
+      "bytes": 95607,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/cccc-homepage-20261015/cccc-selection-1330-75.png",
+      "to": "tests/artifacts/archive/2026-10-17/cccc-homepage-20261015/cccc-selection-1330-75.png",
+      "sha256": "f631fb269f8c46a19e98e70ad8327e0b3fb66688b2ed2daaaf092a29543e7c93",
+      "bytes": 245205,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/cccc-homepage-20261015/cccc-home-1330-75.png",
+      "to": "tests/artifacts/archive/2026-10-17/cccc-homepage-20261015/cccc-home-1330-75.png",
+      "sha256": "171eaf77e3be3510348765aea2c61f8fb2505e86706cf6d6c09a9f5148e332be",
+      "bytes": 377740,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/cccc-homepage-20261015/cccc-home-390-100.png",
+      "to": "tests/artifacts/archive/2026-10-17/cccc-homepage-20261015/cccc-home-390-100.png",
+      "sha256": "3ee5d48272d524b108b17d7c428f8d1f5755fab5ba213ab29cf042ee2a4289a3",
+      "bytes": 148458,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/cccc-homepage-20261015/cccc-selection-390-100.png",
+      "to": "tests/artifacts/archive/2026-10-17/cccc-homepage-20261015/cccc-selection-390-100.png",
+      "sha256": "69476f2298e8fe988f1790ba517505709e3aff45a60aefb0aa666c8be2dbe483",
+      "bytes": 47914,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/cccc-homepage-20261015/companion-commands-http.json",
+      "to": "tests/artifacts/archive/2026-10-17/cccc-homepage-20261015/companion-commands-http.json",
+      "sha256": "fc5d793264e1dfc76c78982d745d5f2e3c51bbcb15637538c0a28ae0e8a488df",
+      "bytes": 2359,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/cccc-homepage-20261015/previews.json",
+      "to": "tests/artifacts/archive/2026-10-17/cccc-homepage-20261015/previews.json",
+      "sha256": "ba6a3619ca566bef928bf87b86b7a61413b6bdae7f0c9211b73d01b19a4a6641",
+      "bytes": 2345,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/cccc-homepage-20261015/rwd-report-http.json",
+      "to": "tests/artifacts/archive/2026-10-17/cccc-homepage-20261015/rwd-report-http.json",
+      "sha256": "59dba1152be96fdb9255f31213abffc323dce6b12afde61bf33728174f739328",
+      "bytes": 24157,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/cccc-homepage-20261015/cccc-home-1330-100.png",
+      "to": "tests/artifacts/archive/2026-10-17/cccc-homepage-20261015/cccc-home-1330-100.png",
+      "sha256": "85bd6a957bd874b52ebf0f26dbba9065014a80f5d8d9b042df8c3c8aebfa7ada",
+      "bytes": 385531,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/cccc-homepage-20261015/account-gameplay-http.json",
+      "to": "tests/artifacts/archive/2026-10-17/cccc-homepage-20261015/account-gameplay-http.json",
+      "sha256": "46df8cac5e2146ffe253d9fbdcf1815cdb48902bbe9d940a0620b4003d43db47",
+      "bytes": 7081,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/cccc-homepage-20261015/credits-overflow-reproduction-http.json",
+      "to": "tests/artifacts/archive/2026-10-17/cccc-homepage-20261015/credits-overflow-reproduction-http.json",
+      "sha256": "b0598ae73704b36d6fe28d3a3ef8bfada2fa5f82decb9a420fd98b03f39d21ad",
+      "bytes": 22379,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/cccc-homepage-20261015/account-gameplay-file.json",
+      "to": "tests/artifacts/archive/2026-10-17/cccc-homepage-20261015/account-gameplay-file.json",
+      "sha256": "3d2c951b890c77f1f6756e42eca84d7c4376d33ed0102fb28d9cb41b7b19b6d2",
+      "bytes": 7081,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/cccc-homepage-20261015/cccc-home-844-75.png",
+      "to": "tests/artifacts/archive/2026-10-17/cccc-homepage-20261015/cccc-home-844-75.png",
+      "sha256": "e40323a9fbad05b897b39fd479dc3ab9b7df23068dd04f6284aa0eb46885d908",
+      "bytes": 158773,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/cccc-homepage-20261015/validation.json",
+      "to": "tests/artifacts/archive/2026-10-17/cccc-homepage-20261015/validation.json",
+      "sha256": "ce500eb856dce721ac04a68e35e8fe506468a9561250fc83db0b17420833b8a0",
+      "bytes": 6202,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/cccc-homepage-20261015/cccc-selection-1330-100.png",
+      "to": "tests/artifacts/archive/2026-10-17/cccc-homepage-20261015/cccc-selection-1330-100.png",
+      "sha256": "aff291e642848357e75c6752c05d9ab1ea8dd2086ded83bdb04fd58569a67cd7",
+      "bytes": 245661,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/cccc-homepage-20261015/home-scale-reproduction-file.json",
+      "to": "tests/artifacts/archive/2026-10-17/cccc-homepage-20261015/home-scale-reproduction-file.json",
+      "sha256": "a57bc5e2b3a1195cbc975c0de5089a240f84ad7dbe11a357cec90cc5b0d9a063",
+      "bytes": 6396,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/cccc-homepage-20261015/rwd-report-file.json",
+      "to": "tests/artifacts/archive/2026-10-17/cccc-homepage-20261015/rwd-report-file.json",
+      "sha256": "506ac36146bfca3e0ee6aaaade9b4a0fcc515e977e8c8a883847f01a63c4ccd1",
+      "bytes": 24157,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/cccc-homepage-20261015/ui-scale-report-http.json",
+      "to": "tests/artifacts/archive/2026-10-17/cccc-homepage-20261015/ui-scale-report-http.json",
+      "sha256": "328a61a5c7bba3a1e4d4cac0457d45b86a8650a1b933379ec6cc9157f5e6a374",
+      "bytes": 10295,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/cccc-homepage-20261015/ui-scale-report-file.json",
+      "to": "tests/artifacts/archive/2026-10-17/cccc-homepage-20261015/ui-scale-report-file.json",
+      "sha256": "a9e1f85905f0eb7ab1982fe98f9e34ab48668b79d8c4e1e1533c1ffe288ba560",
+      "bytes": 10295,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/cccc-homepage-20261015/cccc-selection-390-75.png",
+      "to": "tests/artifacts/archive/2026-10-17/cccc-homepage-20261015/cccc-selection-390-75.png",
+      "sha256": "8c094f2ebbaa30b3c8260916bcce4faee82cdc7103701c42311ccae0863c8596",
+      "bytes": 50719,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/cccc-homepage-20261015/cccc-home-844-100.png",
+      "to": "tests/artifacts/archive/2026-10-17/cccc-homepage-20261015/cccc-home-844-100.png",
+      "sha256": "71f4820c680fc2d8fd09840bc958e5942de156db638149d2b5ee0e0217464fae",
+      "bytes": 160045,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/cccc-homepage-20261015/cccc-selection-844-100.png",
+      "to": "tests/artifacts/archive/2026-10-17/cccc-homepage-20261015/cccc-selection-844-100.png",
+      "sha256": "b0ba7b2c68302e72b888e7eae7db6369b72449018d9934ec74754f4de7d57a4a",
+      "bytes": 96553,
+      "tracked": true
+    },
+    {
+      "from": "tests/artifacts/addon-defaults-http.png",
+      "to": "tests/artifacts/archive/2026-10-17/addon-defaults-http.png",
+      "sha256": "fb144007a3dde438b9f47780145c0d326e97206b5932bf0cd4a87282f17b7f64",
+      "bytes": 551210,
+      "tracked": true
+    }
+  ]
+}

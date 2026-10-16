@@ -1,0 +1,27 @@
+{
+  "mode": "built-in image_gen",
+  "selected": "A",
+  "images": [
+    {
+      "path": "output/imagegen/skill-settings-20261014/技能設定－A－緊湊卡片.png",
+      "iCloudPath": "<iCloud preview folder>/技能設定－A－緊湊卡片.png",
+      "sha256Matches": true
+    }
+  ],
+  "note": "Concepts only; visual text and anonymous portraits are not production assets. Native mechanics and learned skills remain authoritative.",
+  "implementation": "Compact stacked native skill cards; the stop threshold stays beside conversion per the later instruction.",
+  "removedVariants": [
+    {
+      "id": "B",
+      "name": "技能設定－B－技能名冊",
+      "sha256": "e96ad32c3ebdadd5024f5af25992e15919e02820c82334950f413394dc391e7f",
+      "reason": "Not selected; retained selected variant A"
+    },
+    {
+      "id": "C",
+      "name": "技能設定－C－角色分頁",
+      "sha256": "9f841c216332c2c5e08922f3d8e2f2f21ea064d0a80132d725c26770d9888f0a",
+      "reason": "Not selected; retained selected variant A"
+    }
+  ]
+}

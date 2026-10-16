@@ -45,7 +45,12 @@ for url in re.findall(r'(?:src|href)="([^" ]+\.(?:js|css)(?:\?[^" ]*)?)"', html)
 check('index.html ?v= stamps', not stale, 'run python3 scripts/update-cache.py: ' + ', '.join(stale) if stale else '')
 
 source = json.loads((root / 'tests/addon-source.json').read_text())
-bad = [f['path'] for f in source['files'] if not (root / f['path']).is_file() or hashlib.sha256((root / f['path']).read_bytes()).hexdigest() != f['sha256']]
+bad = []
+for entry in source['files']:
+    local_path = entry.get('localPath', entry['path'])
+    resource = root / local_path
+    if not resource.is_file() or hashlib.sha256(resource.read_bytes()).hexdigest() != entry['sha256']:
+        bad.append(local_path)
 check('mirrored add-ons (' + str(len(source['files'])) + ' files)', not bad, 'changed or missing: ' + ', '.join(bad) if bad else '')
 
 for path in sorted(str(p.relative_to(root)) for p in (root / 'tests').glob('*.integration.js')):

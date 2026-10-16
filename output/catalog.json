@@ -1,0 +1,13 @@
+{
+  "designSources": "design-source/imagegen",
+  "legacyAlias": {
+    "path": "imagegen",
+    "target": "design-source/imagegen",
+    "reason": "Preserves paths embedded in existing design metadata and acceptance records."
+  },
+  "runtimeAssets": [
+    "../assets/ui",
+    "../public/assets"
+  ],
+  "note": "Design sources and concepts; runtime artwork paths are unchanged."
+}

@@ -9,22 +9,6 @@
       "iCloudExportName": "隊友裝備－A－經典人形.png",
       "sha256": "e311266a7df793f4db269e8e8c2dcf9993e5d43e4d08b51e6dc6a9559792329b",
       "iCloudCopyMatches": true
-    },
-    {
-      "id": "B",
-      "name": "古典裝備櫃",
-      "path": "output/imagegen/teammate-equipment-20261014-v2/隊友裝備－B－古典裝備櫃.png",
-      "iCloudExportName": "隊友裝備－B－古典裝備櫃.png",
-      "sha256": "31397fa8905e205376e949cca670f37ac28d85a14281ea65f20c80711cff3b45",
-      "iCloudCopyMatches": true
-    },
-    {
-      "id": "C",
-      "name": "肖像裝備冊",
-      "path": "output/imagegen/teammate-equipment-20261014-v2/隊友裝備－C－肖像裝備冊.png",
-      "iCloudExportName": "隊友裝備－C－肖像裝備冊.png",
-      "sha256": "33835e7490b3f0900b32d0a386600a49cd91a2a4a4fd39de0200c14f739fccc0",
-      "iCloudCopyMatches": true
     }
   ],
   "promptSet": "output/imagegen/teammate-equipment-20261014-v2/prompts.json",
@@ -56,5 +40,19 @@
     "iCloudExportName": "隊友裝備－原版背景－高寬4比3.png",
     "iCloudCopyMatches": true,
     "remoteSyncVerified": false
-  }
+  },
+  "removedVariants": [
+    {
+      "id": "B",
+      "name": "古典裝備櫃",
+      "sha256": "31397fa8905e205376e949cca670f37ac28d85a14281ea65f20c80711cff3b45",
+      "reason": "Not selected; retained selected variant A"
+    },
+    {
+      "id": "C",
+      "name": "肖像裝備冊",
+      "sha256": "33835e7490b3f0900b32d0a386600a49cd91a2a4a4fd39de0200c14f739fccc0",
+      "reason": "Not selected; retained selected variant A"
+    }
+  ]
 }

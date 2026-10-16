@@ -170,7 +170,7 @@ python3 tests/run-rwd.py --space SPACE_ID --suite effect-details warehouse-list 
 | --- | --- |
 | [index.html](index.html) | 遊戲入口、script 順序與資源快取版本。 |
 | [js/](js/) | 遊戲資料、戰鬥、存檔、UI 與本版整合模組。 |
-| 根目錄 `afk-*.js` | 鏡像加掛檔，以來源清單核對 SHA。 |
+| [js/vendor/afk/](js/vendor/afk/) | 鏡像加掛檔；來源清單保留上游路徑，`localPath` 記錄本機位置，SHA 保持不變。 |
 | [css/](css/) | 介面樣式。 |
 | [assets/](assets/)／[public/assets/](public/assets/) | 遊戲美術、音效與登入素材。 |
 | [scripts/](scripts/) | 本地檢查、快取版本及素材資料更新工具。 |
