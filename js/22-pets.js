@@ -1459,7 +1459,7 @@ function _petAnimApply() {
         for (let p of outs) {
             if (!p._downed) _petWanderStep(p, host, hostRect);   // 倒地/死亡殘影不再移動（v3.2.19 修：原本倒地仍會閒晃漂移）
             let dir = (p._dir != null) ? p._dir : 6;
-            let gfxForm = companionSpriteForm(p);   // 👑 v3.2.25 動態別名：顯示名≠圖檔資料夾（精靈王借用強力精靈圖·強力精靈改用一般精靈圖）
+            let gfxForm = companionSpriteForm(p);   // Shared sprite resolution keeps map and roster artwork consistent.
             let a = _pet8Cache[gfxForm + '#' + dir];
             if (a === undefined) _pet8Probe(gfxForm, dir);
             if (!a || a === 'probing') {

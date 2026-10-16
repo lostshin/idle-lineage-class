@@ -4,7 +4,7 @@ const init=(await page.cdp('Page.addScriptToEvaluateOnNewDocument',{source:`(()=
 async function check(name,fn){try{const r=await fn();if(r!==true)throw Error(JSON.stringify(r));reports.push({name,status:'PASS'});}catch(e){reports.push({name,status:'FAIL',error:String(e)});console.log({name,error:String(e)});}await fs.writeFile(options.artifacts+'/play-fixes-'+(options.baseline?'baseline':options.protocol)+'.json',JSON.stringify({date:new Date().toISOString(),reports},null,2));}
 await page.cdp('Emulation.setDeviceMetricsOverride',{width:1330,height:900,deviceScaleFactor:1,mobile:false});
 await page.goto(options.url+'?play-fixes='+Date.now());await page.waitForFunction(()=>document.readyState==='complete'&&typeof startGame==='function');
-await page.evaluate(()=>{_bgHeartbeatWorker?.terminate();_bgHeartbeatWorker=null;_getLzWorker=()=>null;selectClass('m_knight');startGame();stopGameTimers();player.lv=60;player.autoSellOn=false;calcStats();});
+await page.evaluate(()=>{_bgHeartbeatWorker?.terminate();_bgHeartbeatWorker=null;_getLzWorker=()=>null;selectClass('m_knight');document.getElementById('creation-name').value='合成測試角色';startGame();stopGameTimers();player.lv=60;player.autoSellOn=false;calcStats();});
 // 1. Enhanced single items rejoin the stack with the same enhancement.
 await check('an enhanced single rejoins the existing stack with the same enhancement',()=>page.evaluate(()=>{
  player.inv=[{id:'wpn_dagger1',uid:uid(),cnt:3,en:0,bless:false,anc:false,attr:false,seteff:false,lock:false,junk:false},{id:'wpn_dagger1',uid:uid(),cnt:1,en:1,bless:false,anc:false,attr:false,seteff:false,lock:false,junk:false},{id:'scroll_weapon',uid:uid(),cnt:5,en:0,bless:false,anc:false,attr:false,seteff:false,lock:false,junk:false}];

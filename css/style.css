@@ -1024,6 +1024,12 @@
 .classic-icon-corner-value.is-enhance,.equipment-slot-enhance { color:#39a9ff !important; text-shadow:0 0 3px #0b4f99,1px 1px 2px #000 !important; }
 .classic-icon-corner-value.is-count,.equipment-slot-count { color:#d5a94f; }
 .classic-item-junk .classic-icon-corner-value { bottom:11px; }
+.classic-inventory-viewport .classic-icon-box { position:relative;container-type:inline-size; }
+.classic-icon-values { position:absolute;z-index:9;right:2px;bottom:1px;max-width:92%;display:flex;flex-direction:column;align-items:flex-end;gap:1px;pointer-events:none; }
+.classic-icon-values > .classic-icon-corner-value { position:static;display:block;max-width:100%;overflow:visible;line-height:1; }
+.classic-icon-values > .is-count { color:#a6894d;font-size:max(1px,calc(min(clamp(10px,.9vw,15px),140cqw / var(--count-chars)) - 1pt)); }
+.classic-item-junk .classic-icon-values { bottom:11px; }
+
 .classic-name-box { display:flex; align-items:center; gap:5px; min-width:0; overflow:hidden; color:#e5e7eb; text-shadow:0 1px 2px #000; white-space:nowrap; }
 .classic-name-box > span:not(.classic-slot-name):first-of-type { overflow:hidden; text-overflow:ellipsis; }
 .classic-slot-name { color:#9ca3af; font-size:11px; flex:0 0 auto; }

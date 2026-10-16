@@ -364,7 +364,7 @@ function necroSkeletonTick() {
 // 🧝 屬性精靈：v3.2.26 四屬性獨立表走 spiritAttackOnce（骰/縮放逐屬性·攻速 16~18 ticks 依 _spiritDerive）；HP/等級為實體設計值。
 // 👑 v3.2.25 精靈精通改版（用戶拍板）：不再增加數量（一律 1 隻）——有精靈精通時，
 //    「召喚強力屬性精靈」改為召喚更強大的「<屬性>精靈王」（SPIRIT_KING 獨立參數·使用原強力精靈的動態）；
-//    無精通的強力屬性精靈動態改用一般屬性精靈的圖（強力圖成為精靈王專屬）——由 formGfx 欄位分派（js/22 渲染層）。
+// Strong spirits and spirit kings share the original large sprites; normal spirits keep the small sprites.
 // 🧝 v3.2.26 四屬性獨立數值（用戶 HP 表）＋攻速改依動態幀數（幀數×1.25＋7：水/風 9幀→1.8s·火/地 7幀→1.6s）。
 //   傷害設計：單發＝原 DPS×攻擊間隔（攻速慢→單發重）；強力/精靈王再依 HP 曲線反比（血厚傷低·(基準HP/自身HP)^0.7：風最坦最輕·水火最痛）。
 //   欄位：dice=[顆數,面數]·scale=固定值除數(魅力×等級/scale·可小數)·hp/aspd 依屬性。
@@ -498,8 +498,8 @@ function summonV2CastFor(skId, silent) {   // castSkill 分流入口（sk_summon
         const king = _spiritIsKing(skId);
         const spec = _spiritSpec(skId, ele, king);
         const form = _spiritFormName(skId, ele);
-        // 動態分派：精靈王＝原「強力X屬性精靈」圖（專屬）；強力屬性精靈（無精通）與一般精靈＝「X屬性精靈」圖
-        const gfx = (king ? '強力' : '') + SPIRIT_ELE_ZH[ele] + '屬性精靈';
+        // Resolve the same artwork used by the roster and map, including non-mastered strong spirits.
+        const gfx = companionSpriteForm({skId:skId,ele:ele,_king:king});
         ents.push({ uid: uid(), skId: skId, form: form, formGfx: gfx, ele: ele, lv: spec.lv, hp: spec.hp, mhp: spec.hp, _king: king, _atkCd: 5 });
         castMsg = king
             ? `精靈之力在你的精通下昇華——你召喚了 <span class="text-purple-300 font-bold">${form}</span>！`

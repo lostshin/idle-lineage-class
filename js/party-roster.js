@@ -3,13 +3,13 @@ function companionDisplayForm(actor) {
     return String(actor._v2form || actor.form || actor.n || '').replace(/^(夥伴|召喚)：/, '').replace(/(?: ×\d+| Lv\.\d+)$/, '');
 }
 function companionSpriteForm(actor) {
-    if (actor.formGfx) return actor.formGfx;
-    const name = companionDisplayForm(actor), spirit = /^(?:強力)?([水火風地])之精靈(王)?$/.exec(name);
+    const name = companionDisplayForm(actor), spirit = /^(強力)?([水火風地])之精靈(王)?$/.exec(name);
     if (actor.skId === 'sk_elf_summon' || actor.skId === 'sk_elf_summon2' || spirit) {
-        const element = SPIRIT_ELE_ZH[actor.ele] || (spirit && spirit[1]);
-        if (element) return (actor._king || (spirit && spirit[2]) ? '強力' : '') + element + '屬性精靈';
+        const element = SPIRIT_ELE_ZH[actor.ele] || (spirit && spirit[2]);
+        const strong = actor.skId === 'sk_elf_summon2' || actor._king || (spirit && (spirit[1] || spirit[3]));
+        if (element) return (strong ? '強力' : '') + element + '屬性精靈';
     }
-    return name;
+    return actor.formGfx || name;
 }
 function summonDisplayName(actor, owner) {
     return (owner._allyName || _clanRoleDisplayName(owner)) + '·' + companionDisplayForm(actor);

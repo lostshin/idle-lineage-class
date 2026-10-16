@@ -28,7 +28,7 @@ await check('setting uses the current appearance as centered 100%',()=>page.eval
 if(!await page.evaluate(()=>typeof setUiScale==='function')){
  await fs.writeFile(options.artifacts+'/ui-scale-baseline.json',JSON.stringify(reports,null,2));console.log(reports);throw Error('UI scale is not implemented yet');
 }
-await page.evaluate(()=>{selectClass('m_mage');startGame();stopGameTimers();state.running=false;});
+await page.evaluate(()=>{selectClass('m_mage');document.getElementById('creation-name').value='合成測試角色';startGame();stopGameTimers();state.running=false;});
 await page.click('#btn-automation');
 await page.evaluate(()=>setUiScale(100));
 const button100=await page.evaluate(()=>document.getElementById('btn-automation').getBoundingClientRect().height);

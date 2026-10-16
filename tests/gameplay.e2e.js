@@ -14,7 +14,7 @@ async function boot(seed={}){
 async function writeReport(){await fs.writeFile(options.artifacts+'/'+(options.baseline?'gameplay-baseline':'gameplay-report-'+options.protocol)+'.json',JSON.stringify({date:new Date().toISOString(),reports},null,2));}
 async function inspect(kind,id){const selector=`button[data-party-kind="${kind}"][data-party-id="${id}"]`;await page.evaluate(s=>document.querySelector(s).scrollIntoView({block:'center'}),selector);await page.waitForFunction(s=>{const b=document.querySelector(s),r=b.getBoundingClientRect();return document.elementFromPoint(r.x+r.width/2,r.y+r.height/2)?.closest(s)===b;},selector);await page.click(selector);}
 async function check(name,fn){try{const r=await fn();if(r!==true)throw Error(JSON.stringify(r));reports.push({name,status:'PASS'});}catch(e){reports.push({name,status:'FAIL',error:String(e)});console.log({failed:name,error:String(e)});}await writeReport();}
-await boot();await page.evaluate(()=>{selectClass('m_mage');startGame();stopGameTimers();state.running=false;player.autoSellOn=false;});
+await boot();await page.evaluate(()=>{selectClass('m_mage');document.getElementById('creation-name').value='合成測試角色';startGame();stopGameTimers();state.running=false;player.autoSellOn=false;});
 await page.evaluate(()=>{
  const base={cnt:1,bless:false,anc:false,attr:false,seteff:false,lock:false,junk:false};
  player.inv=[{...base,id:'wpn_shortbow',uid:'wpn-low',en:0},{...base,id:'wpn_shortbow',uid:'wpn-high',en:6},{...base,id:'wpn_shortbow',uid:'wpn-three',en:3},{...base,id:'wpn_shortbow',uid:'wpn-lock',en:3,lock:true},{...base,id:'arm_74',uid:'arm-low',en:0},{...base,id:'arm_74',uid:'arm-two',en:2},{...base,id:'arm_74',uid:'arm-high',en:5}];

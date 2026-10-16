@@ -5,14 +5,36 @@ let init=(await page.cdp('Page.addScriptToEvaluateOnNewDocument',{source:storage
 async function check(name,fn){try{const r=await fn();if(r!==true)throw Error(JSON.stringify(r));reports.push({name,status:'PASS'});}catch(e){reports.push({name,status:'FAIL',error:String(e)});console.log({name,error:String(e)});}await fs.writeFile(options.artifacts+'/summon-display-'+(options.baseline?'baseline':options.protocol)+'.json',JSON.stringify({reports},null,2));}
 async function wait(){await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));}
 async function spritePoint(selector){
- const sprite=await page.evaluate(s=>{const im=document.querySelector(s);return{src:im.src,rect:im.getBoundingClientRect().toJSON(),name:im.dataset.mapName};},selector);
-   const cp=await import('node:child_process');const imagePath=options.root+'/assets/'+decodeURIComponent(sprite.src.split('/assets/')[1]);
-   const pixel=JSON.parse(cp.execFileSync('python3',['-c',"import sys,json;from PIL import Image;im=Image.open(sys.argv[1]).convert('RGBA');w,h=im.size;b=im.getchannel('A').getbbox();cx,cy=(b[0]+b[2])/2,(b[1]+b[3])/2;p=min(((x,y) for y in range(b[1],b[3]) for x in range(b[0],b[2]) if im.getpixel((x,y))[3]>200),key=lambda p:(p[0]-cx)**2+(p[1]-cy)**2);print(json.dumps({'x':(p[0]+.5)/w,'y':(p[1]+.5)/h}))",imagePath],{encoding:'utf8'}));
- return {x:sprite.rect.left+pixel.x*sprite.rect.width,y:sprite.rect.top+pixel.y*sprite.rect.height,name:sprite.name};
+ await page.evaluate(()=>new Promise((resolve,reject)=>{let previous='',stable=0,frames=0;function tick(){const map=document.getElementById('battle-view').getBoundingClientRect(),key=[innerWidth,innerHeight,map.x,map.y,map.width,map.height,...[...document.querySelectorAll('#game-screen,#col-left,#col-right')].map(e=>e.scrollTop)].join(':');stable=key===previous?stable+1:0;previous=key;if(stable>=6)return resolve();if(++frames>180)return reject(Error('Map layout did not settle'));requestAnimationFrame(tick);}requestAnimationFrame(tick);}));
+ const sprites=await page.evaluate(selector=>[...document.querySelectorAll('#battle-view img[data-map-name]')].filter(e=>e.naturalWidth&&e.checkVisibility()).map(e=>({src:e.src,rect:e.getBoundingClientRect().toJSON(),name:e.dataset.mapName,target:e===document.querySelector(selector)})),selector);
+ const cp=await import('node:child_process');
+ const point=JSON.parse(cp.execFileSync('python3',['-c',`
+import sys,json,urllib.parse
+from PIL import Image
+rows=json.loads(sys.argv[1])
+for r in rows:
+ path=sys.argv[2]+'/assets/'+urllib.parse.unquote(r['src'].split('/assets/')[1])
+ r['im']=Image.open(path).convert('RGBA').getchannel('A')
+a=next(r for r in rows if r['target']);im=a['im'];w,h=im.size;b=im.getbbox();cx,cy=(b[0]+b[2])/2,(b[1]+b[3])/2
+points=sorted(((x,y) for y in range(max(3,b[1]),min(h-3,b[3])) for x in range(max(3,b[0]),min(w-3,b[2])) if im.getpixel((x,y))>200),key=lambda p:(p[0]-cx)**2+(p[1]-cy)**2)
+for x,y in points:
+ if any(im.getpixel((x+dx,y+dy))<200 for dx in range(-3,4) for dy in range(-3,4)):continue
+ ar=a['rect'];px=ar['left']+(x+.5)/w*ar['width'];py=ar['top']+(y+.5)/h*ar['height'];blocked=False
+ for r in rows:
+  if r is a:continue
+  rr=r['rect'];ri=r['im'];rw,rh=ri.size
+  for dx,dy in [(0,0),(-1,-1),(1,1),(-1,1),(1,-1)]:
+   rx=int((px+dx-rr['left'])/max(1,rr['width'])*rw);ry=int((py+dy-rr['top'])/max(1,rr['height'])*rh)
+   if rr['left']<=px+dx<rr['right'] and rr['top']<=py+dy<rr['bottom'] and 0<=rx<rw and 0<=ry<rh and ri.getpixel((rx,ry))>0:blocked=True;break
+  if blocked:break
+ if not blocked:print(json.dumps({'x':px,'y':py,'name':a['name']}));break
+else:raise RuntimeError('No unobscured interior pixel for '+a['name'])
+`,JSON.stringify(sprites),options.root],{encoding:'utf8'}));
+ return point;
 }
 async function view(w,h,s=100){await page.cdp('Emulation.setDeviceMetricsOverride',{width:w,height:h,deviceScaleFactor:1,mobile:w<1024});await page.cdp('Emulation.setTouchEmulationEnabled',{enabled:w<1024,maxTouchPoints:1});await page.evaluate(s=>setUiScale(s),s);await wait();}
 await page.goto(options.url+'?summon-display-test');await page.waitForFunction(()=>document.readyState==='complete'&&typeof startGame==='function');await view(1920,1080);
-await page.evaluate(()=>{_bgHeartbeatWorker?.terminate();_bgHeartbeatWorker=null;_getLzWorker=()=>null;selectClass('m_mage');startGame();stopGameTimers();state.running=false;player.lv=40;player.alloc.cha=10;player.skills=['sk_summon','sk_shield'];calcStats();player.hp=player.mhp;player.mp=player.mmp;saveGame();const d=JSON.parse(saveStateJson());Object.assign(d.p,{name:'合成隊友法師',enSeed:'display-ally',_roleEpoch:'display-ally',allies:[],buffs:{},poly:null});_lzSet('lineage_idle_save_2',_saveWrap(JSON.stringify(d)));player.allies=[buildAlly('2')];setMapSelectors('training');changeMap(true);summonV2CastFor('sk_summon',true);player.guardsV2=[{uid:'display-guard',form:'藍色鯊魚',lv:40,hp:90,mhp:160}];const a=player.allies[0];a.summon=buildSummon('sk_summon',DB.skills.sk_summon,120,a);a.buffs.sk_summon=120;_squadSigTeam='';renderSquadPanel();renderStatusEffects();_audit.start=Date.now()-10000;_dps.player=100000;_dpsAddAlly(a,120000);switchTab('audit',document.querySelector('#col-right [onclick^="switchTab(\'audit\'"]'));renderAuditTab();});await wait();
+await page.evaluate(()=>{_bgHeartbeatWorker?.terminate();_bgHeartbeatWorker=null;_getLzWorker=()=>null;selectClass('m_mage');document.getElementById('creation-name').value='合成測試角色';startGame();stopGameTimers();state.running=false;player.lv=40;player.alloc.cha=10;player.skills=['sk_summon','sk_shield'];calcStats();player.hp=player.mhp;player.mp=player.mmp;saveGame();const d=JSON.parse(saveStateJson());Object.assign(d.p,{name:'合成隊友法師',enSeed:'display-ally',_roleEpoch:'display-ally',allies:[],buffs:{},poly:null});_lzSet('lineage_idle_save_2',_saveWrap(JSON.stringify(d)));player.allies=[buildAlly('2')];setMapSelectors('training');changeMap(true);summonV2CastFor('sk_summon',true);player.guardsV2=[{uid:'display-guard',form:'藍色鯊魚',lv:40,hp:90,mhp:160}];const a=player.allies[0];a.summon=buildSummon('sk_summon',DB.skills.sk_summon,120,a);a.buffs.sk_summon=120;_squadSigTeam='';renderSquadPanel();renderStatusEffects();_audit.start=Date.now()-10000;_dps.player=100000;_dpsAddAlly(a,120000);switchTab('audit',document.querySelector('#col-right [onclick^="switchTab(\'audit\'"]'));renderAuditTab();});await wait();
 // Native companion presentation regressions; persist synthetic pets before querying them again.
 await page.evaluate(()=>{const p=petNewInstance('杜賓狗',20);p.uid='display-pet';p.name='合成小犬';p.outOwner=_petCurrentOwnerKey();p.outSlot=String(currentSlot);petRoster().push(p);petMarkDirty();petRosterSave();_squadSigTeam='';_squadSigSkill='';renderSquadPanel();});
 await check('pet potion condition lives only in the skill tab and uses the inclusive native threshold',()=>page.evaluate(()=>!document.querySelector('#squad-tab-team input[onchange*="petSetPotPct"]')&&!!document.querySelector('#squad-tab-skill input[onchange*="petSetPotPct"]')&&document.getElementById('squad-tab-skill').textContent.includes('喝水條件')&&document.getElementById('squad-tab-skill').textContent.includes('HP≤')));
@@ -32,7 +54,7 @@ for(const ele of ['water','fire','wind','earth'])for(const tier of ['normal','st
  await check(`${ele} ${tier}: native player and mercenary spirit portraits and map sprites load`,async()=>{
   const id=await page.evaluate(({ele,tier})=>{const a=player.allies[0],sk=tier==='normal'?'sk_elf_summon':'sk_elf_summon2';for(const owner of [player,a])Object.assign(owner,{cls:'elf',elfEle:ele,mastery:tier==='king'?'e_spirit':''});player.skills=[sk];summonV2CastFor(sk,true);a.summon=buildSummon(sk,DB.skills[sk].summon,120,a);renderSquadPanel();return summonV2List()[0].uid;},{ele,tier});
   await page.waitForFunction(id=>document.querySelector('#pet-layer [data-pet="'+id+'"] .pet-body')?.naturalWidth>0&&document.querySelector('#pet-layer [data-merc-summon] .pet-body')?.naturalWidth>0&&[...document.querySelectorAll('[data-roster-kind="summon"] .party-roster-portrait img,[data-roster-kind="merc-summon"] .party-roster-portrait img')].every(e=>e.naturalWidth>0&&!e.hidden),id,{timeout:15000});
-  return page.evaluate(({ele,tier,id})=>{const gfx=(tier==='king'?'強力':'')+SPIRIT_ELE_ZH[ele]+'屬性精靈',images=[...document.querySelectorAll('[data-roster-kind="summon"] .party-roster-portrait img,[data-roster-kind="merc-summon"] .party-roster-portrait img,#pet-layer [data-pet="'+id+'"] .pet-body,#pet-layer [data-merc-summon] .pet-body')];return images.length>=4&&images.every(e=>e.naturalWidth>0&&decodeURIComponent(e.src).includes('/'+gfx+'/'));},{ele,tier,id});
+  return page.evaluate(({ele,tier,id})=>{const gfx=(tier!=='normal'?'強力':'')+SPIRIT_ELE_ZH[ele]+'屬性精靈',images=[...document.querySelectorAll('[data-roster-kind="summon"] .party-roster-portrait img,[data-roster-kind="merc-summon"] .party-roster-portrait img,#pet-layer [data-pet="'+id+'"] .pet-body,#pet-layer [data-merc-summon] .pet-body')];return images.length>=4&&images.every(e=>e.naturalWidth>0&&decodeURIComponent(e.src).includes('/'+gfx+'/'));},{ele,tier,id});
  });
 }
 await page.evaluate(()=>{Object.assign(player,__spiritOriginal.player);Object.assign(player.allies[0],__spiritOriginal.ally);renderSquadPanel();});

@@ -57,7 +57,7 @@ async function sample(slot = 1, target = page) {
     return target.evaluate(slot => {
         document.getElementById('offline-reward-modal')?.remove();
         if (player.cls && !document.getElementById('game-screen').classList.contains('hidden')) returnToCharacterSelect();
-        currentSlot = slot; selectClass('m_mage'); startGame(); stopGameTimers();
+        currentSlot = slot; selectClass('m_mage'); document.getElementById('creation-name').value='合成測試角色';startGame(); stopGameTimers();
         player.name = '合成離線角色' + slot; player.lv = 60; player.gold = 100000;
         player.config.offlineSentinel = 'preserve-unknown'; player.autoSellOn = false;
         setMapSelectors('training'); changeMap(true); calcStats(); player.hp = player.mhp; player.mp = player.mmp;
@@ -172,7 +172,7 @@ await reopen(0, 7);
 await check('successful manual save persists recovered gains without duplication', () => page.evaluate(s => player.gold === s.gold && player.exp === s.exp && !document.getElementById('offline-reward-modal'), recovered));
 await page.evaluate(() => {
     document.getElementById('offline-reward-modal')?.remove(); returnToCharacterSelect();
-    currentSlot=8; selectClass('m_mage'); startGame(); stopGameTimers();
+    currentSlot=8; selectClass('m_mage'); document.getElementById('creation-name').value='合成測試角色';startGame(); stopGameTimers();
     setMapSelectors('training'); changeMap(true); saveGame();
 });
 const noSampleGold = await page.evaluate(() => player.gold);

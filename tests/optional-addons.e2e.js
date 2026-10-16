@@ -42,7 +42,7 @@ await viewport(1330,900);await open();
 await page.evaluate(()=>{localStorage.setItem('afk_toggle_mobile','1');localStorage.setItem('afk_toggle_training','0');});
 await page.reload();await page.waitForFunction(()=>document.readyState==='complete');
 await check('all optional features default off, old preferences cannot disable the fixed base',()=>page.evaluate(()=>!AFK_TOGGLES.enabled('mobile')&&!AFK_TOGGLES.enabled('sellconfirm')&&AFK_TOGGLES.enabled('training')&&AFK_TOGGLES.enabled('dograce')&&AFK_TOGGLES.enabled('wpnfix')&&!AFK_TOGGLES.enabled('unregistered-addon')));
-await page.evaluate(()=>{selectClass('m_mage');startGame();stopGameTimers();player.name='合成加掛驗收';player.config.addonUnknown='keep';});
+await page.evaluate(()=>{selectClass('m_mage');document.getElementById('creation-name').value='合成測試角色';startGame();stopGameTimers();player.name='合成加掛驗收';player.config.addonUnknown='keep';});
 await settings();
 await check('settings contains exactly seventeen optional switches and no floating switch panel',()=>page.evaluate(()=>document.querySelectorAll('#settings-addons input[data-addon-id]').length===17&&!document.getElementById('afk-toggles-entry')&&document.getElementById('settings-general').classList.contains('hidden')));
 await nativeClick('[data-addon-id="invlist"]');
@@ -73,7 +73,7 @@ await check('pagination keeps original bitmap scale and centered enlarged numera
 for(const n of [2,4,1,3]){await nativeClick('#load-page-'+n);await check('ornament page '+n+' opens the correct four roles',()=>page.evaluate(n=>document.querySelector('#load-slot-grid [data-slot="'+((n-1)*4+1)+'"]')!==null&&document.getElementById('load-page-'+n).getAttribute('aria-current')==='true',n));}
 await page.evaluate(()=>{loadSetPage(3);});
 await check('page three starts at slot nine',()=>page.evaluate(()=>document.querySelector('#load-slot-grid [data-slot="9"]')!==null));
-await page.evaluate(()=>{currentSlot=9;selectClass('m_knight');startGame();stopGameTimers();player.name='合成第九格';player.config.hiddenSentinel='preserve';saveGame();returnToCharacterSelect();currentSlot=16;selectClass('m_elf');startGame();stopGameTimers();player.name='合成第十六格';saveGame();});
+await page.evaluate(()=>{currentSlot=9;selectClass('m_knight');document.getElementById('creation-name').value='合成測試角色';startGame();stopGameTimers();player.name='合成第九格';player.config.hiddenSentinel='preserve';saveGame();returnToCharacterSelect();currentSlot=16;selectClass('m_elf');document.getElementById('creation-name').value='合成測試角色';startGame();stopGameTimers();player.name='合成第十六格';saveGame();});
 await check('account export includes all sixteen slots and accepts legacy eight-slot accounts',()=>page.evaluate(()=>{const a=buildAccountSnapshot();const legacy=accountClone(a);legacy.schema=1;legacy.roles=legacy.roles.slice(0,8);return a.schema===2&&a.roles.length===16&&a.roles[8].p.name==='合成第九格'&&a.roles[15].p.name==='合成第十六格'&&validateAccount(legacy).roles.length===16;}));
 await page.evaluate(()=>{returnToCharacterSelect();currentSlot=1;loadGame();stopGameTimers();toggleAlly('9');saveGame();});
 await check('the ninth role can be recruited using the native employment flow',()=>page.evaluate(()=>isAllyActive('9')&&player.allies.some(a=>a._slot==='9'&&a.name==='合成第九格')));

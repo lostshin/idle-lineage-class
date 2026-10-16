@@ -1,0 +1,17 @@
+{
+  "name": "放置天堂 舒適版",
+  "short_name": "放置天堂 舒適版",
+  "description": "放置天堂 舒適版：原版天堂美術、隊伍管理與可選加掛功能",
+  "lang": "zh-TW",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f141d",
+  "theme_color": "#0f141d",
+  "icons": [
+    { "src": "pwa-icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "pwa-icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "pwa-icon-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

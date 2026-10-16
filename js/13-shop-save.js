@@ -955,6 +955,7 @@ function showCreation() {
     const classicToggle = document.getElementById('create-classic-toggle');
     if(classicToggle) classicToggle.checked = false;   // 刪角後同頁重創時不得沿用上一輪的經典模式勾選
 
+    document.getElementById('creation-name').value = '';
     creationSelectedClassBase = 'royal';
     creationSelectedGender = 'm';
     selectClass('m_royal');
@@ -1037,7 +1038,17 @@ function adjStat(s, v) {
     updateCreateUI();
 }
 
+function creationNameError() {
+    const name = document.getElementById('creation-name').value.trim();
+    return !name || name.length > 12 || /[<>&"'\x00-\x1f]/.test(name) ? '請輸入 1～12 字的有效角色 ID。' : '';
+}
+
 function updateCreateUI() {
+    const nameInput = document.getElementById('creation-name'), nameError = creationNameError();
+    nameInput.setCustomValidity(nameError);
+    nameInput.setAttribute('aria-invalid', String(!!nameInput.value && !!nameError));
+    document.getElementById('creation-name-status').textContent = nameError;
+
     if(!curCreate.cls || !createBase[curCreate.cls]){
         ['str','dex','con','int','wis','cha'].forEach(s => {
             let el = document.getElementById(`c-${s}`);
@@ -1051,7 +1062,7 @@ function updateCreateUI() {
     ['str','dex','con','int','wis','cha'].forEach(s => document.getElementById(`c-${s}`).innerText = b[s] + curCreate[s]);
     let left = b.pts - (curCreate.str + curCreate.dex + curCreate.con + curCreate.int + curCreate.wis + curCreate.cha);
     document.getElementById('creation-pts').innerText = left;
-    document.getElementById('btn-start').disabled = left <= 0 ? false : true;
+    document.getElementById('btn-start').disabled = left > 0 || !!nameError;
 }
 
 function onToggleClassic(el) {
@@ -1061,6 +1072,8 @@ function onToggleClassic(el) {
 }
 function startGame() {
     if(!curCreate.cls || !curCreate.rawCls) return;
+    if (creationNameError()) { updateCreateUI(); document.getElementById('creation-name').focus(); return false; }
+    const characterName = document.getElementById('creation-name').value.trim();
     if(slotSummary(currentSlot)){
         alert(`存檔 ${currentSlot} 已有角色，無法直接覆蓋。請返回角色選擇畫面並先刪除原角色。`);
         backToMenu();
@@ -1100,7 +1113,7 @@ function startGame() {
     player.cls = curCreate.cls;
     player.bloodPledge = null;   // 血盟改由同模式王族花費金幣創立，不再於創角時自動加入。
     player.classicMode = !!(document.getElementById('create-classic-toggle') && document.getElementById('create-classic-toggle').checked);   // 🎮 經典模式：依創角開關決定（此角色永久生效）；🏛️v3.0.83 傳統模式已取消（traditionalMode 由 SAVE_DEFAULTS 恆 false）
-    player.name = null; player.renameCount = 0;   // Name is managed on the character selection page.
+    player.name = characterName; player.renameCount = 0;   // Initial ID does not consume the existing free rename.
     player.enSeed = 'es' + uid() + uid();   // 🎲 強化決定論種子（創角產生一次、存進存檔永久固定）：讓強化成敗由種子決定、不可用 save/load 刷
     player._roleEpoch = _roleEpoch();        // 🛡️ 角色世代：刪除後舊分頁不得把同欄位的舊角色寫回
     if (typeof clanSyncCurrentPlayer === 'function') clanSyncCurrentPlayer();   // 同模式已有血盟時，新角色自動成為成員。

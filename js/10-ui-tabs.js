@@ -153,6 +153,13 @@ function renderClassicSkillBook(sDiv) {
         + '<div class="classic-skill-stat classic-skill-stat-mr">' + _mrv + '</div>'
         + '</div>';
 }
+function inventoryIconBadges(item, data) {
+    const enhance = (Number(item.en) || 0) > 0 ? `<span class="classic-icon-corner-value is-enhance">+${capEn(item.en, data)}</span>` : '';
+    const countText = (item.cnt || 1) > 1 ? '(' + item.cnt.toLocaleString() + ')' : '';
+    const count = countText ? `<span class="classic-icon-corner-value is-count" style="--count-chars:${countText.length}">${countText}</span>` : '';
+    return enhance || count ? `<span class="classic-icon-values">${count}${enhance}</span>` : '';
+}
+
 function renderTabs(force) {
     if(state.ff || (typeof catchupActive === 'function' && catchupActive())) return; // 補跑全部完成前不刷新畫面
     // 🚀 使用者正按住分頁面板(點擊中)：延後非強制重建到放開後，避免按鈕被重繪掉而點擊失效
@@ -245,9 +252,7 @@ function renderTabs(force) {
             let glowClass = getGlowClass(eq, d);
             let imgHtml = `<img src="${imgUrl}" onerror="this.style.opacity='0';" class="object-contain pointer-events-none ${glowClass}">`;
             let _showEquipped = (d.type === 'wpn' || d.type === 'arm' || d.type === 'acc') && !d.isArrow;
-            let _cornerValue = (Number(eq.en) || 0) > 0
-                ? `<span class="classic-icon-corner-value is-enhance">+${capEn(eq.en, d)}</span>`
-                : ((eq.cnt || 1) > 1 ? `<span class="classic-icon-corner-value is-count">${(eq.cnt || 1).toLocaleString()}</span>` : '');
+            let _cornerValue = inventoryIconBadges(eq, d);
             let _equippedBadge = _showEquipped ? '<span class="classic-equipped-badge" aria-hidden="true">E</span>' : '';
             el.classList.add('tip-host');
             el.setAttribute('data-tip-uid', eq.uid); el.setAttribute('data-tip-src', 'eq');   // 🖱️ 裝備欄 hover 即時顯示完整資訊 tooltip（同背包/裝備視窗·取代原生 title 慢速）
@@ -320,9 +325,7 @@ player.inv.forEach(i => {
     let glowClass = getGlowClass(i, d);
     let _dimStyle = dimIcon ? ' style="opacity:0.3;filter:grayscale(0.6);"' : '';   // 🔅 無法裝備→圖示黯淡＋去彩度
     let imgHtml = `<img src="${imgUrl}" onerror="this.style.opacity='0';" class="w-6 h-6 object-contain pointer-events-none ${glowClass}"${_dimStyle}>`;
-    let _invCornerValue = (Number(i.en) || 0) > 0
-        ? `<span class="classic-icon-corner-value is-enhance">+${capEn(i.en, d)}</span>`
-        : ((i.cnt || 1) > 1 ? `<span class="classic-icon-corner-value is-count">${(i.cnt || 1).toLocaleString()}</span>` : '');
+    let _invCornerValue = inventoryIconBadges(i, d);
     
     // 內容組合 (加入了 statusTag)
     let _rowInner = `<div class="classic-item-main"><div class="classic-icon-box">${imgHtml}${_invCornerValue}</div><div class="classic-name-box"><span class="${getItemColor(i)} font-bold">${getItemFullName(i)}</span><span class="classic-item-flags">${statusTag}</span></div>${i.lock ? '<span class="classic-item-lock-badge" aria-hidden="true">🔒</span>' : ''}${(i.junk && !i.lock) ? '<span class="classic-item-junk-label">廢品</span>' : ''}</div>`;   // 方格狀態：上鎖右上角；廢品灰階＋底部紅字
@@ -2765,9 +2768,7 @@ function switchSquadTab(t) {
         let b = document.getElementById('squad-tab-btn-' + id);
         if (b) {
             let on = (id === t);
-            b.style.background = on ? '#b45309' : '#334155';      // amber-700 / slate-700
-            b.style.borderColor = on ? '#f59e0b' : '#475569';     // amber-500 / slate-600
-            b.style.color = on ? '#ffffff' : '#cbd5e1';
+            b.setAttribute('aria-selected', String(on));
         }
     });
 }

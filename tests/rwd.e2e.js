@@ -42,7 +42,7 @@ await check('selection page removes per-role transfer and keeps account transfer
 await page.click('#load-btn-create');await page.click('#btn-class-base-mage');
 await check('creation controls fit',()=>bounds(['creation-class-list','stat-allocation','creation-gender-panel','btn-start']));
 await page.evaluate(()=>{
- currentSlot=1;selectClass('m_mage');startGame();stopGameTimers();state.running=false;
+ currentSlot=1;selectClass('m_mage');document.getElementById('creation-name').value='合成測試角色';startGame();stopGameTimers();state.running=false;
  player.lv=60;player.skills=[...new Set([...Object.keys(DB.skills).filter(s=>DB.skills[s].type==='buff' && !DB.skills[s].procOnly).slice(0,24),'sk_summon','sk_zombie','sk_heal1'])];player.grantedSkills=[];calcStats();renderSkillSelects();updateUI();
 });
 for(const [w,h] of sizes){if(options.desktopOnly&&w<1200)continue;
@@ -85,7 +85,7 @@ await page.fill('#set-hp-pot','37');await page.click('#set-auto-buy-pot');
 await check('settings edits save and reload',async()=>{const seed=await page.evaluate(()=>{if(!saveGame())return null;return {...__testData};});if(!seed)return false;await boot(options.url,seed);return page.evaluate(()=>{currentSlot=1;loadGame();stopGameTimers();state.running=false;return document.getElementById('set-hp-pot').value==='37';});});
 await check('no browser runtime errors',()=>page.evaluate(()=>__errors.length===0 || __errors));
 await boot('file://'+options.root+'/index.html');
-await check('file URL: original settings and game load',()=>page.evaluate(()=>{selectClass('m_mage');startGame();stopGameTimers();state.running=false;switchTab('automation',document.getElementById('btn-automation'));return !document.getElementById('tab-automation').classList.contains('hidden') && saveGame()===true;}));
+await check('file URL: original settings and game load',()=>page.evaluate(()=>{selectClass('m_mage');document.getElementById('creation-name').value='合成測試角色';startGame();stopGameTimers();state.running=false;switchTab('automation',document.getElementById('btn-automation'));return !document.getElementById('tab-automation').classList.contains('hidden') && saveGame()===true;}));
 if(!options.baseline && !options.skipScreenshots){
  await page.evaluate(()=>{player.lv=60;player.skills=[...new Set(['sk_summon','sk_zombie','sk_heal1',...Object.keys(DB.skills).filter(s=>DB.skills[s].type==='buff' && !DB.skills[s].procOnly).slice(0,18)])];player.grantedSkills=[];calcStats();renderSkillSelects();updateUI();});
  await viewport(1330,759);await page.click('#btn-automation');await page.screenshot({path:options.artifacts+'/rwd-desktop.png'});
