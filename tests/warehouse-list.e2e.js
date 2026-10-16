@@ -15,7 +15,7 @@ await page.waitForFunction(()=>document.readyState==='complete'&&typeof startGam
 await page.evaluate(()=>{_bgHeartbeatWorker?.terminate();_bgHeartbeatWorker=null;_getLzWorker=()=>null;selectClass('m_royal');document.getElementById('creation-name').value='合成測試角色';startGame();stopGameTimers();state.running=false;setUiScale(100);window.__item=(id,uid,cnt=1,en=0)=>({id,uid,cnt,en,bless:false,anc:false,attr:false,seteff:false});player.inv=[__item('potion_heal','row-heal',20),__item('potion_blue','row-mana',12)];saveGame();saveWarehouse({items:[],gold:0});openWarehouseWindow();whSetFilter('item');});
 await check('warehouse shows two scrolling icon lists without pagination or shared quantity',()=>page.evaluate(()=>!document.getElementById('wh-qty-amt')&&!document.querySelector('[data-wh-page],[data-wh-next],[data-wh-prev]')&&!!document.querySelector('#wh-inv-list .wh-row img')));
 await check('approved A artwork is loaded as the real window skin',()=>page.evaluate(async()=>{const source=getComputedStyle(document.getElementById('warehouse-window-frame')).borderImageSource;if(!source.includes('warehouse-frame-v1.png'))return false;const image=new Image();image.src=source.slice(5,-2);await image.decode();return image.naturalWidth>1000;}));
-await check('warehouse opens at the requested default 830 by 600 UI pixels',()=>page.evaluate(()=>{const r=document.getElementById('warehouse-window-frame').getBoundingClientRect();return Math.abs(r.width-830)<1&&Math.abs(r.height-600)<1;}));
+await check('warehouse opens at the restored 830 by 600 UI pixels',()=>page.evaluate(()=>{const r=document.getElementById('warehouse-window-frame').getBoundingClientRect();return Math.abs(r.width-830)<1&&Math.abs(r.height-600)<1;}));
 await check('approved A keeps quantity in the same item strip rather than a separate wide button',()=>page.evaluate(()=>{const row=document.querySelector('.wh-row'),r=row.getBoundingClientRect(),button=row.querySelector('[data-wh-quantity]'),q=button.getBoundingClientRect(),transfer=row.querySelector('[data-wh-transfer]');return q.width<r.width*.25&&getComputedStyle(transfer).backgroundImage==='none'&&getComputedStyle(button).backgroundImage==='none';}));
 await check('approved A shows category tabs and distinct blue deposit and gold withdrawal headers',()=>page.evaluate(()=>{const tabs=document.querySelector('[role="tablist"][aria-label="物品分類"]'),headers=[...document.querySelectorAll('.wh-column h3')].map(e=>getComputedStyle(e).color);return tabs?.querySelectorAll('[role="tab"]').length>=3&&headers.length===2&&headers[0]!==headers[1];}));
 await check('warehouse exposes eight edge and corner resize handles',()=>page.evaluate(()=>document.querySelectorAll('[data-warehouse-resize]').length===8));
@@ -30,54 +30,50 @@ await page.fill(row('inv','row-heal')+' input','4');await page.press(row('inv','
 await page.click(transfer('inv','row-heal'));
 await check('Escape cancels the draft and the next name click deposits the entire stack',()=>page.evaluate(()=>!player.inv.some(i=>i.uid==='row-heal')&&loadWarehouse().items.find(i=>i.uid==='row-heal')?.cnt===20));
 await edit('store','row-heal','5');
-await check('Enter finishes editing without withdrawing anything',()=>page.evaluate(()=>loadWarehouse().items.find(i=>i.uid==='row-heal').cnt===20&&!document.querySelector('[data-wh-uid="row-heal"] input')&&document.querySelector('[data-wh-uid="row-heal"] [data-wh-quantity]').textContent.includes('5')));
-await page.click(transfer('store','row-heal'));
-await check('withdrawal uses only the selected row quantity and clears it after success',()=>page.evaluate(()=>loadWarehouse().items.find(i=>i.uid==='row-heal').cnt===15&&player.inv.find(i=>i.id==='potion_heal').cnt===5&&document.querySelector('#wh-store-list [data-wh-uid="row-heal"] [data-wh-quantity]').textContent.trim()==='15'));
-await edit('inv','row-mana','3');
-await page.click(transfer('inv','row-mana'));
-await check('a partial deposit changes only its UID and side',()=>page.evaluate(()=>player.inv.find(i=>i.uid==='row-mana').cnt===9&&player.inv.find(i=>i.id==='potion_heal').cnt===5&&loadWarehouse().items.find(i=>i.id==='potion_blue').cnt===3));
+await check('Enter directly withdraws the requested quantity and clears it after success',()=>page.evaluate(()=>loadWarehouse().items.find(i=>i.uid==='row-heal').cnt===15&&player.inv.find(i=>i.id==='potion_heal').cnt===5&&document.querySelector('#wh-store-list [data-wh-quantity]').textContent.trim()==='15'));
+await page.click(amount('inv','row-mana'));await page.fill(row('inv','row-mana')+' input','3');await page.click(row('inv','row-mana')+' [data-wh-confirm]');
+await check('transfer this quantity button deposits immediately without a second item click',()=>page.evaluate(()=>player.inv.find(i=>i.uid==='row-mana').cnt===9&&loadWarehouse().items.find(i=>i.id==='potion_blue').cnt===3));
 for(const value of ['0','-1','1.5','999','']){
  await edit('inv','row-mana',value);
- await page.click(transfer('inv','row-mana'));
  await check('invalid quantity '+JSON.stringify(value)+' stays inline and blocks transfer',()=>page.evaluate(()=>player.inv.find(i=>i.uid==='row-mana').cnt===9&&!!document.querySelector('[data-wh-uid="row-mana"] [role="alert"]')?.textContent));
 }
-await edit('inv','row-mana','2');
-await page.click(amount('inv','row-mana'));await page.fill(row('inv','row-mana')+' input','7');await page.press(row('inv','row-mana')+' input','Escape');
-await page.evaluate(()=>{__failKey=whKey();});await page.click(transfer('inv','row-mana'));
-await check('failed warehouse write restores both stores and retains the previous confirmed quantity',()=>page.evaluate(()=>player.inv.find(i=>i.uid==='row-mana').cnt===9&&loadWarehouse().items.find(i=>i.id==='potion_blue').cnt===3&&document.querySelector('[data-wh-uid="row-mana"] [data-wh-quantity]').textContent.includes('2')));
-await page.evaluate(()=>{__failKey='lineage_idle_save_'+currentSlot;});await page.click(transfer('inv','row-mana'));
-await check('failed character write restores the inventory and keeps the requested quantity for retry',()=>page.evaluate(()=>player.inv.find(i=>i.uid==='row-mana').cnt===9&&loadWarehouse().items.find(i=>i.id==='potion_blue').cnt===3&&document.querySelector('[data-wh-uid="row-mana"] [data-wh-quantity]').textContent.includes('2')));
-await page.evaluate(()=>{__failKey=null;});await page.click(transfer('inv','row-mana'));
+await page.click(transfer('inv','row-mana'));
+await check('clicking the item name while editing cannot accidentally transfer the entire stack',()=>page.evaluate(()=>player.inv.find(i=>i.uid==='row-mana').cnt===9&&!!document.querySelector('#wh-inv-list [data-wh-uid="row-mana"] input')));
+await page.press(row('inv','row-mana')+' input','Escape');
+for(const key of ['warehouse','role']){
+ await page.evaluate(key=>{__failKey=key==='warehouse'?whKey():'lineage_idle_save_'+currentSlot;},key);
+ await edit('inv','row-mana','2');
+ await check('failed '+key+' write restores both stores and retains the quantity for retry',()=>page.evaluate(()=>player.inv.find(i=>i.uid==='row-mana').cnt===9&&loadWarehouse().items.find(i=>i.id==='potion_blue').cnt===3&&document.querySelector('[data-wh-uid="row-mana"] [data-wh-quantity]').textContent.includes('2')));
+}
+await page.evaluate(()=>{__failKey=null;});await edit('inv','row-mana','2');
 await check('retry transfers the retained quantity once',()=>page.evaluate(()=>player.inv.find(i=>i.uid==='row-mana').cnt===7&&loadWarehouse().items.find(i=>i.id==='potion_blue').cnt===5));
 await page.evaluate(()=>{const w=loadWarehouse();w.items=Array.from({length:WH_MAX},(_,i)=>__item('wpn_katana','full-'+i,1,1));saveWarehouse(w);});
-await edit('inv','row-mana','1');await page.click(transfer('inv','row-mana'));
+await edit('inv','row-mana','1');
 await check('full warehouse blocks new stacks and retains the row setting',()=>page.evaluate(()=>loadWarehouse().items.length===WH_MAX&&player.inv.find(i=>i.uid==='row-mana').cnt===7&&document.querySelector('[data-wh-uid="row-mana"] [data-wh-quantity]').textContent.includes('轉移 1')));
 await page.evaluate(()=>{player.inv=[__item('potion_blue','same-side-uid',20),__item('potion_heal','other-row',7)];saveWarehouse({items:[__item('potion_blue','same-side-uid',30)],gold:500});renderWarehouseNPC(document.getElementById('interaction-content'));});
-await edit('inv','same-side-uid','3');await edit('store','same-side-uid','5');
-await page.click(transfer('store','same-side-uid'));
-await check('matching UIDs on opposite sides retain independent quantities',()=>page.evaluate(()=>player.inv.find(i=>i.uid==='same-side-uid').cnt===25&&loadWarehouse().items[0].cnt===25&&document.querySelector('#wh-inv-list [data-wh-quantity]').textContent.includes('轉移 3')));
+await page.click(amount('inv','same-side-uid'));await page.fill(row('inv','same-side-uid')+' input','3');
+await edit('store','same-side-uid','5');
+await check('matching UIDs on opposite sides keep the other side draft without trading it',()=>page.evaluate(()=>player.inv.find(i=>i.uid==='same-side-uid').cnt===25&&loadWarehouse().items[0].cnt===25&&document.querySelector('#wh-inv-list input').value==='3'));
+await page.press(row('inv','same-side-uid')+' input','Escape');
 await page.click(transfer('inv','other-row')+' img');
-await check('clicking another row icon transfers its entire stack without inheriting the first row quantity',()=>page.evaluate(()=>!player.inv.some(i=>i.uid==='other-row')&&loadWarehouse().items.find(i=>i.id==='potion_heal').cnt===7));
-await page.click(transfer('inv','same-side-uid'));
-await check('deposit uses its own retained quantity after a withdrawal on the other side',()=>page.evaluate(()=>player.inv.find(i=>i.uid==='same-side-uid').cnt===22&&loadWarehouse().items.find(i=>i.id==='potion_blue').cnt===28));
-await edit('store','same-side-uid','4');
+await check('clicking another row icon transfers its entire stack',()=>page.evaluate(()=>!player.inv.some(i=>i.uid==='other-row')&&loadWarehouse().items.find(i=>i.id==='potion_heal').cnt===7));
 for(const key of ['warehouse','role']){
- await page.evaluate(key=>{__failKey=key==='warehouse'?whKey():'lineage_idle_save_'+currentSlot;},key);await page.click(transfer('store','same-side-uid'));
- await check('failed '+key+' write restores withdrawal and retains its quantity',()=>page.evaluate(()=>player.inv.find(i=>i.uid==='same-side-uid').cnt===22&&loadWarehouse().items.find(i=>i.id==='potion_blue').cnt===28&&document.querySelector('#wh-store-list [data-wh-uid="same-side-uid"] [data-wh-quantity]').textContent.includes('轉移 4')));
+ await page.evaluate(key=>{__failKey=key==='warehouse'?whKey():'lineage_idle_save_'+currentSlot;},key);await edit('store','same-side-uid','4');
+ await check('failed '+key+' withdrawal restores both sides and retains its requested quantity',()=>page.evaluate(()=>player.inv.find(i=>i.uid==='same-side-uid').cnt===25&&loadWarehouse().items.find(i=>i.id==='potion_blue').cnt===25&&document.querySelector('#wh-store-list [data-wh-quantity]').textContent.includes('轉移 4')));
 }
-await page.evaluate(()=>{__failKey=null;});await page.click(transfer('store','same-side-uid'));
-await check('withdrawal retry applies the requested quantity exactly once',()=>page.evaluate(()=>player.inv.find(i=>i.uid==='same-side-uid').cnt===26&&loadWarehouse().items.find(i=>i.id==='potion_blue').cnt===24));
-await edit('inv','same-side-uid','20');
+await page.evaluate(()=>{__failKey=null;});await edit('store','same-side-uid','4');
+await check('withdrawal retry applies the requested quantity exactly once',()=>page.evaluate(()=>player.inv.find(i=>i.uid==='same-side-uid').cnt===29&&loadWarehouse().items.find(i=>i.id==='potion_blue').cnt===21));
+await page.click(amount('inv','same-side-uid'));await page.fill(row('inv','same-side-uid')+' input','20');
 await page.evaluate(()=>{player.inv.find(i=>i.uid==='same-side-uid').cnt=10;renderWarehouseNPC(document.getElementById('interaction-content'));});
-await page.click(transfer('inv','same-side-uid'));
-await check('a quantity above the current holding is rejected rather than silently clamped',()=>page.evaluate(()=>player.inv.find(i=>i.uid==='same-side-uid').cnt===10&&loadWarehouse().items.find(i=>i.id==='potion_blue').cnt===24&&!!document.querySelector('#wh-inv-list [role="alert"]')?.textContent));
+await page.press(row('inv','same-side-uid')+' input','Enter');
+await check('a quantity above live holdings is rejected rather than clamped',()=>page.evaluate(()=>player.inv.find(i=>i.uid==='same-side-uid').cnt===10&&loadWarehouse().items.find(i=>i.id==='potion_blue').cnt===21&&!!document.querySelector('#wh-inv-list [role="alert"]')?.textContent));
 await page.evaluate(()=>{player.classicMode=true;renderWarehouseNPC(document.getElementById('interaction-content'));});
 await check('mode changes reset transient quantities without changing either warehouse',()=>page.evaluate(()=>loadWarehouse().items.length===0&&document.querySelector('#wh-inv-list [data-wh-quantity]').textContent.trim()==='10'));
 await page.evaluate(()=>{player.classicMode=false;renderWarehouseNPC(document.getElementById('interaction-content'));});
 await page.click('[onclick="whOneClickDeposit()"]');
-await check('one-click deposit still merges matching stacks through the original transaction',()=>page.evaluate(()=>!player.inv.some(i=>i.id==='potion_blue')&&loadWarehouse().items.find(i=>i.id==='potion_blue').cnt===34));
+await check('one-click deposit still merges matching stacks',()=>page.evaluate(()=>!player.inv.some(i=>i.id==='potion_blue')&&loadWarehouse().items.find(i=>i.id==='potion_blue').cnt===31));
 await page.click('[onclick="sortWarehouse()"]');
-await check('warehouse sort preserves all quantities and orders items with the native comparator',()=>page.evaluate(()=>{const w=loadWarehouse();return w.items.length===2&&w.items.every((it,i)=>i===0||invSortCmp(w.items[i-1],it)<=0)&&w.items.reduce((n,it)=>n+it.cnt,0)===41;}));
+await check('sort preserves quantities and uses the native comparator',()=>page.evaluate(()=>{const w=loadWarehouse();return w.items.length===2&&w.items.every((it,i)=>i===0||invSortCmp(w.items[i-1],it)<=0)&&w.items.reduce((n,it)=>n+it.cnt,0)===38;}));
 await page.evaluate(()=>{player.inv=Array.from({length:130},(_,i)=>__item('wpn_katana','inv-page-'+i,1,i%15));saveWarehouse({items:Array.from({length:107},(_,i)=>__item('wpn_katana','store-page-'+i,1,i%15)),gold:500});whSetFilter('weapon');});
 await check('all filtered rows are available in their scroll lists',()=>page.evaluate(()=>document.querySelectorAll('#wh-inv-list [data-wh-uid]').length===130&&document.querySelectorAll('#wh-store-list [data-wh-uid]').length===107));
 async function wheelList(side,delta){const point=await page.evaluate(side=>{const r=document.getElementById('wh-'+side+'-list').getBoundingClientRect();return {x:r.left+r.width/2,y:r.top+r.height/2};},side);await page.mouse.move(point.x,point.y);await page.mouse.wheel(0,delta);await page.waitForFunction(side=>document.getElementById('wh-'+side+'-list').scrollTop>0,side);const settled=await page.evaluate(async side=>{const list=document.getElementById('wh-'+side+'-list');let last=list.scrollTop,still=0;for(let i=0;i<90&&still<4;i++){await new Promise(r=>requestAnimationFrame(r));const now=list.scrollTop;still=Math.abs(now-last)<.01?still+1:0;last=now;}return still>=4;},side);if(!settled)throw Error('Native wheel motion did not settle');}
@@ -107,10 +103,10 @@ await page.click('#afk-wh-wearonly');
 await page.evaluate(()=>{player.inv=Array.from({length:45},(_,i)=>({...__item('rem_claw','rem-'+i),seteff:i<30?'紅獅':'白鳥'}));whSetFilter('remains');whSetSubFilter('白鳥');});
 await check('remains subcategory filters the entire scrolling list',()=>page.evaluate(()=>[...document.querySelectorAll('#wh-inv-list [data-wh-uid]')].every(e=>Number(e.dataset.whUid.slice(4))>=30)&&!!document.querySelector('#wh-inv-list [data-wh-uid]')));
 await page.evaluate(()=>{player.gold=1931000000;const longest=Object.keys(DB.items).filter(id=>DB.items[id].type==='wpn').sort((a,b)=>DB.items[b].n.length-DB.items[a].n.length)[0];player.inv=Array.from({length:180},(_,i)=>({...__item(i%2?longest:'wpn_katana','layout-'+i,100,15),bless:true,anc:'primordial',attr:'fire5'}));saveWarehouse({items:Array.from({length:175},(_,i)=>__item('wpn_katana','layout-store-'+i,100,15)),gold:39000000});whSetFilter('weapon');});
-await page.evaluate(()=>{const frame=document.getElementById('warehouse-window-frame');Object.assign(frame.style,{width:'1100px',height:'600px',left:'100px',top:'120px',transform:'none',aspectRatio:'auto'});});
+await page.evaluate(()=>{const frame=document.getElementById('warehouse-window-frame');frame.dataset.windowSized='true';Object.assign(frame.style,{width:'1100px',height:'600px',left:'100px',top:'120px',transform:'none',aspectRatio:'auto'});});
 await page.click(amount('inv','layout-0'));await page.fill(row('inv','layout-0')+' input','7');await page.evaluate(()=>{window.__warehouseDraft=document.querySelector('#wh-inv-list [data-wh-uid="layout-0"] input');});
 for(const side of ['n','s','e','w','ne','nw','se','sw']){
- await page.evaluate(()=>{Object.assign(document.getElementById('warehouse-window-frame').style,{width:'1100px',height:'600px',left:'100px',top:'120px',transform:'none',aspectRatio:'auto'});});
+ await page.evaluate(()=>{document.getElementById('warehouse-window-frame').dataset.windowSized='true';Object.assign(document.getElementById('warehouse-window-frame').style,{width:'1100px',height:'600px',left:'100px',top:'120px',transform:'none',aspectRatio:'auto'});});
  const start=await page.evaluate(side=>{const f=document.getElementById('warehouse-window-frame').getBoundingClientRect(),h=document.querySelector('[data-warehouse-resize="'+side+'"]').getBoundingClientRect();return {x:h.left+h.width/2,y:h.top+h.height/2,r:f.toJSON()};},side);
  const dx=side.includes('w')?-24:side.includes('e')?24:0,dy=side.includes('n')?-18:side.includes('s')?18:0;
  await page.mouse.move(start.x,start.y);await page.mouse.down();await page.mouse.move(start.x+dx,start.y+dy);await page.mouse.up();
@@ -127,10 +123,11 @@ await dragCornerTo(1329,899);
 await check('resizing is clamped to the viewport boundary',()=>page.evaluate(()=>{const f=document.getElementById('warehouse-window-frame').getBoundingClientRect();return f.left>=0&&f.top>=0&&f.right<=document.documentElement.clientWidth-7&&f.bottom<=document.documentElement.clientHeight-7;}));
 await page.evaluate(()=>{window.__closedWarehouseSize=document.getElementById('warehouse-window-frame').getBoundingClientRect().toJSON();});await page.click('#warehouse-window-close');await page.evaluate(()=>openWarehouseWindow());
 await check('reopening retains the adjusted size during the current session',()=>page.evaluate(()=>{const r=document.getElementById('warehouse-window-frame').getBoundingClientRect();return Math.abs(r.width-__closedWarehouseSize.width)<1&&Math.abs(r.height-__closedWarehouseSize.height)<1;}));
-await page.evaluate(()=>{const f=document.getElementById('warehouse-window-frame');for(const k of ['width','height','left','top','transform','aspectRatio'])f.style[k]='';});
+await page.evaluate(()=>{const f=document.getElementById('warehouse-window-frame');for(const k of ['width','height','left','top','transform','aspectRatio'])f.style[k]='';delete f.dataset.windowSized;delete f.dataset.windowMoved;});
 for(const [width,height] of [[1330,900],[1920,1080]])for(const scale of [60,75,80,100]){
- await page.cdp('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:1,mobile:false});await page.evaluate(s=>{const f=document.getElementById('warehouse-window-frame');for(const k of ['width','height','left','top','transform','aspectRatio'])f.style[k]='';setUiScale(s);},scale);
+ await page.cdp('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:1,mobile:false});await page.evaluate(s=>{const f=document.getElementById('warehouse-window-frame');for(const k of ['width','height','left','top','transform','aspectRatio'])f.style[k]='';delete f.dataset.windowSized;delete f.dataset.windowMoved;setUiScale(s);},scale);
  await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));
+ await check(width+' '+scale+'%: default warehouse size follows UI scale and keeps the restored dimensions',()=>page.evaluate(()=>{const r=document.getElementById('warehouse-window-frame').getBoundingClientRect(),s=getUiScale();return Math.abs(r.width-Math.min(830*s,document.documentElement.clientWidth-16))<2&&Math.abs(r.height-Math.min(600*s,document.documentElement.clientHeight-16))<2;}));
  const resizeStart=await page.evaluate(()=>{const f=document.getElementById('warehouse-window-frame').getBoundingClientRect(),h=document.querySelector('[data-warehouse-resize="se"]').getBoundingClientRect();return {x:h.left+h.width/2,y:h.top+h.height/2,w:f.width,h:f.height};});
  await page.mouse.move(resizeStart.x,resizeStart.y);await page.mouse.down();await page.mouse.move(resizeStart.x-24,resizeStart.y-18);await page.mouse.up();
  await check(width+' '+scale+'%: native resizing tracks screen coordinates correctly',()=>page.evaluate(r=>{const f=document.getElementById('warehouse-window-frame').getBoundingClientRect();return Math.abs(f.width-(r.w-24))<2&&Math.abs(f.height-(r.h-18))<2;},resizeStart));

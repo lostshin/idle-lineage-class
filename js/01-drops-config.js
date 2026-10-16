@@ -1941,6 +1941,21 @@ function switchLogTab(tab) {
     } else if (cl && !_combatLogLocked) cl.scrollTop = cl.scrollHeight;
 }
 
+// Returning to the game reveals the newest system information once per departure.
+(function () {
+    let away = document.hidden || !document.hasFocus();
+    function resumeLog() {
+        if (document.hidden || !away) return;
+        away = false;
+        if (!player || !player.cls || document.getElementById('game-screen')?.classList.contains('hidden')) return;
+        switchLogTab('sys'); sysLogToBottom();
+    }
+    window.addEventListener('blur', () => { away = true; });
+    window.addEventListener('focus', resumeLog);
+    window.addEventListener('pageshow', event => { if (event.persisted) { away = true; resumeLog(); } });
+    document.addEventListener('visibilitychange', () => { if (document.hidden) away = true; else resumeLog(); });
+})();
+
 // 🌐 v3.6.50 世界頻道：只放 NPC 對話（叫賣廣播／嗆聲／提問回覆），與系統日誌完全分流。
 let _worldLogLocked = false;
 const WORLD_LOG_MAX = 60;

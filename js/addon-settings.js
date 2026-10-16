@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('addons-apply').onclick = () => {
         try {
             accountIdleRequired();
-            if (state.ff || document.getElementById('ff-progress-indicator')?.getClientRects().length) throw Error('正在結算，請完成後再套用。');
+            if (state.ff || typeof catchupActive === 'function' && catchupActive()) throw Error('正在結算，請完成後再套用。');
             if (player.cls && !document.getElementById('game-screen').classList.contains('hidden')) {
                 window.__fb5CloseFlush = true;
                 try { if (saveGame() !== true) throw Error('角色進度儲存失敗，尚未重新載入。'); }

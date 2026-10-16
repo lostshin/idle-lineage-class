@@ -116,9 +116,9 @@
 }
 /* Warehouse A: generated silver frame and textured item strips with native controls on top. */
 #warehouse-window-frame {
-    width:min(830px,calc(100vw - 16px));
+    width:min(830px,calc(var(--ui-width,100vw) - 16px));
     min-width:0;
-    height:min(600px,calc(100vh - 16px));
+    height:min(600px,calc(var(--ui-height,100vh) - 16px));
     container:warehouse / inline-size;
     border-width:28px !important;
     border-image-source:url('../assets/ui/warehouse-frame-v1.png') !important;
@@ -166,12 +166,12 @@
 .wh-transfer img { flex:none; width:42px; height:42px; object-fit:contain; }
 .wh-name { display:block; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:16px; }
 .wh-quantity { width:96px; padding:0 9px 0 4px; flex:none; display:flex; flex-direction:column; justify-content:center; min-width:0; }
-.wh-quantity:has(input) { width:154px; }
-.wh-quantity-button { width:100%; min-height:32px; padding:0; font-size:16px; text-align:right; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.wh-quantity:has(input) { width:210px; display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:5px; }
+.wh-quantity-button { align-self:flex-end; width:auto; min-width:0; min-height:24px; padding:0; font-size:16px; text-align:right; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .wh-quantity-button:hover,.wh-quantity-button:focus-visible { color:#f4d16c; text-decoration:underline; }
 .wh-quantity label { display:flex; flex-direction:column; }
 .wh-qty-label { display:flex; align-items:center; justify-content:space-between; font-size:12px; }
-.wh-quantity input { width:104px; height:26px; padding:0 4px; border:1px solid #ad8b5d; background:#111218; color:#fff0cf; }
+.wh-quantity input { width:65px; min-width:0; height:26px; padding:0 4px; border:1px solid #ad8b5d; background:#111218; color:#fff0cf; }
 .wh-quantity small { display:block; min-width:0; font-size:10px; line-height:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; color:#b7aaa0; }
 .wh-quantity [role="alert"] { color:#fca5a5; }
 .wh-tools { display:flex; flex:none; align-items:center; gap:16px; min-width:0; height:50px; padding:6px 10px; border:1px solid #514b40; border-radius:4px; background:#14151bd9; }
@@ -219,15 +219,146 @@
 }
 .warehouse-resize-edge { position:absolute; z-index:12; touch-action:none; }
 .warehouse-resize-edge:focus-visible { outline:1px solid #e0c687; outline-offset:-2px; }
-.warehouse-resize-edge[data-warehouse-resize="n"],.warehouse-resize-edge[data-warehouse-resize="s"] { left:0; right:0; height:10px; cursor:ns-resize; }
-.warehouse-resize-edge[data-warehouse-resize="n"] { top:-26px; }
-.warehouse-resize-edge[data-warehouse-resize="s"] { bottom:-26px; }
-.warehouse-resize-edge[data-warehouse-resize="e"],.warehouse-resize-edge[data-warehouse-resize="w"] { top:0; bottom:0; width:10px; cursor:ew-resize; }
-.warehouse-resize-edge[data-warehouse-resize="e"] { right:-26px; }
-.warehouse-resize-edge[data-warehouse-resize="w"] { left:-26px; }
-.warehouse-resize-edge[data-warehouse-resize="ne"],.warehouse-resize-edge[data-warehouse-resize="nw"],.warehouse-resize-edge[data-warehouse-resize="se"],.warehouse-resize-edge[data-warehouse-resize="sw"] { width:22px; height:22px; }
-.warehouse-resize-edge[data-warehouse-resize="ne"] { top:-26px; right:-26px; cursor:nesw-resize; }
-.warehouse-resize-edge[data-warehouse-resize="nw"] { top:-26px; left:-26px; cursor:nwse-resize; }
-.warehouse-resize-edge[data-warehouse-resize="se"] { bottom:-26px; right:-26px; cursor:nwse-resize; }
-.warehouse-resize-edge[data-warehouse-resize="sw"] { bottom:-26px; left:-26px; cursor:nesw-resize; }
-.warehouse-resize-edge[data-warehouse-resize="se"]::after { content:""; position:absolute; right:3px; bottom:3px; width:10px; height:10px; background:repeating-linear-gradient(135deg,transparent 0 3px,#d4be8270 3px 4px); }
+.warehouse-resize-edge:is([data-warehouse-resize="n"],[data-guild-resize="n"]),.warehouse-resize-edge:is([data-warehouse-resize="s"],[data-guild-resize="s"]) { left:0; right:0; height:10px; cursor:ns-resize; }
+.warehouse-resize-edge:is([data-warehouse-resize="n"],[data-guild-resize="n"]) { top:-26px; }
+.warehouse-resize-edge:is([data-warehouse-resize="s"],[data-guild-resize="s"]) { bottom:-26px; }
+.warehouse-resize-edge:is([data-warehouse-resize="e"],[data-guild-resize="e"]),.warehouse-resize-edge:is([data-warehouse-resize="w"],[data-guild-resize="w"]) { top:0; bottom:0; width:10px; cursor:ew-resize; }
+.warehouse-resize-edge:is([data-warehouse-resize="e"],[data-guild-resize="e"]) { right:-26px; }
+.warehouse-resize-edge:is([data-warehouse-resize="w"],[data-guild-resize="w"]) { left:-26px; }
+.warehouse-resize-edge:is([data-warehouse-resize="ne"],[data-guild-resize="ne"]),.warehouse-resize-edge:is([data-warehouse-resize="nw"],[data-guild-resize="nw"]),.warehouse-resize-edge:is([data-warehouse-resize="se"],[data-guild-resize="se"]),.warehouse-resize-edge:is([data-warehouse-resize="sw"],[data-guild-resize="sw"]) { width:22px; height:22px; }
+.warehouse-resize-edge:is([data-warehouse-resize="ne"],[data-guild-resize="ne"]) { top:-26px; right:-26px; cursor:nesw-resize; }
+.warehouse-resize-edge:is([data-warehouse-resize="nw"],[data-guild-resize="nw"]) { top:-26px; left:-26px; cursor:nwse-resize; }
+.warehouse-resize-edge:is([data-warehouse-resize="se"],[data-guild-resize="se"]) { bottom:-26px; right:-26px; cursor:nwse-resize; }
+.warehouse-resize-edge:is([data-warehouse-resize="sw"],[data-guild-resize="sw"]) { bottom:-26px; left:-26px; cursor:nesw-resize; }
+.warehouse-resize-edge:is([data-warehouse-resize="se"],[data-guild-resize="se"])::after { content:""; position:absolute; right:3px; bottom:3px; width:10px; height:10px; background:repeating-linear-gradient(135deg,transparent 0 3px,#d4be8270 3px 4px); }
+
+/* Guild A shares the warehouse's actual silver frame, leather and native portraits. */
+#guild-window-frame {
+    min-width:0; border:28px solid transparent; border-image:url('../assets/ui/warehouse-frame-v1.png') 180 fill / 56px stretch;
+    border-radius:0; background:#101011; overflow:visible; container:guild / inline-size;
+}
+#guild-window-drag { flex:0 0 44px; padding:0 16px 8px; border-bottom:1px solid #8c7649; background:transparent; }
+#guild-title { margin:0; font:28px 'Noto Serif TC','PMingLiU',serif; letter-spacing:3px; color:#f3dfad; text-shadow:0 2px 3px #000; }
+#guild-window-close { min-width:32px; width:32px; height:32px; padding:0; border-radius:2px; font-size:23px; }
+#guild-window-frame .btn { color:#e4d6b8; border:1px solid #766346; border-radius:2px; background:linear-gradient(#353025,#171615); box-shadow:inset 0 0 3px #080808; }
+#guild-window-frame .btn[aria-pressed="true"] { color:#f2df9d; border-color:#b49c58; background:linear-gradient(#4d4021,#292315); }
+#guild-window-frame .btn:disabled { opacity:.4; cursor:default; }
+#guild-window-frame .btn:focus-visible { outline:2px solid #dec387; outline-offset:-2px; }
+#guild-member-strip { display:flex; gap:5px; flex:none; max-width:100%; overflow-x:auto; padding:0 0 8px; scrollbar-width:thin; }
+#guild-member-strip[hidden] { display:none; }
+#guild-content-host { flex:1; min-height:0; min-width:0; display:flex; }
+#interaction-content.guild-content { width:100%; min-height:0; padding:4px; overflow-y:auto; color:#d6cbb7; }
+#interaction-content.guild-equipment-content { display:flex; flex-direction:column; overflow:hidden; }
+.guild-help { font-size:13px; padding:8px; border:1px solid #554c38; }
+.guild-help summary { cursor:pointer; color:#cdb578; }
+.guild-help > div { padding-top:8px; }
+.guild-equipment { flex:1; min-height:0; display:grid; grid-template-columns:minmax(0,.46fr) minmax(0,.54fr); gap:10px; }
+.guild-body,.guild-inventory { min-width:0; min-height:0; display:flex; flex-direction:column; border:1px solid #786343; background:#0d0d10c9; }
+.guild-equipment h3 { flex:none; min-width:0; margin:0; height:34px; padding:5px 10px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font:17px 'Noto Serif TC','PMingLiU',serif; color:#dfc37c; border-bottom:1px solid #6b5838; background:linear-gradient(90deg,#302719,#161614); }
+#guild-body-scroll { flex:1; min-height:0; overflow-y:auto; overflow-x:hidden; scrollbar-width:thin; scrollbar-color:#8c7649 #101115; }
+#guild-paperdoll { background:transparent; }
+#guild-paperdoll .equipment-window-slots { top:0; transform:translateX(-50%); }
+#guild-paperdoll .equipment-visual-slot { overflow:visible; }
+#guild-paperdoll .equipment-visual-slot > img { width:67%; height:67%; margin-bottom:10%; }
+#guild-paperdoll .party-equipment-label { display:block; position:absolute; z-index:4; bottom:1px; left:0; width:100%; overflow:hidden; white-space:nowrap; text-align:center; color:#ddcead; font-size:10px; line-height:12px; text-shadow:1px 1px 2px #000, -1px -1px 2px #000; pointer-events:none; }
+#guild-paperdoll .equipment-slot-enhance,#guild-paperdoll .equipment-slot-count { bottom:12px; font-size:11px; }
+#guild-paperdoll [aria-pressed="true"] { outline:2px solid #d6b965; outline-offset:-2px; }
+.guild-pages { display:flex; flex:none; justify-content:center; gap:6px; padding:5px; border-top:1px solid #55452e; }
+.guild-pages .btn { padding:4px 18px; font-size:13px; }
+.guild-filters { display:flex; flex:none; gap:5px; padding:8px; }
+.guild-filters input { flex:1; min-width:0; width:0; }
+.guild-filters input,.guild-filters select { height:30px; border:1px solid #6b5d47; border-radius:2px; background:#17181d; color:#d8cbaa; padding:3px 6px; font-size:13px; }
+.guild-filters button { flex:none; padding:3px 6px; font-size:12px; }
+#guild-slot-hint { flex:none; padding:0 8px 6px; color:#ae9d7a; font-size:12px; }
+#guild-candidates { flex:1; min-height:0; display:grid; grid-template-columns:repeat(auto-fill,minmax(125px,1fr)); grid-auto-rows:100px; align-content:start; gap:6px; overflow-y:auto; overflow-x:hidden; padding:0 8px 8px; overscroll-behavior:contain; scrollbar-width:thin; scrollbar-color:#8c7649 #101115; }
+#guild-window-frame .guild-item { display:flex; min-width:0; flex-direction:column; align-items:center; justify-content:center; padding:3px; background:url('../assets/ui/warehouse-row-v1.png') center / 100% 100%; }
+#guild-window-frame .guild-item[aria-pressed="true"] { outline:2px solid #b89b50; outline-offset:-2px; }
+.guild-item-icon { position:relative; display:flex; flex:1; align-items:center; justify-content:center; width:100%; min-height:0; }
+.guild-item-icon > img { width:46px; height:46px; object-fit:contain; image-rendering:pixelated; }
+.guild-item-icon .classic-icon-values { right:3px; bottom:1px; }
+.guild-item-name { display:block; flex:none; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:13px; }
+.guild-empty { grid-column:1/-1; padding:15px 4px; font-size:13px; color:#a69a84; }
+.guild-actions { flex:none; display:grid; grid-template-columns:minmax(0,1fr) auto; gap:5px 8px; padding:8px; border-top:1px solid #77603e; background:#171511; }
+.guild-actions > div { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:13px; align-self:center; }
+#guild-current { grid-column:1; grid-row:1; color:#beb39b; }
+#guild-candidate { grid-column:1; grid-row:2; color:#e4c581; }
+#guild-equip { grid-column:2; grid-row:1; }
+#guild-unequip { grid-column:2; grid-row:2; }
+.guild-actions .btn { min-width:68px; padding:3px 12px; font-size:14px; }
+.guild-footer { flex:none; margin:0; padding:6px 0 0; text-align:center; font-size:12px; color:#ad9d7c; }
+@container guild (max-width:800px) {
+    #guild-window-drag { flex-basis:44px; }
+    #guild-title { font-size:24px; }
+    .guild-equipment { gap:6px; }
+    #guild-candidates { grid-template-columns:repeat(auto-fill,minmax(100px,1fr)); grid-auto-rows:87px; }
+    .guild-filters { flex-wrap:wrap; padding:5px; }
+    .guild-filters select { width:64px; }
+    .guild-filters input { flex-basis:80px; }
+    .guild-filters button { width:100%; }
+    .guild-equipment h3 { font-size:14px; padding:5px; }
+    .guild-footer { font-size:11px; }
+}
+
+.wh-quantity-confirm { padding:4px 6px; font-size:12px; white-space:nowrap; }
+
+#interaction-content.guild-content > .guild-equipment { background:transparent !important; }
+
+#guild-paperdoll .guild-slot-locked { opacity:.4; cursor:default; }
+
+/* Guild roster uses the same bitmap strips and leather as its equipment page. */
+#guild-window-frame .guild-roster { gap:8px; padding:4px; }
+#interaction-content.guild-content .guild-roster-row {
+    display:flex; align-items:center; gap:12px; min-height:76px; padding:10px 14px;
+    border:2px solid transparent !important; border-image:url('../assets/ui/warehouse-row-v1.png') 32 fill stretch !important;
+    border-radius:0; background:transparent !important; color:#d7cbb1;
+}
+.guild-roster-avatar { flex:none; display:flex; align-items:center; justify-content:center; width:44px; height:54px; border-right:1px solid #655238; }
+.guild-roster-identity { flex:1; min-width:0; overflow-wrap:anywhere; line-height:1.6; }
+.guild-roster-row > .shrink-0 { max-width:45%; }
+#guild-window-frame .guild-roster-row .btn { min-width:58px; padding:5px 10px; font-size:14px; }
+#guild-window-frame .guild-roster-empty { min-height:45px; opacity:.45; }
+#guild-window-frame .guild-help { padding:8px 12px; border:1px solid #736045; border-radius:0; background:#14120f; }
+#guild-window-frame .guild-help summary { font-family:'Noto Serif TC','PMingLiU',serif; color:#d4bd82; }
+@container guild (max-width:800px) {
+    #interaction-content.guild-content .guild-roster-row { gap:8px; padding:7px 10px; }
+    #guild-window-frame .guild-roster-row .btn { min-width:48px; padding:5px 7px; font-size:13px; }
+}
+#interaction-content.guild-content > .guild-roster { background:transparent !important; }
+
+/* B composition: original equipment artwork fills the left; all controls stay right. */
+#guild-window-frame { --guild-sidebar-width:320px; }
+#guild-member-select { flex:1; min-width:0; height:30px; padding:3px 6px; border:1px solid #766346; background:#171615; color:#d8c9a7; font-size:13px; }
+#guild-window-frame .guild-member-step { flex:none; width:28px; min-width:0; padding:2px; font-size:20px; }
+#guild-window-frame.guild-equipment-view { display:grid; grid-template-columns:minmax(0,1fr) var(--guild-sidebar-width); grid-template-rows:44px 44px minmax(0,1fr); }
+.guild-equipment-view #guild-window-drag { grid-column:2; grid-row:1; z-index:3; padding:0 8px 4px; }
+.guild-equipment-view #guild-title { font-size:24px; letter-spacing:2px; }
+.guild-equipment-view #guild-member-strip { grid-column:2; grid-row:2; z-index:3; padding:4px 6px 8px; gap:4px; overflow:hidden; }
+.guild-equipment-view #guild-content-host { grid-area:1 / 1 / -1 / -1; }
+#guild-window-frame #interaction-content.guild-equipment-content { padding:0 !important; }
+.guild-equipment-view .guild-equipment { grid-template-columns:minmax(0,1fr) var(--guild-sidebar-width); gap:0; }
+.guild-equipment-view .guild-body { border:0; background:transparent; }
+.guild-equipment-view .guild-body > h3,.guild-equipment-view .guild-footer { display:none; }
+.guild-equipment-view #guild-body-scroll { width:100%; height:100%; }
+.guild-equipment-view .guild-inventory { margin-top:88px; border-width:0 0 0 1px; }
+.guild-equipment-view .guild-pages { border-top:0; border-bottom:1px solid #6b5838; padding:5px; }
+.guild-equipment-view .guild-pages .btn { flex:1; padding:4px 8px; }
+.guild-equipment-view #guild-candidates { grid-template-columns:repeat(3,minmax(0,1fr)); grid-auto-rows:84px; gap:4px; padding:0 6px 6px; }
+.guild-equipment-view .guild-item-name { font-size:12px; }
+.guild-equipment-view .guild-item-icon > img { width:40px; height:40px; }
+.guild-equipment-view .guild-filters { flex-wrap:nowrap; padding:6px; }
+.guild-equipment-view .guild-filters select { width:62px; }
+.guild-equipment-view .guild-filters button { width:auto; font-size:11px; padding:3px; }
+.guild-equipment-view .guild-actions { gap:5px; padding:6px; }
+
+/* Match the player's equipment controls: inside the artwork, at bottom left. */
+.party-equipment-pages,.guild-equipment-view .guild-pages {
+    position:absolute; z-index:8; pointer-events:auto; left:6%; width:49%; height:calc(20px * var(--ui-scale-inverse,1));
+    display:flex; align-items:stretch; justify-content:flex-start; gap:2%; margin:0; padding:0; border:0; background:transparent;
+}
+.party-equipment-pages { top:var(--party-equipment-controls-top); }
+.guild-equipment-view .guild-pages { top:var(--guild-equipment-controls-top); }
+.party-equipment-pages .party-equipment-page,#guild-window-frame.guild-equipment-view .guild-pages .btn {
+    flex:1; min-width:0; min-height:0; height:100%; padding:0; font:600 calc(10px * var(--ui-scale-inverse,1))/1 "Microsoft JhengHei",Arial,sans-serif;
+}
+
+.guild-equipment-view #guild-window-close { min-width:64px; width:64px; height:30px; padding:3px 8px; font-size:14px; }

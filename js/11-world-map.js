@@ -1664,6 +1664,9 @@ function interactNPC(npcId, townId) {
         return;
     }
 
+    if (npc.type === 'ally' && window.guildWindow) { guildWindow.open(); return; }
+    if (window.guildWindow?.isOpen()) guildWindow.close();
+
     // 🏘️ v3.2.88 NPC 功能改浮動視窗(position:fixed·z 高於地圖)：不再隱藏地圖，視窗直接浮在動態 NPC 之上（比照倉庫）
     document.getElementById('town-interaction-container').classList.remove('hidden');
     document.getElementById('town-interaction-container').classList.add('flex');
@@ -1780,6 +1783,7 @@ function interactNPC(npcId, townId) {
 }
 
 function closeNpcInteraction() {
+    if (window.guildWindow?.isOpen()) guildWindow.close();
     // ⚠️ 勿在此關閉浮動倉庫視窗：本函式在城鎮內「切換 NPC 面板」時也會被呼叫，
     //    那樣會變成點任何一個 NPC 都把倉庫關掉。倉庫的關閉點在 changeMap 的「離開安全區」分支。
     document.getElementById('town-interaction-container').classList.add('hidden');

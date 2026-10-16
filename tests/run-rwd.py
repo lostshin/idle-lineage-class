@@ -12,7 +12,7 @@ SUITES = ['rwd','ui-scale','gameplay','account-gameplay','visual-account-gamepla
 REQUIRED = ['rwd','ui-scale','gameplay','account-gameplay','companion-commands']
 SUITES += ['desktop-acceptance','visual-desktop-acceptance','ability-cleanup','tooltip-stability','clan-ability','offline-rewards','effect-details','visual-effect-details']
 SUITES += ['warehouse-list']
-SUITES += ['optional-addons','comfort-release','creation-id']
+SUITES += ['optional-addons','comfort-release','creation-id','guild-settlement']
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--desktop-only', action='store_true', help='Skip mobile and tablet viewport checks')

@@ -55,9 +55,11 @@ function partyEquipmentHtml(actor,kind,id,page=0) {
         if(item&&DB.items[item.id]){slot.dataset.tipUid=item.uid||key;slot.dataset.tipSrc='party';slot.dataset.tipPartyKind=kind;slot.dataset.tipPartyId=id;slot.removeAttribute('title');}
         host.appendChild(slot);
     }
+    const pages=document.createElement('div');pages.className='party-equipment-pages';
     for(let i=0;i<2;i++) {
-        const button=document.createElement('button');button.type='button';button.className='btn party-equipment-page';button.textContent='裝備 '+(i+1);button.dataset.partyEquipmentPage=i;button.setAttribute('aria-label','裝備第 '+(i+1)+' 頁');button.setAttribute('aria-pressed',String(page===i));toolbar.appendChild(button);
+        const button=document.createElement('button');button.type='button';button.className='btn party-equipment-page';button.textContent='裝備 '+(i+1);button.dataset.partyEquipmentPage=i;button.setAttribute('aria-label','裝備第 '+(i+1)+' 頁');button.setAttribute('aria-pressed',String(page===i));pages.appendChild(button);
     }
+    host.appendChild(pages);
     return '<div class="party-equipment-stage">'+toolbar.outerHTML+partyEquipmentWeightHtml(actor,kind)+frame.outerHTML+'<div class="equipment-summary" data-equipment-summary>'+equipmentSummaryHtml(actor,kind)+'</div></div>'+(!Object.values(actor.eq||{}).some(Boolean)?'<p class="party-empty">目前沒有裝備。</p>':'');
 }
 (function () {
@@ -195,6 +197,7 @@ function partyEquipmentHtml(actor,kind,id,page=0) {
         const outerHeight=userSize?panel.clientHeight:parseFloat(panel.style.maxHeight)||panel.clientHeight;
         const availableHeight=Math.max(1,outerHeight-chrome-parseFloat(style.paddingTop)-parseFloat(style.paddingBottom)-4);
         const canvasWidth=equipmentView.fitWidth(details.clientWidth-paddingX,availableHeight,equipmentPage),layout=equipmentView.positionSlots(frame.querySelector('.equipment-window-slots'),canvasWidth,equipmentPage),canvasHeight=layout.height;
+        frame.style.setProperty('--party-equipment-controls-top',layout.controlsTop+'px');
         frame.style.setProperty('--party-equipment-height',canvasHeight+'px');
         frame.style.setProperty('--party-equipment-canvas-width',canvasWidth+'px');
         frame.style.setProperty('--party-equipment-canvas-height',canvasHeight+'px');

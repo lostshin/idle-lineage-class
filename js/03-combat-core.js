@@ -376,14 +376,16 @@ function _ffProgressEnsure() {
         style.id = 'ff-progress-style';
         style.textContent = `
             @keyframes ffProgressSpin { to { transform: rotate(360deg); } }
-            #ff-progress-indicator { position:fixed; left:50%; bottom:max(18px, env(safe-area-inset-bottom)); z-index:90; width:min(360px, calc(100vw - 28px)); transform:translate(-50%, 12px); opacity:0; pointer-events:none; transition:opacity .16s ease, transform .16s ease; padding:10px 12px; border:1px solid rgba(180,140,62,.72); border-radius:6px; color:#f5e7bd; background:rgba(20,18,24,.94); box-shadow:0 6px 22px rgba(0,0,0,.5); font-size:14px; }
-            #ff-progress-indicator.is-visible { opacity:1; transform:translate(-50%, 0); }
-            #ff-progress-indicator .ff-progress-head { display:flex; align-items:center; gap:9px; min-width:0; }
+            #ff-progress-indicator { position:fixed; inset:0; z-index:10090; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px; opacity:0; visibility:hidden; pointer-events:none; color:#e2e8f0; background:rgba(2,6,23,.92); font-size:14px; }
+            #ff-progress-indicator.is-visible { opacity:1; visibility:visible; pointer-events:auto; }
+            #ff-progress-indicator .ff-progress-head { display:flex; align-items:center; gap:9px; width:min(420px,70vw); }
+            #ff-progress-indicator .ff-progress-title { flex:1; color:#fcd34d; font-size:18px; font-weight:700; }
+            #ff-progress-indicator .ff-progress-percent { color:#94a3b8; font-variant-numeric:tabular-nums; }
             #ff-progress-indicator .ff-progress-spinner { width:16px; height:16px; flex:0 0 16px; border:2px solid rgba(245,231,189,.28); border-top-color:#e5bd63; border-radius:50%; animation:ffProgressSpin .75s linear infinite; }
             #ff-progress-indicator .ff-progress-title { flex:1 1 auto; min-width:0; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; font-weight:700; }
             #ff-progress-indicator .ff-progress-percent { flex:0 0 auto; color:#f8d477; font-variant-numeric:tabular-nums; font-weight:700; }
-            #ff-progress-indicator .ff-progress-track { height:5px; margin-top:8px; overflow:hidden; border-radius:3px; background:#34303a; }
-            #ff-progress-indicator .ff-progress-fill { height:100%; width:0; border-radius:inherit; background:linear-gradient(90deg, #9b6e27, #e4bd62); transition:width .12s linear; }
+            #ff-progress-indicator .ff-progress-track { width:min(420px,70vw); height:14px; margin-top:0; overflow:hidden; border-radius:3px; background:#34303a; }
+            #ff-progress-indicator .ff-progress-fill { height:100%; width:0; border-radius:inherit; background:linear-gradient(90deg,#22c55e,#86efac); }
             @media (prefers-reduced-motion: reduce) { #ff-progress-indicator, #ff-progress-indicator .ff-progress-fill { transition:none; } #ff-progress-indicator .ff-progress-spinner { animation:none; } }
         `;
         document.head.appendChild(style);

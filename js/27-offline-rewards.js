@@ -1364,36 +1364,17 @@
     }
 
     function _offlineShowSummary(result) {
-        let old = document.getElementById('offline-reward-modal');
-        if (old) old.remove();
-        let potionName = result.potionId && DB.items[result.potionId] ? DB.items[result.potionId].n : result.potionId;
-        let overlay = document.createElement('div');
-        overlay.id = 'offline-reward-modal';
-        overlay.style.cssText = 'position:fixed;inset:0;z-index:10080;background:rgba(2,6,23,.78);display:flex;align-items:center;justify-content:center;padding:16px;';
-        overlay.innerHTML =
-            '<div style="width:min(460px,100%);max-height:90vh;overflow:auto;border:1px solid #a16207;border-radius:8px;background:#171923;color:#e5e7eb;box-shadow:0 18px 60px #000c;padding:20px;">' +
-                '<div style="font-size:22px;font-weight:700;color:#fde68a;border-bottom:1px solid #4b5563;padding-bottom:10px;margin-bottom:14px;">離線收益</div>' +
-                '<div style="color:#cbd5e1;line-height:1.7;margin-bottom:12px;">' +
-                    '<div>狩獵區：<span style="color:#93c5fd;">' + _offlineEsc(result.mapName) + '</span></div>' +
-                    '<div>離線時間：' + _offlineFormatDuration(result.requestedElapsedMs || result.elapsedMs) + (result.capped ? '（已達 12 小時上限）' : '') + '</div>' +
-                    (result.died ? '<div style="color:#fca5a5;font-weight:700;">戰鬥 ' + _offlineFormatDuration(result.elapsedMs) + ' 後死亡，後續收益停止。</div>' : '') +
-                '</div>' +
-                '<div style="display:grid;grid-template-columns:1fr auto;gap:8px 14px;background:#0f172a;border:1px solid #334155;border-radius:6px;padding:12px;">' +
-                    (result.died ? '<span>離線結果</span><b style="color:#f87171;">戰鬥中死亡</b>' : '') +
-                    '<span>獲得經驗</span><b style="color:#86efac;">' + result.exp.toLocaleString() + '</b>' +
-                    '<span>獲得金幣</span><b style="color:#fde047;">' + result.gold.toLocaleString() + '</b>' +
-                    '<span>擊殺怪物</span><b style="color:#c4b5fd;">' + result.kills.toLocaleString() + '</b>' +
-                    (result.bossKills > 0 ? '<span>擊殺頭目</span><b style="color:#fca5a5;">' + result.bossKills.toLocaleString() + '</b>' : '') +
-                    '<span>掉落物品</span><b style="color:#fef08a;">' + result.itemCount.toLocaleString() + '</b>' +
-                    '<span>怪物卡片</span><b style="color:#93c5fd;">' + result.cardCount.toLocaleString() + '</b>' +
-                    (result.potionUsed > 0 ? '<span>消耗藥水</span><b style="color:#fda4af;">' + _offlineEsc(potionName) + ' × ' + result.potionUsed.toLocaleString() + '</b>' : '') +
-                    (result.potionBought > 0 ? '<span>自動購買藥水</span><b style="color:#fdba74;">' + result.potionBought.toLocaleString() + ' 瓶（-' + result.potionCost.toLocaleString() + ' 金幣）</b>' : '') +   // 🧪 v3.7.72
-                '</div>' +
-                '<div style="margin-top:12px;padding:12px;border:1px solid #334155;border-radius:6px;background:#111827;line-height:1.65;font-size:14px;">' +
-                    '<div style="font-weight:700;color:#fcd34d;margin-bottom:6px;">離線戰利品</div>' + _offlineLootHtml(result) + '</div>' +
-                '<button type="button" onclick="document.getElementById(\'offline-reward-modal\').remove()" style="width:100%;height:42px;margin-top:16px;border:1px solid #d97706;border-radius:6px;background:#78350f;color:#fef3c7;font-weight:700;cursor:pointer;">確認</button>' +
-            '</div>';
-        document.body.appendChild(overlay);
+        if (typeof logSys !== 'function') return;
+        logSys('<span class="text-amber-300 font-bold">離線掛機完成：</span>' + _offlineEsc(result.mapName) + '，離線 ' +
+            _offlineFormatDuration(result.requestedElapsedMs || result.elapsedMs) + (result.capped ? '（已達 12 小時上限）' : '') + '。');
+        if (result.potionUsed > 0) {
+            const name = DB.items[result.potionId]?.n || result.potionId;
+            logSys('離線消耗：' + _offlineEsc(name) + ' ×' + result.potionUsed.toLocaleString() +
+                (result.potionBought > 0 ? '；自動購買 ' + result.potionBought.toLocaleString() + ' 瓶（-' + result.potionCost.toLocaleString() + ' 金幣）' : '') + '。');
+        }
+        logSys('<div class="sys-item-gain">離線戰利品：' + _offlineLootHtml(result) + '</div>');
+        if (typeof switchLogTab === 'function') switchLogTab('sys');
+        if (typeof sysLogToBottom === 'function') sysLogToBottom();
     }
 
     function _offlineRewardAmount(ratePerMin, elapsedMs, efficiency) {
@@ -1580,7 +1561,7 @@
             potionUsed: survivalPlan.potionUsed,
             potionBought: survivalPlan.potionBought || 0,   // 🧪 v3.7.72 自動購買補的瓶數／花費
             potionCost: survivalPlan.potionCost || 0,
-            capped: options.showModal === true && rawElapsed > OFFLINE_MAX_MS,
+            capped: options.showSummary === true && rawElapsed > OFFLINE_MAX_MS,
             exp: exp,
             gold: gold,
             kills: kills,
@@ -1607,8 +1588,8 @@
             }
         }
         if (survivalPlan.died) _offlineApplySettledDeath();
-        if (savedOk && options.showModal && typeof recordAddonOfflineHistory === 'function') recordAddonOfflineHistory(result);
-        if (options.showModal) _offlineShowSummary(result);
+        if (savedOk && options.showSummary && typeof recordAddonOfflineHistory === 'function') recordAddonOfflineHistory(result);
+        if (options.showSummary) _offlineShowSummary(result);
         return true;
     }
 
@@ -1646,7 +1627,7 @@
                 label: '掛機結算',
                 advanceCombatTime: true,
                 catchupFormat: true,
-                showModal: false
+                showSummary: false
             });
         } finally {
             _offlineSettling = false;
@@ -1717,7 +1698,7 @@
                 label: '離線收益',
                 allowBosses: source.bossUnlocked !== false,
                 advanceCombatTime: false,
-                showModal: true
+                showSummary: true
             });
         } finally {
             _offlineSettling = false;

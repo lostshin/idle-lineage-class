@@ -105,7 +105,7 @@ await page.evaluate(() => {currentSlot=1; loadGame(); stopGameTimers();});
 await page.evaluate(() => new Promise(resolve => setTimeout(resolve, 0)));
 await check('reopening after actual tab closure grants exactly 70% of two minutes and displays the summary', () => page.evaluate(base => {
     const expectedGold = Math.floor(base.profile.goldPerMin * 2 * .7 + 1e-7), expectedExp = Math.floor(base.profile.expPerMin * 2 * .7 + 1e-7);
-    return player.gold === base.gold + expectedGold && player.exp === base.exp + expectedExp && !!document.getElementById('offline-reward-modal') || {gold:player.gold, expectedGold:base.gold + expectedGold, exp:player.exp, expectedExp:base.exp + expectedExp, summary:!!document.getElementById('offline-reward-modal')};
+    return player.gold === base.gold + expectedGold && player.exp === base.exp + expectedExp && (!document.getElementById('offline-reward-modal')&&document.getElementById('sys-log').textContent.includes('離線掛機完成')) || {gold:player.gold, expectedGold:base.gold + expectedGold, exp:player.exp, expectedExp:base.exp + expectedExp, summary:(!document.getElementById('offline-reward-modal')&&document.getElementById('sys-log').textContent.includes('離線掛機完成'))};
 }, base));
 await check('settled gains, role identity and unknown preferences survive native save', () => page.evaluate(base => {
     const d = accountRoleDoc(1);
@@ -122,7 +122,7 @@ await check('immediate reload cannot add a duplicate history entry',()=>page.eva
 base = await sample(2);
 await reopen(14 * 3600000, 2);
 await check('long absences cap rewards at 12 hours and explain the cap', () => page.evaluate(base => {
-    const amount = Math.floor(base.profile.goldPerMin * 720 * .7 + 1e-7), modal = document.getElementById('offline-reward-modal');
+    const amount = Math.floor(base.profile.goldPerMin * 720 * .7 + 1e-7), modal = document.getElementById('sys-log');
     return player.gold === base.gold + amount && modal?.textContent.includes('12 小時上限') || {gold:player.gold, expected:base.gold+amount, modal:modal?.textContent};
 }, base));
 base = await sample(3);
@@ -139,7 +139,7 @@ const menu = await page.evaluate(() => ({raw:_lsGet('lineage_idle_save_4')}));
 await page.evaluate(() => {_flushSaveNow();});
 await check('returning to character selection freezes a valid snapshot despite later flushes', () => page.evaluate(menu => _lsGet('lineage_idle_save_4') === menu.raw && accountRoleDoc(4).p.offlineHunt?.eligible === true, menu));
 await reopen(120000, 4);
-await check('a role left at character selection still receives offline rewards', () => page.evaluate(base => player.gold === base.gold + Math.floor(base.profile.goldPerMin * 2 * .7 + 1e-7) && !!document.getElementById('offline-reward-modal'), base));
+await check('a role left at character selection still receives offline rewards', () => page.evaluate(base => player.gold === base.gold + Math.floor(base.profile.goldPerMin * 2 * .7 + 1e-7) && (!document.getElementById('offline-reward-modal')&&document.getElementById('sys-log').textContent.includes('離線掛機完成')), base));
 base = await sample(5);
 await reopen(120000, 5);
 await page.evaluate(() => {document.getElementById('offline-reward-modal')?.remove();});
@@ -161,7 +161,7 @@ const failedClaimGold = await page.evaluate(() => accountRoleDoc(6).p.gold);
 await check('failed claim-marker writes grant no unprotected rewards', () => page.evaluate(gold => player.gold === gold && !document.getElementById('offline-reward-modal'), failedClaimGold));
 await page.evaluate(() => {__offlineTest.fail=''; loadGame(); stopGameTimers();});
 await page.evaluate(() => new Promise(resolve => setTimeout(resolve, 0)));
-await check('retry after claim storage recovers grants the pending interval once', () => page.evaluate(gold => player.gold > gold && !!document.getElementById('offline-reward-modal'), failedClaimGold));
+await check('retry after claim storage recovers grants the pending interval once', () => page.evaluate(gold => player.gold > gold && (!document.getElementById('offline-reward-modal')&&document.getElementById('sys-log').textContent.includes('離線掛機完成')), failedClaimGold));
 await sample(7);
 await page.evaluate(() => {returnToCharacterSelect(); __offlineTest.advance(120000); __offlineTest.fail='lineage_idle_save_7'; currentSlot=7; loadGame(); stopGameTimers();});
 await page.evaluate(() => new Promise(resolve => setTimeout(resolve, 0)));

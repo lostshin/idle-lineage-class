@@ -653,6 +653,7 @@ function loadBackToMenu(){
 }
 
 function returnToCharacterSelect(){
+    if (window.guildWindow?.isOpen()) guildWindow.close();
     if(typeof player === 'undefined' || !player || !player.cls) return false;
     if(typeof offlinePrepareCharacterSelect === 'function') offlinePrepareCharacterSelect();
     else _flushSaveNow();

@@ -16,9 +16,9 @@
     <link rel="icon" type="image/png" href="assets/favicon.png">   <!-- 🖼️ 瀏覽器分頁圖示(favicon)：把你的圖放到 assets/favicon.png 即生效；可改 href 路徑或副檔名(.ico/.svg) -->
 
     <link rel="stylesheet" href="css/style.css?v=669f1f5ad6">
-    <link rel="stylesheet" href="css/floating-ui.css?v=deee859094">
+    <link rel="stylesheet" href="css/floating-ui.css?v=9396fa3aed">
     <link rel="stylesheet" href="css/tailwind-built.css?v=932535789f"><!-- 🔧 預編譯 Tailwind（取代執行期 JIT tailwind.js）：只含實際用到的 class，省 407KB runtime + 移除持續掃描 DOM 的成本。置於 style.css 之後以保留原 cascade（utility 平手時勝過自訂 class，與舊 JIT 注入順序一致） -->
-    <link rel="stylesheet" href="css/responsive.css?v=ef13206338">
+    <link rel="stylesheet" href="css/responsive.css?v=5568ae14d2">
     <link rel="stylesheet" href="css/addons.css?v=420511a7ea">
 </head>
 <body class="h-screen w-screen overflow-hidden">
@@ -131,16 +131,16 @@
                 <div class="creation-stat-control stat-int"><span id="c-int" class="creation-stat-value"></span><button class="creation-stat-btn" onclick="adjStat('int', -1)">-</button><button class="creation-stat-btn" onclick="adjStat('int', 1)">+</button></div>
             </div>
 
+            <div id="creation-name-control">
+                <div class="creation-name-row"><label for="creation-name" lang="en" title="角色名稱（ID）">Character Name</label><input id="creation-name" type="text" maxlength="12" required autocomplete="off" spellcheck="false" aria-describedby="creation-name-status" aria-label="角色名稱（ID）" placeholder="請填寫名稱" oninput="updateCreateUI()"></div>
+                <p id="creation-name-status" role="status">請輸入 1～12 字的角色 ID。</p>
+            </div>
             <label id="classic-mode-control" title="開啟後此角色永久套用經典規則，無法事後關閉">
                 <input type="checkbox" id="create-classic-toggle" onchange="onToggleClassic(this)">
                 <span>經典模式</span>
             </label>
-            <div id="creation-name-control">
-                <div class="creation-name-row"><label for="creation-name">角色 ID</label><input id="creation-name" type="text" maxlength="12" required autocomplete="off" spellcheck="false" aria-describedby="creation-name-status" placeholder="請輸入角色 ID" oninput="updateCreateUI()"></div>
-                <p id="creation-name-status" role="status">請輸入 1～12 字的角色 ID。</p>
-            </div>
-            <button onclick="backToMenu()" id="creation-back-button" type="button">返回</button>
-            <button onclick="startGame()" id="btn-start" class="creation-start-button" type="button" disabled>開始遊戲</button>
+            <button onclick="startGame()" id="btn-start" class="creation-start-button" type="button" disabled>確定</button>
+            <button onclick="backToMenu()" id="creation-back-button" type="button">取消</button>
         </div>
     </div>
 
@@ -595,32 +595,33 @@
     </script>
 
     <script src="js/anim-manifest.js?v=14d284fa9f"></script>
-    <script src="js/00-data.js?v=687a670dad"></script>
+    <script src="js/00-data.js?v=83d3184005"></script>
     <script src="js/game-layout.js?v=0c5d56ca90"></script>
-<script src="js/01-drops-config.js?v=905d3d7de6"></script>
+<script src="js/01-drops-config.js?v=1e7163fb33"></script>
 <script src="js/02-stats-recompute.js?v=b4d0f38161"></script>
-    <script src="js/03-combat-core.js?v=150d86eba1"></script>
+    <script src="js/03-combat-core.js?v=0d9cfecd7a"></script>
     <script src="js/04-combat-attack.js?v=1ed0d2d6ad"></script>
 <script src="js/05-kill-progression.js?v=00d67d428e"></script>
-    <script src="js/06-status-allies.js?v=134336b7c1"></script>
+    <script src="js/06-status-allies.js?v=b7d7b77826"></script>
     <script src="js/07-skills-cast.js?v=2ff536efb6"></script>
 <script src="js/08-items-equip.js?v=0019902f34"></script>
 <script src="js/09-vfx-render.js?v=c857bbe82c"></script>
     <script src="js/effect-details.js?v=fb13903370"></script>
-    <script src="js/party-inspector.js?v=8b914872d9"></script>
+    <script src="js/party-inspector.js?v=09ec8e9f46"></script>
     <script src="js/party-portrait-bounds.js?v=57f5054baa"></script>
     <script src="js/party-roster.js?v=0a51636f3f"></script>
     <script src="js/10-ui-tabs.js?v=87e7991448"></script>
-<script src="js/11-world-map.js?v=7efa1000b7"></script>
-<script src="js/12-npc-quests.js?v=38477c6cd8"></script>
-<script src="js/13-shop-save.js?v=73cf2bf9a2"></script>
+<script src="js/11-world-map.js?v=70f5c55f1d"></script>
+<script src="js/12-npc-quests.js?v=82da23c33e"></script>
+<script src="js/13-shop-save.js?v=6805096f3b"></script>
 <script src="js/14-craft-pandora.js?v=200000a62a"></script>
 <script src="js/15-cards.js?v=42975a78a0"></script>
 <script src="js/16-equip-book.js?v=06993d3f55"></script>
 <script src="js/18-misc-book.js?v=9a4bbc3677"></script>
 <script src="js/17-audio.js?v=8b26455c32"></script>
 <script src="js/19-equipment-window.js?v=be534312f4"></script>
-<script src="js/20-warehouse-window.js?v=6096f09d68"></script>
+<script src="js/20-warehouse-window.js?v=e6c02170f9"></script>
+<script src="js/guild-window.js?v=836e5a9f70"></script>
 <script src="js/21-relic-book.js?v=40aef7ae9b"></script>
     <script src="js/23-summons.js?v=6a3e978023"></script>
     <script src="js/22-pets.js?v=f572eba618"></script>
@@ -628,7 +629,7 @@
     <script src="js/24-pandora-relic-market.js?v=f4dc248558"></script>
     <script src="js/25-clan-system.js?v=0edd878cc5"></script>
     <script src="js/26-world-channel.js?v=6f37c8a1cb"></script>
-<script src="js/27-offline-rewards.js?v=8e1a717748"></script>
+<script src="js/27-offline-rewards.js?v=dc589514aa"></script>
 <script src="js/28-pvp-arena.js?v=5254f7adfb"></script>
 <script src="js/29-siege-v2-data.js?v=379d78bb1e"></script>
 <script src="js/30-siege-v2.js?v=09b50f9871"></script>
@@ -700,6 +701,6 @@
     <script src="afk-sw.js?v=6a1669d3ff"></script>
     <script src="js/addon-integration.js?v=1e76d8448e"></script>
     <script src="js/addon-optional-integration.js?v=00a3fa6671"></script>
-    <script src="js/addon-settings.js?v=bb08bec419"></script>
+    <script src="js/addon-settings.js?v=60043ce12f"></script>
 </body>
 </html>

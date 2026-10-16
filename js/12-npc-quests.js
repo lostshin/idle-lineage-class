@@ -538,7 +538,7 @@ const warehouseUi = (() => {
         if (editors[side].has(uid) || value !== undefined && !valid(value, total)) {
             const row = document.getElementById('wh-' + side + '-list')?.querySelector('[data-wh-uid="' + CSS.escape(String(uid)) + '"]');
             const hint = row?.querySelector('[data-wh-hint]');
-            if (hint) { hint.textContent = editors[side].has(uid) ? '請先按 Enter 完成編輯' : message(total); hint.setAttribute('role', 'alert'); }
+            if (hint) { hint.textContent = editors[side].has(uid) ? '請按「轉移此數量」或 Enter 確認' : message(total); hint.setAttribute('role', 'alert'); }
             return null;
         }
         return value === undefined ? total : Number(value);
@@ -562,24 +562,38 @@ const warehouseUi = (() => {
                 const name = getItemFullName({ ...it, cnt: 1 }), plain = _whStripHtml(name);
                 const row = document.createElement('div'); row.className = 'wh-row'; row.dataset.whUid = it.uid;
                 row.innerHTML = '<button type="button" data-wh-transfer data-tip-uid="' + _whEscAttr(it.uid) + '" data-tip-src="' + (side === 'inv' ? 'inv' : 'wh') + '" class="tip-host btn wh-transfer" title="' + _whEscAttr(plain + (disabled ? '（不可存）' : '')) + '"' + (disabled ? ' disabled' : '') + '><span class="wh-item-icon"><img src="' + _whEscAttr(getIconUrl(DB.items[it.id])) + '" alt="" onerror="this.style.visibility=\'hidden\'"></span><span class="wh-name">' + name + (disabled ? '（不可存）' : '') + '</span></button><div class="wh-quantity"></div>';
-                row.querySelector('[data-wh-transfer]').addEventListener('click', () => side === 'inv' ? whDeposit(it.uid) : whWithdraw(it.uid));
+                row.querySelector('[data-wh-transfer]').addEventListener('click', () => {
+                    if (editors[side].has(it.uid)) {
+                        const hint = row.querySelector('[data-wh-hint]'); hint.textContent = '請確認數量，或按 Escape 取消'; hint.setAttribute('role', 'alert');
+                        row.querySelector('input')?.focus();
+                        return;
+                    }
+                    if (side === 'inv') whDeposit(it.uid, it.cnt || 1); else whWithdraw(it.uid, it.cnt || 1);
+                });
                 const box = row.querySelector('.wh-quantity');
                 function showQuantity() {
                     const value = quantities[side].get(it.uid), draft = editors[side].get(it.uid);
                     const invalid = value !== undefined && !valid(value, total);
                     if (draft !== undefined) {
-                        box.innerHTML = '<label><span class="wh-qty-label">轉移 <input type="text" inputmode="numeric" aria-label="本次轉移量" value="' + _whEscAttr(draft) + '"></span><small data-wh-hint>持有 ' + total + ' · Enter 完成</small></label>';
+                        box.innerHTML = '<label><span class="wh-qty-label">轉移 <input type="text" inputmode="numeric" aria-label="本次轉移量" value="' + _whEscAttr(draft) + '"></span><small data-wh-hint>持有 ' + total + '</small></label><button type="button" class="btn wh-quantity-confirm" data-wh-confirm>轉移此數量</button>';
                         const input = box.querySelector('input');
                         input.addEventListener('input', () => { editors[side].set(it.uid, input.value); input.removeAttribute('aria-invalid'); });
+                        function confirmQuantity() {
+                            if (!valid(input.value, total)) {
+                                input.setAttribute('aria-invalid', 'true');
+                                const hint = box.querySelector('[data-wh-hint]'); hint.textContent = message(total); hint.setAttribute('role', 'alert');
+                                return;
+                            }
+                            quantities[side].set(it.uid, input.value);
+                            editors[side].delete(it.uid);
+                            if (side === 'inv') whDeposit(it.uid); else whWithdraw(it.uid);
+                            if (box.isConnected) showQuantity();
+                        }
+                        box.querySelector('[data-wh-confirm]').addEventListener('click', confirmQuantity);
                         input.addEventListener('keydown', event => {
                             if (event.isComposing) return;
                             if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); editors[side].delete(it.uid); showQuantity(); box.querySelector('button').focus(); }
-                            if (event.key === 'Enter') {
-                                event.preventDefault(); event.stopPropagation();
-                                if (!valid(input.value, total)) { input.setAttribute('aria-invalid', 'true'); const hint = box.querySelector('[data-wh-hint]'); hint.textContent = message(total); hint.setAttribute('role', 'alert'); return; }
-                                quantities[side].set(it.uid, input.value);
-                                editors[side].delete(it.uid); showQuantity(); box.querySelector('button').focus();
-                            }
+                            if (event.key === 'Enter') { event.preventDefault(); event.stopPropagation(); confirmQuantity(); }
                         });
                     } else {
                         const text = value === undefined ? String(total) : '轉移 ' + Number(value) + '／' + total;
@@ -635,7 +649,7 @@ function renderWarehouseNPC(div){
         </div>
         <div class="wh-tools">
             <button onclick="whOneClickDeposit()" class="btn wh-deposit" title="存入與倉庫現有物品詞綴、名稱及強化值相同的未鎖定物品">一鍵存入 ▶</button>
-            <span class="wh-help">點右側數量編輯，按 Enter 完成後再點名稱轉移；留在預設值即轉移整疊。</span>
+            <span class="wh-help">點數字輸入數量，再按「轉移此數量」或 Enter；點名稱／圖示即轉移整疊。</span>
             <button onclick="sortWarehouse()" class="btn" title="依背包整理規則排列倉庫">整理倉庫</button>
         </div>
         <div class="wh-gold text-sm">

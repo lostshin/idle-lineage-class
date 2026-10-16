@@ -3940,21 +3940,7 @@ function allyUnequipItem(slotN, slot) {
 function renderAllyEquipmentManager(div, slotN) {
     let ctx = _allyManagerSource(slotN, true);
     if (!ctx) { renderAllyNPC(div); return; }
-    let source = ctx.source;
-    let equipped = Object.keys(source.eq || {}).filter(slot => source.eq[slot]);
-    let eqHtml = equipped.length ? equipped.map(slot => {
-        let item = source.eq[slot], name = getItemFullName(item), label = ALLY_EQUIP_SLOT_NAME[slot] || slot;
-        return `<div class="flex items-center justify-between gap-2 bg-slate-800/70 border border-slate-600 rounded px-3 py-2"><span class="min-w-0 text-sm"><b class="text-slate-300">${label}</b>　<span class="text-amber-200">${name}</span></span><button onclick="allyUnequipItem('${ctx.slotN}','${slot}')" class="btn shrink-0 py-1 px-3 text-xs bg-slate-700 border-slate-500 text-slate-100">卸下</button></div>`;
-    }).join('') : '<div class="text-sm text-slate-500">目前沒有穿戴裝備。</div>';
-    let inventory = (player.inv || []).filter(item => {
-        let def = item && DB.items[item.id];
-        return def && (def.type === 'wpn' || !!def.slot) && _allyCanEquipLeaderItem(source, item);
-    });
-    let invHtml = inventory.length ? inventory.map(item => {
-        let cnt = Math.max(1, Math.floor(item.cnt || 1));
-        return `<div class="flex items-center justify-between gap-2 bg-slate-900/60 border border-slate-700 rounded px-3 py-2"><span class="min-w-0 text-sm text-slate-200">${getItemFullName(item)}${cnt > 1 ? ` ×${cnt}` : ''}</span><button onclick="allyEquipItem('${ctx.slotN}','${encodeURIComponent(String(item.uid || ''))}')" class="btn shrink-0 py-1 px-3 text-xs bg-emerald-900 border-emerald-700 text-emerald-100">穿戴</button></div>`;
-    }).join('') : '<div class="text-sm text-slate-500">隊長背包沒有這名傭兵可穿戴的裝備。</div>';
-    div.innerHTML = `<div class="flex flex-col gap-3 p-1"><div class="flex items-center justify-between gap-2"><div><div class="text-amber-300 font-bold">${ctx.ally._allyName || source.name || ('存檔 ' + ctx.slotN)} 的裝備</div><div class="text-xs text-slate-400">裝備由隊長背包提供；卸下或替換的裝備會回到隊長背包。</div></div><button onclick="closeAllyEquipmentManager()" class="btn py-1 px-3 text-xs bg-slate-700 border-slate-500 text-slate-100">返回</button></div><div class="text-xs text-slate-500">變更會立刻寫回來源角色存檔，並刷新目前隊員能力。</div><div class="flex flex-col gap-2"><div class="text-sm font-bold text-sky-300">已穿戴</div>${eqHtml}</div><div class="flex flex-col gap-2"><div class="text-sm font-bold text-emerald-300">隊長背包可穿戴裝備</div>${invHtml}</div></div>`;
+    guildWindow.renderEquipment(ctx);
 }
 // 隊長可於安全區替出戰隊員處理其專屬試煉；任務道具的持有、交付與完成獎勵都由隊長背包處理。
 function _saveManagedAllyQuest(slotN, mutate) {
@@ -4074,6 +4060,7 @@ function allyCompleteTrial50(slotN) {
 function renderAllyQuestManager(div, slotN) {
     let ctx = _allyManagerSource(slotN, true);
     if (!ctx) { renderAllyNPC(div); return; }
+    if (window.guildWindow) guildWindow.quests(slotN);
     let source = ctx.source;
     let trials = typeof TRIAL_Q === 'undefined' ? [] : Object.keys(TRIAL_Q).filter(key => TRIAL_Q[key] && TRIAL_Q[key].cls === source.cls);
     let rows = trials.map(key => {
@@ -4120,7 +4107,7 @@ function renderAllyNPC(div) {
     let rows = allySlotList().map(n => {
         let sum = slotSummary(n);
         let active = isAllyActive(n);
-        if (!sum) return `<div class="w-full text-left py-2 px-3 text-sm bg-slate-900/60 border border-slate-700 rounded opacity-60">存檔 ${n}：<span class="text-slate-500">（空）</span></div>`;
+        if (!sum) return `<div data-guild-roster-role="${n}" class="guild-roster-row guild-roster-empty w-full text-left py-2 px-3 text-sm bg-slate-900/60 border border-slate-700 rounded opacity-60">存檔 ${n}：<span class="text-slate-500">（空）</span></div>`;
         let _classic = !!sum.classic;                                  // 🎮 經典模式存檔
         let _modeMatch = (_classic === !!player.classicMode);          // 🎮 只能招募與自己同模式（一般/經典）的存檔（🏛️v3.0.83 傳統已取消）
         let _tag = _classic ? '<span style="color:#fbbf24;font-weight:bold;">⚔經典</span> ' : '';
@@ -4149,8 +4136,8 @@ function renderAllyNPC(div) {
                 if (_quest.length) _res += `<br><span class="text-emerald-300 text-xs">任務進度：${_quest.join('、')}</span>`;
             }
         }
-        return `<div class="flex items-center justify-between gap-2 bg-slate-800/60 border ${_classic ? 'border-amber-600/70' : 'border-slate-600'} rounded p-3 text-sm">
-            <span>${_tag}存檔 ${n}：<b ${_nameStyle}>${sum.cls} Lv.${sum.lv}</b>　${sum.name}${_res}</span>
+        return `<div data-guild-roster-role="${n}" class="guild-roster-row flex items-center justify-between gap-2 bg-slate-800/60 border ${_classic ? 'border-amber-600/70' : 'border-slate-600'} rounded p-3 text-sm">
+            <span class="guild-roster-identity">${_tag}存檔 ${n}：<b ${_nameStyle}>${sum.cls} Lv.${sum.lv}</b>　${sum.name}${_res}</span>
             ${_btn}
         </div>`;
     }).join('');
@@ -4161,6 +4148,7 @@ function renderAllyNPC(div) {
         </div>` : ''}
         ${rows}
     </div>`;
+    if (window.guildWindow) guildWindow.roster();
 }
 // 🔧 全員退出：無條件清空 player.allies（含 _slot 對不到任何存檔列、卡在場上無法解除的傭兵）。player.allies 是傭兵唯一真相（isAllyActive/alliesTick 皆讀它），清空即完全脫困。
 function dismissAllAllies() {

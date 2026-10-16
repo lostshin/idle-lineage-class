@@ -524,12 +524,18 @@
 .equipment-summary p { margin:3px 0 0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .equipment-summary p strong { color:#d9bb7b; }
 
-/* Required role ID stays inside the original creation artwork. */
-#creation-name-control { position:absolute;z-index:7;left:57%;top:89%;width:32%;color:#d8c08a;font:13px/1.4 'Microsoft JhengHei',sans-serif; }
-.creation-name-row { display:flex;align-items:center;gap:8px; }
-.creation-name-row label { flex:none;white-space:nowrap; }
-#creation-name { width:100%;min-width:0;height:28px;padding:3px 6px;border:1px solid #8f744a;border-radius:1px;background:#100d09;color:#eadbb5;font:inherit; }
-#creation-name:focus-visible { outline:1px solid #dcc083;outline-offset:1px; }
+/* Original creation flow: attributes, Character Name, then confirmation controls. */
+#creation-name-control { position:absolute;z-index:7;left:55%;top:76.8%;width:35%;color:#d8c08a;font:13px/1.4 'Microsoft JhengHei',sans-serif; }
+.creation-name-row { display:flex;align-items:center;gap:10px; }
+.creation-name-row label { flex:none;white-space:nowrap;font:italic 700 clamp(12px,1.15vw,17px)/1.2 Georgia,'Times New Roman',serif;color:#ddd1a7;text-shadow:0 1px 2px #000,0 0 3px #a38b4b66; }
+.creation-name-row label::after { content:':';margin-left:10px; }
+#creation-name { width:100%;min-width:0;height:clamp(24px,2.2vw,30px);padding:2px 6px;border:1px solid #39372f;border-radius:0;background:#121212;color:#ddd5bd;font:inherit;box-shadow:inset 0 1px 3px #000; }
+#creation-name:focus-visible { outline:1px solid #9e8b59;outline-offset:1px; }
 #creation-name[aria-invalid='true'] { border-color:#ad6251; }
-#creation-name-status { min-height:16px;margin:3px 0 0;font-size:11px;line-height:1.3;color:#bc9d72; }
-@media(max-width:600px) and (orientation:portrait){#creation-panel:not(.hidden){height:1200px;min-height:1200px}#creation-name-control{left:16px;top:1120px;width:calc(100% - 32px)}#creation-name{font-size:16px;height:34px}}
+#creation-name-status { position:absolute;top:100%;left:0;right:0;min-height:0;margin:4px 0 0;font-size:11px;line-height:1.3;color:#bc9d72; }
+#creation-panel #classic-mode-control { left:55%;top:85.2%;width:11%;height:3.5%; }
+#creation-panel #btn-start.creation-start-button,#creation-panel #creation-back-button { left:68%;width:16%;height:4.25%;border:0;border-radius:0;background:transparent;box-shadow:none;color:#e0d5ad;font:700 clamp(14px,1.5vw,20px)/1.2 'PMingLiU',Georgia,serif;text-shadow:0 1px 2px #000,0 0 4px #9e824a55; }
+#creation-panel #btn-start.creation-start-button { top:84.4%; }
+#creation-panel #creation-back-button { top:90.1%; }
+#creation-panel #btn-start.creation-start-button:hover:not(:disabled),#creation-panel #creation-back-button:hover { color:#fff0be;background:radial-gradient(ellipse,#b1924533,transparent 70%); }
+@media(max-width:600px) and (orientation:portrait){#creation-panel:not(.hidden){height:1200px;min-height:1200px}#creation-name-control{left:16px;top:1000px;width:calc(100% - 32px)}#creation-name{font-size:16px;height:34px}#creation-panel #classic-mode-control{left:16px;top:1070px;width:116px;height:48px}#creation-panel #btn-start.creation-start-button,#creation-panel #creation-back-button{left:142px;width:calc(100% - 158px);height:42px}#creation-panel #btn-start.creation-start-button{top:1070px}#creation-panel #creation-back-button{top:1124px}}
