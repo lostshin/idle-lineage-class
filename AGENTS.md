@@ -23,17 +23,15 @@
 
 ## 結構、載入順序與加掛來源
 
-- 原生 JavaScript，共用全域狀態，沒有 `package.json`、建置流程或 formatter／linter。
-- `index.html` 是 script 載入順序的真相；不得按檔名排序。
+- 原生 JavaScript，共用全域狀態，沒有 `package.json`、建置流程或 formatter／linter；`index.html` 是 script 載入順序的真相，不得按檔名排序。
 - `js/00-data.js`～`js/32-threat.js` 與具名模組處理遊戲；`css/` 為樣式，`assets/` 為原版美術／音效，`public/assets/` 為登入素材；`tests/` 為 Ego E2E、`tests/artifacts/` 為驗收／合成預覽、`docs/` 為既有說明。
 - 沿用附近排版，展開區塊通常為四個空白；變數／函式用 camelCase，常數用 UPPER_SNAKE_CASE。
 - 前端資源修改後，執行 `python3 scripts/update-cache.py` 更新對應 URL 的 SHA 快取版本。
-- 原版天堂美術、配色與按鈕風格是既定方向。已選設計須先找回原圖，比對比例、材質、圖示與控制列後再實作；功能測試通過不代表視覺還原。概念圖的圖示／數字不能當遊戲資料。
-- 69 個鏡像檔取自 <https://pp771007.github.io/idle-lineage-class/>（既有 46＋本輪補回 23）；不代表全部載入，`index.html` 與開關 catalog 才是執行期依據。
-- 固定來源 commit：`5f00f4a86389aaa7309c24d7a7c1ab060c47b500`；逐檔 SHA 在 [來源清單](tests/addon-source.json)。不直接修改鏡像或 `sw.js`；整合差異放專案模組，並核對來源 SHA。
+- 原版天堂美術、配色與按鈕風格是既定方向。已選設計須先找回原圖，比對比例、材質、圖示與控制列後再實作；功能測試通過不代表視覺還原。概念圖的圖示／數字不能當遊戲資料；選擇版型不等於授權更換原素材、部位或操作邏輯。
+- 69 個鏡像檔取自 <https://pp771007.github.io/idle-lineage-class/>，固定 commit `5f00f4a86389aaa7309c24d7a7c1ab060c47b500`，逐檔 SHA 在 [來源清單](tests/addon-source.json)；實際載入以 `index.html`／開關 catalog 為準。不修改鏡像或 `sw.js`，整合差異放本版模組並核對來源 SHA。
 - 舊浮動開關面板已移除；`js/addon-switches.js` 明列固定基底與可選 catalog，不讀舊 `afk_toggle_*`；未知 ID 預設關閉。`statpts` 與主角點數來源面板維持移除。
 
-## 已確認的產品決策（更新至 2026-10-16）
+## 已確認的產品決策（更新至 2026-10-17）
 
 ### 版面與隊伍
 
@@ -53,14 +51,14 @@
 ### 加掛選項與角色分頁（本輪確認）
 
 - 設定頁內設「一般設定／加掛版功能」tab；17 個可選開關預設全關，既有功能（含訓練、賽狗、自動購買）維持固定基底。`sellconfirm` 為可選，不能誤關基底功能。
-- 偏好沿用 `lineage_optional_addons_v1`，本機跨角色共用；勾選僅改草稿，取消可還原。套用先完成角色／共用資料與帳本寫入，再儲存偏好、讀回確認並重載；寫入失敗或其他角色仍在遊玩時不重載。
+- 偏好沿用 `lineage_optional_addons_v1`，本機跨角色共用；勾選僅改草稿，取消可還原。套用先完成角色／共用資料與帳本寫入，再儲存偏好、讀回確認並重載；寫入失敗或其他角色仍在遊玩時不重載。結算閘使用 `state.ff`／`catchupActive()`，不能用提示元素的 `getClientRects()`；透明提示仍有尺寸，會造成完成後永久誤擋。
 - 「行動裝置版」單一開關涵蓋 11 個手機模組，不拆散暴露；本版整合放在 `addon-settings`、`addon-mobile-bridge`、`addon-optional-integration`，不修改鏡像原檔。
 - 保留本版離線引擎與原生帳號搬移；不引入替代結算、全清式還原、身分重發、雲端轉移或分析追蹤。歷史僅記錄原生成功結算，每角色最近 5 筆。
 - `SAVE_SLOT_MAX=16` 為資料上限；`visibleSaveSlotMax()` 為選角／招募可見上限。關閉只隱藏第 9～16 格，不能刪資料；身分／帳本掃描及帳號匯出始終涵蓋 16 格，schema 2 接受舊 schema 1 八格並補空。
 - **角色分頁美術以原版一致為優先**：沿用 `public/assets/login/load.png` 的圓框與翼飾，CSS 遮掉原圖數字再疊頁碼；不將現代圓鈕或新生成的高解析金屬框蓋在舊雙頁框上。生成圖已否決，不恢復。
 - 四頁裝飾寬為舞台 34%；頁碼採細長 `Times New Roman` 斜體、`scaleX(.92)`、`6.72cqw`（原 `5.6cqw`＋20%），保留暗金漸層／磨損／凹刻柔光，不把整組雕框一起放大。置中核對字形重心、圓孔及命中；字級與螢幕 rect 比較先乘 UI 縮放，翼飾加入後頁數用 `querySelectorAll('button')` 而非 `children.length`。
 - 背包角標採 **B「右下雙行」**：暗金數量 `(N)` 在上、藍色 `+N` 在下；數量比原 responsive 字級小 **1pt＝4/3 CSS px**、色碼 `#a6894d`，不連帶縮小／調暗強化值。單件不顯數量、未強化不顯 `+0`；保留千分位、E／鎖定／廢品與快速強化。
-- 創角必填「角色 ID」：沿用暱稱 1～12 字及字元規則，trim 後存 `player.name`、`renameCount=0`；驗證須在重置 player／寫存檔前擋下，不只停用按鈕。換職業／性別保留草稿，另開空格創角清空；舊未命名角色仍可載入，不重發角色身分。
+- 創角必填「角色 ID」：沿用暱稱 1～12 字及字元規則，trim 後存 `player.name`、`renameCount=0`；驗證須在重置 player／寫存檔前擋下，不只停用按鈕。換職業／性別保留草稿，另開空格創角清空；舊未命名角色仍可載入，不重發角色身分。版面順序固定「配點 → Character Name 輸入列 → 確定／取消」，不把名稱放到按鈕下方。
 
 ### 裝置縮放
 
@@ -113,7 +111,7 @@
 - 執行期背景為 `assets/ui/party-equipment-backdrop-v3-tall.png`；舊 `v2-4x3` 留作來源，銀框為 `party-equipment-socket-v1.png`。新版 y=0～1400 與舊版逐像素相同，下框／角落向下平移 268px；改素材須核對保留區。
 - 人物用原版創角立繪，取被查看隊友的職業／性別；圖示、人物與背景各自保留比例，不修改原圖。
 - 裝備位置沿用 `equipmentView.pages`，y 座標基準仍是寬×4/3；槽位＝畫布寬的 16%（`EQUIPMENT_SOCKET_RATIO`）、間距 1.5%（`EQUIPMENT_SOCKET_GAP`）、正方形，可大於 50px。兩頁所有格子都須在背景內框內、不重疊，不再允許中間最下格超框。
-- 主角的「裝備 1／裝備 2／負重」控制列也須在內框內；`equipmentLayout` 回傳的 `controlsTop` 要計入固定控制列高度、按寬縮放的間距與下框留白，`fitEquipmentWidth` 沿用同一 layout。不能只加高圖片或假設底部永遠留固定 30px。
+- 主角、傭兵公會與隊友浮窗的「裝備 1／裝備 2」統一放在原畫布內左下角；主角負重仍同行。沿用 `equipmentLayout.controlsTop`、固定 20 螢幕 px 高度、縮放間距與下框留白；移到 `pointer-events:none` 畫布後須讓控制列可命中，不能放回上方工具列、右欄或只設固定 bottom。
 - 背景圖 `object-position:center top` 對齊槽位座標；畫布比圖高時多出的高度只在底部。
 - 每個槽要有對應預設底圖：一般部位取原版職業裝備模板，魔眼／遺骸取灰階原圖；實裝圖示與 badge 疊在上方。
 - 負重由隊友 live `d.weightCurrent`／`weightLimit`／`weightPct`／`loadTier` 顯示；不套主角數值或替無負重系統的夥伴捏造百分比。
@@ -123,7 +121,7 @@
 
 ### DPS 與日誌
 
-- 新建與載入角色都在歡迎訊息後呼叫 `switchLogTab('sys')`，預設顯示最新系統日誌；驗證選取狀態與捲動到底。要測戰鬥日誌的 suite 必須先明確切到 `combat`，不可再依賴登入預設值。
+- 新建／載入角色在歡迎訊息後顯示最新系統日誌；背景分頁／其他視窗返回時也切 `sys`、解除系統捲動鎖並到底。`focus`／`visibilitychange` 去重；返回後使用者再切分頁，不由補跑完成回呼搶回。戰鬥日誌測試先明確切 `combat`。
 - DPS 快照須保留原怪物物件，不能把槽位消失／瞬移／換怪當作 HP 歸零；已造成的傷害、真正溢殺與變身仍按原怪物掉血量計算。
 - `_dpsSnap` 保留數值陣列供鏡像訓練模組使用，另附原物件 `targets`；修改須一起檢查 `threatCommitDiff` 的身分比對，避免新怪繼承假傷害／仇恨。
 - DPS 名稱、計量條與數值須共用整張圖的欄寬（`audit-dps-chart`／subgrid），不能逐列獨立計算；每條底條起點與可用長度一致。
@@ -154,13 +152,22 @@
 
 - 真正關頁後重開才走離線結算（70%、1 分鐘～12 小時）；需在可掛機狩獵圖、同圖已有擊殺樣本（≥15 秒且 ≥3 隻）、離開前 5 分鐘內有擊殺、非傭兵角色。
 - 關頁時把不符合的原因存進 `offlineHunt.blockReason`；重開沒有收益時以系統日誌說明原因，不可靜默。「沒看到結算」先查這些條件，再懷疑結算壞掉。
+- 呈現對齊加掛版：有實際等待的補跑使用全畫面實際進度，快速同步結算不加假進度／延遲；完成摘要、戰利品、消耗、死亡與上限寫系統日誌並移到最新，不恢復 `offline-reward-modal`。
+- 沿用本版結算引擎、70%／12 小時與防重複領取；歷史紀錄只在成功寫入後記錄，與是否顯示收益視窗分開（`showSummary`），不能為了對齊畫面引入來源的替代引擎。
+
+### 傭兵公會（B 配置，保留原版裝備）
+
+- `js/guild-window.js` 採左側原裝備畫布滿版、右側 320 UI px 控制欄；沿用原背景、人物、19／9 部位與換裝邏輯，不套概念圖的裝備分布、背包分頁或未採用的橫向背景。
+- 公會外層及任務頁標題用 X 關閉；只有裝備頁改「返回」回名冊。沒有「名冊／裝備／任務」頂部 tabs，從名冊原按鈕進入裝備／任務；隊員下拉與前後切換在右欄。
+- 名冊與裝備頁共用倉庫銀框、皮革與 `warehouse-row-v1.png`；原角色縮圖、召喚／裝備／任務／解散 handler 保留。與隊友唯讀浮窗分開，僅公會可換裝；飾品解鎖沿用 `accessorySlots()`。
+- 借用唯一的 `interaction-content` 時，關閉須移回原父層並清除公會 class。只共用 `bindClassicWindow` 的拖曳／縮放，不把公會的高度比例或右欄寬度套到倉庫；調整尺寸不重建正在輸入的控制項。
 
 ### 倉庫（最新決策優先於早期分頁／加高方案）
 
 - 採 A「雙欄圖示清單」：銀色雕飾外框、深色物品列、藍／金標頭；沿用原版圖示與按鈕風格。實際素材為 `assets/ui/warehouse-frame-v1.png`、`warehouse-row-v1.png`，由 imagegen 產出並以 nine-slice 使用，不能改回純 CSS 外觀代替素材。
-- 預設 **830×600 UI px**，跟隨 UI 縮放；最小 760×480，四邊／四角皆可拖曳，方向鍵也可調整，限制在可視範圍內。重開保留本次工作階段的調整，不宣稱跨重載記憶；窄窗用 container query，金幣區改兩列。
+- 預設 **830×600 UI px**，跟隨 UI 縮放；最小 760×480，四邊／四角皆可拖曳，方向鍵也可調整，限制在可視範圍內。重開保留本次工作階段的調整，不宣稱跨重載記憶；已撤回 88% 寬／73% 高方案，不恢復視窗比例預設。窄窗用 container query，金幣區改兩列。
 - 左右清單各自**上下捲動**，不再分頁；標頭、分類搜尋、工具列與金幣區固定。交易前讀回兩側 scrollTop，重繪後恢復／限制在有效範圍；搜尋、主／細分類變更回頂端，不能連帶捲動另一側或整窗。
-- 名稱與數量共用同列；長名稱省略但保留完整提示。點名稱／圖示預設轉移整疊；右側數量原列編輯，Enter 完成、Escape 取消，完成後須再點名稱／圖示交易；不恢復共用數量欄。
+- 名稱與數量同列，長名稱省略但保留提示。僅數字本身可啟動原列編輯；「轉移此數量」或 Enter 直接交易，Escape 取消、失焦不交易。平常點名稱／圖示轉移整疊；該列正在編輯時阻擋名稱點擊，避免誤轉整疊，不恢復兩階段提交或共用數量欄。
 - 本次數量只限該側、該 UID，須為正整數且不超過持有量；無效就地提示並阻擋交易，成功清除、失敗保留。保留篩選／只列可穿／跨分類搜尋／IME、一鍵存入、整理、金額記憶、模式隔離、容量與原交易回復。
 - 縮放／調整尺寸只改版面，不用 ResizeObserver 反覆整窗 innerHTML 重建，避免替換金額或數量輸入、打斷編輯。保留 `afk-warehouse` 掛鉤；分類先套用再呈現，不修改鏡像原檔。
 
@@ -170,8 +177,7 @@
 - 只重繪強化內容；不要重呼叫會立即執行飾品強化的入口，否則可能連續消耗卷軸。
 - 堆疊拆分後追蹤實際被強化的 singleton UID，不能繼續操作原來那疊。
 - 爆裝、缺卷軸、達上限時留結果並停用不可執行的按鈕；不改成功率、爆裝或消耗規則。
-- 原加掛 `modalguard` 在 `openModal` 後 **450ms** 攔截點擊。點擊無效先查此保護，勿先改工具或取消保護。
-- 測試在開窗時記錄時間，等滿 450ms 再原生點擊；交易後等可觀察狀態更新，不用任意長 sleep。
+- 原加掛 `modalguard` 在 `openModal` 後 **450ms** 攔截點擊；測試記錄開窗時間，滿 450ms 才原生點擊，之後等可觀察狀態，不用任意長 sleep。點擊無效先查此保護，不取消保護或先換工具。
 - 血盟金幣／鑽石捐獻與倉庫金額按角色記憶；沿用 `config.clanDonationAmounts`、`config.warehouseGoldAmount`。
 - 驗證有效數值、重開／重載、不同角色隔離、寫入失敗與原交易回復；不覆蓋未知欄位。
 
@@ -189,33 +195,28 @@ python3 tests/run-rwd.py --help
 - 人類開發者入門看 `README.md`；本檔是代理工作規則，兩者不互相複製內容。
 - `.ignore` 讓 `rg` 略過 `assets/anim`、`classanim`、`morphanim` 的 20 萬張逐格圖；要搜那裡時用 `rg --no-ignore`。
 
-- E2E 需要 Python 3、`ego-browser` CLI 與 Ego；runner 自行啟動 HTTP 測試伺服器。
-- 使用瀏覽器前讀目前提供的 `ego-browser` 技能；只用已記載的 API，不猜 Playwright 方法。
-- 一個任務只建一個 TaskSpace；所有 runner **逐批共用同一個 space 與 p1**，不並行啟動 Ego 測試程序。失敗時依技能在原空間恢復，不另建空間救錯。
-- 首輪可用 `--suite rwd --protocol http --desktop-only --keep-space`，讀輸出的 `spaceId`；之後帶 `--space`。多個 suite／`--protocol both` 依序執行、自動 keep-space、遇錯即停。
+- E2E 使用 Python 3、`ego-browser` CLI 與 Ego；runner 自行啟動 HTTP 伺服器。操作前讀 `ego-browser` 技能，只用記載的 API，不猜 Playwright 方法。
+- 每個任務只建一個 TaskSpace，所有 runner **逐批共用同一 space／p1**、不並行，失敗在原空間恢復。首輪可用 `--suite rwd --protocol http --desktop-only --keep-space` 取得 `spaceId`，後續帶 `--space`；多 suite／`--protocol both` 依序執行、自動 keep-space、遇錯即停。
 - 測試報告預設寫入 `tmp/test-runs/`（不進 git）；要更新受追蹤的 `tests/artifacts/` 才加 `--record`（runner 與 `*.integration.js` 相同）；runner 可用 `--artifacts <目錄>` 指定其他輸出位置，與 `--record` 互斥。
 - 成功後只呼叫一次 `finish({keep:[]})` 並等待完成；耗時時用背景程序讀回結果，不用短 timeout 中止再反覆重送。有 `finished <id>` 與成功結束碼後，不再操作該空間。
 - 必跑 `rwd`、`ui-scale`、`gameplay`、`account-gameplay`、`companion-commands` 的 HTTP／file：`--space <id> --suite required --protocol both --desktop-only`。
-- 相關 E2E：`compact-layout`、`party-refinements`、`party-equipment`、`village-clan-warehouse`、`skill-cards`、`ally-skill-stop`、`town-buffs-enhance`、`summon-display`、`desktop-feedback`、`desktop-acceptance`、`tooltip-stability`、`effect-details`；同樣帶 `--desktop-only`。
+- 相關 E2E：`compact-layout`、`party-refinements`、`party-equipment`、`village-clan-warehouse`、`skill-cards`、`ally-skill-stop`、`town-buffs-enhance`、`summon-display`、`desktop-feedback`、`desktop-acceptance`、`tooltip-stability`、`effect-details`、`guild-settlement`、`offline-rewards`、`creation-id`、`comfort-release`；同樣帶 `--desktop-only`。
 - TaskSpace 消失不能自行重建；使用者暫緩重建時，先完成本地工作並記錄待跑的瀏覽器檢查，後續不得把 Node VM／幾何替身說成瀏覽器 E2E 通過。
 - 所有 `visual-*` 必須緊接同一 space 的對應行為 fixture，例如 `account-gameplay visual-account-gameplay`；中間不可插入其他 suite，各 fixture 的全域儲存不可互換。runner 會拒絕順序錯誤的組合。
-- 狀態節點／控制項測試依 `data-*`／欄位語意定位，不假設職業為名稱的 `nextElementSibling`。創角 fixture 須明填合成 ID；舊未命名存檔另建 fixture，不繞過必填限制。需求已變就改舊斷言，不恢復已移除功能來湊通過。
-- 每個 suite 明確設定起始視窗，縮放／切尺寸後等版面穩定；原生滾輪須等 scrollTop 連續畫格穩定後再比對，避免把慣性誤判為兩側連動。原生選擇器點擊若因自動捲動被 sticky 欄擋住，先觀察命中元素，再聚焦、核對 `elementFromPoint`、用原生滑鼠點擊；不盲目重試或強制穿透。
+- 狀態節點／控制項測試依 `data-*`／欄位語意定位，不假設職業為名稱的 `nextElementSibling`。創角 fixture 須明填合成 ID；舊未命名存檔另建 fixture，不繞過必填限制。需求已變就改舊斷言，不恢復已移除功能；找長單行斷言用 `rg --no-ignore -o '.{60}舊字串.{60}' tests`，不用 `grep -n | cut`。
+- 每個 suite 明確設定起始視窗；靜態 fixture 停計時器也須設 `state.running=false`，避免回前景又排入補跑。縮放／切尺寸後等版面穩定；原生滾輪須等 scrollTop 連續畫格穩定後再比對，避免把慣性誤判為兩側連動。原生選擇器點擊若因自動捲動被 sticky 欄擋住，先觀察命中元素，再聚焦、核對 `elementFromPoint`、用原生滑鼠點擊；不盲目重試或強制穿透。
 - 懸浮測試先等 resize／scroll 與版面穩定；選不被其他 sprite 遮住、離透明邊緣足夠遠的像素，避免取點到送入滑鼠事件間角色已移動。可短暫固定合成場景的原生畫格，完成後還原；不冒充完整戰鬥驗證。
 - 不直接改寵物記憶體陣列充當已儲存名冊；用原生 dirty／save 流程，避免下一次查詢把測試寵物清掉。
-- 若瀏覽器圖片擷取不可用或 `Page.captureScreenshot` 逾時（環境問題）：從失敗的 suite 接續並帶 `--skip-screenshots`，不重跑已通過的；畫面用 Ego screen-media PDF，再本機轉 PNG。
-- PDF 中間檔放 `tmp/pdfs/`，驗收後刪除；明確標示 PNG 的生成方式，不宣稱是直接瀏覽器截圖。
+- 擷取圖片不可用／`Page.captureScreenshot` 逾時時，從失敗 suite 接續 `--skip-screenshots`，不重跑已通過的；用 Ego screen-media PDF 轉 PNG。PDF 放 `tmp/pdfs/`、驗收後刪除；標示協定、轉圖工具與實際 dpi（本輪 sips 為 72dpi），不宣稱直接截圖。
 - 實際檢查桌機 1330／1920px、60／75／80／100% 與 220／300／460px 側欄；倒地傭兵及寵物的所有控制項、標籤文字均須在邊界內，不能只量卡片高度。
 - 倉庫另跑 `warehouse-list` 與 `village-clan-warehouse`（HTTP／file）。驗證預設尺寸要清除測試調整並以 100% 量測；預設圖與已拖曳縮放圖分開命名。命中區留在外框內，實測縮放時 border 取整，不能假設 CSS 宣告值等於實際邊界。
 - 本地檢查一律跑 `python3 scripts/check-local.py`：JS 語法、`git diff --check`、`?v=` 資源 SHA、69 個鏡像檔 SHA 與全部 `tests/*.integration.js`。integration 只驗證各自標明的原生流程／幾何邊界，不等於瀏覽器 E2E。
 - 保留可重跑的 JSON 報告、來源雜湊及代表性預覽；完整驗證須對應實際程式 commit 與報告。交接要區分「本輪實跑」與「核對前人報告」；事後擷取的來源 SHA 不得冒充 runner 當時記錄的 SHA。
-- 報告檔名先讀 runner 實際輸出，不猜新檔名；引用前核對檔案存在、方法、版本與結果。歷史報告及早期預覽不得充作後續美術／排版驗證。
-- HTTP／file 預覽若共用檔名，後跑會覆寫；報告須註明最終圖像的實際協定與轉圖方法，不能拿同一張圖宣稱兩次獨立擷取。
+- 報告檔名依 runner 實際輸出；引用前核對存在、方法、版本與結果，不用歷史報告／早期預覽充作後續驗證。HTTP／file 共用圖檔會被覆寫，須標明最終圖的協定與方法，不能當兩次獨立擷取。
 - 桌面橋接替身與 file 協定不等於安裝版實測；本機 iCloud 複製／雜湊相符不等於遠端同步完成。
 - 必要檢查通過就交付；接手且來源未變時先核對現有報告，不因換 agent 重跑整套。只有新修改、失敗或具體疑慮才擴大驗證；僅改本檔不需重跑遊戲 E2E。
 - 背景 E2E 執行中不改程式；要改就先停 runner，改完 `update-cache.py` 後重跑，避免同一份報告混到兩版程式。使用者要求「做完再測」時，所有修改完成後只跑一次。
 - 合成測試物品要帶原生欄位預設值（`bless/anc/attr/seteff:false` 等）；`?.` 擋不住 `false`，存檔欄位一律先判斷真值再呼叫方法。實機錯誤重現不出時，請使用者提供主控台堆疊，不要盲猜。
-- 需求變更後找舊斷言用 `rg -o '.{60}舊字串.{60}' tests`；測試多為超長單行，`grep -n | cut` 會漏看。
 - 找回未提交的舊版本：從 `~/.codex/sessions/<日期>/rollout-*.jsonl` 取出寫檔指令，在 `git worktree` 重放（瀏覽器／runner 指令改為 stub），再以該輪 `sources-under-test.json` 的 SHA256 逐檔驗證；不可手改內容湊雜湊。
 
 ## 存檔、隱私與提交
@@ -240,10 +241,9 @@ python3 tests/run-rwd.py --help
 - push 成功不代表已上線；追蹤這次 HEAD 的 `pages build and deployment`，等 build／deploy 成功。長操作用背景程序並定期回報，不因正常等待重新推送或重建。
 - 發布後以公開 HTTPS 比對線上 `index.html`、本次改動的 JS／CSS／素材與本機已提交內容 SHA256；保存 commit、run URL、結果與時間。這是資源驗證，不等於線上瀏覽器 E2E，也不讀寫玩家儲存。
 
-## 最新進度與驗證基準（2026-10-16）
+## 最新進度與驗證基準（2026-10-17）
 
-- 本輪程式 commit `92177ca68`：更名「放置天堂 舒適版」`v3.9.1`（`FORK_VERSION`），原作者 `GAME_VERSION` 不變；本版 `comfort.webmanifest` 保留鏡像 manifest。強力精靈大型素材、角標 B、銀框／雕花標題與必填創角 ID 均已實作；使用者已確認介面方向並授權 commit／push。
-- **最終 ID／數量小 1pt 版只有本地 13/13 通過，瀏覽器 E2E 待補**：Ego 建立空間等待逾 6 分鐘無回應，呼叫已停止、未取得新 spaceId，未接管使用者空間，無待跑 runner。狀態／來源 SHA 在 `tmp/test-runs/comfort-391/creation-id/`；恢復後跑 `creation-id required` 的 HTTP／file，不能把先前報告當最新驗證。
-- 前一版銀框／雕花標題／數量上強化下在 space 3 完成 **16 份／666 項**、已 finish；證據 `tmp/test-runs/comfort-391/frame-refined/`。更早 `tmp/test-runs/comfort-391/final/` 為 966 項（護衛單次隨機未命中後固定 fixture RNG 接續，原失敗保留）；`tmp/test-runs/optional-addons/` 為 968 項，均不混算。
-- 美術來源：標題實際素材 `assets/ui/party-title-cartouche-v1.png`，prompt／SHA 在 `comfort-391/frame-refined/asset-generation.json`；實際預覽為 Ego screen-media PDF 的 96dpi 轉圖。倉庫 A 原圖／來源在 `warehouse-art/`，830×600 歷史證據在 `warehouse-830/`；Round C 多色括號／擠壓畫布／輪詢 tooltip 已否決。
-- 已發布基準 `4e264eda3`／Pages run `38874851850`（39 個線上資源 SHA 相符）；本輪需另記 commit／run／線上 SHA。前輪 space 8 消失後的選角字型僅使用者實測／本地檢查；未測安裝版、iCloud 或實體手機，仍須如實揭露。
+- 本輪程式 commit `7e3c8992b`：舒適版升為 `v3.9.2`（只改 `FORK_VERSION`，原作者 `GAME_VERSION=v3.8.34` 與鏡像 manifest 不變）；創角順序、公會 B 滿版／名冊同材質／分層返回、左下裝備分頁、倉庫直接數量轉移、返回系統日誌與結算誤判均已完成，使用者確認並授權提交／推送。
+- 最新公會與倉庫驗收：`tmp/test-runs/guild-art-20261017/completion.json`，HTTP／file **18 份／852 項**、本地 **13/13**；最新 guild／party HTTP 及完整 file 在最後 X／返回修正後，HTTP 核心／倉庫在該局部修正前。Space 8 已 finish，無待跑 runner；版本號追加 `comfort-release` HTTP／file **2 份／78 項**通過（space 9 已 finish），未重跑來源未受影響的整套。
+- 創角先前待補項目已完成：`creation-name-layout/completion.json` 為 **12 份／550 項**，含必填 ID、保存／重載、舊未命名與角標；更早 `guild-settlement/completion.json` **22 份／962 項** 是公會舊版中間成果，不能與最終 852 混算，也不能拿來驗最後的左下控制列。
+- 最新畫面與方法在 `guild-art-20261017/preview/captures-accepted.json`（file、screen-media PDF → sips 72dpi），`sources-under-test.json` 保留來源與驗證時序；發佈驗證另存 `tmp/test-runs/release-392/`。尚未實測安裝版、實體手機或 iCloud；舊 space 4／5／8／9 均已結束，不能再操作。
