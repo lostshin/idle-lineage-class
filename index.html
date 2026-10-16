@@ -18,7 +18,7 @@
     <link rel="stylesheet" href="css/style.css?v=669f1f5ad6">
     <link rel="stylesheet" href="css/floating-ui.css?v=9396fa3aed">
     <link rel="stylesheet" href="css/tailwind-built.css?v=932535789f"><!-- 🔧 預編譯 Tailwind（取代執行期 JIT tailwind.js）：只含實際用到的 class，省 407KB runtime + 移除持續掃描 DOM 的成本。置於 style.css 之後以保留原 cascade（utility 平手時勝過自訂 class，與舊 JIT 注入順序一致） -->
-    <link rel="stylesheet" href="css/responsive.css?v=5568ae14d2">
+    <link rel="stylesheet" href="css/responsive.css?v=be2b8ace60">
     <link rel="stylesheet" href="css/addons.css?v=420511a7ea">
 </head>
 <body class="h-screen w-screen overflow-hidden">
@@ -300,8 +300,8 @@
 
             <!-- 🌐 v3.6.50 世界頻道：只放 NPC 對話（叫賣廣播／嗆聲／提問回覆）；底部輸入列可向全世界發問 -->
             <div id="syslog-panel" class="panel flex-1 min-w-0 flex flex-col overflow-hidden relative">
-                <div class="panel-header text-slate-100 text-lg border-b border-blue-900/40 flex items-center justify-between gap-2">
-                    <span class="shrink-0">世界頻道</span>
+                <div class="panel-header world-channel-header text-slate-100 text-lg border-b border-blue-900/40 flex items-center justify-between gap-2">
+                    <span class="world-channel-heading"><span>世界頻道</span><span id="world-online-count" role="status" aria-live="polite" hidden></span></span>
                     <span id="syslog-pandora" class="text-sm font-normal truncate text-right min-w-0"></span>
                 </div>
                 <!-- 📌 v3.5.77 NPC 叫賣釘選列：最多兩條常駐於日誌頂端，不會被其他訊息推走；空的時候由 CSS :empty 自動收起 -->
@@ -702,5 +702,6 @@
     <script src="js/addon-integration.js?v=1e76d8448e"></script>
     <script src="js/addon-optional-integration.js?v=00a3fa6671"></script>
     <script src="js/addon-settings.js?v=60043ce12f"></script>
+    <script src="js/online-presence.js?v=6743fb69b9"></script>
 </body>
 </html>

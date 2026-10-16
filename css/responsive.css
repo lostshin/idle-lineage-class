@@ -10,6 +10,13 @@
 #map-view-panel > .panel-header select { min-width: 0; max-width: 100%; }
 #town-view, #battle-view.area-fit:not(.hidden) { width: min(800px, 100%); }
 
+.world-channel-header { flex-wrap: wrap; }
+.world-channel-heading { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; min-width: 0; max-width: 100%; }
+.world-channel-heading > span:first-child { white-space: nowrap; }
+#world-online-count { color: #c9b585; font-size: 14px; font-weight: normal; white-space: nowrap; font-variant-numeric: tabular-nums; }
+#world-online-count[hidden] { display: none; }
+#syslog-pandora { flex: 1 1 100px; }
+
 @media (min-width: 1200px) {
     #game-screen { overflow-y: auto; }
     #col-left { flex: 0 0 clamp(220px, 18vw, 300px); }
