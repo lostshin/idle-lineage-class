@@ -384,7 +384,7 @@ function summonElementDamage(dice, ele, t, flatBonus, mult, mrPen) {
     return Math.max(1, Math.floor(Math.max(1, Math.floor(base * mrFactor)) * fragileMult(t) * elementCounterMult(ele, t.e)));   // 🔮 魔法不受物理 DR；脆弱＋屬性剋制仍保留
 }
 // ===== 協力角色：讀取其他存檔位(非當前)的角色，以其真實戰力(等級/能力/裝備)一起作戰 =====
-function allySlotList() { return ['1','2','3','4','5','6','7','8'].filter(n => n !== String(currentSlot)); }   // 8 格存檔：可招募自身以外全部 7 個角色。
+function allySlotList() { return Array.from({length:visibleSaveSlotMax()},(_,i) => String(i+1)).filter(n => n !== String(currentSlot)); }   // 8 格存檔：可招募自身以外全部 7 個角色。
 const ALLY_ACTIVE_MAX = 3;         // 非王族協力傭兵上限。
 const ROYAL_ALLY_ACTIVE_MAX = 7;   // 王族最多帶滿帳號其餘 7 個角色。
 function allyActiveCap() {
@@ -482,7 +482,7 @@ function _mercEmploymentBootstrapCurrentRole(classicMode, currentId) {
     if (_mercEmploymentBootKey === bootKey) return;
     _mercEmploymentBootKey = bootKey;
     let rows = _mercEmploymentRead(classicMode);
-    for (let n = 1; n <= 8; n++) {
+    for (let n = 1; n <= SAVE_SLOT_MAX; n++) {
         if (String(n) === String(currentSlot)) continue;
         let leader = _mercSavedRole(n);
         if (!leader || !!leader.classicMode !== classicMode) { _mercEmployerBucketRemove(classicMode, n); continue; }   // 🧹 v3.7.95 僱主已不存在/換模式→連同 bucket 清掉，否則徽章永遠洗不掉
@@ -507,7 +507,7 @@ function currentRoleMercenaryEmployer() {
     _mercEmploymentBootstrapCurrentRole(classicMode, currentId);
     let rows = _mercEmploymentRead(classicMode);
     let matches = [];
-    for (let n = 1; n <= 8; n++) {
+    for (let n = 1; n <= SAVE_SLOT_MAX; n++) {
         if (String(n) === String(currentSlot)) continue;
         let bucket = _mercEmployerBucketRead(classicMode, n);
         if (!bucket) continue;
@@ -565,7 +565,7 @@ function mercEmployerOfSlot(slotN, who) {
     let id = _mercRoleIdentity({ cls: cls, name: who.name, enSeed: who.enSeed });
     if (!id) return null;
     let classicMode = !!(who.classicMode != null ? who.classicMode : who.classic);
-    for (let n = 1; n <= 8; n++) {
+    for (let n = 1; n <= SAVE_SLOT_MAX; n++) {
         if (String(n) === String(slotN)) continue;
         let bucket = _mercEmployerBucketRead(classicMode, n);
         if (!bucket) continue;
@@ -585,7 +585,7 @@ function mercEmploymentMap() {
     let map = Object.create(null);
     if (!player || !player.cls) return map;
     let classicMode = !!player.classicMode;
-    for (let n = 1; n <= 8; n++) {
+    for (let n = 1; n <= SAVE_SLOT_MAX; n++) {
         if (String(n) === String(currentSlot)) continue;                 // 自己不算「別的僱主」
         let leader = _mercSavedRole(n);
         if (!leader || !!leader.classicMode !== classicMode) continue;   // 跨模式本來就不能互相招募

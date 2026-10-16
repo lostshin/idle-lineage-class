@@ -9,7 +9,7 @@ function addonRolePreferences(p) {
     return prefs;
 }
 function migrateAddonPreferences() {
-    for (let slot = 1; slot <= 8; slot++) {
+    for (let slot = 1; slot <= SAVE_SLOT_MAX; slot++) {
         const raw = _lzGet('lineage_idle_save_' + slot);
         if (!raw) continue;
         const save = _saveUnwrap(raw);

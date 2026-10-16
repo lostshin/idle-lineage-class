@@ -1,5 +1,7 @@
 ﻿/** 遊戲核心資料庫 */
 // 🏷️ 遊戲版本號（顯示於登入頁面下方·單一真相來源）：更新版本時只改這一行，登入頁面自動同步。
+const SAVE_SLOT_MAX = 16;
+function visibleSaveSlotMax() { return window.AFK_TOGGLES && AFK_TOGGLES.enabled('loadslots') ? SAVE_SLOT_MAX : 8; }
 const GAME_VERSION = 'v3.8.34';   // 🏷️ 版本號：末段 0~99 線性遞增，達 100 進位（中位 +1、末段歸 0）
 const FORK_VERSION = 'v3.9.0';   // 🏷️ lostshin 版本號（獨立計算，與原版 GAME_VERSION 分開）
 // ===== 💾 存檔壓縮（LZString compressToUTF16/decompressFromUTF16·MIT, Pieroxy）：localStorage 內部以 UTF-16 壓縮，省 ~89%，繞過 5MB 上限 =====

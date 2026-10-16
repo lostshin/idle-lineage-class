@@ -1131,6 +1131,20 @@
         count = Math.max(0, Math.floor(_offlineFinite(count, 0)));
         let d = typeof DB !== 'undefined' && DB.items ? DB.items[id] : null;
         if (!count || !d || typeof gainItem !== 'function') return;
+        const optionalAffix = window.AFK_TOGGLES && (
+            AFK_TOGGLES.enabled('relicaffix') && d.relic ||
+            AFK_TOGGLES.enabled('ancdrop') && !d.relic && ((d.type === 'wpn' && !d.isArrow) || d.type === 'arm' || d.type === 'acc'));
+        if (optionalAffix) {
+            const previousMob = _lootMobInfo;
+            try {
+                _lootMobInfo = mob;
+                for (let i = 0; i < count; i++) {
+                    const info = gainItem(id,1,true,false,false,true);
+                    if (info) _offlineTrackItem(loot,info.id,info.cnt);
+                }
+            } finally { _lootMobInfo = previousMob; }
+            return;
+        }
         if (id === 'scroll_weapon' || id === 'scroll_armor') {
             let blessed = _offlineBinomial(count, 0.01);
             let cursed = _offlineBinomial(count - blessed, 0.01 / 0.99);
@@ -1593,6 +1607,7 @@
             }
         }
         if (survivalPlan.died) _offlineApplySettledDeath();
+        if (savedOk && options.showModal && typeof recordAddonOfflineHistory === 'function') recordAddonOfflineHistory(result);
         if (options.showModal) _offlineShowSummary(result);
         return true;
     }

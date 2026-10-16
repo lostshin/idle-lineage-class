@@ -1967,6 +1967,7 @@ window.onload = () => {
         // 技能頁 host（data-tip-skill）與收集冊 host（data-tip-id）不限於 NPC 互動面板；其餘 host 仍限定於 interaction-content
         let ok = host && ((ic && ic.contains(host)) || (eb && !eb.classList.contains('hidden') && eb.contains(host)) || host.hasAttribute('data-tip-skill') || host.hasAttribute('data-tip-id') || host.hasAttribute('data-tip-uid'));   // 🖱️ data-tip-uid（背包/裝備欄實例物品）不限面板，任何處 hover 即顯示完整資訊 tooltip
         if(!ok){if(!tipCloseTimer)tipCloseTimer=setTimeout(()=>{tipCloseTimer=null;hideTip();},160);return;}
+        if (window.AFK_TOGGLES && AFK_TOGGLES.enabled('notip') && !window.addonTouchTooltip && !host.hasAttribute('data-tip-skill') && matchMedia('(hover:hover) and (pointer:fine)').matches) { hideTip(); return; }
         if(e.type){clearTimeout(tipCloseTimer);tipCloseTimer=null;tipPointer={x:e.clientX,y:e.clientY};}
         const identity=[host.dataset.tipSrc,host.dataset.tipUid,host.dataset.tipPartyKind,host.dataset.tipPartyId,host.dataset.tipSkill,host.dataset.tipId].join('|');
         if(!e.type&&tipIdentity&&tipIdentity!==identity){hideTip();return;}

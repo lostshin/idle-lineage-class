@@ -185,6 +185,98 @@
     {
       "path": "afk-sellguard.js",
       "sha256": "9646b6b46673763cf963c42146963d71fa16c50afe551914603d235c3ea2a1f9"
+    },
+    {
+      "path": "afk-mobile.js",
+      "sha256": "e3a5444e652ca6cadf601097bfeae958d1710c0f8ce021beaefb9dd03fdf2b59"
+    },
+    {
+      "path": "afk-battlehud.js",
+      "sha256": "ba0bc3e100e62245def604c4070a66776d70f83a58cda843168ef9f94eb0c568"
+    },
+    {
+      "path": "afk-mapbar.js",
+      "sha256": "35c2504cb43cf71ad7667d38fb1727de3f94e43edb2f643473ef0d72375590f2"
+    },
+    {
+      "path": "afk-nozoom.js",
+      "sha256": "c1586fe7c799efaf858ba400b92a44af27f1747552b55dcc657ca559692567aa"
+    },
+    {
+      "path": "afk-statusicon.js",
+      "sha256": "9d68288411de2ad25eefcb17dd89cfc326d8f3734f92e3b375763ebb54fb38db"
+    },
+    {
+      "path": "afk-battlebuffs.js",
+      "sha256": "90233dcfe74407ad2154974b300405aab392e28bfaa0b86c8a99576c4cd3243f"
+    },
+    {
+      "path": "afk-skillbar.js",
+      "sha256": "6217154fbd80795b3366405f711ea298ca006b081541cadbf91e6ae8d1dec4ef"
+    },
+    {
+      "path": "afk-petui.js",
+      "sha256": "4ceb829d4cbe7a38d538d2cac419181f3fad4421a0b828758d427e7a4326b40c"
+    },
+    {
+      "path": "afk-backnav.js",
+      "sha256": "44bd32c799d22aff1af8c078ffca73bac825d4ddacc0900874a7e39298a1b93c"
+    },
+    {
+      "path": "afk-touchtip.js",
+      "sha256": "cde210c5f169ba271e079fa0252ef8a9f2dc1fd594cda0811fa81e3a1152c9e2"
+    },
+    {
+      "path": "afk-toast.js",
+      "sha256": "376018250b7b5602f3abd12e204fbb063d226b06680afbdfa74ffe7420e30eeb"
+    },
+    {
+      "path": "afk-invlist.js",
+      "sha256": "4a5a02a4f3481a2dfa9a4fb36728090aabca030279e9d89842b89e5b1feee40b"
+    },
+    {
+      "path": "afk-eqlist.js",
+      "sha256": "961af5300b79e1f24e6bc1140db90c469981877b130ae3b3a5ab8e762295755e"
+    },
+    {
+      "path": "afk-npclist.js",
+      "sha256": "3f65625de5fe2c5b771f166b000a760a3d649bb33e640758f5a408fe51c1d810"
+    },
+    {
+      "path": "afk-statlist.js",
+      "sha256": "58b360ed83889c58c5d650e1cc23816eaf47a177734bd67b36587609ed548f73"
+    },
+    {
+      "path": "afk-ancdrop.js",
+      "sha256": "8f33ee03b02f87bbfe896f56a696b0d15708b34d3657a9f515f0dde2b4dd2117"
+    },
+    {
+      "path": "afk-relicaffix.js",
+      "sha256": "1e654b2d31612c68775c1d02e77cb6293e50566b84915694c2f842f9c9ea849c"
+    },
+    {
+      "path": "afk-retrial.js",
+      "sha256": "8fe3b6ad0fd656f2ed503c543d3e87cab89cd05559ba32b22a4f7c72e31cd6e4"
+    },
+    {
+      "path": "afk-dollcursor.js",
+      "sha256": "f07216ed3574db3b24f0d4eec2ee42f37b3f75c437ab61063ce83b6895bf0549"
+    },
+    {
+      "path": "afk-notip.js",
+      "sha256": "9781738a794e1db86d9731a4c14fba8f10807e7a3bca2f37c796f4ca8ceb8983"
+    },
+    {
+      "path": "afk-whbatch.js",
+      "sha256": "53b8c1ecf607cb3f45b1bb5be7e73c1bfd59c17a120d1cad2637d79ef1180828"
+    },
+    {
+      "path": "afk-synccompress.js",
+      "sha256": "9b74579d947a5f8d1f2b33a0dee4d0b4c0fe82ad3afe8e60a1e28824625e4e80"
+    },
+    {
+      "path": "afk-anyclass.js",
+      "sha256": "ddc7976232a9c194e6eaaa3e3b3d66313079f98cd4b74269e9f22788c305cc53"
     }
   ]
 }

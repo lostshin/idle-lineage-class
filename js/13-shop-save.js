@@ -638,7 +638,7 @@ function openLoadSelect(){
 }
 function loadSetPage(page){
     _loadLastClickSlot = 0; _loadLastClickAt = 0;
-    _loadPage = page === 2 ? 1 : 0;
+    _loadPage = Math.max(0, Math.min(visibleSaveSlotMax() / 4 - 1, Math.floor(Number(page) || 1) - 1));
     const start = _loadPage * 4 + 1;
     const slots = [start, start + 1, start + 2, start + 3];
     _loadSelectedSlot = slots.find(n => !!slotSummary(n)) || start;
@@ -676,8 +676,8 @@ function returnToCharacterSelect(){
 
     _loadLastClickSlot = 0;
     _loadLastClickAt = 0;
-    _loadPage = currentSlot > 4 ? 1 : 0;
-    _loadSelectedSlot = currentSlot;
+    _loadPage = Math.min(visibleSaveSlotMax() / 4 - 1, Math.floor((currentSlot - 1) / 4));
+    _loadSelectedSlot = currentSlot <= visibleSaveSlotMax() ? currentSlot : 1;
     renderLoadSelect();
     try { if(typeof _bgmTick === 'function') { _bgmScene = null; _bgmTick(); } } catch(e) {}
     return true;
@@ -685,6 +685,7 @@ function returnToCharacterSelect(){
 function renderLoadSelect(){
     const grid = document.getElementById('load-slot-grid');
     if(!grid) return;
+    _loadPage = Math.max(0, Math.min(visibleSaveSlotMax() / 4 - 1, _loadPage));
     let html = '';
     const start = _loadPage * 4 + 1;
     for(let n = start; n <= start + 3; n++){
@@ -706,6 +707,24 @@ function renderLoadSelect(){
     _loadAnimState.key = selectedKey;
     _loadAnimState.frame = loadFirstFrame(selectedKey);
     _loadAnimState.lastAt = 0;
+    const tabs = document.getElementById('load-page-tabs');
+    if (visibleSaveSlotMax() === 16) {
+        tabs.classList.add('addon-slot-pages');
+        if (tabs.querySelectorAll('button').length !== 4) {
+            tabs.innerHTML = '<span class="slot-page-wing left" aria-hidden="true"></span><span class="slot-page-wing right" aria-hidden="true"></span>' + [1,2,3,4].map(n => '<button type="button" id="load-page-'+n+'" onclick="loadSetPage('+n+')" aria-label="角色第 '+n+' 頁"><span class="slot-page-number">'+n+'</span></button>').join('');
+        }
+        for (let n = 1; n <= 4; n++) { const button = document.getElementById('load-page-'+n); button.classList.toggle('active',_loadPage === n-1); button.setAttribute('aria-current',String(_loadPage === n-1)); }
+    }
+    if (window.AFK_TOGGLES && AFK_TOGGLES.enabled('slotinfo')) {
+        for (const card of grid.querySelectorAll('[data-slot]')) {
+            const p = _roleReadSavePlayer(Number(card.dataset.slot)), hunt = p && p.offlineHunt;
+            if (!hunt) continue;
+            const note = document.createElement('span'); note.className = 'load-slot-addon-info';
+            const minutes = hunt.awaySince ? Math.max(0,Math.floor((Date.now()-hunt.awaySince)/60000)) : 0;
+            note.textContent = (hunt.mapName || hunt.map || '未記錄地圖')+' · '+minutes+' 分鐘 · '+(hunt.eligible ? '可離線結算' : '無離線資格');
+            note.title = note.textContent; card.appendChild(note);
+        }
+    }
     const page1 = document.getElementById('load-page-1');
     const page2 = document.getElementById('load-page-2');
     if(page1) page1.classList.toggle('active', _loadPage === 0);
@@ -740,6 +759,7 @@ function updateLoadInfo(){
     if(del) del.classList.toggle('hidden', empty);
 }
 function loadSelectSlot(n){
+    if (!Number.isInteger(n) || n < 1 || n > visibleSaveSlotMax()) return;
     const sum = slotSummary(n);
     const now = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
     const doubleClick = !!sum && _loadLastClickSlot === n && now - _loadLastClickAt <= 500;

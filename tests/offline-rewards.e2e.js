@@ -9,6 +9,7 @@ const fixtureSource = `(() => {
     if (!location.href.startsWith(${JSON.stringify(options.url)})) return;
     const native = window.localStorage, key = ${JSON.stringify(namespace)};
     const record = JSON.parse(native.getItem(key) || '{"data":{}}');
+    if (!record.data.lineage_optional_addons_v1) record.data.lineage_optional_addons_v1 = JSON.stringify({v:1,enabled:{history:true,slotinfo:true}});
     const clock = {now: record.nextNow || Date.now(), next: record.nextNow || Date.now()};
     const errors = [];
     let active = true;
@@ -110,9 +111,14 @@ await check('settled gains, role identity and unknown preferences survive native
     const d = accountRoleDoc(1);
     return d.p.gold === player.gold && d.p.exp === player.exp && accountRoleId(player) === base.roleId && d.p.config.offlineSentinel === 'preserve-unknown' && d.p.config.actualCloseSentinel === 'native-close';
 }, base));
+await check('native close and reopen records the actual offline award in local history',()=>page.evaluate(base=>{
+    const rows=JSON.parse(_lsGet(ADDON_HISTORY_KEY)||'{}')[base.roleId];
+    return Array.isArray(rows)&&rows.length===1&&rows[0].gold===player.gold-base.gold&&rows[0].exp===player.exp-base.exp&&rows[0].map===base.profile.mapName;
+},base));
 const settled = await page.evaluate(() => ({gold:player.gold, exp:player.exp}));
 await reopen(0);
 await check('immediate reload cannot claim the same offline interval twice', () => page.evaluate(s => player.gold === s.gold && player.exp === s.exp && !document.getElementById('offline-reward-modal'), settled));
+await check('immediate reload cannot add a duplicate history entry',()=>page.evaluate(base=>JSON.parse(_lsGet(ADDON_HISTORY_KEY)||'{}')[base.roleId].length===1,base));
 base = await sample(2);
 await reopen(14 * 3600000, 2);
 await check('long absences cap rewards at 12 hours and explain the cap', () => page.evaluate(base => {

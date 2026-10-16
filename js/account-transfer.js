@@ -32,7 +32,7 @@ function buildAccountSnapshot() {
         finally { window.__fb5CloseFlush = false; }
     }
     if (_mercLedgerOutbox.length) { _mercLedgerFlush(); if (_mercLedgerOutbox.length) throw Error('傭兵經驗尚未寫入，請稍後重試。'); }
-    const roles = Array.from({length:8}, (_, i) => accountRoleDoc(i + 1));
+    const roles = Array.from({length:SAVE_SLOT_MAX}, (_, i) => accountRoleDoc(i + 1));
     const seen = new Set();
     roles.forEach((d, i) => {
         if (!d) return;
@@ -48,7 +48,7 @@ function buildAccountSnapshot() {
         d.p.accountParty = (d.p.allies || []).map(a => ({id:accountRoleId(a), auto:accountClone(a._autoBuff || {}), potPct:a.potPct, exp:a._expGained || 0, alignment:a._alignmentDelta || 0}));
         d.p.allies = []; d.p.summonsV2 = []; d.p.guardsV2 = [];
     });
-    return validateAccount({format:ACCOUNT_FORMAT,schema:1,source:_FS?'desktop':'web',version:GAME_VERSION,exportedAt:new Date().toISOString(),roles,
+    return validateAccount({format:ACCOUNT_FORMAT,schema:2,source:_FS?'desktop':'web',version:GAME_VERSION,exportedAt:new Date().toISOString(),roles,
         shared:{modes:accountLocalModes(),market:accountRead(ACCOUNT_MARKET_KEY,true,null),raceClaims:accountRead(RACE_LEDGER_KEY,true,[]),diamonds:pandoraGetSharedDiamonds(),clan:clanExportSharedState(),ledger:accountRead(MERC_LEDGER_KEY,false,[]),autosell:accountRead(AUTOSELL_GLOBAL_KEY,false,null)}});
 }
 function accountLocalModes() {
@@ -65,7 +65,8 @@ function accountLocalModes() {
     return modes;
 }
 function validateAccount(a) {
-    if (!a || a.format !== ACCOUNT_FORMAT || a.schema !== 1 || !Array.isArray(a.roles) || a.roles.length !== 8 || !a.shared) throw Error('不是支援的帳號存檔。');
+    if (!a || a.format !== ACCOUNT_FORMAT || ![1,2].includes(a.schema) || !Array.isArray(a.roles) || a.roles.length !== (a.schema === 1 ? 8 : SAVE_SLOT_MAX) || !a.shared) throw Error('不是支援的帳號存檔。');
+    if (a.schema === 1) { a.roles = a.roles.concat(Array(SAVE_SLOT_MAX - 8).fill(null)); a.schema = 2; }
     if (a.source !== (_FS?'desktop':'web')) throw Error('網頁版與安裝版帳號存檔彼此獨立，無法交互匯入。');
     if(a.shared.raceClaims!==undefined&&(!Array.isArray(a.shared.raceClaims)||a.shared.raceClaims.some(id=>typeof id!=='string')))throw Error('賽狗結算紀錄無效。');
     if(a.shared.market!==undefined&&a.shared.market!==null&&(typeof a.shared.market!=='object'||Array.isArray(a.shared.market)||!Number.isFinite(a.shared.market.diamonds)))throw Error('黑市共用資料無效。');
@@ -95,9 +96,9 @@ function accountFromForkBackup(pack) {
         const u=signed?_saveUnwrap(raw):{ok:true,payload:raw};if(!u.ok)throw Error('備份資料校驗失敗：'+key);
         return JSON.parse(u.payload);
     }
-    for(const key of Object.keys(pack.keys))if(/^lineage_idle_save_\d+$/.test(key)&&Number(key.split('_').at(-1))>8&&read(key,true)?.p?.cls)throw Error('本版只有八格角色；備份含額外角色，請先在來源端整理或逐角色匯入。未寫入任何資料。');
+    for(const key of Object.keys(pack.keys))if(/^lineage_idle_save_\d+$/.test(key)&&Number(key.split('_').at(-1))>SAVE_SLOT_MAX&&read(key,true)?.p?.cls)throw Error('備份超過十六格角色，請先在來源端整理或逐角色匯入。未寫入任何資料。');
     const notes=['加掛版完整備份：只匯入帳號進度與支援的角色偏好，不移植外掛開關、裝置設定或工作階段。'];
-    const roles=Array.from({length:8},(_,i)=>{
+    const roles=Array.from({length:SAVE_SLOT_MAX},(_,i)=>{
         const d=read('lineage_idle_save_'+(i+1),true);if(!d)return null;const p=d.p;if(!p?.cls)throw Error('備份角色資料無效。');p.config||={};const c=p.config,slot=i+1;
         p.accountAddonPrefs = {};
         for (const prefix of ADDON_ROLE_PREFS) if (pack.keys[prefix + slot] != null) p.accountAddonPrefs[prefix] = pack.keys[prefix + slot];
@@ -110,7 +111,7 @@ function accountFromForkBackup(pack) {
     });
     const modes={};for(const classicMode of [false,true]){const p={classicMode},suffix=modeSuffix(classicMode,false),dex={};for(const key of [CARDDEX_KEY,EQUIPDEX_KEY,MISCDEX_KEY,RELICDEX_KEY])dex[key]=read(_dexKey(key,p),false,{});modes[classicMode?'classic':'normal']={warehouse:read(whKey(p),false,{items:[],gold:0}),pets:portablePetRoster(read(PET_ROSTER_KEY+suffix,true,[])),dex};}
     const market=read(ACCOUNT_MARKET_KEY,true,null);
-    return validateAccount({format:ACCOUNT_FORMAT,schema:1,source:'web',version:GAME_VERSION,exportedAt:pack.exportedAt||'',roles,importNotes:notes,shared:{modes,market,diamonds:market?.diamonds||0,clan:read(CLAN_STATE_KEY,true,_clanDefaultState()),ledger:read(MERC_LEDGER_KEY,false,[]),raceClaims:read(RACE_LEDGER_KEY,true,[]),autosell:read(AUTOSELL_GLOBAL_KEY,false,null)}});
+    return validateAccount({format:ACCOUNT_FORMAT,schema:2,source:'web',version:GAME_VERSION,exportedAt:pack.exportedAt||'',roles,importNotes:notes,shared:{modes,market,diamonds:market?.diamonds||0,clan:read(CLAN_STATE_KEY,true,_clanDefaultState()),ledger:read(MERC_LEDGER_KEY,false,[]),raceClaims:read(RACE_LEDGER_KEY,true,[]),autosell:read(AUTOSELL_GLOBAL_KEY,false,null)}});
 }
 function parseAccountFile(raw) {
     if(String(raw).trim().startsWith('{')){const pack=JSON.parse(raw);if(pack.format==='idle-lineage-full')return accountFromForkBackup(pack);}
@@ -132,11 +133,11 @@ function accountFromRoleFiles(entries) {
         const slot=Number((/fable5_save_(\d+)_/.exec(f.name)||[])[1]);
         return {...f,d,signed:u.signed,slot};
     });
-    if(files.length>8)throw Error('本版只有八格角色，請一次最多選 8 個角色檔。');
+    if(files.length>SAVE_SLOT_MAX)throw Error('請一次最多選 16 個角色檔。');
     const ids=new Map();
     for(const f of files){const id=accountRoleId(f.d.p);if(ids.has(id))throw Error(ids.get(id)+' 與 '+f.name+' 是同一個角色，請只選一個。');ids.set(id,f.name);}
-    const roles=Array(8).fill(null),pending=[];
-    for(const f of files)(f.slot>=1&&f.slot<=8&&!roles[f.slot-1]?(roles[f.slot-1]=f):pending.push(f));
+    const roles=Array(SAVE_SLOT_MAX).fill(null),pending=[];
+    for(const f of files)(f.slot>=1&&f.slot<=SAVE_SLOT_MAX&&!roles[f.slot-1]?(roles[f.slot-1]=f):pending.push(f));
     for(const f of pending)roles[roles.indexOf(null)]=f;
     const newest=list=>list.reduce((a,b)=>!a||b.lastModified>a.lastModified?b:a,null);
     const modes=accountLocalModes(),sources=[];
@@ -149,7 +150,7 @@ function accountFromRoleFiles(entries) {
     const latest=newest(files.filter(x=>x.d.pandoraDiamonds!==undefined||x.d.clanState));
     if(latest)sources.push('龍鑽與血盟取自 '+latest.name);
     const notes=files.filter(f=>!f.signed).map(f=>f.name+' 沒有完整性簽章（可能是舊版檔），仍照常讀取。');
-    return validateAccount({format:ACCOUNT_FORMAT,schema:1,source:'web',version:GAME_VERSION,exportedAt:new Date(newest(files).lastModified).toISOString(),importNotes:notes,
+    return validateAccount({format:ACCOUNT_FORMAT,schema:2,source:'web',version:GAME_VERSION,exportedAt:new Date(newest(files).lastModified).toISOString(),importNotes:notes,
         sharedNote:'共 '+files.length+' 個角色檔：'+sources.join('；')+'。舊版角色檔不含圖鑑與傭兵隊伍：圖鑑維持本機現有資料，隊伍需重新編組。',
         roles:roles.map(f=>{if(!f)return null;const d=accountClone(f.d);for(const k of ['wh','pets','pandoraDiamonds','clanState'])delete d[k];d.p.enSeed=accountRoleId(d.p);d.p.allies=[];d.p.accountParty=[];return d;}),
         shared:{modes,market:accountRead(ACCOUNT_MARKET_KEY,true,null),raceClaims:[],diamonds:latest?.d.pandoraDiamonds!==undefined?Math.max(0,Math.floor(Number(latest.d.pandoraDiamonds)||0)):pandoraGetSharedDiamonds(),
@@ -164,7 +165,7 @@ function accountImportFromFiles(entries) {
 function planAccountImport(data, choices = {}) {
     validateAccount(data); accountIdleRequired();
     if (state.running) throw Error('請先返回角色選擇頁。');
-    const current = Array.from({length:8},(_,i)=>accountRoleDoc(i+1));
+    const current = Array.from({length:SAVE_SLOT_MAX},(_,i)=>accountRoleDoc(i+1));
     const reserved = new Set(), actions = [], before = current.map((d,i)=>_lsGet('lineage_idle_save_'+(i+1)));
     // Existing identity wins its current position, before new characters claim positions.
     data.roles.forEach((d,i)=>{if(!d)return;const at=current.findIndex(c=>c && accountRoleId(c.p)===accountRoleId(d.p));if(at>=0){reserved.add(at+1);actions.push({source:i+1,target:at+1,kind:'update',doc:accountClone(d)});}});
@@ -201,8 +202,8 @@ function accountWriteBatch(writes, action) {
 function applyAccountImport(plan) {
     try {
         accountIdleRequired(); if (state.running) throw Error('請先回到選角頁。');
-        for(let i=0;i<8;i++) if(_lsGet('lineage_idle_save_'+(i+1))!==plan.before[i]) throw Error('角色資料已變動，請重新預覽匯入。');
-        const data=validateAccount(plan.data), final=Array.from({length:8},(_,i)=>accountRoleDoc(i+1)), imported=new Set(), writes=[];
+        for(let i=0;i<SAVE_SLOT_MAX;i++) if(_lsGet('lineage_idle_save_'+(i+1))!==plan.before[i]) throw Error('角色資料已變動，請重新預覽匯入。');
+        const data=validateAccount(plan.data), final=Array.from({length:SAVE_SLOT_MAX},(_,i)=>accountRoleDoc(i+1)), imported=new Set(), writes=[];
         for (const a of plan.actions) if(a.kind!=='skip') { const d=accountClone(a.doc);d.p.raceTickets=accountMergeRaceTickets(d.p.raceTickets||[],final[a.target-1]?.p.raceTickets||[],accountRoleId(d.p));d.p.enSeed=accountRoleId(d.p);d.p._roleEpoch=_roleEpoch();d.p.allies=[];d.p.summonsV2=[];d.p.guardsV2=[];final[a.target-1]=d;imported.add(d.p.enSeed); }
         const slots=new Map(final.flatMap((d,i)=>d?[[accountRoleId(d.p),i+1]]:[]));
         const oldLedger=accountRead(MERC_LEDGER_KEY,false,[]), ledger=new Map();
@@ -211,7 +212,7 @@ function applyAccountImport(plan) {
             if(!imported.has(row.enSeed) && !oldLedger.includes(row)) continue;
             const prev=ledger.get(row.uid);if(!prev || row.claimed)ledger.set(row.uid,{...row,slot:String(slots.get(row.enSeed)),claimed:!!(row.claimed||prev?.claimed)});
         }
-        for(let i=0;i<8;i++) {
+        for(let i=0;i<SAVE_SLOT_MAX;i++) {
             const d=final[i]; if(!d)continue;
             if(imported.has(accountRoleId(d.p))) {
                 d.p.accountParty=(d.p.accountParty||[]).filter(r=>r.id!==accountRoleId(d.p)&&slots.has(r.id)&&!!final[slots.get(r.id)-1].p.classicMode===!!d.p.classicMode).map(r=>({...r,slot:slots.get(r.id)}));
@@ -236,7 +237,7 @@ function applyAccountImport(plan) {
                 {key:PET_ROSTER_KEY+suffix,value:_saveWrap(JSON.stringify(portablePetRoster(m.pets)))},{key:PET_ROSTER_KEY+suffix+'_rm',value:_saveWrap('{}')});
             for(const key of [CARDDEX_KEY,EQUIPDEX_KEY,MISCDEX_KEY,RELICDEX_KEY])writes.push({key:_dexKey(key,p),value:JSON.stringify(m.dex[key])});
             writes.push({key:_mercEmploymentKey(p.classicMode),value:'{}'});
-            for(let n=1;n<=8;n++)writes.push({key:_mercEmployerBucketKey(p.classicMode,n),value:null});
+            for(let n=1;n<=SAVE_SLOT_MAX;n++)writes.push({key:_mercEmployerBucketKey(p.classicMode,n),value:null});
         }
         if(data.shared.market)writes.push({key:ACCOUNT_MARKET_KEY,value:_saveWrap(JSON.stringify(data.shared.market))});
         const raceClaims=[...new Set(accountRead(RACE_LEDGER_KEY,true,[]).concat(data.shared.raceClaims||[]))];
@@ -281,7 +282,7 @@ function importAccount() {
 function showAccountImport(data) {
     const plan=planAccountImport(data),rows=plan.actions.map(a=>{
         const old=slotSummary(a.target),p=a.doc.p,label=(p.name||'未命名')+' '+(CLAN_CLASS_NAMES[p.cls]||p.cls)+' Lv.'+p.lv;
-        return '<div class="transfer-role"><b>角色 '+a.source+' → 第 '+a.target+' 格</b><span>'+partyEscape(label)+'</span>'+(a.blocked?'<p class="transfer-note">此格已保留給另一位匯入角色；請先整理角色位置，再匯入本角色。</p>':a.conflict?'<label>此格已有 '+partyEscape(old?.name||old?.cls||'其他角色')+'，是否取代？ <select data-account-choice="'+a.source+'" '+(a.blocked?'disabled':'')+'><option value="keep">保留，跳過此角色</option><option value="replace">取代</option></select></label>':'<small>'+(a.kind==='update'?'更新相同角色':'匯入空格')+'</small>')+'</div>';
+        return '<div class="transfer-role"><b>角色 '+a.source+' → 第 '+a.target+' 格'+(a.target>visibleSaveSlotMax()?'（目前隱藏，開啟 16 格角色後可使用）':'')+'</b><span>'+partyEscape(label)+'</span>'+(a.blocked?'<p class="transfer-note">此格已保留給另一位匯入角色；請先整理角色位置，再匯入本角色。</p>':a.conflict?'<label>此格已有 '+partyEscape(old?.name||old?.cls||'其他角色')+'，是否取代？ <select data-account-choice="'+a.source+'" '+(a.blocked?'disabled':'')+'><option value="keep">保留，跳過此角色</option><option value="replace">取代</option></select></label>':'<small>'+(a.kind==='update'?'更新相同角色':'匯入空格')+'</small>')+'</div>';
     }).join('');
     const dialog=transferDialog('account-import-dialog','匯入帳號',rows+'<p class="transfer-note">'+(data.sharedNote?partyEscape(data.sharedNote)+' 龍鑽 '+data.shared.diamonds+' 顆。':'共用資料將依此檔還原：一般／經典倉庫、4 種圖鑑、寵物、血盟／城堡、傭兵經驗與龍鑽 '+data.shared.diamonds+' 顆。')+'寵物回保管；未匯入角色的失效隊伍與血盟關係解除。空格不刪除現有角色。</p><p class="transfer-note">相同角色將以這份檔案取代目前進度；請確認檔案日期：'+partyEscape(data.exportedAt)+'</p><p id="account-import-status" role="status"></p><div class="transfer-actions"><button class="btn" id="account-import-confirm">確認匯入</button><button class="btn" id="account-import-cancel">取消</button></div>');
     if(data.importNotes?.length)dialog.querySelector('.transfer-body').insertAdjacentHTML('afterbegin','<div class="transfer-note">'+data.importNotes.map(n=>'<p>'+partyEscape(n)+'</p>').join('')+'</div>');
@@ -310,7 +311,7 @@ function loadRenameSelected() {
             if(_roleReadObject(ROLE_SESSION_REGISTRY_KEY)[_roleSessionId]&&state.running)throw Error('請返回選角頁再改名。');
             latest.p.name=name;latest.p.renameCount=count+1;latest.p.enSeed=id;latest.p._roleEpoch=_roleEpoch();
             const writes=[{key:'lineage_idle_save_'+slot,value:_saveWrap(JSON.stringify(latest))}];
-            for(let n=1;n<=8;n++) {
+            for(let n=1;n<=SAVE_SLOT_MAX;n++) {
                 if(n===slot)continue;
                 const d=accountRoleDoc(n);if(!d)continue;let changed=false;
                 for(const a of d.p.allies||[])if(accountRoleId(a)===id){a.name=name;a._allyName=name;changed=true;}
