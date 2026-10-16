@@ -25,22 +25,19 @@
 
 - 原生 JavaScript，共用全域狀態，沒有 `package.json`、建置流程或 formatter／linter。
 - `index.html` 是 script 載入順序的真相；不得按檔名排序。
-- `js/00-data.js`～`js/32-threat.js` 與具名模組處理資料、戰鬥、存檔及 UI。
-- `css/` 為樣式；`assets/` 為原版美術／音效；`public/assets/` 為登入素材。
-- `tests/` 為 Ego E2E；`tests/artifacts/` 為驗收報告／合成角色預覽；`docs/` 為既有說明。
+- `js/00-data.js`～`js/32-threat.js` 與具名模組處理遊戲；`css/` 為樣式，`assets/` 為原版美術／音效，`public/assets/` 為登入素材；`tests/` 為 Ego E2E、`tests/artifacts/` 為驗收／合成預覽、`docs/` 為既有說明。
 - 沿用附近排版，展開區塊通常為四個空白；變數／函式用 camelCase，常數用 UPPER_SNAKE_CASE。
 - 前端資源修改後，執行 `python3 scripts/update-cache.py` 更新對應 URL 的 SHA 快取版本。
 - 原版天堂美術、配色與按鈕風格是既定方向。已選設計須先找回原圖，比對比例、材質、圖示與控制列後再實作；功能測試通過不代表視覺還原。概念圖的圖示／數字不能當遊戲資料。
-- 46 個鏡像加掛模組的來源是 <https://pp771007.github.io/idle-lineage-class/>（原 65 個，已移除開關面板與 18 個預設關閉模組）。
-- 固定來源 commit：`5f00f4a86389aaa7309c24d7a7c1ab060c47b500`；逐檔 SHA 在 [來源清單](tests/addon-source.json)。
-- 不直接修改鏡像加掛模組或 `sw.js`；整合差異放在專案模組，並核對來源 SHA。
-- 外掛開關面板已移除；組合固定在 `js/addon-switches.js`（`sellconfirm` 與 `statpts` 關閉；主角點數來源面板依使用者要求移除），不讀取舊的 `afk_toggle_*` 偏好。
+- 69 個鏡像檔取自 <https://pp771007.github.io/idle-lineage-class/>（既有 46＋本輪補回 23）；不代表全部載入，`index.html` 與開關 catalog 才是執行期依據。
+- 固定來源 commit：`5f00f4a86389aaa7309c24d7a7c1ab060c47b500`；逐檔 SHA 在 [來源清單](tests/addon-source.json)。不直接修改鏡像或 `sw.js`；整合差異放專案模組，並核對來源 SHA。
+- 舊浮動開關面板已移除；`js/addon-switches.js` 明列固定基底與可選 catalog，不讀舊 `afk_toggle_*`；未知 ID 預設關閉。`statpts` 與主角點數來源面板維持移除。
 
 ## 已確認的產品決策（更新至 2026-10-16）
 
 ### 版面與隊伍
 
-- 目前優先桌機與窄側欄，文字盡量單行、利用橫向空間；暫不投入手機排版，也不跑行動／平板尺寸，除非使用者重新要求。
+- 固定基底優先桌機與窄側欄；手機／平板僅在本輪已授權的可選「行動裝置版」範圍內調整與驗證，不擴大改造桌機版面。
 - 三欄寬度可拖曳／鍵盤調整並記憶；桌機左欄至少 220px、右欄至少 300px。
 - 中欄保留原生戰鬥場景的可用寬度與 800×450 比例，不因側欄調整破壞冒險畫面。
 - 三次選擇各自獨立：隊伍清單 **C「統一名牌」**、技能設定 **A「緊湊卡片」**、隊友裝備 **A「經典人形」**；不可互相套用。
@@ -52,6 +49,17 @@
 - 隊伍區利用左欄剩餘高度；內容放得下時不出現內部捲軸，超出時才捲動。
 - 武器／防具／道具頁改用「整理背包」選單，保留分類／品質／名稱整理及取得物品時自動整理；移除左側舊按鈕與 `sortInventoryNow` 強制分類入口，不再恢復一鍵排列。
 - 整理模式與自動整理沿用角色偏好及原儲存流程，不連動自動販賣。切換分頁關閉選單；選單須容納完整 checkbox 標籤，不能只驗按鈕外框。
+
+### 加掛選項與角色分頁（本輪確認）
+
+- 設定頁內設「一般設定／加掛版功能」tab；17 個可選開關預設全關，既有功能（含訓練、賽狗、自動購買）維持固定基底。`sellconfirm` 為可選，不能誤關基底功能。
+- 偏好沿用 `lineage_optional_addons_v1`，本機跨角色共用；勾選僅改草稿，取消可還原。套用先完成角色／共用資料與帳本寫入，再儲存偏好、讀回確認並重載；寫入失敗或其他角色仍在遊玩時不重載。
+- 「行動裝置版」單一開關涵蓋 11 個手機模組，不拆散暴露；本版整合放在 `addon-settings`、`addon-mobile-bridge`、`addon-optional-integration`，不修改鏡像原檔。
+- 保留本版離線引擎與原生帳號搬移；不引入替代結算、全清式還原、身分重發、雲端轉移或分析追蹤。歷史僅記錄原生成功結算，每角色最近 5 筆。
+- `SAVE_SLOT_MAX=16` 為資料上限；`visibleSaveSlotMax()` 為選角／招募可見上限。關閉只隱藏第 9～16 格，不能刪資料；身分／帳本掃描及帳號匯出始終涵蓋 16 格，schema 2 接受舊 schema 1 八格並補空。
+- **角色分頁美術以原版一致為優先**：沿用 `public/assets/login/load.png` 的圓框與翼飾，CSS 遮掉原圖數字再疊頁碼；不將現代圓鈕或新生成的高解析金屬框蓋在舊雙頁框上。生成圖已否決，不恢復。
+- 已接受：四頁裝飾寬為舞台 34%；頁碼採細長 `Times New Roman` 斜體、`scaleX(.92)`，字級由 `5.6cqw` 放大 20% 至 `6.72cqw`；保留 CSS 暗金漸層、細微磨損、凹刻陰影與柔光。不得把整組雕框一起放大。
+- 置中須核對字形重心、圓孔與點擊命中，不能只靠外框中心；CSS 字級與 `getBoundingClientRect()` 比較先乘 UI 縮放。插入翼飾後用 `querySelectorAll('button')`，不能再以 `children.length` 當頁數。
 
 ### 裝置縮放
 
@@ -198,7 +206,7 @@ python3 tests/run-rwd.py --help
 - PDF 中間檔放 `tmp/pdfs/`，驗收後刪除；明確標示 PNG 的生成方式，不宣稱是直接瀏覽器截圖。
 - 實際檢查桌機 1330／1920px、60／75／80／100% 與 220／300／460px 側欄；倒地傭兵及寵物的所有控制項、標籤文字均須在邊界內，不能只量卡片高度。
 - 倉庫另跑 `warehouse-list` 與 `village-clan-warehouse`（HTTP／file）。驗證預設尺寸要清除測試調整並以 100% 量測；預設圖與已拖曳縮放圖分開命名。命中區留在外框內，實測縮放時 border 取整，不能假設 CSS 宣告值等於實際邊界。
-- 本地檢查一律跑 `python3 scripts/check-local.py`：JS 語法、`git diff --check`、`?v=` 資源 SHA、46 個鏡像檔 SHA 與全部 `tests/*.integration.js`。integration 只驗證各自標明的原生流程／幾何邊界，不等於瀏覽器 E2E。
+- 本地檢查一律跑 `python3 scripts/check-local.py`：JS 語法、`git diff --check`、`?v=` 資源 SHA、69 個鏡像檔 SHA 與全部 `tests/*.integration.js`。integration 只驗證各自標明的原生流程／幾何邊界，不等於瀏覽器 E2E。
 - 保留可重跑的 JSON 報告、來源雜湊及代表性預覽；完整驗證須對應實際程式 commit 與報告。交接要區分「本輪實跑」與「核對前人報告」；事後擷取的來源 SHA 不得冒充 runner 當時記錄的 SHA。
 - 報告檔名先讀 runner 實際輸出，不猜新檔名；引用前核對檔案存在、方法、版本與結果。歷史報告及早期預覽不得充作後續美術／排版驗證。
 - HTTP／file 預覽若共用檔名，後跑會覆寫；報告須註明最終圖像的實際協定與轉圖方法，不能拿同一張圖宣稱兩次獨立擷取。
@@ -233,11 +241,8 @@ python3 tests/run-rwd.py --help
 
 ## 最新進度與驗證基準（2026-10-16）
 
-- 程式 commit：`b74efa1e3` 裝備提示精簡／直接套裝說明，`4157b2eda` imagegen 倉庫素材／獨立捲動／八方向縮放／830×600；前次正式部署基準為 `392d1f8df`。
-- 倉庫 A 選定原圖在 `tmp/test-runs/warehouse-art/reference-a.png`；產圖 prompt、最終素材來源與 SHA 在同目錄 `asset-generation.json`。找不到原圖先查這裡，不憑文字重畫。
-- 最新程式的 required、`warehouse-list`、`village-clan-warehouse` 在同一空間 3 跑完 HTTP／file：**14 份／682 項通過**；本地 `check-local.py` **13/13**。報告與 runner 記錄在 `tmp/test-runs/warehouse-830/`，不進 git。
-- `warehouse-830/completion.json` 與 `source-consistency.json` 記錄來源比對；`warehouse-list-file.json` 是 runner 開始時的來源 SHA，不把收尾補記的 SHA 冒充它。此前提示測試在 `warehouse-redesign/`，屬不同驗證批次，不能混算為最新 682 項。
-- 預設尺寸證據：`warehouse-830/default-preview.json` 實測 830×600、8 個縮放把手、無錯誤；`warehouse-default-830x600-file.png` 是獨立合成 fixture 的 Ego screen-media PDF 經 pypdfium2 96 dpi 轉 PNG。`warehouse-list-*` 圖有先拖曳縮放，不能當作預設尺寸圖。
-- 已收到 `finished 3`、exit 0，無待跑 runner；後續收尾只核對既有報告與來源，未重跑 E2E。未測安裝版、iCloud、行動／平板；資料缺失時不得宣稱重新驗證。
-- 程式已由 Pages run [38781580180](https://github.com/lostshin/idle-lineage-class/actions/runs/38781580180)（HEAD `a8853f643`）發布，9 個執行期資源 HTTP 200／SHA 相符；後續規則提交不改程式，最終 HEAD 的部署證據見 `tmp/test-runs/session-release-20261016/`。
-- Round C 的「來源多色括號／高度擠壓畫布／輪詢 tooltip」方向已否決；備份僅在 `tmp/test-runs/round-c-snapshot-20261015/` 供追溯，勿恢復。
+- 本輪交付：固定基底＋17 個可選加掛、16 格資料／帳號流程、原版素材四頁選角與 CSS 細長頁碼；使用者已實測接受最終頁碼與外觀。程式 commit `887f09d43`；本輪 commit／push 依使用者最新授權執行。
+- 加掛整合曾在 space 5 完成 HTTP／file **26 份／968 項 E2E**，已成功 finish；證據在 `tmp/test-runs/optional-addons/completion.json`。這是後續分頁美術修改前的批次，不能當作最終版 E2E。
+- space 8 在分頁調整中消失；未擅自重建、無待跑 runner。最終原版 sprite／CSS 字型版本僅有本地 **13/13** 與使用者實測，瀏覽器 E2E 尚待恢復後補跑；狀態與完整未提交清單在 `tmp/test-runs/character-pages/`，舊生成圖預覽不是最終證據。
+- 倉庫 A 原圖及產圖來源：`tmp/test-runs/warehouse-art/`；830×600 的前輪證據：`warehouse-830/`（14 份／682 項），不是本輪重跑。Round C 多色括號／擠壓畫布／輪詢 tooltip 已否決，勿恢復。
+- 歷史 Pages HEAD `a8853f643` 的 run 為 `38781580180`；本輪部署須另記新 commit／run／線上 SHA，不能沿用舊證據。未測安裝版、iCloud 或實體手機；尚未更新 README 的舊八格敘述，不擴大文件範圍。
