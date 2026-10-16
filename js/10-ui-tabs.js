@@ -169,21 +169,33 @@ function renderTabs(force) {
     if(_tabThrottleTimer) { clearTimeout(_tabThrottleTimer); _tabThrottleTimer = null; }
     // ===== 內容簽章：背包/裝備/技能等實際內容沒變時直接跳過重建 =====
     // 避免戰鬥中(掉寶、射箭扣箭、夥伴耗肉等)頻繁重繪，導致游標所在欄位閃動、捲動跳回頂端、以及 mousedown/mouseup 落在不同元素造成點擊失效。
-    let _sig = (function(){
-        let inv = player.inv.map(i => itemSig(i) + '.' + (i.cnt||1) + '.' + (i.lock?1:0) + '.' + (i.junk?1:0)).join(';');   // 🔧 架構#3：改用統一簽章（修正先前祝福/詛咒同被壓成 1 的重繪遺漏）
+    let signatures = (function(){
+        let inv = {weapons:[],armors:[],items:[]};
+        for (const i of player.inv) {
+            const type = DB.items[i.id]?.type;
+            const tab = type === 'wpn' ? 'weapons' : type === 'arm' || type === 'acc' ? 'armors' : 'items';
+            inv[tab].push(itemSig(i) + '.' + (i.cnt||1) + '.' + (i.lock?1:0) + '.' + (i.junk?1:0));
+        }
         let eq = Object.keys(player.eq).map(k => { let e = player.eq[k]; return e ? `${k}:${itemSig(e)}.${e.cnt||0}` : k+':'; }).join(',');   // 🔧 補上先前缺漏的 attr / anc
         let dd = player.d;
         // 🩹 v3.5.87 簽章補實際繪出的衍生值·防 buff 到期顯示卡舊：裝備分頁標頭的負重(weightPct/loadTier)與經典技能視窗的魔法傷害/MR(magicDmg/mr)
         //    —— 五維總和不變時（如負重強化 buff、龍族覺醒 mr×1.15 到期）這些畫面值仍會變，須納入簽章才會觸發重繪
-        return `${inv}#${eq}#${(player.skills||[]).join(',')}#${(player.grantedSkills||[]).join(',')}#${player.cls}#${player.lv}#${player.elfEle||''}#${player.mastery||''}#${dd.str+dd.dex+dd.con+dd.int+dd.wis}#${dd.weightPct||0}.${dd.loadTier||0}.${Math.round(dd.magicDmg||0)}.${Math.round(dd.mr||0)}`;
+        const common = `${eq}#${(player.skills||[]).join(',')}#${(player.grantedSkills||[]).join(',')}#${player.cls}#${player.lv}#${player.elfEle||''}#${player.mastery||''}#${dd.str+dd.dex+dd.con+dd.int+dd.wis}`;
+        const blessCount = type => quickEnh[type].active ? (player.inv.find(i => i.id === (type === 'wpn' ? 'scroll_weapon_b' : 'scroll_armor_b'))?.cnt || 0) : 0;
+        return {equip:`${common}#${dd.weightPct||0}.${dd.loadTier||0}`,skill:`${common}#${Math.round(dd.magicDmg||0)}.${Math.round(dd.mr||0)}`,
+            weapons:common+'#'+inv.weapons.join(';')+'#'+blessCount('wpn'),armors:common+'#'+inv.armors.join(';')+'#'+blessCount('arm'),items:common+'#'+inv.items.join(';')};
     })();
-    if(!force && _sig === renderTabs._sig) return;
-    renderTabs._sig = _sig;
+    const changed = Object.fromEntries(Object.keys(signatures).map(tab => [tab, !!force || renderTabs._actor !== player || signatures[tab] !== renderTabs._signatures?.[tab]]));
+    if (!Object.values(changed).some(Boolean)) return;
+    renderTabs._actor = player;
+    renderTabs._signatures = signatures;
     // 真的要重建時，先記住各分頁的捲動位置，重建後還原（避免跳回頂端）
     let _scroll = {};
     ['tab-items','tab-weapons','tab-armors','tab-equip','tab-skill'].forEach(id => { let el = document.getElementById(id); if(el) { let sc=el.querySelector('.classic-inventory-viewport,.classic-skill-grid-scroll'); _scroll[id] = sc ? sc.scrollTop : el.scrollTop; } });   // 🎨 v3.0.40 1.8皮膚：捲動位置存在內層 viewport（技能頁為 .classic-skill-grid-scroll）
 
-    let eDiv = document.getElementById('tab-equip'); eDiv.innerHTML = '';
+    let eDiv = document.getElementById('tab-equip');
+    if (changed.equip) {
+    eDiv.innerHTML = '';
     { let _wd = player.d || {}; let _t = _wd.loadTier || 0; let _hdr = document.createElement('div'); _hdr.className = 'classic-list-toolbar text-center py-0.5 rounded bg-slate-900/60 border border-slate-700 text-sm font-bold leading-tight' + (_t >= 1 ? ' cursor-help' : ''); if (_t >= 1) { _hdr.title = _t === 1 ? '負重50%↑：HP/MP不自然恢復' : (_t === 2 ? '負重82%↑：HP/MP不自然恢復、停自動施法、攻速變慢' : '負重100%↑：HP/MP不自然恢復、停自動施法、攻速大幅變慢'); } _hdr.innerHTML = `<span class="${getLoadColor(_t)}">負重 ${_wd.weightPct||0}%</span>`; eDiv.appendChild(_hdr); }
     const _baseSlots = [{k:'wpn',n:'武器'}, ...((player.cls === 'warrior' && (player.skills.includes('sk_warrior_dualaxe') || player.eq.offwpn)) ? [{k:'offwpn',n:'副手武器'}] : []), {k:'shield',n:'副手'},{k:'helm',n:'頭盔'},{k:'armor',n:'盔甲'},{k:'shin',n:'脛甲'},{k:'tshirt',n:'T恤'},{k:'cloak',n:'斗篷'},{k:'gloves',n:'手套'},{k:'boots',n:'長靴'},{k:'amulet',n:'項鍊'},{k:'ear1',n:'耳環'},{k:'ear2',n:'耳環'},{k:'ring1',n:'戒指'},{k:'ring2',n:'戒指'},{k:'ring3',n:'戒指'},{k:'ring4',n:'戒指'},{k:'belt',n:'腰帶'},{k:'doll',n:'魔法娃娃'},{k:'arrow',n:'箭矢'}];   // 🦴 v3.3.21 移除已停用的 {k:'pet'} 空格（v3.2.37 玩家 eq.pet 拆除→改亞丁包武保管·此欄恆空）   // ⚔️ offwpn：戰士學會迅猛雙斧後顯示副手武器欄
     const _remSlots = (typeof SHERINE_REMAINS !== 'undefined') ? SHERINE_REMAINS.map(r => ({ k: r.id, n: '遺骸' + r.n })) : [];   // 🦴 v3.1.68 席琳遺骸 8 格（欄位鍵=物品id）·⚠️ 同一組 8 格也顯示在 js/19 嵌入式裝備面板的第 2 頁（PAGE_SLOTS[1]，js/19 自 v3.5.87 起已無浮動模式）→ 日後新增遺骸種類兩處都要同步
@@ -267,20 +279,24 @@ function renderTabs(force) {
         }
         eDiv.appendChild(el);
     });
+    }
     
     // 👇 清空新的三個面板
-    let wDiv = document.getElementById('tab-weapons'); wDiv.innerHTML = '';
-    let aDiv = document.getElementById('tab-armors'); aDiv.innerHTML = '';
-    let iDiv = document.getElementById('tab-items'); iDiv.innerHTML = '';
+    let wDiv = document.getElementById('tab-weapons');
+    let aDiv = document.getElementById('tab-armors');
+    let iDiv = document.getElementById('tab-items');
+    for (const [tab, div] of [['weapons',wDiv],['armors',aDiv],['items',iDiv]]) if (changed[tab]) div.innerHTML = '';
 
     // ⚡🗑️ 快速操作頭部：武器/防具分頁＝[快速強化][快速廢品]；道具分頁＝[快速廢品]
-    wDiv.appendChild(buildQuickHeader('wpn'));
-    aDiv.appendChild(buildQuickHeader('arm'));
-    iDiv.appendChild(buildQuickHeader('item'));
+    if (changed.weapons) wDiv.appendChild(buildQuickHeader('wpn'));
+    if (changed.armors) aDiv.appendChild(buildQuickHeader('arm'));
+    if (changed.items) iDiv.appendChild(buildQuickHeader('item'));
 
 player.inv.forEach(i => {
     if(!DB.items[i.id]) return;
     let d = DB.items[i.id];
+    const tab = d.type === 'wpn' ? 'weapons' : d.type === 'arm' || d.type === 'acc' ? 'armors' : 'items';
+    if (!changed[tab]) return;
 
     // ===== 視覺狀態判定 =====
     let statusTag = '';
@@ -373,16 +389,16 @@ player.inv.forEach(i => {
     }
 });
     // 🎨 v3.0.40 1.8 物品介面：保留原清單事件與功能，只把內容搬入八格皮膚的可捲動區。
-    [eDiv,wDiv,aDiv,iDiv].forEach(decorateClassicInventoryTab);
+    for (const [tab, div] of [['equip',eDiv],['weapons',wDiv],['armors',aDiv],['items',iDiv]]) if (changed[tab]) decorateClassicInventoryTab(div);
 
     // 🎨 技能欄使用新版 4×6 皮膚（技能欄位.png·tier strip 導覽·底部 S.power=魔法傷害/M.resist=MR）。
     //    取代原「依學習來源分組 ICON」排版；仍走 data-tip-skill tooltip、manualCast、updateSummonLock。
     let sDiv = document.getElementById('tab-skill');
-    renderClassicSkillBook(sDiv);
+    if (changed.skill) renderClassicSkillBook(sDiv);
     // 還原各分頁捲動位置
     ['tab-items','tab-weapons','tab-armors','tab-equip','tab-skill'].forEach(id => { let el = document.getElementById(id); if(el && _scroll[id] != null) { let sc=el.querySelector('.classic-inventory-viewport,.classic-skill-grid-scroll'); if(sc)sc.scrollTop=_scroll[id]; else el.scrollTop=_scroll[id]; } });   // 🎨 v3.0.40 1.8皮膚：捲動位置還原到內層 viewport（技能頁為 .classic-skill-grid-scroll）
     updateSummonLock();
-    if (typeof refreshEquipmentWindow === 'function') refreshEquipmentWindow();
+    if (changed.equip && typeof refreshEquipmentWindow === 'function') refreshEquipmentWindow();
 }
 
 // 🎨 v3.0.40 1.8 風格道具欄皮膚（移植自參考版）：把分頁內容搬進「八格框底圖」的可捲動 viewport，

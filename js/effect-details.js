@@ -93,6 +93,11 @@ function effectActorCopy(value, seen = new WeakMap()) {
     for (const [key, item] of Object.entries(value)) { const next = effectActorCopy(item, seen); if (next !== undefined) copy[key] = next; }
     return copy;
 }
+function effectPreviewActor(actor) {
+    // Preview formulas only read inventory; allies and collections are supplied below.
+    const {inv,allies,cardDex,equipDex,miscDex,relicDex,...fields}=actor;
+    return {...effectActorCopy(fields),inv:inv||[],allies:[],cardDex,equipDex,miscDex,relicDex};
+}
 function partyAbilityStats(actor, stats) {
     const result={...stats,rawEr:stats.er||0,er:effResistPct(stats.er||0),aspd:Math.max(.1,stats.aspd||.1),
         potionBonus:getConPotionPct(stats.con||0)+(DB.items[actor.eq?.doll?.id]?.potionBonus||0),
@@ -130,8 +135,8 @@ function effectSignature(actor,kind,owner=player) {
 }
 function effectPreview(actor,kind,owner=player,stage=7,omit=null,clan=clanBuffSnapshot(actor)) {
     const root=player,flag=_recomputingAlly,minion=kind!=='ally'&&kind!=='player';
-    const copy=effectActorCopy(actor),leader=effectActorCopy(root);
-    const others=[root,...(root.allies||[])].filter(a=>a&&a!==actor).map(a=>effectActorCopy(a));
+    const copy=effectPreviewActor(actor),leader=minion?effectPreviewActor(root):null;
+    const others=[root,...(root.allies||[])].filter(a=>a&&a!==actor).map(a=>effectPreviewActor(a));
     for(const a of [copy,...others]) {
         for(const [id,sourceStage]of Object.keys(a.buffs||{}).map(id=>[id,effectBuffStage(id,a)]))if(stage<sourceStage)delete a.buffs[id];
         if(stage<7){a.statuses={};a._statuses={};a.hots={};for(const k of Object.keys(a))if(/Until$/.test(k))a[k]=0;a._crushFuryTicks=0;a._fangFuryTicks=0;a._darkEvadeStack=0;}
@@ -162,8 +167,10 @@ function effectPreview(actor,kind,owner=player,stage=7,omit=null,clan=clanBuffSn
                 d.potionBonus=getConPotionPct(d.con||0)+dollFieldVal('potionBonus')+playerEquipPotionBonusPct()+(copy._miscPotionBonus||0);
             }
         } else {
-            leader.buffs=stage>=6?leader.buffs:{};leader.allies=others.filter(a=>accountRoleId(a)!==accountRoleId(root));player=leader;
-            d=kind==='pet'?petDerive(copy):kind==='guard'?guardDerive(copy):_sumDeriveAny(copy,effectActorCopy(owner));
+            leader.buffs=stage>=6?leader.buffs:{};leader.allies=others.filter(a=>accountRoleId(a)!==accountRoleId(root));
+            for(const key of ['cardDex','equipDex','miscDex','relicDex'])leader[key]=effectActorCopy(root[key]||{});
+            player=leader;
+            d=kind==='pet'?petDerive(copy):kind==='guard'?guardDerive(copy):_sumDeriveAny(copy,effectPreviewActor(owner));
             d={...d,mhp:_supMhp(copy),mmp:(copy.mmp||0)+(d?.mmpBonus||0)};
             if(typeof d.er==='number'){d.rawEr=d.er;d.er=effResistPct(d.er);}
             if(kind==='pet'){const gear=petGearBonus(copy),charm=petCharmCombatBonus();d.petGearDmg=gear.dmg;d.petGearHit=gear.hit;d.petCharmDmg=charm.dmg;d.petCharmHit=charm.hit;d.petTakenMult=petMasteryTakenMult()*petArmorDmgReduceMult(copy)*(petDevotionGuardOn(copy)?0:1);}

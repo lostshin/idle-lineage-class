@@ -158,8 +158,10 @@
 .wh-column h3 { display:flex; align-items:center; flex:none; gap:8px; margin:0; height:44px; padding:0 16px; border-bottom:1px solid #805f32; color:#69e4f1; background:linear-gradient(90deg,#14313c,#111a22); font-size:19px; font-weight:bold; letter-spacing:1px; }
 .wh-column + .wh-column h3 { color:#f4d16c; background:linear-gradient(90deg,#352915,#1e1b15); }
 .wh-column h3 > span { margin-left:auto; font-size:15px; font-weight:normal; letter-spacing:0; color:#eee7da; }
-.warehouse-window-content .wh-list { display:flex; flex-direction:column; gap:6px; flex:1; min-height:0; max-height:100% !important; margin:6px 10px 8px; overflow-x:hidden; overflow-y:auto; overscroll-behavior:contain; scrollbar-width:thin; scrollbar-color:#8c7649 #101115; }
-.wh-row { display:flex; height:52px; min-height:52px; flex:none; min-width:0; border:2px solid transparent; border-image:url('../assets/ui/warehouse-row-v1.png') 32 fill stretch; }
+.warehouse-window-content .wh-list { --wh-row-height:52px; display:flex; flex-direction:column; gap:6px; flex:1; min-height:0; max-height:100% !important; margin:6px 10px 8px; overflow-x:hidden; overflow-y:auto; overscroll-behavior:contain; scrollbar-width:thin; scrollbar-color:#8c7649 #101115; }
+.wh-list.wh-virtual { overflow-anchor:none; }
+.wh-virtual-space { flex:none; pointer-events:none; }
+.wh-row { display:flex; height:var(--wh-row-height,52px); min-height:var(--wh-row-height,52px); flex:none; min-width:0; border:2px solid transparent; border-image:url('../assets/ui/warehouse-row-v1.png') 32 fill stretch; }
 #warehouse-window-content .wh-transfer,#warehouse-window-content .wh-quantity-button { border:0 !important; background:transparent !important; box-shadow:none; border-radius:0; }
 .wh-transfer { display:flex; align-items:center; gap:12px; flex:1; min-width:0; height:100%; padding:0; text-align:left; overflow:hidden; }
 .wh-item-icon { display:flex; align-items:center; justify-content:center; width:54px; height:100%; flex:none; background:#050608; border-right:1px solid #514b40; }
@@ -203,7 +205,7 @@
     .wh-filters > button { height:34px; padding:0 8px; font-size:12px; }
     .wh-column h3 { height:38px; padding:0 10px; font-size:17px; letter-spacing:0; }
     .wh-column h3 > span { font-size:12px; }
-    .wh-row { height:46px; min-height:46px; }
+    .warehouse-window-content .wh-list { --wh-row-height:46px; }
     .wh-transfer { gap:8px; }
     .wh-item-icon { width:44px; }
     .wh-transfer img { width:36px; height:36px; }

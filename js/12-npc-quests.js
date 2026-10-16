@@ -517,6 +517,14 @@ const warehouseUi = (() => {
     const scroll = { inv: 0, store: 0 };
     const quantities = { inv: new Map(), store: new Map() };
     const editors = { inv: new Map(), store: new Map() };
+    let viewportRefresh = null;
+    const observers = [];
+    function releaseViews() { for (const observer of observers) observer.disconnect(); observers.length = 0; }
+    function refreshViewport() {
+        if (!viewportRefresh) return false;
+        viewportRefresh();
+        return true;
+    }
     function resetScroll() { scroll.inv = scroll.store = 0; resetPosition = true; }
     function captureScroll(div) {
         if (resetPosition || actor !== player || mode !== whKey()) return;
@@ -544,12 +552,12 @@ const warehouseUi = (() => {
         return value === undefined ? total : Number(value);
     }
     function clearQuantity(side, uid) { quantities[side].delete(uid); editors[side].delete(uid); }
-    function render(div, items) {
+    function render(div, items, storedItems) {
         context();
         for (const side of ['inv', 'store']) {
             const uids = new Set(items[side].map(it => it.uid));
             // Hidden filters keep their row settings; removed items do not retain a stale request.
-            const all = side === 'inv' ? player.inv : loadWarehouse().items;
+            const all = side === 'inv' ? player.inv : storedItems;
             const present = new Set(all.map(it => it.uid));
             for (const uid of quantities[side].keys()) if (!present.has(uid)) clearQuantity(side, uid);
             for (const uid of editors[side].keys()) if (!uids.has(uid)) editors[side].delete(uid);
@@ -557,7 +565,7 @@ const warehouseUi = (() => {
         function draw(side) {
             const list = div.querySelector('#wh-' + side + '-list');
             if (!items[side].length) list.innerHTML = '<p class="wh-empty">' + (_whSearchActive() ? '沒有符合搜尋的物品' : '此分類沒有物品') + '</p>';
-            for (const it of items[side]) {
+            function createRow(it) {
                 const total = it.cnt || 1, disabled = side === 'inv' && WH_NO_STORE.includes(it.id);
                 const name = getItemFullName({ ...it, cnt: 1 }), plain = _whStripHtml(name);
                 const row = document.createElement('div'); row.className = 'wh-row'; row.dataset.whUid = it.uid;
@@ -602,7 +610,70 @@ const warehouseUi = (() => {
                         box.querySelector('button').addEventListener('click', () => { editors[side].set(it.uid, value === undefined ? String(total) : value); showQuantity(); const input = box.querySelector('input'); input.focus(); input.select(); });
                     }
                 }
-                showQuantity(); list.appendChild(row);
+                showQuantity(); return row;
+            }
+            // The mirrored batch add-on selects all DOM rows; keep its full-list contract.
+            const virtual = items[side].length > 250 && !(window.AFK_TOGGLES && AFK_TOGGLES.enabled('whbatch'));
+            if (virtual) {
+                list.classList.add('wh-virtual');
+                const rows = new Map();
+                let signature = '';
+                function paint() {
+                    const style = getComputedStyle(list), height = parseFloat(style.getPropertyValue('--wh-row-height')) || 52;
+                    const gap = parseFloat(style.rowGap) || 0, step = height + gap;
+                    const start = Math.max(0, Math.floor(list.scrollTop / step) - 8);
+                    const end = Math.min(items[side].length, start + Math.max(32, Math.ceil(list.clientHeight / step) + 16));
+                    const indices = Array.from({length:end-start}, (_, i) => start+i);
+                    const focused = document.activeElement?.closest('[data-wh-index]');
+                    if (focused && list.contains(focused)) {
+                        const index = Number(focused.dataset.whIndex);
+                        if (!indices.includes(index)) indices.push(index);
+                    }
+                    indices.sort((a,b) => a-b);
+                    const next = step + ':' + indices.join(',');
+                    if (signature === next) return;
+                    signature = next;
+                    const wanted = [], keep = new Set(indices);
+                    function spacer(count) {
+                        if (!count) return;
+                        const node = document.createElement('div');
+                        node.className = 'wh-virtual-space'; node.setAttribute('aria-hidden', 'true');
+                        node.style.height = Math.max(0, count * step - gap) + 'px'; wanted.push(node);
+                    }
+                    let previous = -1;
+                    for (const index of indices) {
+                        spacer(index-previous-1);
+                        if (!rows.has(index)) {
+                            const row = createRow(items[side][index]); row.dataset.whIndex = index;
+                            rows.set(index, row);
+                        }
+                        wanted.push(rows.get(index)); previous = index;
+                    }
+                    spacer(items[side].length-previous-1);
+                    const top = list.scrollTop, nodes = new Set(wanted);
+                    for (const node of [...list.children]) if (!nodes.has(node)) node.remove();
+                    // Retained rows stay in order, so focused inputs are never detached or moved.
+                    let cursor = list.firstChild;
+                    for (const node of wanted) {
+                        if (node === cursor) cursor = cursor.nextSibling;
+                        else list.insertBefore(node, cursor);
+                    }
+                    for (const index of rows.keys()) if (!keep.has(index)) rows.delete(index);
+                    list.scrollTop = top;
+                }
+                function refresh() {
+                    if (!list.isConnected || !list.clientHeight) return;
+                    // Reuse the native add-on post-processing without replacing the window or inputs.
+                    viewportRefresh = paint;
+                    try { renderWarehouseNPC(div); } finally { viewportRefresh = null; }
+                }
+                paint(); list.scrollTop = scroll[side]; paint();
+                list.addEventListener('scroll', refresh, {passive:true});
+                const observer = new ResizeObserver(refresh); observer.observe(list); observers.push(observer);
+            } else {
+                const fragment = document.createDocumentFragment();
+                for (const it of items[side]) fragment.appendChild(createRow(it));
+                list.appendChild(fragment);
             }
             list.scrollTop = scroll[side];
             scroll[side] = list.scrollTop;
@@ -610,9 +681,10 @@ const warehouseUi = (() => {
         for (const side of ['inv', 'store']) draw(side);
         resetPosition = false;
     }
-    return { resetScroll, captureScroll, quantity, clearQuantity, render };
+    return { resetScroll, captureScroll, quantity, clearQuantity, render, refreshViewport, releaseViews };
 })();
 function renderWarehouseNPC(div){
+    if (warehouseUi.refreshViewport()) return;
     if (typeof warehouseWindowIsOpen === 'function' && warehouseWindowIsOpen()) { let floating = document.getElementById('warehouse-window-content'); if (floating) div = floating; }
     if (!div) return;
     _activePanel = null;
@@ -621,6 +693,7 @@ function renderWarehouseNPC(div){
         && (_whFilter !== 'remains' || !_whSubFilter || (it.seteff ? String(it.seteff).slice(0,2) : '') === _whSubFilter.slice(0,2));
     const items = { inv: player.inv.filter(it => !it.lock && match(it)), store: w.items.filter(match) };
     warehouseUi.captureScroll(div);
+    warehouseUi.releaseViews();
     div.innerHTML = `
     <div class="wh-panel">
         <div class="wh-filters text-sm">
@@ -661,7 +734,7 @@ function renderWarehouseNPC(div){
         </div>
         <output id="wh-gold-status" class="text-amber-200 text-xs" role="status"></output>
     </div>`;
-    warehouseUi.render(div, items);
+    warehouseUi.render(div, items, w.items);
 }
 // 🚫 v3.2.17 舊「包武項圈保管」(PET_STORAGE_MAX=8/petStoreDeposit/petStoreWithdraw/renderPetStorageNPC) 已隨項圈系統移除——
 // 新寵物保管（上限＝PET_STORAGE_MAX·同模式共通·出戰/鎖定/放生/進化）＝js/22-pets.js 的 renderPetStorageNPC（同名接手·js/11 路由不變）。

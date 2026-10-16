@@ -1,0 +1,50 @@
+// Reproduce large-list stalls and verify the same native interactions after optimization.
+(async()=>{
+const fs=await import('node:fs/promises'),crypto=await import('node:crypto');
+const task=await taskSpace(options.space||'後期卡頓修復驗證'),page=task.page('p1'),reports=[],timings={};console.log({spaceId:task.spaceId});
+const sources={};for(const file of ['index.html','js/12-npc-quests.js','js/10-ui-tabs.js','js/effect-details.js','css/floating-ui.css'])sources[file]=crypto.createHash('sha256').update(await fs.readFile(options.root+'/'+file)).digest('hex');
+const reportPath=options.artifacts+'/performance-'+(options.baseline?'baseline-':'')+options.protocol+'.json';
+async function write(){await fs.writeFile(reportPath,JSON.stringify({method:'Ego Chromium; synthetic storage; native keyboard, clicks and scroll; synchronous median of 3 samples, not FPS',sources,reports,timings},null,2));}
+async function check(name,fn){try{const result=await fn();if(result!==true)throw Error(JSON.stringify(result));reports.push({name,status:'PASS'});}catch(e){reports.push({name,status:'FAIL',error:String(e)});console.log({name,error:String(e)});}await write();}
+const init=(await page.cdp('Page.addScriptToEvaluateOnNewDocument',{source:`(()=>{window.__perfData={};window.__errors=[];const s={getItem:k=>__perfData[k]??null,setItem:(k,v)=>__perfData[k]=String(v),removeItem:k=>delete __perfData[k],key:i=>Object.keys(__perfData)[i]??null,get length(){return Object.keys(__perfData).length}};Object.defineProperty(window,'localStorage',{value:s,configurable:true});Object.defineProperty(window,'sessionStorage',{value:s,configurable:true});window.BroadcastChannel=undefined;addEventListener('error',e=>__errors.push(e.message));})();`})).identifier;
+await page.cdp('Emulation.setDeviceMetricsOverride',{width:1330,height:900,deviceScaleFactor:1,mobile:false});await page.goto(options.url+'?performance');await page.waitForFunction(()=>document.readyState==='complete'&&typeof startGame==='function'&&!!window.__perfData);
+await page.evaluate(()=>{_bgHeartbeatWorker?.terminate();_bgHeartbeatWorker=null;_getLzWorker=()=>null;selectClass('m_royal');document.getElementById('creation-name').value='合成效能測試';startGame();stopGameTimers();state.running=false;setUiScale(80);player.lv=80;player.autoSellOn=false;window.__perfItem=(id,uid,cnt=1,en=1)=>({id,uid,cnt,en,bless:false,anc:false,attr:false,seteff:false,lock:false,junk:false});player.inv=Array.from({length:1000},(_,i)=>__perfItem(['wpn_shortbow','arm_74','potion_heal'][i%3],'perf-inv-'+i,2,i%3===2?0:1+i%15));calcStats();renderTabs(true);saveGame();window.__measure=fn=>{fn();const a=[];for(let i=0;i<3;i++){const t=performance.now();fn();a.push(performance.now()-t);}return {samples:a,median:[...a].sort((x,y)=>x-y)[1]};};});
+await check('changing one consumable preserves unrelated armor, equipment and skill controls',()=>page.evaluate(()=>{const armor=document.querySelector('#tab-armors [data-inventory-uid]'),equip=document.getElementById('tab-equip').firstElementChild,skill=document.getElementById('tab-skill').firstElementChild;player.inv.find(i=>i.uid==='perf-inv-2').cnt++;renderTabs();return armor===document.querySelector('#tab-armors [data-inventory-uid]')&&equip===document.getElementById('tab-equip').firstElementChild&&skill===document.getElementById('tab-skill').firstElementChild;}));
+for(const [type,tab,id] of [['wpn','weapons','scroll_weapon_b'],['arm','armors','scroll_armor_b']]){
+ await page.evaluate(({type,id})=>{toggleQuickEnhance(type);gainItem(id,3,true,true);},{type,id});
+ await check(type+': quick-enhance scroll count updates when a different inventory category changes',()=>page.evaluate(({tab,id})=>{const text=document.getElementById('tab-'+tab).textContent,stack=player.inv.find(i=>i.id===id);if(!text.includes('祝福卷(3)'))return false;stack.cnt--;renderTabs();return document.getElementById('tab-'+tab).textContent.includes('祝福卷(2)');},{tab,id}));
+ await page.evaluate(type=>cancelQuickEnhance(type),type);
+}
+await page.evaluate(()=>{player.cardDex=Object.fromEntries(Object.keys(CARD_MOB_INFO).map(k=>[k,100]));player.equipDex=Object.fromEntries(Object.keys(EQUIP_ITEM_CAT).map(k=>[k,true]));player.miscDex=Object.fromEntries(Object.keys(MISC_ITEM_CAT).map(k=>[k,true]));calcStats();});
+timings.ability=await page.evaluate(()=>__measure(()=>{effectSnapshotCache.delete(player);effectDetailsSnapshot(player,'player');}));
+await check('late-game ability snapshot median stays below 20ms',()=>timings.ability.median<20);
+await check('ability previews preserve live data and sources still add to the total',()=>page.evaluate(()=>{const before=JSON.stringify(player),s=effectDetailsSnapshot(player,'player'),details=abilitySourceDetails(player,'player');return JSON.stringify(player)===before&&details.sources.length>0&&Object.keys(s.total).filter(k=>typeof s.total[k]==='number').every(k=>Math.abs(s.stages.reduce((n,x)=>n+(x.delta[k]||0),0)-s.total[k])<.011);}));
+await page.evaluate(()=>{saveWarehouse({items:Array.from({length:5000},(_,i)=>__perfItem(i===4999?'wpn_katana':'wpn_shortbow','perf-store-'+i,2,1+i%15)),gold:10000});openWarehouseWindow();whSetFilter('weapon');});
+timings.warehouse=await page.evaluate(()=>__measure(()=>renderWarehouseNPC(document.getElementById('interaction-content'))));
+await check('5000-slot warehouse redraw median stays below 150ms',()=>timings.warehouse.median<150);
+await check('large warehouse retains full data with a bounded live DOM',()=>page.evaluate(()=>loadWarehouse().items.length===5000&&document.querySelectorAll('#wh-store-list [data-wh-uid]').length<150));
+await page.evaluate(()=>{window.__searchNode=document.getElementById('wh-search-input');const list=document.getElementById('wh-store-list');list.scrollTop=list.scrollHeight;});
+await page.waitForFunction(()=>!!document.querySelector('#wh-store-list [data-wh-uid="perf-store-4999"]'));
+await check('last warehouse item remains reachable and scrolling preserves the search control',()=>page.evaluate(()=>__searchNode===document.getElementById('wh-search-input')&&document.querySelector('#wh-store-list [data-wh-uid="perf-store-4999"]').textContent.includes('武士刀')));
+await page.click('#wh-store-list [data-wh-uid="perf-store-4999"] [data-wh-quantity]');await page.fill('#wh-store-list [data-wh-uid="perf-store-4999"] input','1');
+await page.evaluate(()=>{window.__quantityNode=document.querySelector('#wh-store-list [data-wh-uid="perf-store-4999"] input');const list=document.getElementById('wh-inv-list');list.scrollTop=list.scrollHeight;});
+await check('scrolling the other side preserves the quantity draft and focus',()=>page.evaluate(()=>__quantityNode===document.querySelector('#wh-store-list [data-wh-uid="perf-store-4999"] input')&&__quantityNode.value==='1'));
+await page.evaluate(()=>{const list=document.getElementById('wh-store-list');list.scrollTop=0;});
+await page.waitForFunction(()=>!!document.querySelector('#wh-store-list [data-wh-uid="perf-store-0"]'));
+await check('scrolling an edited list keeps its draft node connected without losing focus',()=>page.evaluate(()=>__quantityNode.isConnected&&__quantityNode===document.activeElement&&__quantityNode.value==='1'));
+await page.evaluate(()=>{const list=document.getElementById('wh-store-list');list.scrollTop=list.scrollHeight;});
+await page.waitForFunction(()=>{const row=document.querySelector('#wh-store-list [data-wh-uid="perf-store-4999"]'),list=document.getElementById('wh-store-list');return row.getBoundingClientRect().bottom<=list.getBoundingClientRect().bottom+1;});
+await page.press('#wh-store-list [data-wh-uid="perf-store-4999"] input','Enter');
+await check('native quantity confirmation moves exactly the requested amount at the end of a large list',()=>page.evaluate(()=>loadWarehouse().items.find(i=>i.uid==='perf-store-4999')?.cnt===1&&player.inv.filter(i=>i.id==='wpn_katana').reduce((n,i)=>n+i.cnt,0)===1));
+await page.focus('#wh-search-input');await page.keyboard.press('ControlOrMeta+A');await page.keyboard.insertText('武士');await page.waitForFunction(()=>_whSearchInput==='武士');
+await check('search covers the entire warehouse including items outside the initial viewport',()=>page.evaluate(()=>!!document.querySelector('#wh-store-list [data-wh-uid="perf-store-4999"]')&&document.querySelectorAll('#wh-store-list [data-wh-uid]').length===1));
+await page.evaluate(()=>{whClearSearch();document.getElementById('warehouse-window-frame').style.width='760px';const list=document.getElementById('wh-store-list');list.scrollTop=list.scrollHeight;});
+await page.waitForFunction(()=>!!document.querySelector('#wh-store-list [data-wh-uid="perf-store-4999"]'));
+await check('resizing a large list keeps the final item inside the scroll viewport',()=>page.evaluate(()=>{const row=document.querySelector('#wh-store-list [data-wh-uid="perf-store-4999"]'),list=document.getElementById('wh-store-list'),r=row.getBoundingClientRect(),b=list.getBoundingClientRect();return r.bottom<=b.bottom+1&&r.top>=b.top-1;}));
+await page.evaluate(()=>{AFK_TOGGLES.set('whbatch',true);saveWarehouse({items:Array.from({length:300},(_,i)=>__perfItem('wpn_shortbow','perf-batch-'+i)),gold:0});whSetFilter('weapon');});
+await page.click('#afk-whb-toggle');
+await check('optional batch mode still includes every matching row in its full-list contract',()=>page.evaluate(()=>document.querySelectorAll('#wh-store-list [data-wh-uid]').length===300&&document.getElementById('wh-store-list').classList.contains('afk-whb-mode')));
+await page.evaluate(()=>{AFK_TOGGLES.set('whbatch',false);renderWarehouseNPC(document.getElementById('interaction-content'));});
+await check('no runtime errors',()=>page.evaluate(()=>__errors.length===0||__errors));
+await write();console.log({checks:reports.length,passed:reports.filter(r=>r.status==='PASS').length,timings});await page.cdp('Page.removeScriptToEvaluateOnNewDocument',{identifier:init});if(!options.keepSpace)await task.finish({keep:[]});if(!options.baseline&&reports.some(r=>r.status==='FAIL'))throw Error('Performance regression checks failed');
+})();
