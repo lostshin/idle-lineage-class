@@ -173,10 +173,12 @@
 
 - 先區分首次載入、物品筆數、長時間累積及存檔停頓；用相同合成資料、圖／技能／負重／視窗比較，每組暖機後多次量測，不以搬檔或單次耗時宣稱改善 FPS。
 - 倉庫超過 250 列採可視範圍更新，保留完整搜尋／數量／交易／雙側捲動與焦點；不要把 DOM 列數當總物品數。`whbatch` 開啟仍保留完整 DOM，確保原全選範圍，不直接虛擬化鏡像批次操作。
-- `renderTabs` 依分頁失效；改物品數量不重建無關分頁。跨分類依賴也要納入：快速強化標頭的祝福卷數量來自道具頁；強制重繪、裝備／技能變動與排序仍須正確。
+- `renderTabs` 依分頁失效；改數量不重建無關分頁，但要追查所有 consumer：快速強化標頭依賴道具頁卷軸，手機戰鬥狀態鏡射依賴隱藏的 `dt-buffs`。不能只按來源分頁可見性停止更新；鏡射適配放 `addon-mobile-bridge`，驗證新增／到期、手機／平板及桌機閒置，保留強制重繪、排序與加掛順序。
 - 能力預覽用 `effectPreviewActor`，不深複製整份背包與巢狀隊伍；唯讀背包仍供原公式查持有頭盔授技，會修改的裝備／技能／Buff 用副本。保留來源加總、到期更新及 live／儲存／亂數不變性。
 - 功能未顯示先核對 URL、載入條件、遠端 commit 與 Pages 部署。`online-presence` 僅正式 origin／路徑進入角色後啟用，本機 HTTP／file 不加入公開房間；tracker 失敗顯示不可用，同瀏覽器多分頁合計一人，不傳角色或存檔。
-- 效能驗證加跑 `performance` HTTP／file；記錄硬體、快取、樣本數及來源 SHA。rAF 等待未完成就不能當畫面延遲／FPS；堆積圖包含 GC，JS heap 不含圖片。中止批次與縮短掛機時長須明列，不冒充完整長測。
+- 效能回歸跑 `performance` 與 `ui-performance --soak-minutes 0` HTTP／file；長測另明傳時長，記錄硬體、快取、樣本數及來源 SHA。`--soak-minutes 0` 只驗短測；5／30 分鐘須依實際時間分別標示。rAF 未完成或受節流不能推算延遲／FPS；heap 不含圖片，GC 及量測成本須分開。影格／長任務紀錄固定容量，避免測試陣列自身增長污染長測；中止／縮時須明列。
+- DOM 同步比較 live 值後才寫；CSSOM 會正規化色碼、URL 與小數百分比，快取須同時核對實際值，避免每 tick 重寫或忽略外部改動。能力總值更新保留內層加成節點、focus 與重配點草稿，內容／版寬變動才量尺寸。
+- 登入首頁動畫與創角立繪是不同流程；保留原首幀，首頁可見才續載其餘影格。離開首頁或切背景須取消 rAF／排程並停止預載鏈，返回再續播；不靠每幀空轉判斷隱藏。
 
 ## 開發與驗證
 
@@ -189,14 +191,14 @@ python3 scripts/update-cache.py
 python3 tests/run-rwd.py --help
 ```
 
-- 人類開發者入門看 `README.md`；本檔是代理工作規則，兩者不互相複製內容。`.ignore` 讓 `rg` 略過 `assets/anim`、`classanim`、`morphanim` 的 20 萬張逐格圖；要搜那裡時用 `rg --no-ignore`。
+- 人類入門看 `README.md`，本檔只留代理規則。`.ignore` 讓 `rg` 略過 `assets/anim`、`classanim`、`morphanim` 的 20 萬張逐格圖；要搜那裡時用 `rg --no-ignore`。
 
 - E2E 使用 Python 3、`ego-browser` CLI 與 Ego；runner 自行啟動 HTTP 伺服器。操作前讀 `ego-browser` 技能，只用記載的 API，不猜 Playwright 方法。
 - 每個任務只建一個 TaskSpace，所有 runner **逐批共用同一 space／p1**、不並行，失敗在原空間恢復。首輪可用 `--suite rwd --protocol http --desktop-only --keep-space` 取得 `spaceId`，後續帶 `--space`；多 suite／`--protocol both` 依序執行、自動 keep-space、遇錯即停。
 - 測試報告預設寫入 `tmp/test-runs/`（不進 git）；要更新受追蹤的 `tests/artifacts/` 才加 `--record`（runner 與 `*.integration.js` 相同）；runner 可用 `--artifacts <目錄>` 指定其他輸出位置，與 `--record` 互斥。
 - 成功後只呼叫一次 `finish({keep:[]})` 並等待完成；耗時時用背景程序讀回結果，不用短 timeout 中止再反覆重送。有 `finished <id>` 與成功結束碼後，不再操作該空間。
 - 必跑 `rwd`、`ui-scale`、`gameplay`、`account-gameplay`、`companion-commands` 的 HTTP／file：`--space <id> --suite required --protocol both --desktop-only`。
-- 相關 E2E：`compact-layout`、`party-refinements`、`party-equipment`、`village-clan-warehouse`、`skill-cards`、`ally-skill-stop`、`town-buffs-enhance`、`summon-display`、`desktop-feedback`、`desktop-acceptance`、`tooltip-stability`、`effect-details`、`guild-settlement`、`offline-rewards`、`creation-id`、`comfort-release`；同樣帶 `--desktop-only`。
+- 相關 E2E：`compact-layout`、`party-refinements`、`party-equipment`、`village-clan-warehouse`、`skill-cards`、`ally-skill-stop`、`town-buffs-enhance`、`summon-display`、`desktop-feedback`、`desktop-acceptance`、`tooltip-stability`、`effect-details`、`guild-settlement`、`offline-rewards`、`creation-id`、`comfort-release`、`mobile-status`；同樣帶 `--desktop-only`。
 - TaskSpace 消失不能自行重建；使用者暫緩重建時，先完成本地工作並記錄待跑的瀏覽器檢查，後續不得把 Node VM／幾何替身說成瀏覽器 E2E 通過。
 - 所有 `visual-*` 必須緊接同一 space 的對應行為 fixture，例如 `account-gameplay visual-account-gameplay`；中間不可插入其他 suite，各 fixture 的全域儲存不可互換。runner 會拒絕順序錯誤的組合。
 - 狀態節點／控制項測試依 `data-*`／欄位語意定位，不假設職業為名稱的 `nextElementSibling`。創角 fixture 須明填合成 ID；舊未命名存檔另建 fixture，不繞過必填限制。需求已變就改舊斷言，不恢復已移除功能；找長單行斷言用 `rg --no-ignore -o '.{60}舊字串.{60}' tests`，不用 `grep -n | cut`。
@@ -240,4 +242,7 @@ python3 tests/run-rwd.py --help
 - 版本 `v3.9.2`／原版 `v3.8.34`。公會 B、創角必填／順序、左下裝備控制列、倉庫直接數量交易與返回系統日誌已完成；先前 852 項與創角 550 項報告各有版本時序，見 `guild-art-20261017/completion.json`、`creation-name-layout/completion.json`，不可混算。
 - `f63bb996b` 為線上人數，`d9c4f2eb9` 為效能修復。效能回歸 22 份／954 項；最後跨分類祝福卷補丁另跑 4 份／84 項（`tmp/test-runs/performance-fix/`），非全部在補丁後重跑。倉庫 5000 格約 565→10～11ms，能力冷重算約 22→7ms，僅本機操作耗時。
 - 目錄整理 commit `aaf3076d0`：62 個 AFK 原樣搬移、69 個鏡像 SHA 不變、109 支 script 順序不變；清除 145 個過時產物約 157.5 MiB（不等於 Git 歷史縮減）。`tmp/test-runs/root-cleanup/`：HTTP／file 16 份／574 項、本地 13/13，含實際 PWA 離線重載；最後來源 SHA 已核對。
-- `tmp/test-runs/performance-audit/` 保留 112 個情境／336 筆量測及實際 10.3 分鐘掛機；依使用者要求提早結束，未跑滿 30 分鐘，不能排除長時間／多地圖累積問題。安裝版、實體手機與 iCloud 尚未實測；spaces 4／5／8／9／10／11／12／14 已 finish，不得再操作。最新發佈結果查 `tmp/test-runs/session-release-root-cleanup/`，commit／push／部署完成分開核對。
+- `tmp/test-runs/performance-audit/` 保留 112 個情境／336 筆量測及實際 10.3 分鐘掛機；依使用者要求提早結束，未跑滿 30 分鐘，不能排除長時間／多地圖累積問題。安裝版、實體手機與 iCloud 尚未實測；spaces 4／5／8／9／10／11／12／14 已 finish，不得再操作。前次發佈結果查 `tmp/test-runs/session-release-root-cleanup/`，commit／push／部署完成分開核對。
+- 本輪程式 commit `02b66869a`（P0／P1）：文字／樣式有變才寫、隱藏能力數值延後同步、能力節點保留與登入動畫啟停已實作；`ui-performance` 提供冷／暖各 5 次、單人／三隊友各 60 秒及可選長測。P2 背包局部更新／隊友浮窗與 P3 快取淘汰／延後載入未實作，不宣稱整體 FPS 加速。
+- 本輪基線在 `tmp/test-runs/performance-p1/baseline-bounded/`；初版長測因量測陣列無界中止，不算 30 分鐘。review 的 file 9/9（soak=0）見 `review-ui-performance/`，手機鏡射退化見 `review-mobile-status.json`；修正與最終驗證／發佈以 `session-performance-release/` 為準，不能引用舊報告冒充補丁後通過。space 15 已消失，經授權重建的 space 18 已 `finish({keep:[]})`，不可再操作。
+- 本輪最終：HTTP／file 26 份、862/862 項，本地 13/13；使用者將換圖長測改為 5 分鐘，實跑約 5.09 分鐘且無執行期錯誤，不能宣稱完成 30 分鐘。報告／來源 SHA／改前後比較／96dpi PDF 轉圖在 `tmp/test-runs/session-performance-release/`；原 CLI 30 分鐘目標及使用者覆寫另存，未改量測樣本。實體手機、安裝版、iCloud 與整體 FPS 尚未驗證。
