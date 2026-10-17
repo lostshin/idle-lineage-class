@@ -6,7 +6,7 @@
 - 開工先讀本檔、檢查 `git status`，保留其他人與前一輪的修改。
 - 方向已確認就完成範圍內的工作；只有新資訊會改變目標或授權時才再詢問。
 - 先用 `rg`、檔案讀取與既有測試查證；不要為本地可回答的問題上網。
-- 修 bug 先寫可重現的 E2E，再修程式；禁止為了覆蓋率補表面測試。
+- 修 bug 先寫可重現的 E2E，確認在原程式失敗後再修程式；之後改動該測試也要對原程式再確認一次失敗。禁止為了覆蓋率補表面測試。
 - 每行修改須能對應需求，不順便重排、重寫或增加未要求的功能。
 - 大段修改前：檔案若已追蹤且乾淨，以 git 為退路；否則先做同目錄 `.bak-時間戳` 備份。
 - 同一方法失敗兩次，先查本檔與實際原因，再換方法；不可第三次原樣重試。
@@ -14,6 +14,7 @@
 - 未經明確要求，不修改規則／其他文件、不新增代理派工、不自動 commit 或 push。
 - 每輪完成時，已授權就按指定批次 commit；未授權則交接列出**全部**未提交檔案（多時可附完整清單）。不要讓多輪修改混在工作樹；既有授權延續，不重複詢問。
 - 顯示類需求先給一個推薦方案並說明窄欄寬度取捨，不連丟多輪選單；與已確認決策（如右欄 300px）衝突時先確認。
+- 審查／最佳化請求（`/simplify`、「給建議」）只交建議表（效益、風險、門檻），使用者說做才改；效能／UX 先量測與 profile 找根因，再依門檻決定做不做（見效能小節）。
 
 ## 接手其他 agent 的工作
 
@@ -44,31 +45,27 @@
 | 裝置縮放 | UI 縮放 60～100%、遷移、座標換算 |
 | 能力提示、隊友浮窗與技能條件 | 能力來源 tooltip、寵物能力、隊友浮窗、裝備提示、技能卡／喝水條件、`_hpSkillPct` |
 | 召喚物圖片與地圖名稱 | `companionSpriteForm`、召喚物名稱、地圖懸浮、`AREA_1920`、hit mask |
-| 裝備美術、負重與狀態圖示 | 裝備背景／槽位比例、裝備控制列、負重、狀態圖示 |
+| 裝備美術、負重與狀態圖示 | 裝備背景／槽位比例、裝備控制列、負重、狀態圖示、UI 素材 WebP 與換檔名 |
 | DPS 與日誌 | DPS 快照與圖表、寵物 DPS、戰鬥／系統日誌與篩選 |
 | 戰鬥、經驗與村莊增益 | 寵物／召喚物加速、隊友 EXP、村莊 buff |
 | 離線掛機 | 離線結算條件、補跑呈現、歷史紀錄 |
 | 傭兵公會 | `js/guild-window.js` 版面與換裝 |
 | 倉庫 | 倉庫外框、尺寸、雙欄捲動、數量交易 |
 | 強化與金額記憶 | 強化視窗、`modalguard`、捐獻／倉庫金額 |
-| 效能與線上人數 | 虛擬化、`renderTabs` 失效、能力預覽、`online-presence`、效能量測、DOM 寫入、登入動畫 |
+| 效能與線上人數 | 虛擬化、`renderTabs` 失效與 tick 內重建、能力預覽、`online-presence`、量測門檻與 CPU profile、延後載入、DOM 寫入、登入動畫 |
 
 ## 開發與驗證
 
-- 根目錄本地檢查：`python3 scripts/check-local.py`；更新快取：`python3 scripts/update-cache.py`。
-- 預覽：`python3 -m http.server 8000 --bind 127.0.0.1`；E2E 選項：`python3 tests/run-rwd.py --help`。
-
-- 人類入門看 `README.md`，本檔只留代理規則。`.ignore` 讓 `rg` 略過 `assets/anim`、`classanim`、`morphanim` 的 20 萬張逐格圖、單行巨大的自動產生檔 `js/anim-manifest.js`／`anim-manifest.json` 與 `tests/artifacts/archive/`；要搜那裡時用 `rg --no-ignore`。
-
+- 預覽：`python3 -m http.server 8000 --bind 127.0.0.1`；E2E 選項：`python3 tests/run-rwd.py --help`。人類入門看 `README.md`，本檔只留代理規則。`.ignore` 讓 `rg` 略過 `assets/anim`、`classanim`、`morphanim` 的 20 萬張逐格圖、單行巨大的自動產生檔 `js/anim-manifest.js`／`anim-manifest.json` 與 `tests/artifacts/archive/`；要搜那裡時用 `rg --no-ignore`。
 - E2E 使用 Python 3、`ego-browser` CLI 與 Ego；runner 自行啟動 HTTP 伺服器。操作前讀 `ego-browser` 技能，只用記載的 API，不猜 Playwright 方法。
-- 每個任務只建一個 TaskSpace，所有 runner **逐批共用同一 space／p1**、不並行，失敗在原空間恢復。首輪可用 `--suite rwd --protocol http --desktop-only --keep-space` 取得 `spaceId`，後續帶 `--space`；多 suite／`--protocol both` 依序執行、自動 keep-space、遇錯即停。
+- 每個任務只建一個 TaskSpace，所有 runner **逐批共用同一 space／p1**、不並行，失敗在原空間恢復。首輪可用 `--suite rwd --protocol http --desktop-only --keep-space` 取得 `spaceId`，後續帶 `--space`；多 suite／`--protocol both` 依序執行、自動 keep-space、遇錯即停，未帶 `--space` 會直接報錯。TaskSpace id 會被重新編號，跨 session 不以舊 id 判斷可否操作。
 - 測試報告預設寫入 `tmp/test-runs/`（不進 git）；要更新受追蹤的 `tests/artifacts/` 才加 `--record`（runner 與 `*.integration.js` 相同）；runner 可用 `--artifacts <目錄>` 指定其他輸出位置，與 `--record` 互斥。
 - 成功後只呼叫一次 `finish({keep:[]})` 並等待完成；耗時時用背景程序讀回結果，不用短 timeout 中止再反覆重送。有 `finished <id>` 與成功結束碼後，不再操作該空間。
 - 必跑 `rwd`、`ui-scale`、`gameplay`、`account-gameplay`、`companion-commands` 的 HTTP／file：`--space <id> --suite required --protocol both --desktop-only`。
 - 相關 E2E：`compact-layout`、`party-refinements`、`party-equipment`、`village-clan-warehouse`、`skill-cards`、`ally-skill-stop`、`town-buffs-enhance`、`summon-display`、`desktop-feedback`、`desktop-acceptance`、`tooltip-stability`、`effect-details`、`guild-settlement`、`offline-rewards`、`creation-id`、`comfort-release`、`mobile-status`、`party-header`、`field-reports`；同樣帶 `--desktop-only`。
 - TaskSpace 消失不能自行重建；使用者暫緩重建時，先完成本地工作並記錄待跑的瀏覽器檢查，後續不得把 Node VM／幾何替身說成瀏覽器 E2E 通過。
 - 所有 `visual-*` 必須緊接同一 space 的對應行為 fixture，例如 `account-gameplay visual-account-gameplay`；中間不可插入其他 suite，各 fixture 的全域儲存不可互換。runner 會拒絕順序錯誤的組合。
-- 狀態節點／控制項測試依 `data-*`／欄位語意定位，不假設職業為名稱的 `nextElementSibling`。創角 fixture 須明填合成 ID；舊未命名存檔另建 fixture，不繞過必填限制。需求已變就改舊斷言，不恢復已移除功能；找長單行斷言用 `rg --no-ignore -o '.{60}舊字串.{60}' tests`，不用 `grep -n | cut`。
+- 狀態節點／控制項測試依 `data-*`／欄位語意定位，不假設職業為名稱的 `nextElementSibling`。創角 fixture 須明填合成 ID；舊未命名存檔另建 fixture，不繞過必填限制。需求已變就改舊斷言，不恢復已移除功能；找長單行斷言用 `rg --no-ignore -o '.{60}舊字串.{60}' tests`，不用 `grep -n | cut`。相同物品（同 id／強化）簽章不含 uid，互換位置不會重建；斷言比可見內容，不比 uid。
 - 每個 suite 明確設定起始視窗；靜態 fixture 停計時器也設 `state.running=false`；離線讀檔須先等原生非同步結算回呼完成才停止 running，否則會誤擋結算。縮放／切尺寸後等版面穩定；原生滾輪須等 scrollTop 連續畫格穩定後再比對，避免把慣性誤判為兩側連動。原生命中須選目前可視控制項，不能固定取已捲出視窗的第一格；比例／不重疊仍檢查全體。原生選擇器點擊若因自動捲動被 sticky 欄擋住，先觀察命中元素，再聚焦、核對 `elementFromPoint`、用原生滑鼠點擊；不盲目重試或強制穿透。
 - 懸浮測試先等 resize／scroll 與版面穩定；選不被其他 sprite 遮住、離透明邊緣足夠遠的像素，避免取點到送入滑鼠事件間角色已移動。可短暫固定合成場景的原生畫格，完成後還原；不冒充完整戰鬥驗證。
 - 不直接改寵物記憶體陣列充當已儲存名冊；用原生 dirty／save 流程，避免下一次查詢把測試寵物清掉。
@@ -80,7 +77,8 @@
 - 報告檔名依 runner 實際輸出；引用前核對存在、方法、版本與結果，不用歷史報告／早期預覽充作後續驗證。HTTP／file 共用圖檔會被覆寫，須標明最終圖的協定與方法，不能當兩次獨立擷取。
 - 桌面橋接替身與 file 協定不等於安裝版實測；本機 iCloud 複製／雜湊相符不等於遠端同步完成。
 - 測試保持精簡：先選可重現需求的最小專項，完成後只跑必要核心；通過即停，不因增加信心而追加套件、長測或重複預覽。接手先核對來源 SHA 與報告；未變就沿用，失敗僅接續受影響套件，測試前置錯誤先修 fixture。僅改本檔不重跑遊戲 E2E；使用者縮短時長就依其指示收尾。
-- 背景 E2E 執行中不改程式；要改就先停 runner，改完 `update-cache.py` 後重跑，避免同一份報告混到兩版程式。使用者要求「做完再測」時，所有修改完成後只跑一次。
+- 背景 E2E 執行中不改程式；要改就先停 runner，改完 `update-cache.py` 後重跑，避免同一份報告混到兩版程式。使用者要求「做完再測」時，所有修改完成後只跑一次。等待長 runner 用背景程序與完成通知，不輪詢；期間只在 `tmp/` 準備素材或腳本。
+- 自寫量測腳本與報告放 `tmp/test-runs/<任務>/`，需要伺服器時自起 `python3 -m http.server <port> --bind 127.0.0.1`，結束後關閉；先定門檻與改善前基準，改善後以同腳本、同情境放 `after/` 比較。
 - 合成測試物品要帶原生欄位預設值（`bless/anc/attr/seteff:false` 等）；`?.` 擋不住 `false`，存檔欄位一律先判斷真值再呼叫方法。實機錯誤重現不出時，請使用者提供主控台堆疊，不要盲猜。
 - 找回未提交的舊版本：從 `~/.codex/sessions/<日期>/rollout-*.jsonl` 取出寫檔指令，在 `git worktree` 重放（瀏覽器／runner 指令改為 stub），再以該輪 `sources-under-test.json` 的 SHA256 逐檔驗證；不可手改內容湊雜湊。
 
