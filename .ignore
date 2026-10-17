@@ -2,3 +2,7 @@
 /assets/anim/
 /assets/classanim/
 /assets/morphanim/
+# Generated single-line manifests and archived reports; search with --no-ignore.
+/js/anim-manifest.js
+/anim-manifest.json
+/tests/artifacts/archive/
