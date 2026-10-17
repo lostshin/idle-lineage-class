@@ -7,7 +7,7 @@ const outDir=path.join(root,process.argv.includes('--record')?'tests/artifacts':
 const reports=[],storage={lineage_idle_combat_filter:JSON.stringify({player:false,mercenary:false,summon:true,pet:false,enemy:true})};
 function element(){const classes=new Set();return {classes,children:[],scrollHeight:100,scrollTop:0,classList:{toggle(k,on){if(on)classes.add(k);else classes.delete(k);},add(k){classes.add(k);},remove(k){classes.delete(k);}},insertAdjacentHTML(_,html){const src=html.match(/data-src="([^"]*)"/)?.[1];this.children.push({html,src,dataset:{src}});},removeChild(){this.children.shift();}};}
 const nodes={};for(const id of ['combat-log','cf-btn-player','cf-btn-mercenary','cf-btn-cast'])nodes[id]=element();
-const ctx=vm.createContext({window:{},document:{getElementById:id=>nodes[id]||null},localStorage:{getItem:k=>storage[k]??null,setItem:(k,v)=>storage[k]=v},state:{ff:false},DB:{skills:{},items:{}},_combatLogLocked:false,COMBAT_LOG_MAX:50,COMBAT_LOG_MAX_LOCKED:150});
+const ctx=vm.createContext({window:{},document:{getElementById:id=>nodes[id]||null},localStorage:{getItem:k=>storage[k]??null,setItem:(k,v)=>storage[k]=v},state:{ff:false},player:{allies:[]},DB:{skills:{},items:{}},_combatLogLocked:false,COMBAT_LOG_MAX:50,COMBAT_LOG_MAX_LOCKED:150});
 const s=fs.readFileSync(path.join(root,'js/01-drops-config.js'),'utf8');
 vm.runInContext(s.slice(s.indexOf('let _combatSrc ='),s.indexOf('// 🔒 系統與物品日誌捲動鎖定')),ctx);
 function check(name,fn){try{if(fn()!==true)throw Error('false');reports.push({name,status:'PASS'});}catch(e){reports.push({name,status:'FAIL',error:String(e)});}}

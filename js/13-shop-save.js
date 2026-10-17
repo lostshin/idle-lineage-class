@@ -47,6 +47,10 @@ const SPECIAL_AREA_BG = {   // 特殊地圖：逐張對應背景
     rastabad_cave1: 'assets/area/拉斯塔巴德.jpg', rastabad_cave2: 'assets/area/拉斯塔巴德.jpg', rastabad_cave3: 'assets/area/拉斯塔巴德.jpg', rastabad_gate: 'assets/area/拉斯塔巴德.jpg', rastabad_beast: 'assets/area/拉斯塔巴德.jpg', dark_magic_lab: 'assets/area/拉斯塔巴德.jpg', necro_training: 'assets/area/拉斯塔巴德.jpg',   // 🏚️ 拉斯塔巴德地下洞穴1~3樓/正門/魔獸訓練場/黑魔法研究室/冥法軍訓練場（地監·拉斯塔巴德背景）
     talking_island_port: 'assets/area/說話之島港口.jpg', oblivion_travel: 'assets/area/說話之島港口.jpg',   // 🏝️ 說話之島港口/遺忘之島途中（共用說話之島港口背景·area-fit）
     oblivion_island: 'assets/area/遺忘之島.jpg',   // 🏝️ 遺忘之島（專屬背景·area-fit）
+    antharas_nest_1: 'assets/area/1920x1080/安塔瑞斯.jpg',
+    antharas_nest_2: 'assets/area/1920x1080/安塔瑞斯.jpg',
+    antharas_nest_3: 'assets/area/1920x1080/安塔瑞斯.jpg',
+    antharas_lair: 'assets/area/1920x1080/安塔瑞斯棲息地.jpg',
     antaras_lair: 'assets/area/安塔瑞斯.jpg',   // 🐉 安塔瑞斯棲息地
     fafurion_lair: 'assets/area/法利昂.jpg',   // 🐉 法利昂洞穴
     valakas_lair: 'assets/area/巴拉卡斯.jpg',   // 🐉 巴拉卡斯巢穴（專屬背景）
@@ -91,7 +95,6 @@ const AREA_1920 = new Set(['亞丁城鎮','伊娃王國','傲慢之塔','傲慢�
 AREA_1920.add('古魯丁村莊');
 AREA_1920.add('決鬥競技場');
 ['肯特外門區','肯特內城','風木外門區','風木內城','海音外門區','海音內城','時空裂痕戰場','日出之國城墎','日出之國東之地','日出之國西之地','日出之國北之地'].forEach(name => AREA_1920.add(name));
-['侵蝕的安塔瑞斯巢穴入口','侵蝕的安塔瑞斯巢穴通道','侵蝕的安塔瑞斯巢穴深處','侵蝕的安塔瑞斯棲息地'].forEach(name => AREA_1920.add(name));   // 🐉 v3.7.58 安塔瑞斯副本 4 區專屬背景（名稱對應 js/05 ANTHARAS_AREA_NAMES）
 function areaBg1920(name) { return (name && AREA_1920.has(name)) ? ('assets/area/1920x1080/' + name + '.jpg') : null; }   // 名稱→1920 路徑(存在才回傳)
 function upgradeAreaPath(path) { if (!path) return path; let m = /^assets\/area\/([^\/]+)\.jpg$/.exec(path); return (m && AREA_1920.has(m[1])) ? ('assets/area/1920x1080/' + m[1] + '.jpg') : path; }   // 舊 assets/area/<名>.jpg fallback 路徑就地升級到 1920×1080(若有新圖)；非此格式(如 castle.png)原樣
 // 🏙️ v3.2.80 安全區逐城 1920×1080 背景(town id → 檔名)：命名差異(村/村莊/城鎮/full-width括號)以此表精準對應；未列者(攻城城堡 town_*_castle 等)退回舊 assets/background 通用圖
@@ -118,7 +121,7 @@ function applyAreaBackground() {
         let _nm = mapDisplayName(cur);
         if (!_nm && cur === 'windwood_dungeon') _nm = '風木地監';   // 🏰 風木地監＝動態城堡區(不在 MAP_CATEGORIES)：手動指定同名圖名；'風木地監' 不在 AREA_1920 → 實際取 fbImg(地監.jpg→升級為 1920×1080 版)
         if (!_nm && HIDDEN_AREA_BG[cur]) _nm = HIDDEN_AREA_BG[cur];
-        if (!_nm && typeof ANTHARAS_AREA_NAMES !== 'undefined' && ANTHARAS_AREA_NAMES[cur]) _nm = ANTHARAS_AREA_NAMES[cur];   // 🐉 v3.7.58 安塔瑞斯副本 4 區(不在 MAP_CATEGORIES)：顯示名→同名 1920×1080 專屬背景   // 🏛️ 隱藏狩獵區域(不在 MAP_CATEGORIES)：背景＝對應母地圖樓層圖（無生物研究室→象牙塔4樓…惡魔封印室→象牙塔8樓、巨蟻女皇棲息地→螞蟻洞穴2樓）；樓層名須在 AREA_1920 才會採用，否則退回 SPECIAL_AREA_BG（母圖通用背景）
+        if (!_nm && typeof ANTHARAS_AREA_NAMES !== 'undefined' && ANTHARAS_AREA_NAMES[cur]) _nm = ANTHARAS_AREA_NAMES[cur];   // Antharas instance names have no matching files; SPECIAL_AREA_BG maps them to existing artwork.   // 🏛️ 隱藏狩獵區域(不在 MAP_CATEGORIES)：背景＝對應母地圖樓層圖（無生物研究室→象牙塔4樓…惡魔封印室→象牙塔8樓、巨蟻女皇棲息地→螞蟻洞穴2樓）；樓層名須在 AREA_1920 才會採用，否則退回 SPECIAL_AREA_BG（母圖通用背景）
         let _s1920 = areaBg1920(_nm);   // 🖼️ v3.2.80 新版 1920×1080 同名場景圖(同步判定·優先於分類 fallback)
         if (_s1920) { useSrc = _s1920; useFit = true; }
         else if (fbImg) { let _fb = upgradeAreaPath(fbImg); useSrc = _fb.indexOf('/') >= 0 ? _fb : `assets/background/${_fb}`; useFit = !AREA_BG_NOFIT.has(fbImg); }   // ⚔️ 預設 area-fit，僅舊 castle.png/Rift.png 例外；🖼️ fallback 圖亦經 upgradeAreaPath 升級 1920×1080(若有新圖)

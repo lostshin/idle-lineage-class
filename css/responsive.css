@@ -431,16 +431,20 @@
 .game-tooltip[data-party-equipment] { z-index:100; }
 @media(pointer:coarse){ .party-tabs .btn { min-height:44px; } }
 
-/* Comfort A: use the accepted warehouse silver artwork without changing roster cards. */
-#squad-panel { border:10px solid transparent;border-image:url('../assets/ui/warehouse-frame-v1.png') 48 stretch;border-image-width:18px;border-radius:0;background:#111012 url('../assets/ui/warehouse-frame-v1.png') center/auto 120% no-repeat; }
-#squad-panel > .panel-header { position:relative;isolation:isolate;flex:none;min-height:76px;padding:12px 18px;border:0!important;border-radius:0;box-shadow:none;background:transparent;color:#e8d4a7;font:700 18px/1.35 'PMingLiU',serif;letter-spacing:1px;text-shadow:0 2px 3px #000; }
-#squad-panel > .panel-header::before { content:'';position:absolute;z-index:-1;inset:0;pointer-events:none;background:url('../assets/ui/party-title-cartouche-v1.png') center/contain no-repeat; }
-#squad-panel > .panel-header > span { position:relative;display:block;max-width:100%;white-space:nowrap; }
+/* One warehouse frame surrounds the title, textured tabs and original roster. */
+#squad-panel { container-type:inline-size;border:10px solid transparent;border-image:url('../assets/ui/warehouse-frame-v1.png') 48 fill stretch;border-image-width:18px;border-radius:0;background:#111012; }
+#squad-panel > .panel-header { position:relative;flex:none;min-height:44px;padding:7px 10px;border:0!important;border-radius:0;box-shadow:none;background:transparent;color:#e8dfc9;font:700 clamp(16px,6cqw,24px)/1.35 'PMingLiU',serif;letter-spacing:1px;text-shadow:0 2px 3px #000; }
+#squad-panel > .panel-header::before { content:none; }
+#squad-panel > .panel-header > span { display:flex;align-items:center;justify-content:center;gap:10px;max-width:100%;white-space:nowrap; }
+#squad-panel > .panel-header > span::before,#squad-panel > .panel-header > span::after { content:'✧';color:#b79c61;font-size:.7em;line-height:1; }
 
-#squad-body { padding:6px 4px;gap:6px; }
-#squad-body > .flex:first-child { gap:4px;flex:none; }
-#squad-panel #squad-tab-btn-team,#squad-panel #squad-tab-btn-skill { min-width:0;padding:5px 2px;border:1px solid #726448;border-radius:1px;background:linear-gradient(#292726,#121112);color:#c8c3b9;font:700 13px/1.4 'PMingLiU',serif;text-shadow:0 1px 2px #000; }
-#squad-panel [id^='squad-tab-btn-'][aria-selected='true'] { border-color:#b69756!important;background:linear-gradient(#59492c,#2c2418 65%,#1c1812)!important;color:#f1dda7!important;box-shadow:inset 0 0 4px #b28b3d33; }
+#squad-body { padding:2px 4px 6px;gap:6px; }
+#squad-body > .flex:first-child { gap:3px;flex:none; }
+#squad-panel #squad-tab-btn-team,#squad-panel #squad-tab-btn-skill { position:relative;isolation:isolate;min-width:0;min-height:clamp(28px,8cqw,38px);padding:5px 4px;border:0;border-radius:0;background:none;color:#d9d4ca;font:700 clamp(13px,4.4cqw,18px)/1.4 'PMingLiU',serif;white-space:nowrap;text-shadow:0 1px 2px #000;box-shadow:none; }
+#squad-panel [id^='squad-tab-btn-']::before { content:'';position:absolute;z-index:-2;inset:0;pointer-events:none;border:3px solid transparent;border-image:url('../assets/ui/warehouse-row-v1.png') 32 fill stretch;background-image:url('../assets/ui/warehouse-row-v1.png');background-size:100% 100%;filter:grayscale(.8) brightness(1.4);clip-path:polygon(4px 0,calc(100% - 4px) 0,100% 4px,100% calc(100% - 4px),calc(100% - 4px) 100%,4px 100%,0 calc(100% - 4px),0 4px); }
+#squad-panel [id^='squad-tab-btn-'][aria-selected='true'] { color:#f1dda7; }
+#squad-panel [id^='squad-tab-btn-'][aria-selected='true']::before { filter:sepia(1) saturate(1.6) brightness(1.9); }
+#squad-panel [id^='squad-tab-btn-'][aria-selected='true']::after { content:'';position:absolute;z-index:-1;inset:3px;pointer-events:none;background:linear-gradient(#a577374d,#754d1f55);box-shadow:inset 0 0 5px #bb8b3544; }
 #squad-panel [id^='squad-tab-btn-']:focus-visible { outline:1px solid #e2d2a4;outline-offset:1px; }
 
 /* C: original Lineage frames and sprites, with one rhythm for every companion. */
@@ -546,3 +550,10 @@
 #creation-panel #creation-back-button { top:90.1%; }
 #creation-panel #btn-start.creation-start-button:hover:not(:disabled),#creation-panel #creation-back-button:hover { color:#fff0be;background:radial-gradient(ellipse,#b1924533,transparent 70%); }
 @media(max-width:600px) and (orientation:portrait){#creation-panel:not(.hidden){height:1200px;min-height:1200px}#creation-name-control{left:16px;top:1000px;width:calc(100% - 32px)}#creation-name{font-size:16px;height:34px}#creation-panel #classic-mode-control{left:16px;top:1070px;width:116px;height:48px}#creation-panel #btn-start.creation-start-button,#creation-panel #creation-back-button{left:142px;width:calc(100% - 158px);height:42px}#creation-panel #btn-start.creation-start-button{top:1070px}#creation-panel #creation-back-button{top:1124px}}
+
+/* Pet statistics use native pet fields instead of empty player attribute cells. */
+#party-bonus-window .pet-ability-stats { grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);align-items:baseline; }
+#party-bonus-window .pet-ability-stats dd { min-width:0;justify-content:flex-end; }
+#combat-log .cf-mercenary-hidden { display:none; }
+#combat-mercenary-filter { max-width:145px;min-width:0;color:#a7f3d0;background:#132b25;border-color:#367661;font:inherit;font-size:12px; }
+#combat-mercenary-filter:disabled { opacity:.45; }

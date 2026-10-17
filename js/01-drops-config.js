@@ -1817,7 +1817,36 @@ const COMBAT_FILTER_KEY = 'lineage_idle_combat_filter';
 let _combatFilter = { enemy: true, player: true, mercenary: true, cast: true, summon: true, pet: true };
 (function(){ try { let s = localStorage.getItem(COMBAT_FILTER_KEY); if (s) { let o = JSON.parse(s); for (let k in _combatFilter) if (typeof o[k] === 'boolean') _combatFilter[k] = o[k]; } } catch(e){} })();
 function saveCombatFilter(){ try { localStorage.setItem(COMBAT_FILTER_KEY, JSON.stringify(_combatFilter)); } catch(e){} }
+let _combatMercenary = null, _combatMercenaryFilter = '', _combatMercenaryRoster = '', _combatMercenaryOwner = '';
+function combatMercenaryId(actor) {
+    return actor ? encodeURIComponent(String(actor._slot)+':'+accountRoleId(actor)) : '';
+}
+function applyMercenaryLogFilter() {
+    for (const row of document.querySelectorAll('#combat-log [data-src="mercenary"]')) {
+        row.classList.toggle('cf-mercenary-hidden',!!_combatMercenaryFilter&&row.dataset.mercenaryId!==_combatMercenaryFilter);
+    }
+}
+function selectCombatMercenary(value) {
+    _combatMercenaryFilter=value;
+    applyMercenaryLogFilter();
+    if (!_combatLogLocked) combatLogToBottom();
+}
+function syncCombatMercenaryFilter() {
+    const select=document.getElementById('combat-mercenary-filter');if(!select)return;
+    const owner=accountRoleId(player),members=(player.allies||[]).filter(Boolean);
+    const signature=JSON.stringify([owner,members.map(actor=>[combatMercenaryId(actor),actor._allyName])]);
+    const disabled=!_combatFilter.mercenary||!members.length;
+    if(select.disabled!==disabled)select.disabled=disabled;
+    if(signature===_combatMercenaryRoster)return;
+    _combatMercenaryRoster=signature;
+    if(owner!==_combatMercenaryOwner){_combatMercenaryOwner=owner;_combatMercenaryFilter='';}
+    const options=[new Option('全部傭兵',''),...members.map(actor=>new Option((actor._allyName||'隊友')+'（'+actor._slot+'）',combatMercenaryId(actor)))];
+    if(!options.some(option=>option.value===_combatMercenaryFilter))_combatMercenaryFilter='';
+    select.replaceChildren(...options);select.value=_combatMercenaryFilter;
+    applyMercenaryLogFilter();
+}
 function applyCombatFilter(){
+    syncCombatMercenaryFilter();
     let el = document.getElementById('combat-log');
     if (el) for (let k in _combatFilter) el.classList.toggle('cf-hide-' + k, !_combatFilter[k]);   // 以 CSS class 隱藏 → 既有與未來訊息一併套用，重新點亮即還原
     for (let k in _combatFilter) { let b = document.getElementById('cf-btn-' + k); if (b) b.classList.toggle('cf-off', !_combatFilter[k]); }   // 按鈕點亮/點暗
@@ -1863,13 +1892,20 @@ function logCombat(msg, type="player", src=null) {
     else if (type === "evade") { colorClass = "text-teal-300"; } // ER獨立迴避 (淡青綠色)
 
     let _src = src || _combatSrc || (type === 'enemy' ? 'enemy' : 'player');   // 來源：明確指定 > 派發點情境(_combatSrc) > 依顏色type推定
-    el.insertAdjacentHTML('beforeend', `<div class="log-entry ${colorClass} ${catClass}" data-src="${_src}">${msg}</div>`);   // 🚀 只解析新訊息、不重建整個日誌(原 innerHTML+= 會 O(n) 重建全部子節點，戰鬥洗版時造成卡頓)
+    const mercenaryId=_src==='mercenary'?combatMercenaryId(_combatMercenary):'';
+    const filtered=_src==='mercenary'&&_combatMercenaryFilter&&mercenaryId!==_combatMercenaryFilter?' cf-mercenary-hidden':'';
+    el.insertAdjacentHTML('beforeend', `<div class="log-entry ${colorClass} ${catClass}${filtered}" data-src="${_src}"${_src==='mercenary'?' data-mercenary-id="'+mercenaryId+'"':''}>${msg}</div>`);   // 🚀 只解析新訊息、不重建整個日誌(原 innerHTML+= 會 O(n) 重建全部子節點，戰鬥洗版時造成卡頓)
     // Retain each source independently so hidden attack traffic cannot erase cast history.
     let _max = _combatLogLocked ? COMBAT_LOG_MAX_LOCKED : COMBAT_LOG_MAX;
-    const sourceRows = Array.from(el.children).filter(row=>row.dataset.src===_src);
+    const sourceRows = Array.from(el.children).filter(row=>row.dataset.src===_src&&(_src!=='mercenary'||row.dataset.mercenaryId===mercenaryId));
     const anchor = _combatLogLocked ? Array.from(el.children).find(row=>row.getClientRects().length&&row.getBoundingClientRect().bottom>el.getBoundingClientRect().top) : null;
     const anchorTop = anchor?.getBoundingClientRect().top;
     for (const row of sourceRows.slice(0, Math.max(0, sourceRows.length - _max))) row.remove();
+    if (_src==='mercenary') {
+        const allRows=Array.from(el.children).filter(row=>row.dataset.src==='mercenary');
+        const limit=_max*Math.max(1,(player.allies||[]).filter(Boolean).length);
+        for(const row of allRows.slice(0,Math.max(0,allRows.length-limit)))row.remove();
+    }
     if (anchor?.isConnected) el.scrollTop += anchor.getBoundingClientRect().top - anchorTop;
     if(!_combatLogLocked) el.scrollTop = el.scrollHeight;   // 鎖定時不自動捲到底，保留玩家檢視位置
 }

@@ -173,7 +173,15 @@ function effectPreview(actor,kind,owner=player,stage=7,omit=null,clan=clanBuffSn
             d=kind==='pet'?petDerive(copy):kind==='guard'?guardDerive(copy):_sumDeriveAny(copy,effectPreviewActor(owner));
             d={...d,mhp:_supMhp(copy),mmp:(copy.mmp||0)+(d?.mmpBonus||0)};
             if(typeof d.er==='number'){d.rawEr=d.er;d.er=effResistPct(d.er);}
-            if(kind==='pet'){const gear=petGearBonus(copy),charm=petCharmCombatBonus();d.petGearDmg=gear.dmg;d.petGearHit=gear.hit;d.petCharmDmg=charm.dmg;d.petCharmHit=charm.hit;d.petTakenMult=petMasteryTakenMult()*petArmorDmgReduceMult(copy)*(petDevotionGuardOn(copy)?0:1);}
+            if(kind==='pet'){
+                const gear=petGearBonus(copy),charm=petCharmCombatBonus(),aura=teamIlluAura(copy,true),statuses=_supStatuses(copy)||{};
+                d.petGearDmg=gear.dmg;d.petGearHit=gear.hit;d.petCharmDmg=charm.dmg;d.petCharmHit=charm.hit;
+                d.petAuraDmg=(aura?.ed||0)+(aura?.mel||0);d.petAuraHit=aura?.eh||0;d.petAuraMagicDmg=aura?.md||0;
+                d.petPartnerHit=typeof _relicPartnerHit==='function'?_relicPartnerHit(copy.form):0;
+                d.petStatusDmg=(petDevotionGuardOn(copy)?8:0)-(statuses.weaken>0?5:0);
+                d.petStatusHit=-(statuses.weaken>0?2:0)-(statuses.disease>0?4:0)-(statuses.blind>0?6:0);
+                d.petTakenMult=petMasteryTakenMult()*petArmorDmgReduceMult(copy)*(petDevotionGuardOn(copy)?0:1);
+            }
         }
         d.ac=(d.ac||0)-(stage>=6?teamAcBonus(copy,minion):0)+(stage>=7&&(kind==='player'||kind==='ally'||kind==='pet')&&(_supStatuses(copy)?.disease||0)>0?8:0);
         if(!minion){d.finalDamageMult=kind==='ally'?allyRlFuryMult(copy):rlFuryMult();d.threatMult=computeThreatMult(copy);}
@@ -406,7 +414,16 @@ function fitPartyAbilityValues() {
 }
 const ABILITY_STAT_FIELDS = {str:['str'],dex:['dex'],con:['con'],int:['int'],wis:['wis'],cha:['cha'],mdmg:['meleeDmg','extraDmg'],mhit:['meleeHit','extraHit'],
         'mcrit-p':['meleeCrit'],mcritdmg:['meleeCritDmg'],rdmg:['rangedDmg','extraDmg'],rhit:['rangedHit','extraHit'],rcrit:['rangedCrit'],rcritdmg:['rangedCritDmg'],er:['er'],hpr:['hpR'],potion:['potionBonus'],dr:['dr'],movespeed:['moveSpeedPct'],spd:['aspd'],mgdmg:['magicDmg'],'mhit-mag':['magicHit'],sp:['extraMp'],mcrit:['magicCrit'],mgcritdmg:['magicCritDmg'],mpr:['mpR'],mpreduce:['mpReduce'],mpkill:['mpKillInterval'],mr:['mr'],resnone:['resNone'],resfire:['resFire'],reswater:['resWater'],reswind:['resWind'],researth:['resEarth']};
+function partyPetBonusHtml(snapshot,actor) {
+    const d=snapshot.total,definition=PET_BOOK[actor.form];
+    const fields={mdmg:['flat','petGearDmg','petCharmDmg','petAuraDmg','petStatusDmg'],mhit:['hit','petGearHit','petCharmHit','petAuraHit','petPartnerHit','petStatusHit'],mgdmg:['skillFlat','petAuraMagicDmg'],spd:['atkItv'],mr:['mr'],dr:['dr'],er:['er']};
+    const row=(key,label,suffix='')=>'<dt>'+label+'</dt><dd data-ability-field="'+key+'" data-ability-keys="'+fields[key].join(',')+'" data-ability-label="'+label+'" tabindex="0" role="button">'+partyAbilityValue(snapshot,fields[key],suffix,key==='spd')+'</dd>';
+    const magic=(definition.sk||[]).filter(skill=>skill.kind==='magic');
+    const skills=magic.length?'<h3>魔法技能</h3><dl class="party-stats pet-ability-stats">'+row('mgdmg','技能傷害加值')+'<dt>技能間隔</dt><dd>'+effectNumber(d.castItv/10)+'s</dd></dl><p>'+magic.map(skill=>partyEscape(skill.n)+'：'+skill.d[0]+'D'+skill.d[1]).join('、')+'（魔法必中）</p>':'';
+    return '<section id="party-bonus-window" data-pet-ability><h3>寵物能力</h3><dl class="party-stats pet-ability-stats"><dt>普攻骰值</dt><dd>1D'+effectNumber(d.dice)+'</dd>'+row('mdmg','物理傷害加值')+row('mhit','命中加值')+row('spd','攻擊間隔','s')+'<dt>普攻傷害倍率</dt><dd>×'+effectNumber((d.damageMult||1)*(d.attackMult||1))+'</dd>'+row('mr','魔防 MR')+row('dr','固定減傷')+row('er','迴避 ER','%')+'</dl>'+skills+abilityBonusNotesHtml(snapshot)+'<p>普攻命中依等級差與目標 AC 計算；實際傷害另計目標減免與技能效果。</p></section>';
+}
 function partyBonusHtml(snapshot,actor=null) {
+    if(snapshot.kind==='pet')return partyPetBonusHtml(snapshot,actor);
     const shell = document.querySelector('#tab-stats .ability-window-shell').cloneNode(true);
     shell.querySelectorAll('button,.ability-respec-overlay,.ability-hidden-values').forEach(e=>e.remove());
     const fields = {...ABILITY_STAT_FIELDS,spd:snapshot.kind==='pet'?['atkItv']:['aspd']};
@@ -516,7 +533,7 @@ function abilitySourceHtml(details,actor,kind,key,keys,seconds=false) {
     }
     function show(event){
         const e=event.target.closest('#party-inspector [data-ability-field],#tab-stats [data-ability-field],#tab-stats [id^="dt-"],#st-ac,#st-mr');
-        const key=e?.dataset.abilityField||e?.id.replace('dt-','').replace('st-',''),keys=ABILITY_STAT_FIELDS[key]||(['ac','mhp','mmp'].includes(key)?[key]:null);
+        const key=e?.dataset.abilityField||e?.id.replace('dt-','').replace('st-',''),keys=e?.dataset.abilityKeys?e.dataset.abilityKeys.split(','):ABILITY_STAT_FIELDS[key]||(['ac','mhp','mmp'].includes(key)?[key]:null);
         if(!e||!keys)return;
         if(event.type==='focusin'&&!e.matches(':focus-visible'))return;   // mouse focus: the pointer already drives the tip
         if(event.type)pointer=event.type==='focusin'||event.type==='click'&&!event.detail?null:{x:event.clientX,y:event.clientY};

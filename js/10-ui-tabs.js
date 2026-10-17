@@ -2646,6 +2646,7 @@ function _allyAutoBuffChips(a) {
 }
 
 function renderSquadPanel() {
+    syncCombatMercenaryFilter();
     // 🩹 v3.8.1 補跑期間不重建隊伍面板：傭兵/寵物/召喚物/城堡護衛 的 HP 變動都經由此函式（22 處呼叫·多為每 tick/每擊），
     //    而它會整區重建 team 分頁 DOM——補跑上千 tick 時是主要拖慢來源（比照 renderMobs/flushTickRender 已有的 catchupActive 閘）。
     //    補跑結束後由下一個 tick 的各實體 render 或 js/23 的 500ms interval 自動刷新（補跑中面板不可見·無感）。

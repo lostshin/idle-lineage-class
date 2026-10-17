@@ -3057,6 +3057,8 @@ function alliesTick() {
     if (!player.allies || !player.allies.length) return;
     player.allies.forEach(ally => {
         if (!ally) return;
+        const previousLogActor=_combatMercenary;_combatMercenary=ally;
+        try {
         let _needsLegacyRecompute = false;
         if (_migrateMercPoly(ally)) _needsLegacyRecompute = true;   // 舊存檔傭兵：一次性補回來源角色仍在生效的變身
         if (!ally._mercPermanentPotions) { ally._mercPermanentPotions = true; _needsLegacyRecompute = true; }   // 舊存檔既有傭兵補上常駐職業藥水效果
@@ -3169,6 +3171,7 @@ function alliesTick() {
         } finally { if (_iAura && _iBase && (ally._recompN || 0) === _iRn) { ally.d.extraDmg = _iBase.ed; ally.d.extraHit = _iBase.eh; ally.d.magicDmg = _iBase.md; ally.d.meleeDmg = _iBase.mel; }   // 🔮 還原幻覺光環＋🔥v3.8.3 舞躍之火近距離傷害（若本回合發生升級重算→ally.d 已就地重建·跳過還原·避免把光環當基底扣掉）
                    _dpsAllyTurn = false; let _ad = _dpsDealt(_dpsASnap); if (_ad > 0) _dpsAddAlly(ally, _ad);
                    if (typeof threatCommitDiff === 'function') threatCommitDiff(_dpsASnap, ally); }   // 🎯 DPS＋v3.7.97 仇恨：逐傭兵回合掉血→記給該傭兵（threatMult＝職業×武器）
+        } finally { _combatMercenary=previousLogActor; }
     });
 }
 // 🤝 Phase 3：傭兵自動治癒——若已設定治癒魔法且任一受益者低於門檻，施放舊版骰數治癒；團補逐人獨立擲骰，生命之泉補滿最低者。

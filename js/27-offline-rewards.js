@@ -1319,10 +1319,9 @@
         }).sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
         let rows = itemRows.concat(cardRows);
         if (!rows.length) return '<div style="color:#64748b;">本次未取得怪物掉落物。</div>';
-        let shown = rows.slice(0, 16).map(row =>
+        let shown = rows.map(row =>
             '<div style="display:flex;justify-content:space-between;gap:12px;"><span>' + _offlineEsc(row.name) +
             '</span><b style="color:#fef08a;">× ' + row.count.toLocaleString() + '</b></div>').join('');
-        if (rows.length > 16) shown += '<div style="color:#94a3b8;">其餘 ' + (rows.length - 16) + ' 種已收入背包／圖鑑</div>';
         return shown;
     }
 
