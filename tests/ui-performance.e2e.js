@@ -83,6 +83,23 @@ await check('allocation drafts and cancellation restore ability markup without t
 await check('external style changes are corrected by the next native UI refresh',()=>page.evaluate(()=>{
     const e=document.getElementById('bar-hp');e.style.width='1%';_updateUIImpl();return Math.abs(parseFloat(e.style.width)-Math.max(0,player.hp/player.mhp*100))<.001;
 }));
+await check('auto-sort inside a combat tick defers the inventory rebuild to the tab throttle',()=>page.evaluate(async()=>{
+    const wasRunning=state.running;stopGameTimers();state.running=true;player.inventoryAutoSort=true;
+    player.inv=Array.from({length:300},(_,i)=>({id:'wpn_shortbow',uid:'sort-'+i,cnt:1,en:(i*7)%10,bless:false,anc:false,attr:false,seteff:false,lock:false,junk:false}));
+    renderTabs(true);__perfTab('weapons');
+    // Compare visible item content, not uid: identical items swapping places is not a visible change.
+    const key=uid=>{const i=player.inv.find(x=>x.uid===uid);return i.id+'+'+i.en;};
+    const rows=()=>[...document.querySelectorAll('#tab-weapons [data-inventory-uid]')].map(e=>key(e.dataset.inventoryUid)),sorted=()=>[...player.inv].sort(invSortCmp).map(i=>key(i.uid));
+    const same=(a,b)=>a.length>0&&a.join()===b.slice(0,a.length).join();
+    const before=rows(),expected=sorted();
+    _autoSortAt=-1e9;state.inTick=true;try{autoSortInventory();}finally{state.inTick=false;}
+    const deferred=!same(before,expected)&&same(rows(),before)&&_tabThrottleTimer!==null;
+    await new Promise(r=>setTimeout(r,TAB_REBUILD_THROTTLE_MS+100));
+    const applied=same(rows(),expected);
+    player.inv.reverse();_autoSortAt=-1e9;autoSortInventory();const immediate=same(rows(),sorted());
+    state.running=wasRunning;
+    return deferred&&applied&&immediate||{deferred,applied,immediate,rows:before.length};
+}));
 if(!options.baseline&&result.checks.some(c=>c.status==='FAIL'))throw Error('UI behavior checks failed before timed combat');
 await page.cdp('Performance.enable');
 async function metrics() {

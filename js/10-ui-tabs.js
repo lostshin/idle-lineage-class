@@ -1988,7 +1988,7 @@ function autoSortInventory() {
     _autoSortAt = state.ticks;
     player.inv.sort(invSortCmp);
     if (typeof resetCatchupGainItemIndex === 'function') resetCatchupGainItemIndex();
-    renderTabs(true);
+    renderTabs();   // order-sensitive signatures detect the sort; inside a tick this joins the 250ms rebuild throttle
 }
 // 🔧 v2.6.74 自動化設定改「分頁內嵌」（#tab-automation·與能力/技能同框架·switchTab 切換）；v2.6.73 的浮動視窗與 toggleAutomationWindow 已移除。
 //    set-* 控制項恆在 DOM（分頁隱藏時仍可 getElementById 讀值）→ saveGame/自動化邏輯完全不受影響。
