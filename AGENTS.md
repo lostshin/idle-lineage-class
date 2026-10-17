@@ -39,7 +39,7 @@
 
 - 固定基底優先桌機與窄側欄；手機／平板僅在本輪已授權的可選「行動裝置版」範圍內調整與驗證，不擴大改造桌機版面。
 - 三欄寬度可拖曳／鍵盤調整並記憶；桌機左欄至少 220px、右欄至少 300px。中欄保留原生戰鬥場景的可用寬度與 800×450 比例，不因側欄調整破壞冒險畫面。
-- 三次選擇各自獨立：隊伍清單 **C「統一名牌」**、技能設定 **A「緊湊卡片」**、隊友裝備 **A「經典人形」**；最外層沿用 **A「倉庫系銀框」**；框線切片 48／顯示 18px，避免舊 180／9px 壓成髮絲線；標題用 `party-title-cartouche-v1.png` 雕花框，不替換內部名牌／sprite／資源條。
+- 三次選擇獨立：隊伍清單 **C「統一名牌」**、技能設定 **A「緊湊卡片」**、隊友裝備 **A「經典人形」**。外層 **A「倉庫系銀框」**採 `warehouse-frame-v1.png` 48 fill／18px，一層邊框含紋理即可；標題直接置於框內配小飾紋，不再疊 `party-title-cartouche-v1.png` 或完整外框背景。隊伍／技能設定按鈕沿用 handler，以 `warehouse-row-v1.png` 做深色／金色紋理，220px 仍須完整單行；不改名牌／sprite／資源條。
 - 名字不加底線；名牌名稱為 14px，職業與等級樣式一致；保留原 HP／MP／EXP 與寵物控制。
 - 主角、隊友與寵物的暈眩等異常狀態放在名稱旁，過期即清除；不另占一列。長文字保留完整 title，不以縮小整張名牌解決擠壓。
 - 隊友與寵物的倒地、復活倒數及操作須同列；寵物倒數整合進原卷軸按鈕，保留原 handler。須實測 220px 左欄，不能只檢查較寬側欄或只測傭兵。
@@ -72,6 +72,7 @@
 - 浮窗出現在隊伍選單右側附近，可拖動；四邊與四角皆可縮放並記住尺寸。不透明度控制在設定頁；沿用 `lineage_party_window_v1`，不另造偏好格式。
 - 總能力與 buff 加成同頁；數值如 `13（＋3）` 必須同一行。
 - 主角及隊友能力提示須列出實際 Buff／裝備來源與差值；沿用 `partyBonusSnapshot` 在副本重算，不修改 live 角色、資源、裝備或倒數。
+- 寵物能力用 `petDerive`／裝備／魅力／光環／狀態的原生欄位，顯示普攻骰值、傷害與命中加值、攻擊間隔、倍率及實有魔法技能；隱藏六屬性與無對應的主角爆擊／魔法欄，不用「—」填滿。倍率與目標減免另計；tooltip 取該欄 `data-ability-keys`，只在副本預覽，不改戰鬥公式。
 - 數值懸浮採「一行一來源」，不列 0、不寫「小計」以外的計算註解：六屬性列 `初始點數`／`升級配點`／`萬能藥`（其他數值列 `基礎`），再列不為 0 的類別（`EFFECT_STAGES` 相鄰差值），全部相加等於總值。
 - 每個來源在**自己類別的階段**移除比較（`abilitySourceDetails`），同類可加總；單一來源接在同列，多來源時類別數字後加「（小計）」並縮排列出。只在單項加總≠類別時加一行互斥／乘算提醒。來源名稱不含強化 `+N`。
 - 顏色只分兩種：外加的所有類別與標題「（額外 +N）」統一用括號色（不利方向用紅）；萬能藥列及該屬性在能力表的總值改橙色（`data-panacea`），升級配點不另上色。不在括號內做多色分段（窄欄放不下）。
@@ -96,6 +97,7 @@
 - 隊伍縮圖與地圖共用 `companionSpriteForm`；顯示名稱、`n` 裡的「夥伴：」／數量／等級不能直接當素材目錄。一般精靈用普通素材；強力精靈與精靈王用原強力大型素材。先依技能／名稱解析精靈，避免舊 `formGfx` 把強力版導回小圖；其他召喚物保留別名。
 - 玩家與傭兵召喚物名稱列只顯示「召喚者·召喚物名稱」，保留完整 title、圖片比例、HP 與原操作；不附職業、等級或倒數。
 - 傭兵、玩家／傭兵召喚物、寵物與護衛的地圖圖像懸浮只顯示名稱；僅辨識本體非透明像素，陰影與空白不得攔截地圖操作。名稱框須換算縮放並限制於視窗內；移出、離隊、換圖、實體消失時清除，不改選敵／指揮／戰鬥邏輯。
+- `AREA_1920` 只列磁碟確實存在的圖名；顯示名稱不等於檔名，不加入保證 404 的同名路徑。安塔瑞斯副本前三區由 `SPECIAL_AREA_BG` 對應 `安塔瑞斯.jpg`，最終區對應 `安塔瑞斯棲息地.jpg`；驗證原生進入／推進、圖片解碼與 area-fit，不改副本流程。
 - `file:` 的 Canvas 圖片像素讀取會被同源限制阻擋；沿用 `scripts/update-map-hit-masks.py` 產生的 `assets/map-hit-masks/`，按角色種類載入，不以整張透明矩形或關閉瀏覽器保護替代。素材變動時才重產。
 
 ### 裝備美術、負重與狀態圖示
@@ -123,7 +125,8 @@
 - 寵物 DoT 來源攜帶 `{petUid,name}`；出血每層保留來源，同 tick 合併傷害依比例分帳。統計以實際掉血為準，換圖／重置清空各寵物；不得順便改傷害公式或既有技能效果。
 - 「施法」是 `combat-filter-pills` 中與玩家／傭兵並列的 **小 tab**，不是上層「戰鬥日誌／系統日誌」分頁。玩家與傭兵的施法動作都用 `data-src="cast"`；施法者身分保留在文字與 `data-cast-source`，不得讓玩家／傭兵開關連帶控制施法開關。
 - 沿用 `lineage_idle_combat_filter` 記憶 `cast`，舊偏好原值保留。只在真正施放成功時記一次；MP 不足、無合法目標與增益尚未到期不算施法，補跑不洗版。
-- 戰鬥日誌依 `data-src` 各自保留歷史（一般 50／鎖定 150），不能用全來源共用上限讓隱藏普攻刪掉施法。上捲鎖定保留可見位置；捲回底部或按「回到最新」解除。
+- 戰鬥日誌依 `data-src` 保留歷史（一般 50／鎖定 150），隱藏普攻不可刪掉施法。傭兵再依 `data-mercenary-id` 分組，總量按隊伍人數限制；身分取 slot＋角色 ID，不解析顯示名稱，同名仍可分辨。逐兵派發的日誌 actor 用 try/finally 還原；上捲保留可見位置，回底部或「回到最新」解除。
+- 傭兵旁角色選單只篩選傭兵紀錄，不連動玩家／施法／召喚等來源，不動傷害或資源；選擇限本次工作階段，角色切換／所選隊員離隊時回全部，既有節點與新紀錄都要套用。名冊未變不重建選單，不讓隱藏隊友洗掉所選角色的歷史。
 
 ### 戰鬥、經驗與村莊增益
 
@@ -143,7 +146,7 @@
 
 - 真正關頁後重開才走離線結算（70%、1 分鐘～12 小時）；需在可掛機狩獵圖、同圖已有擊殺樣本（≥15 秒且 ≥3 隻）、離開前 5 分鐘內有擊殺、非傭兵角色。
 - 關頁時把不符合的原因存進 `offlineHunt.blockReason`；重開沒有收益時以系統日誌說明原因，不可靜默。「沒看到結算」先查這些條件，再懷疑結算壞掉。
-- 呈現對齊加掛版：有實際等待的補跑使用全畫面實際進度，快速同步結算不加假進度／延遲；完成摘要、戰利品、消耗、死亡與上限寫系統日誌並移到最新，不恢復 `offline-reward-modal`。
+- 呈現對齊加掛版：有實際等待的補跑使用全畫面實際進度，快速同步結算不加假進度／延遲；完成摘要、完整物品／卡片種類與數量、消耗、死亡及上限寫系統日誌並移到最新；不截成前 16 種、不只寫其餘已入背包，不恢復 `offline-reward-modal`。
 - 沿用本版結算引擎、70%／12 小時與防重複領取；歷史紀錄只在成功寫入後記錄，與是否顯示收益視窗分開（`showSummary`），不能為了對齊畫面引入來源的替代引擎。
 
 ### 傭兵公會（B 配置，保留原版裝備）
@@ -182,14 +185,8 @@
 
 ## 開發與驗證
 
-常用指令從根目錄執行：
-
-```bash
-python3 -m http.server 8000 --bind 127.0.0.1
-python3 scripts/check-local.py
-python3 scripts/update-cache.py
-python3 tests/run-rwd.py --help
-```
+- 根目錄本地檢查：`python3 scripts/check-local.py`；更新快取：`python3 scripts/update-cache.py`。
+- 預覽：`python3 -m http.server 8000 --bind 127.0.0.1`；E2E 選項：`python3 tests/run-rwd.py --help`。
 
 - 人類入門看 `README.md`，本檔只留代理規則。`.ignore` 讓 `rg` 略過 `assets/anim`、`classanim`、`morphanim` 的 20 萬張逐格圖；要搜那裡時用 `rg --no-ignore`。
 
@@ -198,21 +195,21 @@ python3 tests/run-rwd.py --help
 - 測試報告預設寫入 `tmp/test-runs/`（不進 git）；要更新受追蹤的 `tests/artifacts/` 才加 `--record`（runner 與 `*.integration.js` 相同）；runner 可用 `--artifacts <目錄>` 指定其他輸出位置，與 `--record` 互斥。
 - 成功後只呼叫一次 `finish({keep:[]})` 並等待完成；耗時時用背景程序讀回結果，不用短 timeout 中止再反覆重送。有 `finished <id>` 與成功結束碼後，不再操作該空間。
 - 必跑 `rwd`、`ui-scale`、`gameplay`、`account-gameplay`、`companion-commands` 的 HTTP／file：`--space <id> --suite required --protocol both --desktop-only`。
-- 相關 E2E：`compact-layout`、`party-refinements`、`party-equipment`、`village-clan-warehouse`、`skill-cards`、`ally-skill-stop`、`town-buffs-enhance`、`summon-display`、`desktop-feedback`、`desktop-acceptance`、`tooltip-stability`、`effect-details`、`guild-settlement`、`offline-rewards`、`creation-id`、`comfort-release`、`mobile-status`；同樣帶 `--desktop-only`。
+- 相關 E2E：`compact-layout`、`party-refinements`、`party-equipment`、`village-clan-warehouse`、`skill-cards`、`ally-skill-stop`、`town-buffs-enhance`、`summon-display`、`desktop-feedback`、`desktop-acceptance`、`tooltip-stability`、`effect-details`、`guild-settlement`、`offline-rewards`、`creation-id`、`comfort-release`、`mobile-status`、`party-header`、`field-reports`；同樣帶 `--desktop-only`。
 - TaskSpace 消失不能自行重建；使用者暫緩重建時，先完成本地工作並記錄待跑的瀏覽器檢查，後續不得把 Node VM／幾何替身說成瀏覽器 E2E 通過。
 - 所有 `visual-*` 必須緊接同一 space 的對應行為 fixture，例如 `account-gameplay visual-account-gameplay`；中間不可插入其他 suite，各 fixture 的全域儲存不可互換。runner 會拒絕順序錯誤的組合。
 - 狀態節點／控制項測試依 `data-*`／欄位語意定位，不假設職業為名稱的 `nextElementSibling`。創角 fixture 須明填合成 ID；舊未命名存檔另建 fixture，不繞過必填限制。需求已變就改舊斷言，不恢復已移除功能；找長單行斷言用 `rg --no-ignore -o '.{60}舊字串.{60}' tests`，不用 `grep -n | cut`。
-- 每個 suite 明確設定起始視窗；靜態 fixture 停計時器也須設 `state.running=false`，避免回前景又排入補跑。縮放／切尺寸後等版面穩定；原生滾輪須等 scrollTop 連續畫格穩定後再比對，避免把慣性誤判為兩側連動。原生命中須選目前可視控制項，不能固定取已捲出視窗的第一格；比例／不重疊仍檢查全體。原生選擇器點擊若因自動捲動被 sticky 欄擋住，先觀察命中元素，再聚焦、核對 `elementFromPoint`、用原生滑鼠點擊；不盲目重試或強制穿透。
+- 每個 suite 明確設定起始視窗；靜態 fixture 停計時器也設 `state.running=false`；離線讀檔須先等原生非同步結算回呼完成才停止 running，否則會誤擋結算。縮放／切尺寸後等版面穩定；原生滾輪須等 scrollTop 連續畫格穩定後再比對，避免把慣性誤判為兩側連動。原生命中須選目前可視控制項，不能固定取已捲出視窗的第一格；比例／不重疊仍檢查全體。原生選擇器點擊若因自動捲動被 sticky 欄擋住，先觀察命中元素，再聚焦、核對 `elementFromPoint`、用原生滑鼠點擊；不盲目重試或強制穿透。
 - 懸浮測試先等 resize／scroll 與版面穩定；選不被其他 sprite 遮住、離透明邊緣足夠遠的像素，避免取點到送入滑鼠事件間角色已移動。可短暫固定合成場景的原生畫格，完成後還原；不冒充完整戰鬥驗證。
 - 不直接改寵物記憶體陣列充當已儲存名冊；用原生 dirty／save 流程，避免下一次查詢把測試寵物清掉。
 - 擷取圖片不可用／`Page.captureScreenshot` 逾時時，從失敗 suite 接續 `--skip-screenshots`，不重跑已通過的；用 Ego screen-media PDF 轉 PNG。PDF 放 `tmp/pdfs/`、驗收後刪除；標示協定、轉圖工具與實際 dpi（本輪 sips 為 72dpi），不宣稱直接截圖。
 - 實際檢查桌機 1330／1920px、60／75／80／100% 與 220／300／460px 側欄；倒地傭兵及寵物的所有控制項、標籤文字均須在邊界內，不能只量卡片高度。
 - 倉庫另跑 `warehouse-list` 與 `village-clan-warehouse`（HTTP／file）。驗證預設尺寸要清除測試調整並以 100% 量測；預設圖與已拖曳縮放圖分開命名。命中區留在外框內，實測縮放時 border 取整，不能假設 CSS 宣告值等於實際邊界。
-- 本地檢查一律跑 `python3 scripts/check-local.py`：JS 語法、`git diff --check`、`?v=` 資源 SHA、69 個鏡像檔 SHA 與全部 `tests/*.integration.js`。integration 只驗證各自標明的原生流程／幾何邊界，不等於瀏覽器 E2E。
+- 本地檢查一律跑 `python3 scripts/check-local.py`：JS 語法、`git diff --check`、`?v=` 資源 SHA、69 個鏡像檔 SHA 與全部 `tests/*.integration.js`。integration 只驗原生流程／幾何邊界，不等於瀏覽器 E2E；原生新增全域依賴時更新合成 fixture，不為缺少的測試替身增加正式環境 fallback。
 - 保留可重跑的 JSON 報告、來源雜湊及代表性預覽；完整驗證須對應實際程式 commit 與報告。交接要區分「本輪實跑」與「核對前人報告」；事後擷取的來源 SHA 不得冒充 runner 當時記錄的 SHA。
 - 報告檔名依 runner 實際輸出；引用前核對存在、方法、版本與結果，不用歷史報告／早期預覽充作後續驗證。HTTP／file 共用圖檔會被覆寫，須標明最終圖的協定與方法，不能當兩次獨立擷取。
 - 桌面橋接替身與 file 協定不等於安裝版實測；本機 iCloud 複製／雜湊相符不等於遠端同步完成。
-- 必要檢查通過就交付；接手且來源未變時先核對現有報告，不因換 agent 重跑整套。只有新修改、失敗或具體疑慮才擴大驗證；僅改本檔不需重跑遊戲 E2E。
+- 測試保持精簡：先選可重現需求的最小專項，完成後只跑必要核心；通過即停，不因增加信心而追加套件、長測或重複預覽。接手先核對來源 SHA 與報告；未變就沿用，失敗僅接續受影響套件，測試前置錯誤先修 fixture。僅改本檔不重跑遊戲 E2E；使用者縮短時長就依其指示收尾。
 - 背景 E2E 執行中不改程式；要改就先停 runner，改完 `update-cache.py` 後重跑，避免同一份報告混到兩版程式。使用者要求「做完再測」時，所有修改完成後只跑一次。
 - 合成測試物品要帶原生欄位預設值（`bless/anc/attr/seteff:false` 等）；`?.` 擋不住 `false`，存檔欄位一律先判斷真值再呼叫方法。實機錯誤重現不出時，請使用者提供主控台堆疊，不要盲猜。
 - 找回未提交的舊版本：從 `~/.codex/sessions/<日期>/rollout-*.jsonl` 取出寫檔指令，在 `git worktree` 重放（瀏覽器／runner 指令改為 stub），再以該輪 `sources-under-test.json` 的 SHA256 逐檔驗證；不可手改內容湊雜湊。
@@ -242,7 +239,8 @@ python3 tests/run-rwd.py --help
 - 版本 `v3.9.2`／原版 `v3.8.34`。公會 B、創角必填／順序、左下裝備控制列、倉庫直接數量交易與返回系統日誌已完成；先前 852 項與創角 550 項報告各有版本時序，見 `guild-art-20261017/completion.json`、`creation-name-layout/completion.json`，不可混算。
 - `f63bb996b` 為線上人數，`d9c4f2eb9` 為效能修復。效能回歸 22 份／954 項；最後跨分類祝福卷補丁另跑 4 份／84 項（`tmp/test-runs/performance-fix/`），非全部在補丁後重跑。倉庫 5000 格約 565→10～11ms，能力冷重算約 22→7ms，僅本機操作耗時。
 - 目錄整理 commit `aaf3076d0`：62 個 AFK 原樣搬移、69 個鏡像 SHA 不變、109 支 script 順序不變；清除 145 個過時產物約 157.5 MiB（不等於 Git 歷史縮減）。`tmp/test-runs/root-cleanup/`：HTTP／file 16 份／574 項、本地 13/13，含實際 PWA 離線重載；最後來源 SHA 已核對。
-- `tmp/test-runs/performance-audit/` 保留 112 個情境／336 筆量測及實際 10.3 分鐘掛機；依使用者要求提早結束，未跑滿 30 分鐘，不能排除長時間／多地圖累積問題。安裝版、實體手機與 iCloud 尚未實測；spaces 4／5／8／9／10／11／12／14 已 finish，不得再操作。前次發佈結果查 `tmp/test-runs/session-release-root-cleanup/`，commit／push／部署完成分開核對。
-- 本輪程式 commit `02b66869a`（P0／P1）：文字／樣式有變才寫、隱藏能力數值延後同步、能力節點保留與登入動畫啟停已實作；`ui-performance` 提供冷／暖各 5 次、單人／三隊友各 60 秒及可選長測。P2 背包局部更新／隊友浮窗與 P3 快取淘汰／延後載入未實作，不宣稱整體 FPS 加速。
-- 本輪基線在 `tmp/test-runs/performance-p1/baseline-bounded/`；初版長測因量測陣列無界中止，不算 30 分鐘。review 的 file 9/9（soak=0）見 `review-ui-performance/`，手機鏡射退化見 `review-mobile-status.json`；修正與最終驗證／發佈以 `session-performance-release/` 為準，不能引用舊報告冒充補丁後通過。space 15 已消失，經授權重建的 space 18 已 `finish({keep:[]})`，不可再操作。
-- 本輪最終：HTTP／file 26 份、862/862 項，本地 13/13；使用者將換圖長測改為 5 分鐘，實跑約 5.09 分鐘且無執行期錯誤，不能宣稱完成 30 分鐘。報告／來源 SHA／改前後比較／96dpi PDF 轉圖在 `tmp/test-runs/session-performance-release/`；原 CLI 30 分鐘目標及使用者覆寫另存，未改量測樣本。實體手機、安裝版、iCloud 與整體 FPS 尚未驗證。
+- `tmp/test-runs/performance-audit/` 保留 112 個情境／336 筆量測及實際 10.3 分鐘掛機；依使用者要求提早結束，未跑滿 30 分鐘，不能排除長時間／多地圖累積問題。前次發佈結果查 `tmp/test-runs/session-release-root-cleanup/`，commit／push／部署完成分開核對。
+- 前次效能 `02b66869a`：重複 DOM 寫入／隱藏能力數值／登入動畫啟停與手機狀態鏡射已修；`session-performance-release/` 26 份／862 項、本地 13/13。長測依使用者指示實跑 5.09 分鐘，不是 30 分鐘；無界量測陣列的中止基線另存 `performance-p1/`，不可混算或宣稱整體 FPS。P2 背包／浮窗、P3 快取淘汰／延後載入未實作。
+- 本次標題：依最新截圖改單層銀框、無獨立標題框及紋理分頁，保留原操作；`tmp/test-runs/party-header-reference/` 16 份／678 項、本地 13/13，屬四項修正之前的版本，不與後批報告混算。
+- 本次程式 commit `981017d8b`（含標題）：安塔瑞斯四區使用現有背景；寵物專屬能力／tooltip；傭兵按角色身分篩選；離線完整戰利品。`tmp/test-runs/field-reports/` HTTP／file 20 份／854 項（專項 34 項）、本地 13/13；含原生寵物傷害對照、同名傭兵及 61 種離線物品／存檔數量核對。來源 SHA、完整未提交清單及 96dpi PDF 轉圖隨報告保存；不再追加冗長測試。
+- 舊 spaces 4／5／8／9／10／11／12／14／18 及本次 1／2 均已 finish，15 已消失，不可再操作。實體手機、安裝版、iCloud 未驗證；本次 commit／push／部署與公開資源 SHA 證據查 `tmp/test-runs/session-field-release/`，不得拿先前報告冒充最終程式。
