@@ -1333,7 +1333,35 @@ function renderStatusEffects() {
     if(!el) return;
     renderStatusIconBar();
 
-    syncEffectStatus(el,player,'player');
+    if (!document.getElementById('tab-stats').classList.contains('hidden')) syncEffectStatus(el,player,'player');
+}
+
+// Compare against live DOM so other UI hooks can still change these elements.
+function syncUiText(el, value) {
+    const text = String(value);
+    if (el.textContent !== text) el.textContent = text;
+}
+const uiStyleValues = new WeakMap();
+function syncUiStyle(el, property, value) {
+    let values = uiStyleValues.get(el);
+    if (!values) { values = {}; uiStyleValues.set(el, values); }
+    const previous = values[property];
+    // CSSOM normalizes colors, URLs and fractional percentages after assignment.
+    if (previous && previous.input === value && el.style[property] === previous.output) return;
+    if (el.style[property] !== value) el.style[property] = value;
+    values[property] = {input:value, output:el.style[property]};
+}
+function syncUiClass(el, name, enabled) {
+    if (el.classList.contains(name) !== enabled) el.classList.toggle(name, enabled);
+}
+function syncAbilityText(el, value) {
+    const allocating = (_respec || (player.bonus || 0) > 0) && /^dt-(str|dex|con|int|wis|cha)$/.test(el.id);
+    const total = allocating ? el : el.querySelector('[data-ability-total]') || el;
+    const text = String(value);
+    if (total.textContent !== text || (allocating && el.querySelector('[data-ability-total]'))) {
+        total.textContent = text;
+        el._abilityTextChanged = true;
+    }
 }
 
 function _updateUIImpl() {
@@ -1343,27 +1371,27 @@ function _updateUIImpl() {
     try { renderPandoraBanner(); } catch (e) {}   // 🔧 潘朵拉黑市稀有商品公告橫幅
     try { if (typeof updatePvpButtonTone === 'function') updatePvpButtonTone(); } catch (e) {}
     try { renderSyslogPandora(); } catch (e) {}   // 🔧 系統日誌標題列右側：黑市拍賣中商品
-    document.getElementById('st-lv').innerText = player.lv;
+    syncUiText(document.getElementById('st-lv'), player.lv);
     { let _inTown = mapState.current.startsWith('town_');   // 🔧 村莊→藍色「出發」一鍵回上一張戰鬥地圖；戰鬥地圖→綠色回村/回城
       let _txt = _inTown ? '出發' : (siegeVictoryActive() ? '回城' : '回村');
       let _fn  = _inTown ? departToLastBattle : returnToTown;
       let _riftLock = (state.riftRun && mapState.current === 'rift_battle');   // 🌀 裂痕內：回村/出發 → 紫色「撤離」（主動結算，照樣記時間＋發獎勵；不可一般回村/傳送）
       if (_riftLock) { _txt = '撤離'; _fn = riftEvacuate; }
       let rb = document.getElementById('btn-return-town');
-      if (rb) { rb.style.display = ''; rb.textContent = _txt; rb.onclick = _fn; rb.style.background = _riftLock ? '#7c3aed' : (_inTown ? '#1d4ed8' : ''); rb.style.borderColor = _riftLock ? '#c4b5fd' : (_inTown ? '#93c5fd' : ''); }
+      if (rb) { syncUiStyle(rb, 'display', ''); syncUiText(rb, _txt); if (rb.onclick !== _fn) rb.onclick = _fn; syncUiStyle(rb, 'background', _riftLock ? '#7c3aed' : (_inTown ? '#1d4ed8' : '')); syncUiStyle(rb, 'borderColor', _riftLock ? '#c4b5fd' : (_inTown ? '#93c5fd' : '')); }
       // 🌀 順移按鈕：固定顯示（含村莊/野外/狩獵/隱藏區域），不隨敵人或每幀重繪閃爍；僅在「傳送會破壞玩法」的鎖定模式隱藏（裂痕/傲慢之塔封鎖樓/遺忘之島/軍王之室）。
       // ⚠️ 用「狀態改變才寫 DOM」的守衛：避免每個 tick 重複 toggle class / 設 display 造成按鈕閃爍。
       { let tpb = document.getElementById('btn-teleport'); if (tpb) { let _hideTp = !!(KING_ROOMS[mapState.current] || (typeof prideTeleportBlocked === 'function' && prideTeleportBlocked()) || state.oblivion || state.antharas); if (tpb.classList.contains('hidden') !== _hideTp) { tpb.classList.toggle('hidden', _hideTp); tpb.style.display = _hideTp ? 'none' : ''; } } } }   // ⚠️ _hideTp 必須 !! 強轉布林：否則 (undefined||false||undefined)===undefined → 守衛 (boolean!==undefined) 恆真 → toggle('hidden', undefined) 變成「無參數 bare toggle」每幀翻轉 → 按鈕閃爍
     // 👑 v3.6.05 城主稱號；😤 v3.6.31 只有王族顯示「<持有城堡>主」（肯特城主…）·非王族只顯示「<持有城堡>」（肯特城…·用戶拍板·血盟福利不變）。
     //    v3.6.34 徽章王冠改與戰鬥 sprite 同一顆動態 castle-crown.gif（#victory-badge-crown）·僅王族顯示（非王族純文字）。
     //    ⚠️ 每 tick 都會跑到這裡 → 比對後才寫 DOM（比照上方按鈕的「狀態改變才寫」守衛），避免每幀重設 textContent/display。
-    { let vb = document.getElementById('victory-badge'); if (vb) { let _va = siegeVictoryActive(); vb.style.display = _va ? 'inline-flex' : 'none';
+    { let vb = document.getElementById('victory-badge'); if (vb) { let _va = siegeVictoryActive(); syncUiStyle(vb, 'display', _va ? 'inline-flex' : 'none');
         if (_va) { let _lordTitle = victoryCityCfg().castleName + (player.cls === 'royal' ? '主' : ''); let _lt = document.getElementById('victory-badge-text');
             if (_lt && _lt.textContent !== _lordTitle) _lt.textContent = _lordTitle;
             let _vc = document.getElementById('victory-badge-crown'), _vd = (player.cls === 'royal') ? '' : 'none';
             if (_vc && _vc.style.display !== _vd) _vc.style.display = _vd;
-            vb.title = `${_lordTitle}：血盟持有${victoryCityCfg().castleName}，全商店 8 折、開放城堡`; } } }   // 血盟城堡淡金黃標記（同模式永久共用，換城時同步更新）
-    { let cb = document.getElementById('classic-badge'); if (cb) cb.style.display = player.classicMode ? 'inline' : 'none'; }   // 🎮 經典模式標記（🏛️v3.0.83 傳統徽章已移除）
+            let title = `${_lordTitle}：血盟持有${victoryCityCfg().castleName}，全商店 8 折、開放城堡`; if (vb.title !== title) vb.title = title; } } }   // 血盟城堡淡金黃標記（同模式永久共用，換城時同步更新）
+    { let cb = document.getElementById('classic-badge'); if (cb) syncUiStyle(cb, 'display', player.classicMode ? 'inline' : 'none'); }   // 🎮 經典模式標記（🏛️v3.0.83 傳統徽章已移除）
     applyAreaBackground();   // 區域背景：地監/攻城→戰鬥區、城堡→村莊畫面
     
     // 處理顯示文字：只顯示 騎士、法師、妖精、黑暗妖精
@@ -1376,126 +1404,128 @@ function _updateUIImpl() {
     else if (player.cls === 'dragon') clsDisplayName = '龍騎士';   // 🐉 龍騎士職業名
     else if (player.cls === 'warrior') clsDisplayName = '戰士';   // ⚔️ 戰士職業名
     else if (player.cls === 'royal') clsDisplayName = '王族';   // 👑 王族職業名
-    if(document.getElementById('st-classname')) document.getElementById('st-classname').innerText = clsDisplayName;   // 🏅 精通徽記已移除，僅顯示職業名
+    if(document.getElementById('st-classname')) syncUiText(document.getElementById('st-classname'), clsDisplayName);   // 🏅 精通徽記已移除，僅顯示職業名
     let _nameEl = document.getElementById('st-class');
     if(_nameEl) {
-        _nameEl.innerText = (player.name || '未命名');   // Nickname editing is available on the character selection page.
+        syncUiText(_nameEl, (player.name || '未命名'));   // Nickname editing is available on the character selection page.
         if (typeof pvpAlignmentColor === 'function') {
-            _nameEl.style.color = pvpAlignmentColor(player.alignmentValue);
-            _nameEl.style.textShadow = '0 0 6px rgba(0,0,0,.75)';
+            syncUiStyle(_nameEl, 'color', pvpAlignmentColor(player.alignmentValue));
+            syncUiStyle(_nameEl, 'textShadow', '0 0 6px rgba(0,0,0,.75)');
         }
     }
     const nameStatus = document.getElementById('st-status');
-    nameStatus.textContent = partyStatusText(player); nameStatus.title = nameStatus.textContent;
+    syncUiText(nameStatus, partyStatusText(player)); if (nameStatus.title !== nameStatus.textContent) nameStatus.title = nameStatus.textContent;
 
     // 處理背景圖片：全部職業／性別頭像統一使用 assets/character 對應的 PNG。
     let bgImageName = player.avatar || clsDisplayName;
-    document.getElementById('status-panel').style.backgroundImage = `url('assets/character/${bgImageName}.png')`;
-    document.getElementById('status-panel').classList.add('bg-top'); // 確保圖片從頂部對齊
+    syncUiStyle(document.getElementById('status-panel'), 'backgroundImage', `url('assets/character/${bgImageName}.png')`);
+    syncUiClass(document.getElementById('status-panel'), 'bg-top', true); // 確保圖片從頂部對齊
 
-    document.getElementById('st-ac').innerText = player.d.ac - teamAcBonus(player) + ((player.statuses?.disease || 0) > 0 ? 8 : 0);
-    document.getElementById('st-mr').innerText = player.d.mr;
-    document.getElementById('st-gold').innerText = player.gold.toLocaleString();
+    syncUiText(document.getElementById('st-ac'), player.d.ac - teamAcBonus(player) + ((player.statuses?.disease || 0) > 0 ? 8 : 0));
+    syncUiText(document.getElementById('st-mr'), player.d.mr);
+    syncUiText(document.getElementById('st-gold'), player.gold.toLocaleString());
     
-    document.getElementById('txt-hp').innerText = `${Math.floor(player.hp)}/${Math.floor(player.mhp)}`;
-    document.getElementById('bar-hp').style.width = `${Math.max(0, (player.hp/player.mhp)*100)}%`;
-    document.getElementById('txt-mp').innerText = `${Math.floor(player.mp)}/${Math.floor(player.mmp)}`;
-    document.getElementById('bar-mp').style.width = `${Math.max(0, (player.mp/player.mmp)*100)}%`;
+    syncUiText(document.getElementById('txt-hp'), `${Math.floor(player.hp)}/${Math.floor(player.mhp)}`);
+    syncUiStyle(document.getElementById('bar-hp'), 'width', `${Math.max(0, (player.hp/player.mhp)*100)}%`);
+    syncUiText(document.getElementById('txt-mp'), `${Math.floor(player.mp)}/${Math.floor(player.mmp)}`);
+    syncUiStyle(document.getElementById('bar-mp'), 'width', `${Math.max(0, (player.mp/player.mmp)*100)}%`);
     // 📱 手機置頂常駐 HP/MP 細條：同步主血條數值（桌機隱藏，更新無副作用）
     { let _mh = document.getElementById('mv-hp-fill'); if (_mh) {
-        _mh.style.width = `${Math.max(0, (player.hp/player.mhp)*100)}%`;
-        document.getElementById('mv-hp-txt').innerText = `${Math.floor(player.hp)}/${Math.floor(player.mhp)}`;
-        document.getElementById('mv-mp-fill').style.width = `${Math.max(0, (player.mp/player.mmp)*100)}%`;
-        document.getElementById('mv-mp-txt').innerText = `${Math.floor(player.mp)}/${Math.floor(player.mmp)}`;
+        syncUiStyle(_mh, 'width', `${Math.max(0, (player.hp/player.mhp)*100)}%`);
+        syncUiText(document.getElementById('mv-hp-txt'), `${Math.floor(player.hp)}/${Math.floor(player.mhp)}`);
+        syncUiStyle(document.getElementById('mv-mp-fill'), 'width', `${Math.max(0, (player.mp/player.mmp)*100)}%`);
+        syncUiText(document.getElementById('mv-mp-txt'), `${Math.floor(player.mp)}/${Math.floor(player.mmp)}`);
     } }
     // 🏰 v3.7.96 城堡護衛 v2：改為隊伍面板實體 HP 卡（renderGuardTeamHTML·js/31）；舊「主狀態欄承擔傷害護衛條」已移除。
     let nxtE = getExpReq(player.lv);
     let pct = player.lv >= 100 ? 100 : (nxtE > 0 && isFinite(nxtE) ? (player.exp / nxtE) * 100 : 0);
-    document.getElementById('txt-exp').innerText = `${pct.toFixed(2)}%`;
-    document.getElementById('bar-exp').style.width = `${Math.min(100, pct)}%`;
+    syncUiText(document.getElementById('txt-exp'), `${pct.toFixed(2)}%`);
+    syncUiStyle(document.getElementById('bar-exp'), 'width', `${Math.min(100, pct)}%`);
     try { if (typeof renderSquadPanel === 'function') renderSquadPanel(); } catch (e) {}   // 🤝 協力傭兵隊伍面板：每幀同步血/魔/經驗條（名單變動才重建結構）
 
-    if (_respec) {   // 🕯️ 回憶蠟燭配點重置中：六大屬性顯示「Lv1 基礎 + 草稿配點」（確認後才真正套用）
-        let _b = createBase[player.cls];
-        ['str','dex','con','int','wis','cha'].forEach(s => { let el = document.getElementById('dt-'+s); if (el) el.innerText = _b[s] + _respec.draft[s]; });
-    } else {
-        document.getElementById('dt-str').innerText = player.d.str;
-        document.getElementById('dt-dex').innerText = player.d.dex;
-        document.getElementById('dt-con').innerText = player.d.con;
-        document.getElementById('dt-int').innerText = player.d.int;
-        document.getElementById('dt-wis').innerText = player.d.wis;
-        if(document.getElementById('dt-cha')) document.getElementById('dt-cha').innerText = player.d.cha;
-    }
-    
-    const sign = v => (v >= 0 ? '+' : '') + v;
-    // 額外傷害/命中：折入近距離與遠距離的顯示（兩者都 +）
-    let _ed = player.d.extraDmg || 0, _eh = player.d.extraHit || 0;
-    // 近距離
-    document.getElementById('dt-mdmg').innerText = sign(player.d.meleeDmg + _ed);
-    document.getElementById('dt-mhit').innerText = sign(player.d.meleeHit + _eh);
-    document.getElementById('dt-mcrit-p').innerText = `${player.d.meleeCrit}%`;
-    { let _el = document.getElementById('dt-mcritdmg'); if (_el) _el.innerText = `${player.d.meleeCritDmg || 0}%`; }
-    // 遠距離
-    document.getElementById('dt-rdmg').innerText = sign(player.d.rangedDmg + _ed);
-    document.getElementById('dt-rhit').innerText = sign(player.d.rangedHit + _eh);
-    document.getElementById('dt-rcrit').innerText = `${player.d.rangedCrit}%`;
-    { let _el = document.getElementById('dt-rcritdmg'); if (_el) _el.innerText = `${player.d.rangedCritDmg || 0}%`; }
-    // 額外（已折入近/遠距離，列固定隱藏）
-    document.getElementById('dt-edmg').innerText = sign(_ed);
-    document.getElementById('dt-ehit').innerText = sign(_eh);
-    // 依目前武器類型切換顯示：弓(遠距離武器)→隱藏近距離列；否則→隱藏遠距離列。箭矢在 arrow 欄，不影響判定。
-    let _wpnRanged = !!(player.eq.wpn && DB.items[player.eq.wpn.id] && DB.items[player.eq.wpn.id].ranged === true);
-    document.querySelectorAll('[data-grp="melee"]').forEach(e => e.classList.toggle('row-hidden', _wpnRanged));
-    document.querySelectorAll('[data-grp="ranged"]').forEach(e => e.classList.toggle('row-hidden', !_wpnRanged));
-    document.querySelectorAll('[data-grp="extra"]').forEach(e => e.classList.add('row-hidden'));
-    // 魔法
-    document.getElementById('dt-mgdmg').innerText = sign(player.d.magicDmg);
-    document.getElementById('dt-sp').innerText = sign(player.d.extraMp);
-    document.getElementById('dt-mhit-mag').innerText = sign(player.d.magicHit);
-    document.getElementById('dt-mcrit').innerText = `${player.d.magicCrit}%`;
-    { let _el = document.getElementById('dt-mgcritdmg'); if (_el) _el.innerText = `${player.d.magicCritDmg || 0}%`; }
-    document.getElementById('dt-mpreduce').innerText = `${player.d.mpReduce}%`;
-	if(document.getElementById('dt-mpr')) document.getElementById('dt-mpr').innerText = formatBonus(player.d.mpR);
-	if(document.getElementById('dt-hpr')) document.getElementById('dt-hpr').innerText = formatBonus(player.d.hpR || 0);
-    document.getElementById('dt-er').innerText = `${effResistPct(player.d.er)}%`;   // 🔧 顯示有效迴避率（>50 每+5才+1%）
-    document.getElementById('dt-dr').innerText = player.d.dr;
-    { let _attackSec = (typeof playerAttackIntervalTicks === 'function')
-            ? playerAttackIntervalTicks(false) / 10
-            : Math.max(0.1, Number(player.d.aspd) || 0.1);
-      document.getElementById('dt-spd').innerText = `${_attackSec.toFixed(2)}s`; }
-    { let _potionPct = (typeof getConPotionPct === 'function' ? getConPotionPct(player.d.con || 0) : 0);
-      try { _potionPct += (typeof dollFieldVal === 'function' ? dollFieldVal('potionBonus') : 0) + (typeof playerEquipPotionBonusPct === 'function' ? playerEquipPotionBonusPct() : 0) + (player._miscPotionBonus || 0); } catch (e) {}
-      let _el = document.getElementById('dt-potion'); if (_el) _el.innerText = `${_potionPct}%`;
-      _el = document.getElementById('dt-movespeed'); if (_el) _el.innerText = `${typeof playerEffectiveMoveSpeedPct === 'function' ? playerEffectiveMoveSpeedPct() : 100 + (player.d.moveSpeedPct || 0)}%`;
-      _el = document.getElementById('dt-mpkill'); if (_el) { let _mpIv = (typeof wisMpRegenIntervalTicks === 'function' ? wisMpRegenIntervalTicks(player.d.wis || 0) : 160); _el.innerText = `${_mpIv / 10}秒`; }
-      _el = document.getElementById('dt-mr'); if (_el) _el.innerText = player.d.mr || 0;
-      _el = document.getElementById('dt-resnone'); if (_el) _el.innerText = Math.round(player.d.resNone || 0); }
-    if(document.getElementById('dt-resfire')) {
-        document.getElementById('dt-resfire').innerText  = Math.round(player.d.resFire  || 0);
-        document.getElementById('dt-reswater').innerText = Math.round(player.d.resWater || 0);
-        document.getElementById('dt-reswind').innerText  = Math.round(player.d.resWind  || 0);
-        document.getElementById('dt-researth').innerText = Math.round(player.d.resEarth || 0);
-    }
-    
-    renderStatusEffects();
-    
-    {   // 🕯️ 配點工具列：回憶蠟燭重置中(可 +/- 並確認/取消) 或 有未分配升級點數(僅 +) 時顯示
-        let _respecOn = !!_respec;
-        let _editing = _respecOn || (player.bonus || 0) > 0;
-        let _ptsLeft = _respecOn ? respecPtsLeft() : (player.bonus || 0);
-        document.querySelectorAll('.alloc-plus').forEach(el => el.classList.toggle('hidden', !_editing));
-        document.querySelectorAll('.alloc-minus').forEach(el => el.classList.toggle('hidden', !_respecOn));   // 只有蠟燭重置可退點
-        let _tabStats = document.getElementById('tab-stats'); if (_tabStats) _tabStats.classList.toggle('is-respec', _respecOn);
-        let _bar = document.getElementById('alloc-edit-bar');
-        if (_bar) {
-            _bar.classList.toggle('hidden', !_respecOn);   // 配點框只在使用回憶蠟燭時顯示；一般升級點僅顯示屬性旁的＋按鈕
-            let _lbl = document.getElementById('alloc-bar-label'); if (_lbl) { _lbl.textContent = _ptsLeft; _lbl.title = `剩餘配點：${_ptsLeft}`; }
-            let _hint = document.getElementById('alloc-bar-hint'); if (_hint) _hint.classList.toggle('hidden', !_respecOn);
-            let _cf = document.getElementById('alloc-confirm-btn'); if (_cf) _cf.classList.toggle('hidden', !_respecOn);
-            let _cc = document.getElementById('alloc-cancel-btn'); if (_cc) _cc.classList.toggle('hidden', !_respecOn);
+    const statsTab = document.getElementById('tab-stats');
+    if (!statsTab.classList.contains('hidden')) {
+        if (_respec) {   // 🕯️ 回憶蠟燭配點重置中：六大屬性顯示「Lv1 基礎 + 草稿配點」（確認後才真正套用）
+            let _b = createBase[player.cls];
+            ['str','dex','con','int','wis','cha'].forEach(s => { let el = document.getElementById('dt-'+s); if (el) syncAbilityText(el, _b[s] + _respec.draft[s]); });
+        } else {
+            syncAbilityText(document.getElementById('dt-str'), player.d.str);
+            syncAbilityText(document.getElementById('dt-dex'), player.d.dex);
+            syncAbilityText(document.getElementById('dt-con'), player.d.con);
+            syncAbilityText(document.getElementById('dt-int'), player.d.int);
+            syncAbilityText(document.getElementById('dt-wis'), player.d.wis);
+            if(document.getElementById('dt-cha')) syncAbilityText(document.getElementById('dt-cha'), player.d.cha);
         }
+    
+        const sign = v => (v >= 0 ? '+' : '') + v;
+        // 額外傷害/命中：折入近距離與遠距離的顯示（兩者都 +）
+        let _ed = player.d.extraDmg || 0, _eh = player.d.extraHit || 0;
+        // 近距離
+        syncAbilityText(document.getElementById('dt-mdmg'), sign(player.d.meleeDmg + _ed));
+        syncAbilityText(document.getElementById('dt-mhit'), sign(player.d.meleeHit + _eh));
+        syncAbilityText(document.getElementById('dt-mcrit-p'), `${player.d.meleeCrit}%`);
+        { let _el = document.getElementById('dt-mcritdmg'); if (_el) syncAbilityText(_el, `${player.d.meleeCritDmg || 0}%`); }
+        // 遠距離
+        syncAbilityText(document.getElementById('dt-rdmg'), sign(player.d.rangedDmg + _ed));
+        syncAbilityText(document.getElementById('dt-rhit'), sign(player.d.rangedHit + _eh));
+        syncAbilityText(document.getElementById('dt-rcrit'), `${player.d.rangedCrit}%`);
+        { let _el = document.getElementById('dt-rcritdmg'); if (_el) syncAbilityText(_el, `${player.d.rangedCritDmg || 0}%`); }
+        // 額外（已折入近/遠距離，列固定隱藏）
+        syncAbilityText(document.getElementById('dt-edmg'), sign(_ed));
+        syncAbilityText(document.getElementById('dt-ehit'), sign(_eh));
+        // 依目前武器類型切換顯示：弓(遠距離武器)→隱藏近距離列；否則→隱藏遠距離列。箭矢在 arrow 欄，不影響判定。
+        let _wpnRanged = !!(player.eq.wpn && DB.items[player.eq.wpn.id] && DB.items[player.eq.wpn.id].ranged === true);
+        document.querySelectorAll('[data-grp="melee"]').forEach(e => syncUiClass(e, 'row-hidden', _wpnRanged));
+        document.querySelectorAll('[data-grp="ranged"]').forEach(e => syncUiClass(e, 'row-hidden', !_wpnRanged));
+        document.querySelectorAll('[data-grp="extra"]').forEach(e => syncUiClass(e, 'row-hidden', true));
+        // 魔法
+        syncAbilityText(document.getElementById('dt-mgdmg'), sign(player.d.magicDmg));
+        syncAbilityText(document.getElementById('dt-sp'), sign(player.d.extraMp));
+        syncAbilityText(document.getElementById('dt-mhit-mag'), sign(player.d.magicHit));
+        syncAbilityText(document.getElementById('dt-mcrit'), `${player.d.magicCrit}%`);
+        { let _el = document.getElementById('dt-mgcritdmg'); if (_el) syncAbilityText(_el, `${player.d.magicCritDmg || 0}%`); }
+        syncAbilityText(document.getElementById('dt-mpreduce'), `${player.d.mpReduce}%`);
+        if(document.getElementById('dt-mpr')) syncAbilityText(document.getElementById('dt-mpr'), formatBonus(player.d.mpR));
+        if(document.getElementById('dt-hpr')) syncAbilityText(document.getElementById('dt-hpr'), formatBonus(player.d.hpR || 0));
+        syncAbilityText(document.getElementById('dt-er'), `${effResistPct(player.d.er)}%`);   // 🔧 顯示有效迴避率（>50 每+5才+1%）
+        syncAbilityText(document.getElementById('dt-dr'), player.d.dr);
+        { let _attackSec = (typeof playerAttackIntervalTicks === 'function')
+                ? playerAttackIntervalTicks(false) / 10
+                : Math.max(0.1, Number(player.d.aspd) || 0.1);
+          syncAbilityText(document.getElementById('dt-spd'), `${_attackSec.toFixed(2)}s`); }
+        { let _potionPct = (typeof getConPotionPct === 'function' ? getConPotionPct(player.d.con || 0) : 0);
+          try { _potionPct += (typeof dollFieldVal === 'function' ? dollFieldVal('potionBonus') : 0) + (typeof playerEquipPotionBonusPct === 'function' ? playerEquipPotionBonusPct() : 0) + (player._miscPotionBonus || 0); } catch (e) {}
+          let _el = document.getElementById('dt-potion'); if (_el) syncAbilityText(_el, `${_potionPct}%`);
+          _el = document.getElementById('dt-movespeed'); if (_el) syncAbilityText(_el, `${typeof playerEffectiveMoveSpeedPct === 'function' ? playerEffectiveMoveSpeedPct() : 100 + (player.d.moveSpeedPct || 0)}%`);
+          _el = document.getElementById('dt-mpkill'); if (_el) { let _mpIv = (typeof wisMpRegenIntervalTicks === 'function' ? wisMpRegenIntervalTicks(player.d.wis || 0) : 160); syncAbilityText(_el, `${_mpIv / 10}秒`); }
+          _el = document.getElementById('dt-mr'); if (_el) syncAbilityText(_el, player.d.mr || 0);
+          _el = document.getElementById('dt-resnone'); if (_el) syncAbilityText(_el, Math.round(player.d.resNone || 0)); }
+        if(document.getElementById('dt-resfire')) {
+            syncAbilityText(document.getElementById('dt-resfire'), Math.round(player.d.resFire  || 0));
+            syncAbilityText(document.getElementById('dt-reswater'), Math.round(player.d.resWater || 0));
+            syncAbilityText(document.getElementById('dt-reswind'), Math.round(player.d.resWind  || 0));
+            syncAbilityText(document.getElementById('dt-researth'), Math.round(player.d.resEarth || 0));
+        }
+
+        {   // 🕯️ 配點工具列：回憶蠟燭重置中(可 +/- 並確認/取消) 或 有未分配升級點數(僅 +) 時顯示
+            let _respecOn = !!_respec;
+            let _editing = _respecOn || (player.bonus || 0) > 0;
+            let _ptsLeft = _respecOn ? respecPtsLeft() : (player.bonus || 0);
+            document.querySelectorAll('.alloc-plus').forEach(el => syncUiClass(el, 'hidden', !_editing));
+            document.querySelectorAll('.alloc-minus').forEach(el => syncUiClass(el, 'hidden', !_respecOn));   // 只有蠟燭重置可退點
+            let _tabStats = document.getElementById('tab-stats'); if (_tabStats) syncUiClass(_tabStats, 'is-respec', _respecOn);
+            let _bar = document.getElementById('alloc-edit-bar');
+            if (_bar) {
+                syncUiClass(_bar, 'hidden', !_respecOn);   // 配點框只在使用回憶蠟燭時顯示；一般升級點僅顯示屬性旁的＋按鈕
+                let _lbl = document.getElementById('alloc-bar-label'); if (_lbl) { syncUiText(_lbl, _ptsLeft); let title = `剩餘配點：${_ptsLeft}`; if (_lbl.title !== title) _lbl.title = title; }
+                let _hint = document.getElementById('alloc-bar-hint'); if (_hint) syncUiClass(_hint, 'hidden', !_respecOn);
+                let _cf = document.getElementById('alloc-confirm-btn'); if (_cf) syncUiClass(_cf, 'hidden', !_respecOn);
+                let _cc = document.getElementById('alloc-cancel-btn'); if (_cc) syncUiClass(_cc, 'hidden', !_respecOn);
+            }
+        }
+        refreshPlayerAbility();
     }
+    renderStatusEffects();
     updateSummonLock();   // 同步召喚類技能互斥鎖定（含迷魅生效時鎖定召喚增益）
-    refreshPlayerAbility();
     if (typeof refreshEquipmentSummary === 'function') refreshEquipmentSummary();
 }

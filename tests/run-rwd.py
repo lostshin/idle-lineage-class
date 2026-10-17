@@ -11,12 +11,13 @@ import threading
 SUITES = ['rwd','ui-scale','gameplay','account-gameplay','visual-account-gameplay','companion-commands','game-tools','pwa','visual-game-tools','addon-defaults','compact-layout','party-refinements','party-equipment','visual-party-equipment','village-clan-warehouse','visual-village-clan-warehouse','ally-skill-stop','visual-ally-skill-stop','skill-cards','visual-skill-cards','town-buffs-enhance','visual-town-buffs-enhance','summon-display','visual-summon-display','play-fixes','desktop-feedback','visual-desktop-feedback']
 REQUIRED = ['rwd','ui-scale','gameplay','account-gameplay','companion-commands']
 SUITES += ['desktop-acceptance','visual-desktop-acceptance','ability-cleanup','tooltip-stability','clan-ability','offline-rewards','effect-details','visual-effect-details']
-SUITES += ['warehouse-list','performance']
+SUITES += ['warehouse-list','performance','ui-performance','mobile-status']
 SUITES += ['optional-addons','comfort-release','creation-id','guild-settlement']
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--desktop-only', action='store_true', help='Skip mobile and tablet viewport checks')
 parser.add_argument('--baseline', action='store_true')
+parser.add_argument('--soak-minutes', type=float, default=30, help='UI performance wall-clock map soak duration (default: 30 minutes)')
 parser.add_argument('--protocol', choices=['http','file','both'], default='http')
 parser.add_argument('--suite', nargs='+', choices=SUITES + ['required'], default=['rwd'], help="One or more suites run in order; 'required' expands to " + ' '.join(REQUIRED))
 parser.add_argument('--space', type=int)
@@ -27,6 +28,8 @@ output = parser.add_mutually_exclusive_group()
 output.add_argument('--record', action='store_true', help='Write reports to tests/artifacts instead of tmp/test-runs')
 output.add_argument('--artifacts', type=Path, help='Write reports to this directory (relative to the project root or absolute)')
 args = parser.parse_args()
+if not 0 <= args.soak_minutes <= 1440:
+    parser.error('--soak-minutes must be between 0 and 1440')
 suites = [s for name in args.suite for s in (REQUIRED if name == 'required' else [name])]
 protocols = ['http','file'] if args.protocol == 'both' else [args.protocol]
 runs = [(protocol, suite) for protocol in protocols for suite in suites]
@@ -62,7 +65,7 @@ try:
         if len(runs) > 1:
             print(f'== {suite} ({protocol})', flush=True)
         options = {'root': str(root), 'artifacts': str(artifacts), 'baseline': args.baseline, 'desktopOnly': args.desktop_only,
-                   'space': args.space, 'page': args.page, 'keepSpace': args.keep_space or len(runs) > 1, 'skipScreenshots': args.skip_screenshots, 'protocol': protocol, 'url': (root / 'index.html').as_uri() if protocol == 'file' else f'http://127.0.0.1:{server.server_port}/index.html'}
+                   'space': args.space, 'page': args.page, 'soakMinutes': args.soak_minutes, 'keepSpace': args.keep_space or len(runs) > 1, 'skipScreenshots': args.skip_screenshots, 'protocol': protocol, 'url': (root / 'index.html').as_uri() if protocol == 'file' else f'http://127.0.0.1:{server.server_port}/index.html'}
         test = root / ('tests/' + suite + '.js' if suite.startswith('visual-') else 'tests/' + suite + '.e2e.js')
         source = 'const options = ' + json.dumps(options) + ';\n' + test.read_text()
         result = subprocess.run(['ego-browser', 'nodejs'], input=source, text=True)

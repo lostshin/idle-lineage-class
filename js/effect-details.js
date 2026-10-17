@@ -434,18 +434,26 @@ function refreshPlayerAbility() {
         playerAbilityCache={actor:player,signature,snapshot:partyBonusSnapshot(player,'player')};
     }
     const snapshot=playerAbilityCache.snapshot;
+    let changed=false;
     for(const [key,keys]of Object.entries(ABILITY_STAT_FIELDS)) {
         const e=document.getElementById('dt-'+key);if(!e)continue;
-        e.dataset.abilityField=key;
+        if(e.dataset.abilityField!==key)e.dataset.abilityField=key;
+        if(e._abilityTextChanged){changed=true;e._abilityTextChanged=false;}
         if(['str','dex','con','int','wis','cha'].includes(key) && (_respec || (player.bonus||0)>0))continue;
-        const total=key==='spd'?effectNumber(snapshot.total.aspd)+'s':e.innerText;
-        e.innerHTML=partyAbilityValue(snapshot,keys,'',key==='spd');
-        e.querySelector('[data-ability-total]').textContent=total;
-        e.querySelector('[data-ability-total]').toggleAttribute('data-panacea',(player.panacea?.[key]||0)>0);
+        let totalNode=e.querySelector('[data-ability-total]');
+        const total=key==='spd'?effectNumber(snapshot.total.aspd)+'s':(totalNode||e).textContent;
+        const html=partyAbilityValue(snapshot,keys,'',key==='spd');
+        if(e._abilityHtml!==html || !totalNode){
+            e.innerHTML=html;e._abilityHtml=html;totalNode=e.querySelector('[data-ability-total]');changed=true;
+        }
+        if(totalNode.textContent!==total){totalNode.textContent=total;changed=true;}
+        const panacea=(player.panacea?.[key]||0)>0;
+        if(totalNode.hasAttribute('data-panacea')!==panacea)totalNode.toggleAttribute('data-panacea',panacea);
     }
     const notes=document.getElementById('player-ability-notes'),html=abilityBonusNotesHtml(snapshot,'player-bonus');
-    if(notes._abilityHtml!==html){notes.innerHTML=html;notes._abilityHtml=html;}
-    fitPartyAbilityValues();
+    if(notes._abilityHtml!==html){notes.innerHTML=html;notes._abilityHtml=html;changed=true;}
+    const layoutKey=tab.clientWidth+':'+document.documentElement.clientWidth+':'+getUiScale();
+    if(changed || tab._abilityLayoutKey!==layoutKey){fitPartyAbilityValues();tab._abilityLayoutKey=layoutKey;}
 }
 
 function abilitySourceDetails(actor,kind,owner=player) {

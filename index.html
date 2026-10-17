@@ -147,29 +147,51 @@
     <script>
       // 登入頁逐幀動畫：273.png～300.png，使用相對路徑，GitHub Pages 可直接部署。
       (function(){
-        var first=273,last=300,frame=first,lastAt=0,stepMs=90,ready=false;
-        var base='public/assets/login/';
-        // 首頁 BGM 優先；頁面載入完成後再逐張載入動畫，避免 28 張圖片同時與音樂搶讀取／解碼資源。
-        function preloadFrame(n){
-          if(n>last){ready=true;return;}
-          var p=new Image();
-          p.onload=p.onerror=function(){preloadFrame(n+1);};
-          p.src=base+n+'.png';
+        var first=273,last=300,frame=first,lastAt=0,stepMs=90,next=first+1;
+        var base='public/assets/login/',raf=0,preloadTimer=0,loading=false,loaded=false;
+        var screen=document.getElementById('creation-screen');
+        var menu=document.getElementById('main-menu');
+        var img=document.getElementById('login-anim-image');
+        function visible(){
+          return loaded&&!document.hidden&&!screen.classList.contains('hidden')&&screen.style.display!=='none'&&!menu.classList.contains('hidden');
         }
-        function beginPreload(){setTimeout(function(){preloadFrame(first+1);},500);}
-        if(document.readyState==='complete') beginPreload();
-        else window.addEventListener('load',beginPreload,{once:true});
+        function preloadFrame(){
+          preloadTimer=0;
+          if(!visible()||loading||next>last)return;
+          loading=true;
+          var p=new Image();
+          p.onload=p.onerror=function(){loading=false;next++;syncLogin();};
+          p.src=base+next+'.png';
+        }
         function animateLogin(now){
-          var screen=document.getElementById('creation-screen');
-          var img=document.getElementById('login-anim-image');
-          if(ready&&img&&screen&&!screen.classList.contains('hidden')&&now-lastAt>=stepMs){
+          raf=0;
+          if(!visible())return;
+          if(now-lastAt>=stepMs){
             frame=frame>=last?first:frame+1;
             img.src=base+frame+'.png';
             lastAt=now;
           }
-          requestAnimationFrame(animateLogin);
+          raf=requestAnimationFrame(animateLogin);
         }
-        requestAnimationFrame(animateLogin);
+        function syncLogin(){
+          if(!visible()){
+            if(raf)cancelAnimationFrame(raf);
+            if(preloadTimer)clearTimeout(preloadTimer);
+            raf=0;preloadTimer=0;lastAt=0;
+            return;
+          }
+          if(next<=last){
+            if(!loading&&!preloadTimer)preloadTimer=setTimeout(preloadFrame,next===first+1?500:0);
+          }else if(!raf)raf=requestAnimationFrame(animateLogin);
+        }
+        // Pause both queued work and the preload chain when the artwork is covered.
+        var observer=new MutationObserver(syncLogin);
+        observer.observe(screen,{attributes:true,attributeFilter:['class','style']});
+        observer.observe(menu,{attributes:true,attributeFilter:['class']});
+        document.addEventListener('visibilitychange',syncLogin);
+        function loadedLogin(){loaded=true;syncLogin();}
+        if(document.readyState==='complete')loadedLogin();
+        else window.addEventListener('load',loadedLogin,{once:true});
       })();
     </script>
 
@@ -604,9 +626,9 @@
 <script src="js/05-kill-progression.js?v=00d67d428e"></script>
     <script src="js/06-status-allies.js?v=b7d7b77826"></script>
     <script src="js/07-skills-cast.js?v=2ff536efb6"></script>
-<script src="js/08-items-equip.js?v=0019902f34"></script>
+<script src="js/08-items-equip.js?v=fc5ed25b70"></script>
 <script src="js/09-vfx-render.js?v=c857bbe82c"></script>
-    <script src="js/effect-details.js?v=ab81943f7a"></script>
+    <script src="js/effect-details.js?v=fe76ad73b3"></script>
     <script src="js/party-inspector.js?v=09ec8e9f46"></script>
     <script src="js/party-portrait-bounds.js?v=57f5054baa"></script>
     <script src="js/party-roster.js?v=0a51636f3f"></script>
@@ -644,7 +666,7 @@
     <script src="js/vendor/afk/afk-allyslim.js?v=c4899c933b"></script>
     <script src="js/vendor/afk/afk-ui.js?v=9307c7dda9"></script>
     <script src="js/vendor/afk/afk-extradata.js?v=fe68db6e9e"></script>
-    <script src="js/addon-mobile-bridge.js?v=d014238e64"></script>
+    <script src="js/addon-mobile-bridge.js?v=65623f3361"></script>
     <script src="js/vendor/afk/afk-mobile.js?v=e3a5444e65"></script>
     <script src="js/vendor/afk/afk-backnav.js?v=44bd32c799"></script>
     <script src="js/vendor/afk/afk-battlehud.js?v=ba0bc3e100"></script>
