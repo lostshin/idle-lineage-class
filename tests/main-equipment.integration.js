@@ -47,7 +47,7 @@ check('native fit scales the artwork by width and height with proportional socke
 });
 check('main backdrop uses teammate artwork and first-page figure follows actor gender',()=>{
     ids['equipment-window-prev'].onclick();const figure=()=>host.children.find(n=>n.className==='party-paperdoll-figure')?.children[0];
-    if(!bg.src?.includes('party-equipment-backdrop-v3-tall.png')||!figure()?.src.includes('m_mage'))return false;
+    if(!bg.src?.includes('party-equipment-backdrop-v3-tall.webp')||!figure()?.src.includes('m_mage'))return false;
     actor.avatar='女法師';ctx.refreshEquipmentWindow();if(!figure()?.src.includes('f_mage'))return false;
     ids['equipment-window-next'].onclick();return !figure()&&ids['equipment-window-next'].getAttribute('aria-pressed')==='true';
 });

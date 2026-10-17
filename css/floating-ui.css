@@ -121,7 +121,7 @@
     height:min(600px,calc(var(--ui-height,100vh) - 16px));
     container:warehouse / inline-size;
     border-width:28px !important;
-    border-image-source:url('../assets/ui/warehouse-frame-v1.png') !important;
+    border-image-source:url('../assets/ui/warehouse-frame-v1.webp') !important;
     border-image-slice:180 fill !important;
     border-image-width:56px !important;
     border-image-repeat:stretch !important;
@@ -161,7 +161,7 @@
 .warehouse-window-content .wh-list { --wh-row-height:52px; display:flex; flex-direction:column; gap:6px; flex:1; min-height:0; max-height:100% !important; margin:6px 10px 8px; overflow-x:hidden; overflow-y:auto; overscroll-behavior:contain; scrollbar-width:thin; scrollbar-color:#8c7649 #101115; }
 .wh-list.wh-virtual { overflow-anchor:none; }
 .wh-virtual-space { flex:none; pointer-events:none; }
-.wh-row { display:flex; height:var(--wh-row-height,52px); min-height:var(--wh-row-height,52px); flex:none; min-width:0; border:2px solid transparent; border-image:url('../assets/ui/warehouse-row-v1.png') 32 fill stretch; }
+.wh-row { display:flex; height:var(--wh-row-height,52px); min-height:var(--wh-row-height,52px); flex:none; min-width:0; border:2px solid transparent; border-image:url('../assets/ui/warehouse-row-v1.webp') 32 fill stretch; }
 #warehouse-window-content .wh-transfer,#warehouse-window-content .wh-quantity-button { border:0 !important; background:transparent !important; box-shadow:none; border-radius:0; }
 .wh-transfer { display:flex; align-items:center; gap:12px; flex:1; min-width:0; height:100%; padding:0; text-align:left; overflow:hidden; }
 .wh-item-icon { display:flex; align-items:center; justify-content:center; width:54px; height:100%; flex:none; background:#050608; border-right:1px solid #514b40; }
@@ -236,7 +236,7 @@
 
 /* Guild A shares the warehouse's actual silver frame, leather and native portraits. */
 #guild-window-frame {
-    min-width:0; border:28px solid transparent; border-image:url('../assets/ui/warehouse-frame-v1.png') 180 fill / 56px stretch;
+    min-width:0; border:28px solid transparent; border-image:url('../assets/ui/warehouse-frame-v1.webp') 180 fill / 56px stretch;
     border-radius:0; background:#101011; overflow:visible; container:guild / inline-size;
 }
 #guild-window-drag { flex:0 0 44px; padding:0 16px 8px; border-bottom:1px solid #8c7649; background:transparent; }
@@ -273,7 +273,7 @@
 .guild-filters button { flex:none; padding:3px 6px; font-size:12px; }
 #guild-slot-hint { flex:none; padding:0 8px 6px; color:#ae9d7a; font-size:12px; }
 #guild-candidates { flex:1; min-height:0; display:grid; grid-template-columns:repeat(auto-fill,minmax(125px,1fr)); grid-auto-rows:100px; align-content:start; gap:6px; overflow-y:auto; overflow-x:hidden; padding:0 8px 8px; overscroll-behavior:contain; scrollbar-width:thin; scrollbar-color:#8c7649 #101115; }
-#guild-window-frame .guild-item { display:flex; min-width:0; flex-direction:column; align-items:center; justify-content:center; padding:3px; background:url('../assets/ui/warehouse-row-v1.png') center / 100% 100%; }
+#guild-window-frame .guild-item { display:flex; min-width:0; flex-direction:column; align-items:center; justify-content:center; padding:3px; background:url('../assets/ui/warehouse-row-v1.webp') center / 100% 100%; }
 #guild-window-frame .guild-item[aria-pressed="true"] { outline:2px solid #b89b50; outline-offset:-2px; }
 .guild-item-icon { position:relative; display:flex; flex:1; align-items:center; justify-content:center; width:100%; min-height:0; }
 .guild-item-icon > img { width:46px; height:46px; object-fit:contain; image-rendering:pixelated; }
@@ -311,7 +311,7 @@
 #guild-window-frame .guild-roster { gap:8px; padding:4px; }
 #interaction-content.guild-content .guild-roster-row {
     display:flex; align-items:center; gap:12px; min-height:76px; padding:10px 14px;
-    border:2px solid transparent !important; border-image:url('../assets/ui/warehouse-row-v1.png') 32 fill stretch !important;
+    border:2px solid transparent !important; border-image:url('../assets/ui/warehouse-row-v1.webp') 32 fill stretch !important;
     border-radius:0; background:transparent !important; color:#d7cbb1;
 }
 .guild-roster-avatar { flex:none; display:flex; align-items:center; justify-content:center; width:44px; height:54px; border-right:1px solid #655238; }

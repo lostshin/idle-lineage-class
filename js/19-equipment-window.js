@@ -42,7 +42,7 @@
     ];
 
     // Taller backdrop: the top 4:3 is the original artwork (socket positions use it); the extended floor holds the stacked centre column and controls.
-    const EQUIPMENT_BACKDROP_URL = 'assets/ui/party-equipment-backdrop-v3-tall.png', EQUIPMENT_BACKDROP_RATIO = 1716 / 1086;
+    const EQUIPMENT_BACKDROP_URL = 'assets/ui/party-equipment-backdrop-v3-tall.webp', EQUIPMENT_BACKDROP_RATIO = 1716 / 1086;
     // Compact sockets matching the approved reference.
     // Narrow columns keep this ratio; height-limited fits stop shrinking once sockets reach 50px.
     const EQUIPMENT_SOCKET_RATIO = .16, EQUIPMENT_SOCKET_GAP = .015, EQUIPMENT_SOCKET_MIN = 50;

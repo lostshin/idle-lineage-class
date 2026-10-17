@@ -414,7 +414,7 @@
 .party-paperdoll-figure { position:absolute;left:6%;top:14%;width:88%;height:83%;display:flex;align-items:center;justify-content:center;overflow:hidden;pointer-events:none; }
 .party-paperdoll-figure > img { width:100%;height:100%;object-fit:contain;mix-blend-mode:screen;opacity:.8; }
 .party-paperdoll-figure .party-roster-portrait { flex:none;transform-origin:center; }
-:is(.party-equipment-frame,.equipment-window-embedded) .equipment-visual-slot { display:flex;align-items:center;justify-content:center;aspect-ratio:1;min-width:0;min-height:0;padding:0;border:0;background:url('../assets/ui/party-equipment-socket-v1.png') center / 100% 100%;overflow:hidden; }
+:is(.party-equipment-frame,.equipment-window-embedded) .equipment-visual-slot { display:flex;align-items:center;justify-content:center;aspect-ratio:1;min-width:0;min-height:0;padding:0;border:0;background:url('../assets/ui/party-equipment-socket-v1.webp') center / 100% 100%;overflow:hidden; }
 :is(.party-equipment-frame,.equipment-window-embedded) .equipment-visual-slot > img { position:relative;z-index:1;width:80%;height:80%;object-fit:contain;image-rendering:pixelated; }
 .party-equipment-slot-default { position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;background-repeat:no-repeat;opacity:.75; }
 .party-equipment-slot-default > img { width:80%;height:80%;object-fit:contain;filter:grayscale(1);opacity:.5; }
@@ -432,7 +432,7 @@
 @media(pointer:coarse){ .party-tabs .btn { min-height:44px; } }
 
 /* One warehouse frame surrounds the title, textured tabs and original roster. */
-#squad-panel { container-type:inline-size;border:10px solid transparent;border-image:url('../assets/ui/warehouse-frame-v1.png') 48 fill stretch;border-image-width:18px;border-radius:0;background:#111012; }
+#squad-panel { container-type:inline-size;border:10px solid transparent;border-image:url('../assets/ui/warehouse-frame-v1.webp') 48 fill stretch;border-image-width:18px;border-radius:0;background:#111012; }
 #squad-panel > .panel-header { position:relative;flex:none;min-height:44px;padding:7px 10px;border:0!important;border-radius:0;box-shadow:none;background:transparent;color:#e8dfc9;font:700 clamp(16px,6cqw,24px)/1.35 'PMingLiU',serif;letter-spacing:1px;text-shadow:0 2px 3px #000; }
 #squad-panel > .panel-header::before { content:none; }
 #squad-panel > .panel-header > span { display:flex;align-items:center;justify-content:center;gap:10px;max-width:100%;white-space:nowrap; }
@@ -441,7 +441,7 @@
 #squad-body { padding:2px 4px 6px;gap:6px; }
 #squad-body > .flex:first-child { gap:3px;flex:none; }
 #squad-panel #squad-tab-btn-team,#squad-panel #squad-tab-btn-skill { position:relative;isolation:isolate;min-width:0;min-height:clamp(28px,8cqw,38px);padding:5px 4px;border:0;border-radius:0;background:none;color:#d9d4ca;font:700 clamp(13px,4.4cqw,18px)/1.4 'PMingLiU',serif;white-space:nowrap;text-shadow:0 1px 2px #000;box-shadow:none; }
-#squad-panel [id^='squad-tab-btn-']::before { content:'';position:absolute;z-index:-2;inset:0;pointer-events:none;border:3px solid transparent;border-image:url('../assets/ui/warehouse-row-v1.png') 32 fill stretch;background-image:url('../assets/ui/warehouse-row-v1.png');background-size:100% 100%;filter:grayscale(.8) brightness(1.4);clip-path:polygon(4px 0,calc(100% - 4px) 0,100% 4px,100% calc(100% - 4px),calc(100% - 4px) 100%,4px 100%,0 calc(100% - 4px),0 4px); }
+#squad-panel [id^='squad-tab-btn-']::before { content:'';position:absolute;z-index:-2;inset:0;pointer-events:none;border:3px solid transparent;border-image:url('../assets/ui/warehouse-row-v1.webp') 32 fill stretch;background-image:url('../assets/ui/warehouse-row-v1.webp');background-size:100% 100%;filter:grayscale(.8) brightness(1.4);clip-path:polygon(4px 0,calc(100% - 4px) 0,100% 4px,100% calc(100% - 4px),calc(100% - 4px) 100%,4px 100%,0 calc(100% - 4px),0 4px); }
 #squad-panel [id^='squad-tab-btn-'][aria-selected='true'] { color:#f1dda7; }
 #squad-panel [id^='squad-tab-btn-'][aria-selected='true']::before { filter:sepia(1) saturate(1.6) brightness(1.9); }
 #squad-panel [id^='squad-tab-btn-'][aria-selected='true']::after { content:'';position:absolute;z-index:-1;inset:3px;pointer-events:none;background:linear-gradient(#a577374d,#754d1f55);box-shadow:inset 0 0 5px #bb8b3544; }
