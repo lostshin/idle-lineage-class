@@ -230,7 +230,7 @@ function gameLoop() {
     }
 
     if (!Number.isFinite(elapsed) || elapsed < 0) elapsed = 0;
-    _tickDebt += _hidden ? elapsed : Math.min(elapsed, FF_MAX_ELAPSED_MS);   // 背景凍結可能超過 5 分鐘：全額保留在債務中，不能因單次上限遺失收益
+    _tickDebt += (_hidden ? elapsed : Math.min(elapsed, FF_MAX_ELAPSED_MS)) * currentSpeed;   // Keep debt in simulation milliseconds so offline cooldowns retain a fixed tick size.
     if (_tickDebt < TICK_MS) {
         if (!_hidden && _ffAcc) _ffFinishCatchup();
         return;
@@ -254,7 +254,7 @@ function gameLoop() {
         try { if (typeof _vfxClearAll === 'function') _vfxClearAll(); } catch (e) {}   // 補跑只保留最終收益，立即釋放尚未播完的戰鬥特效
     }
     // 長補跑先讓瀏覽器畫出進度提示再開始重運算；只做一次，不增加每批額外等待。
-    if (!_hidden && !_ffAcc.progressPrimed && (_ffAcc.ticks * TICK_MS + _tickDebt) >= FF_PROGRESS_MIN_MS) {
+    if (currentSpeed === 1 && !_hidden && !_ffAcc.progressPrimed && (_ffAcc.ticks * TICK_MS + _tickDebt) >= FF_PROGRESS_MIN_MS) {
         _ffAcc.progressPrimed = true;
         _ffProgressUpdate(_ffAcc, _tickDebt);
         _ffScheduleNext();
@@ -317,18 +317,18 @@ function _ffFinishCatchup() {
     let _longCatchup = _acc.ticks >= 30;
     let _deferredSave = typeof takeCatchupSaveRequest === 'function' && takeCatchupSaveRequest();
     try { if (typeof flushCatchupAutoSort === 'function') flushCatchupAutoSort(); } catch (e) {}
-    if (_longCatchup) {   // ≥3 秒的補跑（回前景補幀）：統一刷新＋存檔＋摘要
+    if (_longCatchup && currentSpeed === 1) {   // ≥3 秒的補跑（回前景補幀）：統一刷新＋存檔＋摘要
         try { renderMobs(); updateUI(); renderTabs(true); } catch (e) {}
     } else {
         flushTickRender();
     }
-    let _needsSave = _longCatchup || _deferredSave || _acc.failed;
+    let _needsSave = (_longCatchup && currentSpeed === 1) || _deferredSave || _acc.failed;
     let _saveOk = false;
     if (_needsSave) {
         try { _saveOk = saveGame() === true; } catch (e) {}
     }
     // 🗑️ v3.7.94 移除 offlineCatchupSaveCommitted 呼叫：那是 js/27 離線掛機的「待結算補跑憑證」提交點，整套已刪除。
-    if (_longCatchup) {
+    if (_longCatchup && currentSpeed === 1) {
         try {
             let _gd = (player.gold || 0) - _acc.gold;
             let _sec = Math.round(_acc.ticks / 10);
@@ -408,6 +408,7 @@ function _ffProgressDuration(ms) {
 }
 
 function _ffProgressUpdate(acc, remainingMs) {
+    if (currentSpeed > 1) { _ffProgressHide(); return; }
     if (!acc || typeof document === 'undefined' || document.hidden) return;
     let doneMs = Math.max(0, Number(acc.ticks) || 0) * TICK_MS;
     let remainMs = Math.max(0, Math.floor((Number(remainingMs) || 0) / TICK_MS) * TICK_MS);

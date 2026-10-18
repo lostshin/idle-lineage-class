@@ -2636,10 +2636,21 @@ function _allyAutoBuffChips(a) {
     let list = (typeof allyAutoCastableSkills === 'function') ? allyAutoCastableSkills(a) : [];
     if (!list.length) return '';
     let s = a._slot;
+    if (a.mastery !== 'k_awaken') {
+        const enabled = list.filter(it => DB.skills[it.sid]?.awaken && _mercAutoOn(a, it.sid));
+        if (enabled.length > 1) {
+            const keep = enabled.find(it => (a.buffs?.[it.sid] || 0) > 0) || enabled[0];
+            if (!a._autoBuff) a._autoBuff = {};
+            enabled.forEach(it => { a._autoBuff[it.sid] = it === keep; });
+        }
+    }
+    const awakenOn = a.mastery !== 'k_awaken' && list.some(it => DB.skills[it.sid]?.awaken && _mercAutoOn(a, it.sid));
     let chips = list.map(it => {
         let on = (typeof _mercAutoOn === 'function') ? _mercAutoOn(a, it.sid) : false;
+        const locked = awakenOn && DB.skills[it.sid]?.awaken && !on;
         let name = (it.sid === 'sk_zombie' && a.eq && a.eq.shield && a.eq.shield.id === 'relic_necro_book') ? '骷髏復生' : it.n;
-        return `<label class="ally-auto-chip${on ? ' is-on' : ''}" title="自動維持 ${partyEscape(name)}（${it.cat}）"><input type="checkbox" ${on ? 'checked' : ''} onchange="setAllyAutoBuff('${s}','${it.sid}',this.checked)"><span>${partyEscape(name)}</span></label>`;
+        const title = locked ? '同時只能使用一種覺醒（需「覺醒精通」才能三種並用）' : `自動維持 ${partyEscape(name)}（${it.cat}）`;
+        return `<label class="ally-auto-chip${on ? ' is-on' : ''}${locked ? ' opacity-50' : ''}" title="${title}"><input type="checkbox" ${on ? 'checked' : ''} ${locked ? 'disabled' : ''} onchange="setAllyAutoBuff('${s}','${it.sid}',this.checked)"><span>${partyEscape(name)}</span></label>`;
     }).join('');
     let minChars = Math.max(6, ...list.map(it => it.n.length));
     return `<div class="ally-auto-section"><span class="ally-auto-heading" title="自動維持已學會的增益、召喚、回復與淨化技能">自動維持 <small>增益／召喚／回復／淨化</small></span><div class="ally-auto-grid" style="--ally-auto-min:calc(${minChars}em + 24px);">${chips}</div></div>`;
@@ -2668,7 +2679,7 @@ function renderSquadPanel() {
         + '||P:' + _pets.map(p => p.uid + ':' + p.lv + ':' + (p._downed ? 'D' : '') + ':' + Math.round(p.hp / Math.max(1, p.mhp) * 20) + ':' + Math.round(p.mp / Math.max(1, p.mmp) * 20) + ':' + Math.round((p.exp || 0) / Math.max(1, petExpReq(p.lv)) * 20) + ':' + (p.potPct || 0) + ':' + Math.ceil((p._reviveCd || 0) / 10)).join('|')
         + '||S:' + ((typeof summonTeamSignature === 'function') ? summonTeamSignature() : '')   // team 分頁：名單/倒地/等級＋寵物/召喚血量(5%階)變動才重建
         + '||G:' + ((typeof guardTeamSignature === 'function') ? guardTeamSignature() : '');   // 🏰 城堡護衛血量/倒地/復活倒數變動才重建
-    let sigSkill = _sigAllies + '||P:' + _pets.map(p => p.uid + ':' + petDisplayName(p)).join('|') + '||E:' + allies.map(a => (a.elfEle || '')+':'+(a.skills||[]).join(',')+':'+Object.values(a.eq||{}).filter(Boolean).map(itemSig).join(',')).join('|');   // 🩹 v3.2.74 skill 分頁只看傭兵名單/等級→戰鬥中寵物/召喚掉血不重建·開啟的技能下拉不被關
+    let sigSkill = _sigAllies + '||P:' + _pets.map(p => p.uid + ':' + petDisplayName(p)).join('|') + '||E:' + allies.map(a => (a.elfEle || '')+':'+(a.mastery || '')+':'+(a.skills||[]).join(',')+':'+Object.values(a.eq||{}).filter(Boolean).map(itemSig).join(',')).join('|');   // 🩹 v3.2.74 skill 分頁只看傭兵名單/等級→戰鬥中寵物/召喚掉血不重建·開啟的技能下拉不被關
     // 🧝 v3.8.5 追加 elfEle：來源妖精換屬性後 refreshAllyOnce 重建快照時名字/等級都沒變 → 簽章不動 → 技能下拉與自動維持勾選會停在舊屬性的清單（該隱藏的沒隱藏）
     let _squadRebuilt = false;
     if (sigTeam !== _squadSigTeam) {
@@ -2802,6 +2813,9 @@ function setAllyCastMp(slot, val) { let a = _findAlly(slot); if (a) { a._castMpP
 function setAllyAutoBuff(slot, sid, on) {
     let a = _findAlly(slot); if (!a || !sid) return;
     if (!a._autoBuff) a._autoBuff = {};
+    if (on && DB.skills[sid]?.awaken && a.mastery !== 'k_awaken') {
+        _MERC_AWAKENS.forEach(id => { if (id !== sid) a._autoBuff[id] = false; });
+    }
     a._autoBuff[sid] = !!on;
     if (!on && a.buffs && (a.buffs[sid] || 0) > 0) {   // 關閉→即時結束自我增益 buff（召喚/HoT 走各自到期·不在此強制解）
         let sk = DB.skills[sid]; a.buffs[sid] = 0; if (sk && sk.haste) a.buffs.haste = 0;

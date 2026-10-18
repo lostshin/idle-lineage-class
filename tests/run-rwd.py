@@ -13,6 +13,9 @@ REQUIRED = ['rwd','ui-scale','gameplay','account-gameplay','companion-commands']
 SUITES += ['desktop-acceptance','visual-desktop-acceptance','ability-cleanup','tooltip-stability','clan-ability','offline-rewards','effect-details','visual-effect-details']
 SUITES += ['warehouse-list','performance','ui-performance','mobile-status','party-header','field-reports']
 SUITES += ['optional-addons','comfort-release','creation-id','guild-settlement']
+SUITES += ['gear-accelerator']
+SUITES += ['ken-reports']
+SUITES += ['precise-shot']
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--desktop-only', action='store_true', help='Skip mobile and tablet viewport checks')

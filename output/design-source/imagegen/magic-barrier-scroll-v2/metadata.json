@@ -1,0 +1,20 @@
+{
+  "tool": "built-in image_gen",
+  "generated": "2026-10-18",
+  "source": "source.png",
+  "prompt": "prompt.txt",
+  "selected": true,
+  "runtime": "assets/icons/items/magic-barrier-scroll-v2.png",
+  "processing": "RGBA, Lanczos downscale to 64x64, preserve alpha",
+  "fang": {
+    "original": "assets/icons/accessories/獵犬之牙.png",
+    "output": "assets/icons/accessories/hound-fang-v2.png",
+    "processing": "clockwise 90 degree transpose, no interpolation"
+  },
+  "sha256": {
+    "assets/icons/items/magic-barrier-scroll-v2.png": "af2266a507efa1a05e57b6c06d90959493626c0a2e271be4d6781ce79068de27",
+    "assets/icons/accessories/hound-fang-v2.png": "2491381cab6c9c10c8509f7e8a68e4b5958c6c4c712215a792fa313dc5016780",
+    "output/design-source/imagegen/magic-barrier-scroll-v2/source.png": "9db16dec91fe543af4ca5f9ee1ba5f353d688f43b04ba09b4e280f1b40665950",
+    "output/design-source/imagegen/magic-barrier-scroll-v2/prompt.txt": "21a00c383a24404f52748e8b4eafd11f30c926a93d8d8d9668a4a942f51f4eab"
+  }
+}

@@ -1,0 +1,6 @@
+Use case: stylized-concept
+Asset type: one retro MMORPG inventory item icon, square, designed to read clearly at 64 by 64 pixels.
+Primary request: a magic barrier spell scroll. A single partly unrolled aged ivory parchment with reddish brown fantasy rune marks, occupying the lower left and center. Overlapping its upper right corner is one small dark forest-green square spell badge with a thin subdued metallic edge and a bold ivory-white curved crescent-like protective magical symbol inside.
+Style: late-1990s hand-painted pixel-art game item sprite, chunky readable pixel clusters, restrained cream/brown/green palette, modest shading. No glossy vector treatment, no realistic paper photograph. The parchment remains the main object; the badge is about 40% of the icon width.
+Composition: single centered complete icon with a narrow transparent margin. Orthographic inventory sprite. No overall inventory slot frame.
+Constraints: genuinely transparent background, no text labels or numerals, no padlock, no watermark, no outer glow, no scenery, no extra items. Rune marks must look like decorative glyphs rather than readable words.

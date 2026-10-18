@@ -415,7 +415,7 @@
     }
 
     function _offlineSurvivalTrackable() {
-        return typeof state !== 'undefined' && state && state.running && !state.ff &&
+        return currentSpeed === 1 && typeof state !== 'undefined' && state && state.running && !state.ff &&
             typeof player !== 'undefined' && player && player.cls && !player.dead &&
             typeof mapState !== 'undefined' && mapState && _offlineValidHuntMap(mapState.current) &&
             !(player.siege && player.siege.active) && !state.prideClimb && !state.riftRun;
@@ -575,6 +575,7 @@
         if (!st) return null;
         let currentMap = String(mapState && mapState.current || '');
         let previous = _offlineProfileForMap(st, currentMap);
+        if (currentSpeed > 1) return previous;
         if (previous) {
             previous = _offlineAttachSurvival(previous, currentMap, now, false) || previous;
             previous = _offlineRememberProfile(st, Object.assign({}, previous, { updatedAt: now }));
@@ -645,7 +646,7 @@
         // 已排入本頁記憶體的舊債不可再取 max，否則中途關頁會把已補過的部分再次帶回。
         let previousMs = _offlineRestoredCatchupKey === key ? 0 :
             (previous ? Math.max(0, Math.floor(_offlineFinite(previous.ms, 0))) : 0);
-        let ms = Math.max(previousMs, Math.floor(Math.max(0, runtimeMs) + hiddenMs));
+        let ms = Math.max(previousMs, Math.floor(Math.max(0, runtimeMs) + hiddenMs * currentSpeed));
         if (ms < TICK_MS) {
             _offlineStorageRemove(key);
             return false;
@@ -1785,7 +1786,7 @@
             let map = typeof mapState !== 'undefined' && mapState ? String(mapState.current || '') : '';
             let mob = mapState && mapState.mobs ? mapState.mobs[idx] : null;
             // 真實補跑（state.ff）會逐 tick 正常給獎，但不能拿壓縮執行的牆鐘時間建立離線速率或 BOSS 擊殺時間證明。
-            let foreground = !(typeof state !== 'undefined' && state && state.ff);
+            let foreground = currentSpeed === 1 && !(typeof state !== 'undefined' && state && state.ff);
             let validMob = foreground && _offlineValidMob(mob, map);
             let validBoss = foreground && _offlineValidBoss(mob, map);
             let tracked = validMob || validBoss;
@@ -1908,6 +1909,8 @@
             return result;
         };
     }
+
+    window.offlineResetRateSample = function () { _offlineResetRuntime(mapState.current); };
 
     const _offlineOriginalSaveGame = window.saveGame;
     if (typeof _offlineOriginalSaveGame === 'function') {

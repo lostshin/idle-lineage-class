@@ -1,0 +1,20 @@
+// Verify the requested copy in the native skill and buff hovers.
+(async()=>{
+const fs=await import('node:fs/promises'),crypto=await import('node:crypto');
+const task=await taskSpace(options.space||'精準射擊說明驗收'),page=task.page('p1'),reports=[],sources={};console.log({spaceId:task.spaceId});
+for(const f of ['index.html','js/00-data.js','js/03-combat-core.js','js/06-status-allies.js','js/effect-details.js','js/14-craft-pandora.js','tests/precise-shot.e2e.js'])sources[f]=crypto.createHash('sha256').update(await fs.readFile(options.root+'/'+f)).digest('hex');
+const init=(await page.cdp('Page.addScriptToEvaluateOnNewDocument',{source:`(()=>{const data={};const s={getItem:k=>data[k]??null,setItem:(k,v)=>data[k]=String(v),removeItem:k=>delete data[k],key:i=>Object.keys(data)[i]??null,get length(){return Object.keys(data).length;}};for(const k of ['localStorage','sessionStorage'])Object.defineProperty(window,k,{value:s,configurable:true});window.BroadcastChannel=undefined;window.__preciseErrors=[];addEventListener('error',e=>__preciseErrors.push(e.message));})();`})).identifier;
+async function check(name,fn){try{const r=await fn();if(r!==true)throw Error(JSON.stringify(r));reports.push({name,status:'PASS'});}catch(e){reports.push({name,status:'FAIL',error:String(e)});}await fs.writeFile(options.artifacts+'/precise-shot-'+(options.baseline?'baseline-':'')+options.protocol+'.json',JSON.stringify({method:'Actual Ego browser, native skill and map buff hover, synthetic elf and isolated storage; no combat formulas changed',sources,reports},null,2));}
+await page.cdp('Emulation.setDeviceMetricsOverride',{width:1330,height:900,deviceScaleFactor:1,mobile:false});await page.cdp('Emulation.setTouchEmulationEnabled',{enabled:false});
+await page.goto(options.url+'?precise-shot-test');await page.waitForFunction(()=>document.readyState==='complete'&&typeof startGame==='function');
+await page.evaluate(()=>{_bgHeartbeatWorker?.terminate();_bgHeartbeatWorker=null;_getLzWorker=()=>null;selectClass('m_elf');document.getElementById('creation-name').value='合成精準射擊';startGame();stopGameTimers();state.running=false;player.lv=60;player.elfEle='wind';player.skills=[...new Set([...player.skills,'sk_elf_preciseshot'])];calcStats();renderTabs(true);switchTab('skill',document.querySelector('[onclick="switchTab(\'skill\', this)"]'));classicSkillChooseMode('class');});
+await page.hover('[data-tip-skill="sk_elf_preciseshot"]',{label:'核對精準射擊技能說明'});await page.waitForFunction(()=>[...document.querySelectorAll('.game-tooltip')].some(e=>e.getClientRects().length&&e.textContent.includes('精準射擊')));
+await check('skill hover shows the requested copy and native cost/duration',()=>page.evaluate(()=>{const t=[...document.querySelectorAll('.game-tooltip')].find(e=>e.getClientRects().length&&e.textContent.includes('精準射擊'))?.textContent||'';return /MP 15/.test(t)&&t.includes('64 秒')&&t.includes('在時效內，目標遠距離攻擊的迴避率無效化。');}));
+await page.mouse.move(0,0);await page.evaluate(()=>{player.buffs.sk_elf_preciseshot=64;renderStatusIconBar();});
+await page.hover('#status-icon-bar [data-effect-id="sk_elf_preciseshot"]',{label:'核對精準射擊狀態說明'});await page.waitForFunction(()=>!document.getElementById('effect-tooltip').hidden);
+await check('active buff hover reuses exactly the requested copy',()=>page.evaluate(()=>{const t=document.getElementById('effect-tooltip').textContent;return DB.skills.sk_elf_preciseshot.desc==='在時效內，目標遠距離攻擊的迴避率無效化。'&&['精準射擊','64 秒',DB.skills.sk_elf_preciseshot.desc].every(s=>t.includes(s));}));
+await check('skill cost, duration, element and refresh behavior remain unchanged',()=>page.evaluate(()=>{const s=DB.skills.sk_elf_preciseshot;return s.mp===15&&s.dur===64&&s.reqEle==='wind'&&s.noRefresh===true;}));
+await check('no browser runtime errors',()=>page.evaluate(()=>__preciseErrors.length===0||__preciseErrors));
+await page.cdp('Page.removeScriptToEvaluateOnNewDocument',{identifier:init});await page.goto('about:blank');console.log({checks:reports.length,reports});
+if(reports.some(r=>r.status==='FAIL'))throw Error('Precise shot description failed');if(!options.keepSpace)await task.finish({keep:[]});
+})();

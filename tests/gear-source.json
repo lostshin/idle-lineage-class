@@ -1,0 +1,12 @@
+{
+  "url": "https://aquamarineserver.com/Lineage/",
+  "capturedAt": "2026-10-17T16:39:55.272094+00:00",
+  "version": "v3.8.34",
+  "sha256": {
+    "inline.js": "2766574dbd168e80905a759e179d52bf111e44543f38f6ea4a6f8a03e64f2f07",
+    "panel.html": "afe5be917ec5e9cc04b7d24bb75e243f416b13c1b23104cd4446cc33aa35cf1e",
+    "01-drops-config.js": "35e504000b816b836265bfc6f2e0a2ab32480406400139d7be8767672b950c85",
+    "03-combat-core.js": "d9d522e9f41455e8ec2683060107662d956631218e9cd7f51ffa1cc8c954bca3"
+  },
+  "adaptation": "Original visible panel, speed choices, market search, summary, drag and auto-retreat/revival. Fixed-tick integration preserves this fork offline engine. Excludes hidden speed/stat-cap and unrelated image preloading."
+}

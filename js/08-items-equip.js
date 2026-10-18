@@ -1511,7 +1511,11 @@ function _updateUIImpl() {
             let _respecOn = !!_respec;
             let _editing = _respecOn || (player.bonus || 0) > 0;
             let _ptsLeft = _respecOn ? respecPtsLeft() : (player.bonus || 0);
-            document.querySelectorAll('.alloc-plus').forEach(el => syncUiClass(el, 'hidden', !_editing));
+            ['str', 'dex', 'con', 'int', 'wis', 'cha'].forEach(key => {
+                const el = document.querySelector('.ability-primary-' + key + ' .alloc-plus');
+                const value = _respecOn ? createBase[player.cls][key] + _respec.draft[key] : naturalStat(key);
+                syncUiClass(el, 'hidden', !_editing || _ptsLeft <= 0 || value >= 60);
+            });
             document.querySelectorAll('.alloc-minus').forEach(el => syncUiClass(el, 'hidden', !_respecOn));   // 只有蠟燭重置可退點
             let _tabStats = document.getElementById('tab-stats'); if (_tabStats) syncUiClass(_tabStats, 'is-respec', _respecOn);
             let _bar = document.getElementById('alloc-edit-bar');

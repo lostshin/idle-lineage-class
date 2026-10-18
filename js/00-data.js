@@ -1170,7 +1170,7 @@ const DB = {
         "new_item_140": { n: "慎重藥水", type: "pot", req: "mage,illusion", p: 600, c: "text-purple-300", d: "使思緒沉靜澄明的秘藥，能增進施法者的魔力運行與恢復。", eff: "cautious", dur: 300, gachaWeight: 0 },
         "new_item_141": { n: "安特的水果", type: "pot", req: "all", p: 360, c: "text-green-300", d: "由安特孕育的奇異果實，飽含森林的生命力。", gachaWeight: 0 },
         "scroll_poly": { n: "變形卷軸", type: "scroll", req: "all", p: 1300, c: "text-gray-300", d: "記載古老變形術的卷軸，能讓使用者暫時化為與自身歷練相稱的姿態。", eff: "poly", dur: 1800, gachaWeight: 0 },
-        "scroll_magicbarrier": { n: "魔法卷軸(魔法屏障)", type: "scroll", req: "all", p: 1500, c: "text-cyan-300", d: "封存魔法屏障的卷軸，展開後能抵擋一次來襲的技能。", eff: "magicbarrier", gachaWeight: 0 },
+        "scroll_magicbarrier": { n: "魔法卷軸(魔法屏障)", img: "assets/icons/items/magic-barrier-scroll-v2.png", type: "scroll", req: "all", p: 1500, c: "text-cyan-300", d: "封存魔法屏障的卷軸，展開後能抵擋一次來襲的技能。", eff: "magicbarrier", gachaWeight: 0 },
         "scroll_teleport": { n: "瞬間移動卷軸", type: "scroll", req: "all", p: 82, c: "text-sky-300", d: "使用後發動傳送術", eff: "teleport_scroll", gachaWeight: 0 },
         "scroll_revive": { n: "復活卷軸", type: "scroll", req: "all", p: 1000, c: "text-yellow-300", d: "蘊藏復甦之力的神聖卷軸，能使倒下的冒險者或傭兵在原地重新站起。", gachaWeight: 0 },
         "item_blueflute": { n: "藍色長笛", p: 1, c: "text-blue-300", d: "試煉所需的材料。", gachaWeight: 0 },   // 🔧 試煉材料統一藍色
@@ -1201,7 +1201,7 @@ const DB = {
         // 不死鳥之心（製作材料，不死鳥 1% 掉落）
         "new_phoenix_heart": { n: "不死鳥之心", type: "etc", p: 0, c: "text-blue-300", noUse: true, gachaWeight: 0, d: "不死鳥體內不滅的核心。製作材料。" },
         // ===== 🦴 寵物裝備（之牙）：裝在「寵物裝備」欄，能力只影響寵物，可用對飾品施法的卷軸強化至+5 =====
-        "pet_fang_hound":   { n: "獵犬之牙", type: "acc", slot: "petwpn", req: "all", safe: 0, p: 10000,  c: "text-white", petHit: 2,            d: "獵犬的尖牙磨成的護符，喚醒寵物的野性。", gachaWeight: 10 },
+        "pet_fang_hound":   { n: "獵犬之牙", img: "assets/icons/accessories/hound-fang-v2.png", type: "acc", slot: "petwpn", req: "all", safe: 0, p: 10000,  c: "text-white", petHit: 2,            d: "獵犬的尖牙磨成的護符，喚醒寵物的野性。", gachaWeight: 10 },
         "pet_fang_steel":   { n: "鋼鐵之牙", type: "acc", slot: "petwpn", req: "all", safe: 0, p: 10000,  c: "text-white", petDmg: 2,            d: "以鋼鐵鑄成的森冷利齒，使寵物撕咬更為兇猛。", gachaWeight: 10 },
         "pet_fang_ruin":    { n: "破滅之牙", type: "acc", slot: "petwpn", req: "all", safe: 0, p: 100000, c: "text-white", petDmg: 2, petHit: 3, d: "沾染破滅氣息的獠牙，令寵物的撕咬帶來毀滅。", gachaWeight: 0 },
         "pet_fang_victory": { n: "勝利之牙", type: "acc", slot: "petwpn", req: "all", safe: 0, p: 100000, c: "text-white", petDmg: 3, petHit: 1, d: "銘刻無數勝戰的榮耀之牙，激起寵物的鬥志。", gachaWeight: 0 },
@@ -2913,7 +2913,7 @@ const DB = {
         "sk_elf_blazewpn": { n: "烈炎武器", type: "buff", tier: 5, reqE: 50, mp: 30, dur: 1200, reqEle: "fire", d: { meleeDmg: 5, meleeHit: 5 } },
         "sk_elf_flamesoul": { n: "烈焰之魂", type: "buff", tier: 5, reqE: 50, mp: 30, dur: 1280, reqEle: "fire", noRefresh: true },   // 🔧 持續內近距離一般攻擊武器擲骰必定最大值（見 getPhysicalDmg）；noRefresh：效果結束才可再施放
         "sk_elf_stormshot": { n: "暴風神射", type: "buff", tier: 5, reqE: 50, mp: 30, dur: 1200, reqEle: "wind", d: { rangedDmg: 6, rangedHit: 3 } },
-        "sk_elf_preciseshot": { n: "精準射擊", type: "buff", tier: 5, reqE: 50, mp: 15, dur: 64, reqEle: "wind", noRefresh: true, msg: "你的目光變得無比銳利，攻擊精準無比。" },   // 🏹 持續內一般攻擊擲骰1由必定未命中→必定命中（最高命中率可達100%·見 getPhysicalDmg）；noRefresh：效果結束才可再施放
+        "sk_elf_preciseshot": { n: "精準射擊", type: "buff", tier: 5, reqE: 50, mp: 15, dur: 64, reqEle: "wind", noRefresh: true, desc: "在時效內，目標遠距離攻擊的迴避率無效化。", msg: "你的目光變得無比銳利，攻擊精準無比。" },   // 🏹 持續內一般攻擊擲骰1由必定未命中→必定命中（最高命中率可達100%·見 getPhysicalDmg）；noRefresh：效果結束才可再施放
         "sk_elf_steelguard": { n: "鋼鐵防護", type: "buff", tier: 5, reqE: 50, mp: 30, dur: 1200, reqEle: "earth", d: { ac: 10 } },   // 🛡️ 鋼鐵防護：僅施法者自身 AC-10；不再提供全隊百分比減傷
         "sk_elf_attrfire": { n: "屬性之火", type: "buff", tier: 5, reqE: 50, mp: 20, dur: 320, reqEle: "fire", noRefresh: true, msg: "屬性之火在你的攻擊中燃燒。" },   // 🔧 一般攻擊30%機率傷害×1.5（見 playerAttack，與燃燒鬥志同效）；noRefresh：效果結束才可再施放
         "sk_elf_physboost": { n: "體能激發", type: "buff", tier: 5, reqE: 50, mp: 30, dur: 960, reqEle: "earth", noRefresh: true, loadFreeRegen: true, msg: "體能激發，負重之下仍能調息。" },   // 🔧 負重狀態仍可自然恢復HP/MP（見 js/03 _regenHP/_regenMP 與 hasLoadFreeRegen）；noRefresh：效果結束才可再施放

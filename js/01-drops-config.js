@@ -1306,6 +1306,7 @@ let _royalFreeCast = false;   // 👑 魔法精通：一般攻擊命中 10% 免M
 let state = { running: false, ticks: 0, pDmgTick: 0, ff: false, ffSmall: false, inTick: false };
 // Open tabs use real tick catchup; closed-page rewards are settled separately by js/27.
 const TICK_MS = 100;                 // 一個邏輯 tick 代表的真實時間
+let currentSpeed = 1;
 const JUNK_AUTOSELL_TICKS = 100;    // 🗑️ 廢品自動賣出間隔：10 秒（100 tick × 100ms·2026-07-01 由 1800/3分鐘改快）；玩家手動標示廢品會把倒數重置為此值（標完 10 秒無新動作才賣）。⚠️自動賣出這條路徑不 saveGame(見 autoSellJunk)，靠其他既有存檔點落地
 const MERC_EXP_SHARE = 0.5;          // ⚠️已停用：v3.7.62 起主玩家、未倒地傭兵與寵物各得完整經驗；常數只留給舊外部引用
 // 🤝 Phase4：設為「全體」的怪物攻擊技能名（依 mag.skn 比對·同名全部生效）→ 同時打玩家＋全部非倒地傭兵。其餘怪物傷害/狀態魔法仍可依仇恨權重隨機打單一目標(玩家或某傭兵)。
@@ -1347,7 +1348,7 @@ function queueCatchupMs(ms) {
 
 // 背景分頁回前景：把整段時間排入真實 tick 補跑；分批執行以維持畫面可操作。
 function settleBackgroundMs(ms, reason) {
-    ms = Math.max(0, Number(ms) || 0);
+    ms = Math.max(0, Number(ms) || 0) * currentSpeed;
     if (ms < TICK_MS) return true;
     if (queueCatchupMs(ms)) return true;
     if (typeof logSys === 'function') {
