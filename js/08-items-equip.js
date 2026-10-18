@@ -1320,10 +1320,16 @@ function renderStatusIconBar() {
     let sig=rows.map(x=>x.name+'|'+x.label).join('||');
     if(bar.dataset.statusSig!==sig){
         bar.dataset.statusSig=sig;
-        bar.innerHTML=rows.map((x,i)=>{let title=x.label+(x.ticks>0?'｜剩餘 '+x.sec+' 秒':'');return `<div class="status-icon${x.ally?' status-icon--ally':''}" data-status-index="${i}" tabindex="0" data-effect-id="${x.effectId}" data-effect-seconds="${x.ticks>0?x.sec:''}" data-effect-source="${x.ally?'隊友提供':'自身'}" aria-label="${title}"><img src="${statusIconUrl(x.effectId,x.icon||x.name)}" alt="${x.label}"></div>`;}).join('');
-    } else {
-        rows.forEach((x,i)=>{let icon=bar.querySelector(`[data-status-index="${i}"]`);if(!icon)return;icon.dataset.effectSeconds=x.ticks>0?x.sec:'';icon.setAttribute('aria-label',x.label+(x.ticks>0?'｜剩餘 '+x.sec+' 秒':''));});
+        // Keep hovered icons alive when another effect is added or expires.
+        const icons=new Map([...bar.children].map(n=>[n.dataset.effectId,n]));
+        bar.replaceChildren(...rows.map((x,i)=>{
+            let icon=icons.get(x.effectId);
+            if(!icon){icon=document.createElement('div');icon.tabIndex=0;icon.innerHTML=`<img src="${statusIconUrl(x.effectId,x.icon||x.name)}" alt="${x.label}">`;}
+            icon.className='status-icon'+(x.ally?' status-icon--ally':'');icon.dataset.statusIndex=i;icon.dataset.effectId=x.effectId;icon.dataset.effectSource=x.ally?'隊友提供':'自身';
+            return icon;
+        }));
     }
+    rows.forEach((x,i)=>{let icon=bar.querySelector(`[data-status-index="${i}"]`);if(!icon)return;icon.dataset.effectSeconds=x.ticks>0?x.sec:'';icon.setAttribute('aria-label',x.label+(x.ticks>0?'｜剩餘 '+x.sec+' 秒':''));});
 }
 
 // 統一渲染「狀態」欄：魔法/藥水增益(buff) + 受到的減益(debuff)

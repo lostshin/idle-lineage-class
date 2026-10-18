@@ -1,0 +1,70 @@
+{
+  "generator": "Built-in image_gen",
+  "useCase": "ui-mockup",
+  "revision": 2,
+  "status": "implemented and verified",
+  "selected": "A",
+  "appliedToGame": true,
+  "windowStructure": "Two independent windows, each with its own border, title and close X. Comparison on the left; item information and actions on the right.",
+  "proposals": [
+    {
+      "id": "A",
+      "title": "經典雙窗",
+      "file": "a-classic-two-windows-v2.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "sha256": "b6488b6e8eedcd6e2ca8dd842181e0d19553faec05a281ce45cbfba272ed822c"
+    },
+    {
+      "id": "B",
+      "title": "精簡對照",
+      "file": "b-compact-comparison-v2.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "sha256": "65e08a2db25e48ddb546de69eacbaac5f156b0d10f5f48327eed4b4f7ced9179"
+    },
+    {
+      "id": "C",
+      "title": "窄幅比較",
+      "file": "c-narrow-comparison-v2.png",
+      "size": [
+        1536,
+        1024
+      ],
+      "sha256": "10e14cca3232978d4cdba17f7b84b66deb245a1ddd6e16f3e68804e4c6dd7436"
+    }
+  ],
+  "prompts": "prompts.json",
+  "notes": [
+    "Previous single-window concepts were superseded and removed from project deliverables.",
+    "All values and icon arrangements are illustrative; implementation must retain original game assets, data and handlers."
+  ],
+  "requestedAdjustments": [
+    "Remove bottom close-window button; use upper-right red X matching C",
+    "Place junk checkbox first in the item action area"
+  ],
+  "production": {
+    "frame": "assets/ui/item-modal-frame-v1.webp",
+    "button": "assets/ui/backpack-a-button-v1.webp",
+    "closeSource": "assets/ui/item-modal-close-v1.png",
+    "closeRuntime": "assets/ui/item-modal-close-v1.webp",
+    "closeEncoding": "lossless WebP, quality/effort 90, exact RGBA (including transparent RGB)",
+    "closePrompt": "production/close-button-prompt.txt",
+    "sourceSha256": "0953556f5314cb7b9f958eaba9a0215a91f0fc90517e2190f6fc1dbb118aadeb",
+    "runtimeSha256": "e8fcb9f2c9d51fdbbaf33fd4c607fa6b736f455ebc8b1249dd7855feb8f0d546",
+    "lining": "assets/ui/warehouse-frame-v1.webp",
+    "liningUse": "Warehouse leather clipped to padding-box below transparent silver overlay; no outer black matte or shadow",
+    "windowControls": "Fixed centered windows; no drag/resize binding. Closing item information explicitly hides comparison.",
+    "frameSource": "assets/ui/item-modal-frame-v1.png",
+    "framePrompt": "production/frame-transparency-prompt.txt",
+    "frameEncoding": "Lossless WebP, quality 90, exact RGBA including transparent RGB",
+    "frameSourceSha256": "cd87c0f927178617408143f960ff4ac1260307551ab90fb37941e6d1c42fe1ce",
+    "frameRuntimeSha256": "86eab24153254b73daf3f42f7c1f5cf413908b32bb17293dab111b60518c7840",
+    "comparisonCopy": "12px"
+  },
+  "verification": "tmp/test-runs/item-window-fixed/completion.json"
+}

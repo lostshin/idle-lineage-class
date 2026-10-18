@@ -15,10 +15,10 @@
     <title>放置天堂 舒適版</title>
     <link rel="icon" type="image/png" href="assets/favicon.png">   <!-- 🖼️ 瀏覽器分頁圖示(favicon)：把你的圖放到 assets/favicon.png 即生效；可改 href 路徑或副檔名(.ico/.svg) -->
 
-    <link rel="stylesheet" href="css/style.css?v=669f1f5ad6">
+    <link rel="stylesheet" href="css/style.css?v=8a1ffefe4c">
     <link rel="stylesheet" href="css/floating-ui.css?v=ecab37aa0a">
     <link rel="stylesheet" href="css/tailwind-built.css?v=932535789f"><!-- 🔧 預編譯 Tailwind（取代執行期 JIT tailwind.js）：只含實際用到的 class，省 407KB runtime + 移除持續掃描 DOM 的成本。置於 style.css 之後以保留原 cascade（utility 平手時勝過自訂 class，與舊 JIT 注入順序一致） -->
-    <link rel="stylesheet" href="css/responsive.css?v=a73ca675ed">
+    <link rel="stylesheet" href="css/responsive.css?v=6421ae2e6e">
     <link rel="stylesheet" href="css/addons.css?v=420511a7ea">
 </head>
 <body class="h-screen w-screen overflow-hidden">
@@ -525,14 +525,17 @@
 
     <!-- 物品操作 Modal -->
     <div id="item-modal" class="hidden absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 flex gap-4 items-start">
-        <div id="modal-compare" class="hidden panel border-slate-600 p-5 min-w-[280px] max-w-[340px] max-h-[80vh] overflow-y-auto shadow-[0_0_40px_rgba(0,0,0,0.8)]" style="background:#1e293b"></div>
-        <div class="panel border-slate-500 p-6 min-w-[360px] shadow-[0_0_40px_rgba(0,0,0,0.8)]" style="background:#1e293b">
+        <div id="modal-compare" class="hidden panel" role="region" aria-labelledby="modal-compare-title">
+            <header class="item-modal-header"><h2 id="modal-compare-title">能力比較</h2><button id="modal-compare-close" type="button" class="item-modal-close" aria-label="關閉能力比較" onclick="document.getElementById('modal-compare').classList.add('hidden')"></button></header>
+            <div id="modal-compare-body" class="item-modal-body"></div>
+        </div>
+        <div id="modal-item-window" class="panel" role="dialog" aria-labelledby="modal-info-title">
+            <header class="item-modal-header"><h2 id="modal-info-title">物品資訊</h2><button id="modal-item-close" type="button" class="item-modal-close" aria-label="關閉物品資訊" onclick="closeModal()"></button></header>
             <div class="item-modal-body">
             <h3 id="modal-item-name" class="text-xl font-bold mb-3 border-b border-slate-600 pb-3 flex items-center justify-between"><span>物品名稱</span><span id="modal-lock-icon" class="text-lg">🔓</span><!-- 🗑️ v3.5.83 移除 onclick="toggleLockModal()"：該函式全專案未定義（開窗前 innerHTML 一律被覆寫，故從未真的觸發） --></h3>
             <p id="modal-item-desc" class="text-base text-slate-300 mb-6 min-h-[60px] leading-relaxed">物品說明</p>
             <div class="grid grid-cols-2 gap-3" id="modal-actions"></div>
             </div>
-            <button onclick="closeModal()" class="mt-5 w-full btn py-3 bg-slate-700 text-lg font-bold">關閉視窗</button>
         </div>
     </div>
 
@@ -618,7 +621,7 @@
     </script>
 
     <script src="js/anim-manifest.js?v=14d284fa9f"></script>
-    <script src="js/00-data.js?v=1078ea60e0"></script>
+    <script src="js/00-data.js?v=fadafa0bca"></script>
     <script src="js/game-layout.js?v=0c5d56ca90"></script>
 <script src="js/01-drops-config.js?v=607524c932"></script>
 <script src="js/02-stats-recompute.js?v=b4d0f38161"></script>
@@ -627,24 +630,24 @@
 <script src="js/05-kill-progression.js?v=8ab11f076b"></script>
     <script src="js/06-status-allies.js?v=9b594166f3"></script>
     <script src="js/07-skills-cast.js?v=2ff536efb6"></script>
-<script src="js/08-items-equip.js?v=4e83792171"></script>
+<script src="js/08-items-equip.js?v=d995f9e43f"></script>
 <script src="js/09-vfx-render.js?v=c857bbe82c"></script>
     <script src="js/effect-details.js?v=74bf1b73a1"></script>
     <script src="js/party-inspector.js?v=09ec8e9f46"></script>
     <script src="js/party-portrait-bounds.js?v=57f5054baa"></script>
     <script src="js/party-roster.js?v=0a51636f3f"></script>
-    <script src="js/10-ui-tabs.js?v=e031381f66"></script>
+    <script src="js/10-ui-tabs.js?v=a17973ea32"></script>
 <script src="js/11-world-map.js?v=70f5c55f1d"></script>
 <script src="js/12-npc-quests.js?v=ae5e168b32"></script>
-<script src="js/13-shop-save.js?v=9c8274a98d"></script>
-<script src="js/14-craft-pandora.js?v=200000a62a"></script>
+<script src="js/13-shop-save.js?v=e51000822e"></script>
+<script src="js/14-craft-pandora.js?v=9d00a98a6f"></script>
 <script src="js/15-cards.js?v=42975a78a0"></script>
 <script src="js/16-equip-book.js?v=06993d3f55"></script>
 <script src="js/18-misc-book.js?v=9a4bbc3677"></script>
 <script src="js/17-audio.js?v=8b26455c32"></script>
 <script src="js/19-equipment-window.js?v=44e1f3cb6a"></script>
 <script src="js/20-warehouse-window.js?v=e6c02170f9"></script>
-<script src="js/guild-window.js?v=0feec94671"></script>
+<script src="js/guild-window.js?v=1915a29398"></script>
 <script src="js/21-relic-book.js?v=40aef7ae9b"></script>
     <script src="js/23-summons.js?v=6a3e978023"></script>
     <script src="js/22-pets.js?v=f572eba618"></script>
@@ -652,7 +655,7 @@
     <script src="js/24-pandora-relic-market.js?v=f4dc248558"></script>
     <script src="js/25-clan-system.js?v=0edd878cc5"></script>
     <script src="js/26-world-channel.js?v=6f37c8a1cb"></script>
-<script src="js/27-offline-rewards.js?v=20b845f895"></script>
+<script src="js/27-offline-rewards.js?v=072e74b293"></script>
 <script src="js/28-pvp-arena.js?v=5254f7adfb"></script>
 <script src="js/29-siege-v2-data.js?v=379d78bb1e"></script>
 <script src="js/30-siege-v2.js?v=09b50f9871"></script>
@@ -723,7 +726,7 @@
     <script src="js/vendor/afk/afk-pwa.js?v=b6674413dc"></script>
     <script src="js/vendor/afk/afk-sw.js?v=6a1669d3ff"></script>
     <script src="js/addon-integration.js?v=1e76d8448e"></script>
-    <script src="js/addon-optional-integration.js?v=efd7baa2ac"></script>
+    <script src="js/addon-optional-integration.js?v=4e1d47a1da"></script>
     <script src="js/gear-accelerator.js?v=5b70725f89"></script>
     <script src="js/addon-settings.js?v=60043ce12f"></script>
     <script src="js/online-presence.js?v=6743fb69b9"></script>

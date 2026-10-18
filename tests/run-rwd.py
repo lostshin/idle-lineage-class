@@ -21,6 +21,8 @@ SUITES += ['main-backpack']
 SUITES += ['equipment-trials']
 SUITES += ['backpack-a']
 SUITES += ['guild-inventory-filters']
+SUITES += ['backpack-feedback']
+SUITES += ['item-window-controls']
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--desktop-only', action='store_true', help='Skip mobile and tablet viewport checks')

@@ -1311,7 +1311,7 @@
     function _offlineLootHtml(result) {
         let itemRows = Object.keys(result.items || {}).map(id => ({
             name: (typeof DB !== 'undefined' && DB.items && DB.items[id] && DB.items[id].n) || id,
-            color: DB.items[id]?.c || 'text-white',
+            color: DB.items[id] ? getItemColor({id:id,en:0}) : 'text-white',
             count: result.items[id]
         })).sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
         let tierName = { 1: '普卡', 2: '銀卡', 3: '金卡' };
@@ -1320,10 +1320,10 @@
             return { name: name + ' ' + (tierName[tier] || '卡片'), count: result.cards[key] };
         }).sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
         let rows = itemRows.concat(cardRows);
-        if (!rows.length) return '<div style="color:#64748b;">本次未取得怪物掉落物。</div>';
+        if (!rows.length) return '<span style="color:#64748b;">本次未取得怪物掉落物。</span>';
         let shown = rows.map(row =>
-            '<div style="display:flex;justify-content:space-between;gap:12px;"><span class="' + _offlineEsc(row.color || 'text-white') + '">' + _offlineEsc(row.name) +
-            '</span><b style="color:#fef08a;">× ' + row.count.toLocaleString() + '</b></div>').join('');
+            '<span class="' + _offlineEsc(row.color || 'text-white') + '">' + _offlineEsc(row.name) +
+            '</span> ×' + row.count.toLocaleString()).join('、');
         return shown;
     }
 

@@ -73,8 +73,8 @@ for(const [w,h] of sizes){if(options.desktopOnly&&w<1200)continue;
  }
  await check(`${w}x${h}: item dialog fits and close is reachable`,()=>page.evaluate(()=>{
   gainItem('wpn_shortbow',1,true,true);const item=player.inv.find(i=>i.id==='wpn_shortbow');openModal(item,false);
-  const el=document.getElementById('item-modal'),r=el.getBoundingClientRect();const close=el.querySelector('button[onclick="closeModal()"]'),b=close.getBoundingClientRect();
-  const ok=r.left>=-1 && r.right<=innerWidth+1 && r.top>=-1 && r.bottom<=innerHeight+1 && b.top>=0 && b.bottom<=innerHeight+1;closeModal();return ok;
+  const el=document.getElementById('item-modal'),frames=[...el.children].filter(e=>!e.classList.contains('hidden'));const close=el.querySelector('button[onclick="closeModal()"]'),b=close.getBoundingClientRect();
+  const ok=frames.every(e=>{const r=e.getBoundingClientRect();return r.left>=-1 && r.right<=innerWidth+1 && r.top>=-1 && r.bottom<=innerHeight+1;}) && b.top>=0 && b.bottom<=innerHeight+1;closeModal();return ok;
  }));
  await check(`${w}x${h}: warehouse fits and close is reachable`,()=>page.evaluate(()=>{openWarehouseWindow();const r=document.getElementById('warehouse-window-frame').getBoundingClientRect(),b=document.getElementById('warehouse-window-close').getBoundingClientRect();const ok=r.left>=-1 && r.right<=innerWidth+1 && r.top>=-1 && r.bottom<=innerHeight+1 && b.bottom<=innerHeight+1;closeWarehouseWindow();return ok;}));
  await check(`${w}x${h}: collection dialog fits`,()=>page.evaluate(()=>{openCollectionPanel();const r=document.getElementById('collection-panel').firstElementChild.getBoundingClientRect();const ok=r.left>=-1 && r.right<=innerWidth+1 && r.top>=-1 && r.bottom<=innerHeight+1;closeCollectionPanel();return ok;}));

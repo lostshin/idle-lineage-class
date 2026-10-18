@@ -401,7 +401,7 @@ player.inv.forEach(i => {
         el.innerHTML = _rowInner;
         // 🖱️ v3.0.38 雙擊快速操作（用戶要求）：可使用型道具（藥水/卷軸/技能書/有效果的 misc）雙擊直接使用、
         //    裝備（武器/防具/飾品）雙擊直接裝備（equipItem 內建 checkCanEquip 職業判定）。
-        //    單擊延遲 230ms 才開 Modal（雙擊時取消·同 js/19 裝備視窗側欄 clickTimer 模式）；回憶蠟燭維持單擊進配點重置（排除雙擊使用）。
+        // Delay the item modal so a native double-click can still equip or use immediately.
         const _dblAct = (d.type === 'wpn' || d.type === 'arm' || d.type === 'acc') ? 'equip'
             : ((i.id !== 'candle' && (d.type === 'pot' || d.type === 'skillbk' || d.type === 'scroll' || (d.type === 'misc' && d.eff && !d.noUse))) ? 'use' : null);
         if (_dblAct) {
@@ -493,7 +493,14 @@ function decorateClassicInventoryTab(div){
             if (busy) button.title = '請先完成或取消批次操作';
             button.onclick = () => setInventoryCategory(type,value); filters.appendChild(button);
         }
-        div.prepend(filters);
+        const navigation = document.createElement('div'); navigation.className = 'backpack-category-nav';
+        for (const [direction,label,sign] of [['left','分類向左捲動',-1],['right','分類向右捲動',1]]) {
+            const arrow = document.createElement('button'); arrow.type = 'button'; arrow.className = 'btn backpack-category-arrow'; arrow.dataset.categoryScroll = direction;
+            arrow.textContent = sign < 0 ? '‹' : '›'; arrow.setAttribute('aria-label',label); arrow.title = label; arrow.disabled = !!busy;
+            arrow.onclick = () => filters.scrollBy({left:sign * Math.max(58,filters.clientWidth * .75),behavior:'instant'});
+            navigation.appendChild(arrow);
+        }
+        navigation.insertBefore(filters,navigation.lastChild); div.prepend(navigation);
     }
     div.appendChild(shell);
     if (quick && div.id !== 'tab-equip') div.appendChild(quick);
@@ -1329,7 +1336,7 @@ function buildItemDescHTML(item) {
         const _EQ_CLASSES = [['knight','騎士'], ['elf','妖精'], ['mage','法師'], ['dark','黑暗妖精'], ['illusion','幻術士'], ['dragon','龍騎士'], ['warrior','戰士'], ['royal','王族']];
         let _logos = _EQ_CLASSES
             .filter(([c]) => isRelic(d) ? reqAllowsClass(d, c) : (c === 'dark') ? darkEquipOk(d, item.id) : (c === 'illusion') ? illusionEquipOk(d, item.id) : (c === 'dragon') ? dragonEquipOk(d, item.id) : (c === 'warrior') ? warriorEquipOk(d, item.id) : (c === 'royal') ? royalEquipOk(d, item.id) : reqAllowsClass(d, c))   // 🏺 遺物：職業適用純以 req 白名單判定（同 checkCanEquip 短路）
-            .map(([, nm]) => `<img src="assets/logo/${nm}icon.png" alt="${nm}" title="${nm}" class="class-eq-icon" onerror="this.style.display='none';">`)
+            .map(([, nm]) => `<img src="assets/logo/${nm}icon.png" alt="${nm}" aria-label="${nm}" tabindex="0" data-tip-class="${nm}" class="class-eq-icon tip-host" onerror="this.style.display='none';">`)
             .join('');
         if (_logos) desc += `<br><span class="text-slate-400">適用職業：</span>${_logos}`;
     }
@@ -1356,6 +1363,32 @@ function compareCardHTML(eqItem, slotLabel) {
     let header = `<div class="flex items-center font-bold text-lg ${getItemColor(eqItem)} border-b border-slate-700 pb-2 mb-2">${icon}<span>${getItemFullName(eqItem)}</span></div>`;
     let body = buildItemDescHTML(eqItem);
     return `<div class="text-emerald-300 text-xs font-bold mb-1">【${slotLabel}】</div>${header}<div class="text-sm text-slate-300 leading-relaxed">${body}</div>`;
+}
+
+function renderPlayerEquipmentComparison(item, chosenSlot) {
+    const panel = document.getElementById('modal-compare-body'), def = DB.items[item.id];
+    const SLOT_LABEL = { wpn:'武器', offwpn:'副手武器', helm:'頭盔', armor:'盔甲', shin:'脛甲', shield:'副手', cloak:'斗篷', tshirt:'內衣', gloves:'手套', boots:'鞋子', ring1:'戒指 1', ring2:'戒指 2', ring3:'戒指 3', ring4:'戒指 4', amulet:'項鍊', ear1:'耳環 1', ear2:'耳環 2', belt:'腰帶' };   // 🦴 v3.2.37 寵物裝備欄移除（改為每隻寵物於包武保管個別裝備）
+    const slots = def.slot === 'ring' || def.slot === 'ear' ? accessorySlots(def.slot) :
+        [def.type === 'wpn' ? (warriorDualWieldWpnOk(item.id) && dualWieldOffhandOk() ? 'offwpn' : 'wpn') : def.slot];
+    panel.innerHTML = '<h4 class="modal-comparison-heading">目前裝備中（比對）</h4>';
+    if (slots.length > 1) {
+        const label = document.createElement('label'); label.className = 'modal-comparison-slot'; label.textContent = '比較與換裝部位 ';
+        const select = document.createElement('select'); select.id = 'modal-equipment-slot'; select.setAttribute('aria-label','比較與換裝部位');
+        select.appendChild(new Option('請選擇部位',''));
+        for (const slot of slots) select.appendChild(new Option(ACC_SLOT_LABEL[slot],slot));
+        select.value = chosenSlot || '';
+        select.onchange = () => renderPlayerEquipmentComparison(item,select.value);
+        label.appendChild(select); panel.appendChild(label);
+    }
+    const slot = chosenSlot || (slots.length === 1 ? slots[0] : '');
+    if (slot) {
+        const current = document.createElement('div'); current.className = 'modal-current-equipment';
+        current.innerHTML = player.eq[slot] ? compareCardHTML(player.eq[slot],ACC_SLOT_LABEL[slot] || SLOT_LABEL[slot] || slot) : '此部位目前未裝備';
+        panel.appendChild(current);
+    }
+    const comparison = document.createElement('section'); comparison.id = 'modal-equipment-comparison'; comparison.setAttribute('aria-label','主角能力比較');
+    renderEquipmentComparison(comparison,player,'player',player,item,chosenSlot);
+    panel.appendChild(comparison);
 }
 
 function openModal(item, isEq, slot) {
@@ -1406,7 +1439,7 @@ function openModal(item, isEq, slot) {
             act += `<button class="col-span-2 w-full btn border-green-700 bg-emerald-800 hover:bg-emerald-700 text-green-100 py-3 text-lg font-bold" onclick="useItem('${item.uid}')">使用卷軸</button>`;
         }
         if(d.type === 'wpn' || d.type === 'arm' || d.type === 'acc') {
-            if (_modalCanEquip) act += `<button class="col-span-2 w-full btn border-blue-700 bg-blue-900 hover:bg-blue-800 text-blue-200 py-3 text-lg font-bold" onclick="equipItem(${JSON.stringify(item).replace(/"/g, '&quot;')})">裝備</button>`;
+            if (_modalCanEquip) act += `<button data-modal-equip class="col-span-2 w-full btn border-blue-700 bg-blue-900 hover:bg-blue-800 text-blue-200 py-3 text-lg font-bold" onclick="equipItem(${JSON.stringify(item).replace(/"/g, '&quot;')}, document.getElementById('modal-equipment-slot')?.value || undefined)">裝備</button>`;
             else act += `<button class="col-span-2 w-full btn border-red-900 bg-red-950 text-red-400 py-3 text-lg font-bold cursor-not-allowed" disabled>無法裝備${d.reqAvatar ? `・僅限${d.reqAvatar}` : ''}</button>`;
         }
         
@@ -1427,9 +1460,9 @@ function openModal(item, isEq, slot) {
     if (!isEq && !(DB.items[item.id] && DB.items[item.id].noJunk)) {   // 🎴 noJunk(收集冊等)：不顯示「標記為廢品」
         let locked = !!item.lock;
         let checked = (item.junk && !locked) ? 'checked' : '';
-        act += `<label class="col-span-2 w-full btn ${locked ? 'border-slate-700 bg-slate-800/50 opacity-50 cursor-not-allowed' : 'border-amber-700 bg-amber-950 hover:bg-amber-900 cursor-pointer'} py-2 text-base font-bold flex items-center justify-center gap-2 mt-2">`
+        act = `<label class="col-span-2 w-full btn ${locked ? 'border-slate-700 bg-slate-800/50 opacity-50 cursor-not-allowed' : 'border-amber-700 bg-amber-950 hover:bg-amber-900 cursor-pointer'} py-2 text-base font-bold flex items-center justify-center gap-2 mt-2">`
              + `<input type="checkbox" class="w-4 h-4" ${checked} ${locked ? 'disabled' : ''} onchange="toggleJunk('${item.uid}')">`
-             + `<span class="text-amber-200">標記為廢品${locked ? '（鎖定中無法標記）' : ''}</span></label>`;
+             + `<span class="text-amber-200">標記為廢品${locked ? '（鎖定中無法標記）' : ''}</span></label>` + act;
     }
 
     document.getElementById('modal-actions').innerHTML = act;
@@ -1437,21 +1470,12 @@ function openModal(item, isEq, slot) {
     // === 旁邊顯示「目前裝備中」對應欄位，方便比對（僅背包中的武器/防具/飾品，箭矢除外）===
     let _cmp = document.getElementById('modal-compare');
     if(_cmp) {
-        const SLOT_LABEL = { wpn:'武器', offwpn:'副手武器', helm:'頭盔', armor:'盔甲', shin:'脛甲', shield:'副手', cloak:'斗篷', tshirt:'內衣', gloves:'手套', boots:'鞋子', ring1:'戒指 1', ring2:'戒指 2', ring3:'戒指 3', ring4:'戒指 4', amulet:'項鍊', ear1:'耳環 1', ear2:'耳環 2', belt:'腰帶' };   // 🦴 v3.2.37 寵物裝備欄移除（改為每隻寵物於包武保管個別裝備）
         if(!isEq && !d.isArrow && d.slot !== 'petwpn' && d.slot !== 'petarm' && (d.type === 'wpn' || d.type === 'arm' || d.type === 'acc')) {   // 🦴 v3.2.42 稽核修：寵物武器/防具非玩家可穿→不顯示「目前裝備中」比較卡（原顯示 petwpn 原字誤導可穿）
-            let slots = (d.type === 'wpn') ? ['wpn'] : (d.slot === 'ring' ? ['ring1','ring2','ring3','ring4'] : (d.slot === 'ear' ? ['ear1','ear2'] : [d.slot]));
-            let cards = slots.map(sl => {
-                let eq = player.eq[sl];
-                let label = SLOT_LABEL[sl] || sl;
-                return eq ? compareCardHTML(eq, label)
-                          : `<div class="text-emerald-300 text-xs font-bold mb-1">【${label}】</div><div class="text-slate-500 text-sm">（此欄位目前未裝備）</div>`;
-            });
-            _cmp.innerHTML = `<div class="text-slate-300 text-sm font-bold border-b border-slate-600 pb-2 mb-3">目前裝備中（比對）</div>`
-                           + cards.join('<div class="my-3 border-t border-dashed border-slate-700"></div>');
+            renderPlayerEquipmentComparison(item);
             _cmp.classList.remove('hidden');
         } else {
             _cmp.classList.add('hidden');
-            _cmp.innerHTML = '';
+            document.getElementById('modal-compare-body').innerHTML = '';
         }
     }
 
@@ -1524,7 +1548,7 @@ function renderEnhanceOptions(item, isEq, result = '', goal = null) {
         act += `<button ${canEnhance ? '' : 'disabled'} class="col-span-2 w-full btn border-slate-600 bg-slate-800 hover:bg-slate-700 py-3 text-base font-bold text-white shadow" onclick="executeEnhance('${scrollNorm.uid}', '${item.uid}', ${isEq})">使用 ${DB.items[scrollNorm.id].n} (擁有: ${scrollNorm.cnt})</button>`;
     }
     if (live && scrollBless) {
-        act += `<button ${canEnhance ? '' : 'disabled'} class="col-span-2 w-full btn border-yellow-600 bg-yellow-900 hover:bg-yellow-800 py-3 text-base font-bold text-yellow-300 shadow" onclick="executeEnhance('${scrollBless.uid}', '${item.uid}', ${isEq})">使用 ${DB.items[scrollBless.id].n} (擁有: ${scrollBless.cnt})</button>`;
+        act += `<button ${canEnhance ? '' : 'disabled'} data-enhance-blessed class="col-span-2 w-full btn border-yellow-600 bg-yellow-900 hover:bg-yellow-800 py-3 text-base font-bold text-yellow-300 shadow" onclick="executeEnhance('${scrollBless.uid}', '${item.uid}', ${isEq})">使用 ${DB.items[scrollBless.id].n} (擁有: ${scrollBless.cnt})</button>`;
     }
     if (live && scrollCurse) {
         act += `<button ${canLower ? '' : 'disabled'} class="col-span-2 w-full btn border-red-800 bg-red-950 hover:bg-red-900 py-3 text-base font-bold c-cursed shadow" onclick="executeCurseDeEnhance('${item.uid}', ${isEq}, '${scrollCurseId}')">使用 ${DB.items[scrollCurse.id].n} (擁有: ${scrollCurse.cnt})｜強化值 -1</button>`;
@@ -1546,7 +1570,7 @@ function renderEnhanceOptions(item, isEq, result = '', goal = null) {
             + `</div>`;
     }
     
-    act += live ? `<button class="col-span-2 w-full btn py-3 bg-slate-700 text-lg font-bold mt-2" onclick="returnToItemModal('${item.uid}', ${isEq})">返回</button>` : '<button class="col-span-2 w-full btn py-3 bg-slate-700 text-lg font-bold mt-2" onclick="closeModal()">關閉</button>';
+    if (live) act += `<button class="col-span-2 w-full btn py-3 bg-slate-700 text-lg font-bold mt-2" onclick="returnToItemModal('${item.uid}', ${isEq})">返回</button>`;
     
     document.getElementById('modal-actions').innerHTML = act;
     document.getElementById('item-modal').classList.remove('hidden');
@@ -2329,7 +2353,7 @@ function sellItem(uid, count, unitPrice) {
     if(_wasGrant) { calcStats(); renderSkillSelects(); }   // 失去授予技能頭盔：立即更新
 }
 
-function closeModal() { document.getElementById('item-modal').classList.add('hidden'); }
+function closeModal() { document.getElementById('modal-compare').classList.add('hidden'); document.getElementById('item-modal').classList.add('hidden'); }
 function _pvpTabEsc(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({
         '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'

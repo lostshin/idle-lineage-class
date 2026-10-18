@@ -1,5 +1,15 @@
 // Adapt mirrored optional tools to the current game's UI and save contracts.
 (function () {
+    // Rename the entry after the mirrored curse-batch hook appends it.
+    document.addEventListener('DOMContentLoaded',() => {
+        const open = window.openModal;
+        window.openModal = function () {
+            const result = open.apply(this,arguments);
+            const button = document.querySelector('#modal-actions > [onclick^="AFK_CURSEBATCH.open("]');
+            if (button) button.textContent = '一鍵弱化';
+            return result;
+        };
+    });
     // The mirrored repeat tool predates owner-based party quest drops and the guild quest UI.
     const trialActive = window.trialItemActiveFor;
     window.trialItemActiveFor = function (owner,id,pending,assignedOnly) {
@@ -28,6 +38,9 @@
         const sets = allyRepeatSets(ctx,cfg), value = Number(document.getElementById('ally-retrial-qty-'+key)?.value);
         if (sets < 1 || !Number.isInteger(value) || value < 1) return;
         const count = Math.min(sets,value), before = effectActorCopy(player);
+        // Exchanges leave allies untouched; keep their runtime methods and actor references.
+        before.allies = player.allies;
+        const saveKey = 'lineage_idle_save_'+currentSlot, saved = _lsGet(saveKey);
         try {
             _allyConsumeQuestProgress(slotN,cfg.reqs.map(([id,need])=>[id,need*count]));
             for (let n=0;n<count;n++) _allyGrantTrialRewards(cfg.rewards);
@@ -35,8 +48,15 @@
         } catch (e) {
             for (const key of Object.keys(player)) delete player[key];
             Object.assign(player,before);
-            updateUI(); renderTabs(true);
-            logSys('<span class="text-red-400">隊員試煉重複兌換未能儲存，已還原材料與獎勵。</span>');
+            if (_lsGet(saveKey) !== saved) {
+                if (saved == null) _lzRemoveStored(saveKey);
+                else _lzSetStoredRaw(saveKey,saved);
+            }
+            const restored = _lsGet(saveKey) === saved;
+            calcStats(); renderTabs(true);
+            logSys('<span class="text-red-400">'+(restored
+                ? '隊員試煉重複兌換未能儲存，已還原材料與獎勵。'
+                : '隊員試煉重複兌換未能儲存，記憶體已還原，但存檔回復失敗。請勿重新載入，排除儲存問題後再儲存。')+'</span>');
             return;
         }
         logSys('隊員試煉重複兌換 ×'+count+'：獎勵已交給隊長，原試煉進度保留。');

@@ -716,9 +716,8 @@
         #sys-log .text-purple-300, #sys-log .text-violet-300, #sys-log .text-fuchsia-300, #sys-log .text-pink-300 { color:#b7aabd !important; }
         #combat-log .text-orange-300, #sys-log .text-orange-300 { color:#c8ad89 !important; }
         #combat-log .crit-hit { color:#d08b80 !important; text-shadow:none !important; }
-        #sys-log .sys-item-gain, #sys-log .sys-item-gain * { color:#d5d0a4 !important; filter:none !important; }
-        /* ✦ v3.6.69 物品日誌亮點：只有傳說(橘)與遺物(藍)例外脫離上面那條統一米色壓色。
-           ⚠️ 選擇器必須比 `#sys-log .sys-item-gain *`(1 id+1 class) 更高特異度 → 用 `.sys-item-gain .sys-drop-*`(1 id+2 class)。 */
+        #sys-log .sys-item-gain { color:#d5d0a4 !important; filter:none !important; }
+        /* Item names keep their native rarity classes; only the surrounding text inherits beige. */
         #sys-log .sys-item-gain .sys-drop-rare { font-weight: 700; animation: sysDropPulse 1.6s ease-in-out infinite; }
         /* ⚠️ text-shadow 必須 !important：上面 705 行有 `#sys-log span { text-shadow:none !important }` 會把光暈整個吃掉（特異度較低但 !important 勝出）。 */
         /* c-legend／c-relic 一併列入：掛機總結那行(js/01 flushAwaySummary)走 getItemColor，靠這兩個選擇器同樣脫離壓色。 */

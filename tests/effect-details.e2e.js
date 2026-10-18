@@ -9,6 +9,16 @@ await check('attribute tooltip lists one nonzero row per source that adds up to 
 await check('panacea rows and totals use the panacea color while extra rows match the bracket color',()=>page.evaluate(()=>{const rows=[...document.querySelectorAll('#party-ability-tip [data-ability-line]')],by=l=>rows.find(r=>r.children[0].textContent===l),color=e=>getComputedStyle(e).color,total=document.querySelector('#dt-str [data-ability-total]'),orange='rgb(251, 146, 60)';return by('萬能藥').dataset.abilityLine==='panacea'&&color(by('萬能藥'))===orange&&color(by('升級配點'))===color(rows[0])&&color(by('魔法'))===color(document.querySelector('#dt-str [data-ability-buff]'))&&color(document.querySelector('#party-ability-tip [data-ability-extra]'))===color(document.querySelector('#dt-str [data-ability-buff]'))&&total.hasAttribute('data-panacea')&&color(total)===orange&&!document.querySelector('#dt-dex [data-ability-total]').hasAttribute('data-panacea');}));
 await check('extra attribute value includes all sources above permanent base',()=>page.evaluate(()=>{const s=partyBonusSnapshot(player,'player');return s.base.str===player.base.str+player.alloc.str+player.panacea.str&&s.delta.str===s.total.str-s.base.str;}));
 await check('existing status area has a focusable summary and stable effect identities',()=>page.evaluate(()=>!!document.querySelector('#dt-buffs [data-effect-summary]')&&!!document.querySelector('#dt-buffs [data-effect-key="buff:sk_str_up"]')));
+await page.hover('#status-icon-bar [data-effect-id="sk_str_up"]');
+await page.waitForFunction(()=>!document.getElementById('effect-tooltip').hidden);
+await page.hover('#effect-tooltip');
+await check('buff explanation stays readable when another buff enters or expires',async()=>{
+    await page.evaluate(()=>{window.__effectBarNode=document.querySelector('#status-icon-bar [data-effect-id="sk_str_up"]');window.__buffFrames=[];});
+    for(const active of [true,false])await page.evaluate(async active=>{if(active)player.buffs.sk_holy_wpn=30;else delete player.buffs.sk_holy_wpn;renderStatusEffects();for(let i=0;i<24;i++){await new Promise(r=>requestAnimationFrame(r));__buffFrames.push({hidden:document.getElementById('effect-tooltip').hidden,same:__effectBarNode===document.querySelector('#status-icon-bar [data-effect-id="sk_str_up"]')});}},active);
+    return page.evaluate(()=>__buffFrames.every(f=>!f.hidden));
+});
+await page.mouse.move(0,0);await page.waitForFunction(()=>document.getElementById('effect-tooltip').hidden);
+await fs.writeFile(options.artifacts+'/buff-hover-frames-'+(options.baseline?'baseline':options.protocol)+'.json',JSON.stringify(await page.evaluate(()=>__buffFrames),null,2));
 if(!options.baseline){
  await page.hover('#dt-buffs [data-effect-key="buff:sk_str_up"]');await page.waitForFunction(()=>!document.getElementById('effect-tooltip').hidden);
  await check('status name explains source, live duration and actual effect',()=>page.evaluate(()=>{const t=document.getElementById('effect-tooltip');return t.textContent.includes('體魄強健術')&&t.textContent.includes('60 秒')&&t.textContent.includes('力量');}));

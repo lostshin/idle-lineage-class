@@ -766,11 +766,11 @@ function loadSelectSlot(n){
     if (!Number.isInteger(n) || n < 1 || n > visibleSaveSlotMax()) return;
     const sum = slotSummary(n);
     const now = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
-    const doubleClick = !!sum && _loadLastClickSlot === n && now - _loadLastClickAt <= 500;
+    const doubleClick = _loadLastClickSlot === n && now - _loadLastClickAt <= 500;
     _loadLastClickSlot = doubleClick ? 0 : n;
     _loadLastClickAt = doubleClick ? 0 : now;
     _loadSelectedSlot = n;
-    if(doubleClick){ loadEnterSelected(); return; }
+    if(doubleClick){ if(sum) loadEnterSelected(); else loadCreateSelected(); return; }
     if(document.querySelector(`.load-slot-card.selected[data-slot="${n}"]`)){
         updateLoadInfo();
         return;

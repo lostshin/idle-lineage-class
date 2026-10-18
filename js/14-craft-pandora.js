@@ -1965,11 +1965,11 @@ window.onload = () => {
         let ic = document.getElementById('interaction-content');
         let eb = document.getElementById('equip-book');
         // 技能頁 host（data-tip-skill）與收集冊 host（data-tip-id）不限於 NPC 互動面板；其餘 host 仍限定於 interaction-content
-        let ok = host && ((ic && ic.contains(host)) || (eb && !eb.classList.contains('hidden') && eb.contains(host)) || host.hasAttribute('data-tip-skill') || host.hasAttribute('data-tip-id') || host.hasAttribute('data-tip-uid'));   // 🖱️ data-tip-uid（背包/裝備欄實例物品）不限面板，任何處 hover 即顯示完整資訊 tooltip
+        let ok = host && ((ic && ic.contains(host)) || (eb && !eb.classList.contains('hidden') && eb.contains(host)) || host.hasAttribute('data-tip-skill') || host.hasAttribute('data-tip-id') || host.hasAttribute('data-tip-uid') || host.hasAttribute('data-tip-class'));   // 🖱️ data-tip-uid（背包/裝備欄實例物品）不限面板，任何處 hover 即顯示完整資訊 tooltip
         if(!ok){if(!tipCloseTimer)tipCloseTimer=setTimeout(()=>{tipCloseTimer=null;hideTip();},160);return;}
-        if (window.AFK_TOGGLES && AFK_TOGGLES.enabled('notip') && !window.addonTouchTooltip && !host.hasAttribute('data-tip-skill') && matchMedia('(hover:hover) and (pointer:fine)').matches) { hideTip(); return; }
+        if (window.AFK_TOGGLES && AFK_TOGGLES.enabled('notip') && !window.addonTouchTooltip && !host.hasAttribute('data-tip-skill') && !host.hasAttribute('data-tip-class') && matchMedia('(hover:hover) and (pointer:fine)').matches) { hideTip(); return; }
         if(e.type){clearTimeout(tipCloseTimer);tipCloseTimer=null;tipPointer={x:e.clientX,y:e.clientY};}
-        const identity=[host.dataset.tipSrc,host.dataset.tipUid,host.dataset.tipPartyKind,host.dataset.tipPartyId,host.dataset.tipSkill,host.dataset.tipId].join('|');
+        const identity=[host.dataset.tipSrc,host.dataset.tipUid,host.dataset.tipPartyKind,host.dataset.tipPartyId,host.dataset.tipSkill,host.dataset.tipId,host.dataset.tipClass].join('|');
         if(!e.type&&tipIdentity&&tipIdentity!==identity){hideTip();return;}
         tipIdentity=identity;tipHost=host;tipScope=host.closest('#equipment-window,#party-inspector')||document;tipOwner=player;
         let el = getTip();el.toggleAttribute('data-party-equipment',host.getAttribute('data-tip-src')==='party');
@@ -1977,7 +1977,9 @@ window.onload = () => {
         let tUid = host.getAttribute('data-tip-uid');
         let tId = host.getAttribute('data-tip-id');
         let tCraft = host.getAttribute('data-tip-craft');
-        if(tSkill){
+        if(host.dataset.tipClass){
+            el.textContent=host.dataset.tipClass; el._id='CLASS:'+host.dataset.tipClass;
+        } else if(tSkill){
             // 技能頁：依技能 ID 顯示能力
             if(el._id !== 'SK:'+tSkill){ let h = buildSkillTipHTML(tSkill); if(!h){ hideTip(); return; } el.innerHTML = h; el._id = 'SK:'+tSkill; }
         } else if(tUid){
@@ -2028,8 +2030,10 @@ window.onload = () => {
         el.style.top = screenToUiPx(Math.max(4, y));
     }
     document.addEventListener('mousemove',updateItemTip);
+    document.addEventListener('focusin',e=>{if(e.target.matches('[data-tip-class]')){const r=e.target.getBoundingClientRect();updateItemTip({type:'focusin',target:e.target,clientX:r.left,clientY:r.bottom});}});
+    document.addEventListener('focusout',e=>{if(e.target.matches('[data-tip-class]'))hideTip();});
     document.addEventListener('mousedown',hideTip);
     document.addEventListener('keydown',e=>{if(e.key==='Escape'&&tipEl?.style.display==='block'){e.preventDefault();e.stopPropagation();hideTip();}},true);
     // Re-rendered slots are re-found only inside the same equipment view (hidden lists reuse the uid); the tip stays at the last pointer position.
-    setInterval(()=>{if(!tipHost)return;if(!tipHost.isConnected){const old=tipHost;tipHost=[...tipScope.querySelectorAll('[data-tip-uid]')].find(n=>n.dataset.tipUid===old.dataset.tipUid&&n.dataset.tipSrc===old.dataset.tipSrc&&n.dataset.tipPartyId===old.dataset.tipPartyId)||old;}if(!tipHost.isConnected||!tipHost.checkVisibility()||tipOwner!==player||!tipHost.matches('[data-tip-uid],[data-tip-skill],[data-tip-id]')){hideTip();return;}if(['eq','party'].includes(tipHost.dataset.tipSrc))updateItemTip({target:tipHost,clientX:tipPointer.x,clientY:tipPointer.y});},250);
+    setInterval(()=>{if(!tipHost)return;if(!tipHost.isConnected){const old=tipHost;tipHost=[...tipScope.querySelectorAll('[data-tip-uid]')].find(n=>n.dataset.tipUid===old.dataset.tipUid&&n.dataset.tipSrc===old.dataset.tipSrc&&n.dataset.tipPartyId===old.dataset.tipPartyId)||old;}if(!tipHost.isConnected||!tipHost.checkVisibility()||tipOwner!==player||!tipHost.matches('[data-tip-uid],[data-tip-skill],[data-tip-id],[data-tip-class]')){hideTip();return;}if(['eq','party'].includes(tipHost.dataset.tipSrc))updateItemTip({target:tipHost,clientX:tipPointer.x,clientY:tipPointer.y});},250);
 })();

@@ -1,3 +1,52 @@
+function renderEquipmentComparison(panel, actor, kind, source, item, chosenSlot) {
+    panel.replaceChildren();
+    const def = DB.items[item.id], copy = effectActorCopy(source);
+    if (!chosenSlot && (def.slot === 'ring' || def.slot === 'ear')) {
+        const slots = _withAllyEquipmentContext(copy, () => accessorySlots(def.slot));
+        if (slots.length > 1) { panel.textContent = '請先選擇要比較的'+(def.slot === 'ring' ? '戒指' : '耳環')+'部位'; return; }
+    }
+    const transfer = kind === 'player' ? copy.inv.find(i => i.uid === item.uid) : effectActorCopy(item);
+    if (!transfer) { panel.textContent = '該物品已不在背包中。'; return; }
+    transfer.uid = 'equipment-preview-item';
+    if (kind !== 'player') copy.inv.push(transfer);
+    let messages = [];
+    // Run native equipment rules on copies without consuming RNG, logging, or recalculating live state.
+    _withAllyEquipmentContext(copy, () => {
+        const oldLog = logSys, oldUid = uid, oldCalc = calcStats;
+        logSys = text => messages.push(text); uid = () => 'equipment-preview-equipped'; calcStats = () => {};
+        try { equipItem(transfer,chosenSlot); }
+        finally { logSys = oldLog; uid = oldUid; calcStats = oldCalc; }
+    });
+    if (!Object.values(copy.eq).some(e => e?.uid === 'equipment-preview-equipped' || e === transfer || e?.uid === transfer.uid)) {
+        panel.innerHTML = messages.join('<br>');
+        return;
+    }
+    const beforePreview = effectPreview(actor,kind);
+    const afterPreview = effectPreview(actor,kind,player,7,actor => { actor.eq = copy.eq; actor.inv = copy.inv; });
+    const before = beforePreview.stats, after = afterPreview.stats;
+    for (const hand of ['wpn','offwpn']) for (const size of ['S','L']) {
+        const key = hand+'Dice'+size, fallback = hand === 'wpn' ? 2 : 0;
+        before[key] = DB.items[beforePreview.actor.eq[hand]?.id]?.['dmg'+size] || fallback;
+        after[key] = DB.items[afterPreview.actor.eq[hand]?.id]?.['dmg'+size] || fallback;
+    }
+    const heading = document.createElement('strong'); heading.textContent = (actor._allyName || source.name || (kind === 'player' ? '主角' : '隊員'))+' · 能力比較'; panel.appendChild(heading);
+    const labels = {...EFFECT_STAT_NAMES,aspd:'攻擊間隔（秒）',castSeconds:'施法間隔（秒）',wpnDiceS:'主手傷害骰（小型）',wpnDiceL:'主手傷害骰（大型）',offwpnDiceS:'副手傷害骰（小型）',offwpnDiceL:'副手傷害骰（大型）',weightLimit:'負重上限'};
+    for (const [key,label] of Object.entries(labels)) {
+        if (key === 'hp' || key === 'mp') continue;
+        const from = before[key], to = after[key];
+        if (!Number.isFinite(from) || !Number.isFinite(to)) continue;
+        const delta = Math.round((to-from)*100)/100;
+        if (!delta) continue;
+        const row = document.createElement('div'), good = ['ac','aspd','castSeconds'].includes(key) ? delta < 0 : delta > 0;
+        row.className = good ? 'guild-gain' : 'guild-loss'; row.dataset.stat = key; row.dataset.before = from; row.dataset.after = to;
+        const name = document.createElement('span'), value = document.createElement('b'); name.textContent = label;
+        const fmt = n => (Math.round(n*100)/100).toLocaleString();
+        const dice = key.includes('Dice') ? '1D' : '';
+        value.textContent = dice+fmt(from)+' → '+dice+fmt(to)+'（'+(delta > 0 ? '+' : '')+fmt(delta)+'）'; row.append(name,value); panel.appendChild(row);
+    }
+    if (panel.children.length === 1) panel.appendChild(document.createTextNode('顯示能力不變；特殊效果請查看物品說明。'));
+}
+
 // The guild reuses native roster, quest and transactional equipment handlers.
 (function () {
     const win = document.createElement('section');
@@ -160,50 +209,7 @@
         const panel = document.getElementById('guild-comparison');
         panel.replaceChildren();
         if (!item) { panel.textContent = '選擇裝備，預覽隊員能力變化'; return; }
-        const def = DB.items[item.id], copy = effectActorCopy(ctx.source);
-        const chosen = slot && slotMatches(def,slot) ? slot : undefined;
-        if (!chosen && (def.slot === 'ring' || def.slot === 'ear')) {
-            const slots = _withAllyEquipmentContext(copy, () => accessorySlots(def.slot));
-            if (slots.length > 1) { panel.textContent = '請先選擇左側要比較的'+(def.slot === 'ring' ? '戒指' : '耳環')+'部位'; return; }
-        }
-        const transfer = {...effectActorCopy(item),uid:'guild-preview-item'};
-        copy.inv.push(transfer);
-        let messages = [];
-        // Run native equipment rules on copies without consuming RNG, logging, or recalculating live state.
-        _withAllyEquipmentContext(copy, () => {
-            const oldLog = logSys, oldUid = uid, oldCalc = calcStats;
-            logSys = text => messages.push(text); uid = () => 'guild-preview-equipped'; calcStats = () => {};
-            try { equipItem(transfer,chosen); }
-            finally { logSys = oldLog; uid = oldUid; calcStats = oldCalc; }
-        });
-        if (!Object.values(copy.eq).some(e => e?.uid === 'guild-preview-equipped' || e === transfer || e?.uid === transfer.uid)) {
-            panel.innerHTML = messages.join('<br>');
-            return;
-        }
-        const beforePreview = effectPreview(ctx.ally,'ally');
-        const afterPreview = effectPreview(ctx.ally,'ally',player,7,actor => { actor.eq = copy.eq; actor.inv = copy.inv; });
-        const before = beforePreview.stats, after = afterPreview.stats;
-        for (const hand of ['wpn','offwpn']) for (const size of ['S','L']) {
-            const key = hand+'Dice'+size, fallback = hand === 'wpn' ? 2 : 0;
-            before[key] = DB.items[beforePreview.actor.eq[hand]?.id]?.['dmg'+size] || fallback;
-            after[key] = DB.items[afterPreview.actor.eq[hand]?.id]?.['dmg'+size] || fallback;
-        }
-        const heading = document.createElement('strong'); heading.textContent = (ctx.ally._allyName || ctx.source.name || '隊員')+' · 能力比較'; panel.appendChild(heading);
-        const labels = {...EFFECT_STAT_NAMES,aspd:'攻擊間隔（秒）',castSeconds:'施法間隔（秒）',wpnDiceS:'主手傷害骰（小型）',wpnDiceL:'主手傷害骰（大型）',offwpnDiceS:'副手傷害骰（小型）',offwpnDiceL:'副手傷害骰（大型）',weightLimit:'負重上限'};
-        for (const [key,label] of Object.entries(labels)) {
-            if (key === 'hp' || key === 'mp') continue;
-            const from = before[key], to = after[key];
-            if (!Number.isFinite(from) || !Number.isFinite(to)) continue;
-            const delta = Math.round((to-from)*100)/100;
-            if (!delta) continue;
-            const row = document.createElement('div'), good = ['ac','aspd','castSeconds'].includes(key) ? delta < 0 : delta > 0;
-            row.className = good ? 'guild-gain' : 'guild-loss'; row.dataset.stat = key; row.dataset.before = from; row.dataset.after = to;
-            const name = document.createElement('span'), value = document.createElement('b'); name.textContent = label;
-            const fmt = n => (Math.round(n*100)/100).toLocaleString();
-            const dice = key.includes('Dice') ? '1D' : '';
-            value.textContent = dice+fmt(from)+' → '+dice+fmt(to)+'（'+(delta > 0 ? '+' : '')+fmt(delta)+'）'; row.append(name,value); panel.appendChild(row);
-        }
-        if (panel.children.length === 1) panel.appendChild(document.createTextNode('顯示能力不變；特殊效果請查看物品說明。'));
+        renderEquipmentComparison(panel,ctx.ally,'ally',ctx.source,item,slot && slotMatches(DB.items[item.id],slot) ? slot : undefined);
     }
     function fitEquipment() {
         if (!isOpen() || view !== 'equipment') return;
