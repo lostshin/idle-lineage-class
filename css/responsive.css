@@ -438,6 +438,34 @@
 #squad-panel > .panel-header > span { display:flex;align-items:center;justify-content:center;gap:10px;max-width:100%;white-space:nowrap; }
 #squad-panel > .panel-header > span::before,#squad-panel > .panel-header > span::after { content:'✧';color:#b79c61;font-size:.7em;line-height:1; }
 
+/* Approved A inventory skin; native main-category buttons remain outside the panel. */
+#tab-content-panel:has(> .player-backpack-tab:not(.hidden)) {
+    border:12px solid transparent; border-image:url('../assets/ui/backpack-a-frame-v1.webp') 110 60 70 fill stretch;
+    border-image-width:28px 12px 15px; border-radius:0; padding:14px 4px 7px; background:#111311;
+}
+#tab-content-panel .player-backpack-tab { flex:1; min-height:0; height:auto; background:transparent; }
+.backpack-categories { display:flex; flex-wrap:nowrap; flex:none; min-width:0; width:100%; gap:3px; padding:3px 2px 6px; overflow-x:auto; overflow-y:hidden; overscroll-behavior-x:contain; touch-action:pan-x; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
+.backpack-categories::-webkit-scrollbar { display:none; }
+.backpack-categories .btn { flex:0 0 auto; min-width:58px; padding:4px 8px; border:4px solid transparent; border-image:url('../assets/ui/backpack-a-button-v1.webp') 100 fill stretch; border-radius:0; background:transparent; color:#c9bfa7; font:700 13px/1.4 'PMingLiU',serif; white-space:nowrap; }
+.backpack-categories [aria-pressed="true"] { color:#ffe4a0; box-shadow:inset 0 -2px #c1a25c; }
+.backpack-categories .btn:focus-visible { outline:2px solid #e6d099; outline-offset:-4px; }
+#tab-content-panel .player-backpack-tab .classic-list-toolbar { padding:7px 2px 0 !important; background:transparent !important; border:0; }
+#tab-content-panel .player-backpack-tab .classic-list-toolbar > .flex { gap:3px; flex-wrap:wrap; align-items:stretch; }
+#tab-content-panel .player-backpack-tab .classic-list-toolbar .btn { min-width:0; border:4px solid transparent; border-image:url('../assets/ui/backpack-a-button-v1.webp') 100 fill stretch; border-radius:0; padding:5px 1px; font-size:12px; line-height:1.4; background:transparent; white-space:nowrap; }
+#tab-content-panel .player-backpack-tab .classic-sort-wrap { flex:1 1 0; min-width:0; }
+#tab-content-panel .player-backpack-tab .classic-list-toolbar [data-inventory-sort] { height:100%; }
+#tab-content-panel .player-backpack-tab .classic-sort-menu { top:auto; bottom:calc(100% + 5px); left:0; width:220px; max-width:calc(100vw - 48px); min-width:180px; background:#151712; border:4px solid transparent; border-image:url('../assets/ui/backpack-a-button-v1.webp') 100 fill stretch; }
+#tab-content-panel .player-backpack-tab .classic-sort-menu label { white-space:normal; font-size:12px; }
+#tab-content-panel .player-backpack-tab .classic-inventory-shell { flex:1 1 auto; min-height:0; aspect-ratio:auto; background:none; }
+body:not(.afk-invlist) #tab-content-panel .player-backpack-tab .classic-inventory-viewport { inset:2px; width:auto; height:auto; gap:0; grid-auto-rows:max-content; align-content:start; background:#000; scrollbar-width:thin; scrollbar-color:#8c7649 #101115; }
+body:not(.afk-invlist) #tab-content-panel .player-backpack-tab .classic-inventory-viewport > :is(.list-item,.classic-grid-empty) { position:relative; align-self:start; height:auto !important; aspect-ratio:1; background:#000 !important; border:1px solid #414a40 !important; box-shadow:none !important; }
+/* Percentage-height children must not set an implicit row's minimum height. */
+body:not(.afk-invlist) #tab-content-panel .player-backpack-tab .classic-inventory-viewport > .list-item > .classic-item-main { position:absolute; inset:0; width:100%; height:100%; }
+body:not(.afk-invlist) #tab-content-panel .player-backpack-tab .classic-inventory-viewport > .classic-item-locked { border-color:#5597aa !important; background:#102b36 !important; }
+#tab-content-panel .player-backpack-tab .classic-inventory-scroll { display:none; }
+#tab-content-panel:has(> .player-backpack-tab:not(.hidden)) #afk-isearch { padding:6px 2px 3px; background:transparent; }
+#tab-content-panel:has(> .player-backpack-tab:not(.hidden)) #afk-isearch-input { min-width:0; border:4px solid transparent; border-image:url('../assets/ui/backpack-a-button-v1.webp') 100 fill stretch; border-radius:0; padding:5px 6px; background:transparent; color:#e1d6bd; }
+
 #squad-body { padding:2px 4px 6px;gap:6px; }
 #squad-body > .flex:first-child { gap:3px;flex:none; }
 #squad-panel #squad-tab-btn-team,#squad-panel #squad-tab-btn-skill { position:relative;isolation:isolate;min-width:0;min-height:clamp(28px,8cqw,38px);padding:5px 4px;border:0;border-radius:0;background:none;color:#d9d4ca;font:700 clamp(13px,4.4cqw,18px)/1.4 'PMingLiU',serif;white-space:nowrap;text-shadow:0 1px 2px #000;box-shadow:none; }

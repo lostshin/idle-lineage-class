@@ -1,5 +1,68 @@
 // Adapt mirrored optional tools to the current game's UI and save contracts.
 (function () {
+    // The mirrored repeat tool predates owner-based party quest drops and the guild quest UI.
+    const trialActive = window.trialItemActiveFor;
+    window.trialItemActiveFor = function (owner,id,pending,assignedOnly) {
+        const active = trialActive.apply(this,arguments);
+        if (active || !owner || !AFK_TOGGLES.enabled('retrial')) return active;
+        const keys = TRIAL_ITEM_Q[id];
+        if (keys) return keys.some(key => TRIAL_Q[key].cls === owner.cls && trialQStateFor(owner,key) >= 1);
+        const item = TRIAL50_ITEM[id], cfg = TRIAL_50_CFG[owner.cls];
+        return !!(item?.ex && item.cls === owner.cls && cfg && owner.trialStage >= cfg.stages.length + 1);
+    };
+    function allyRepeatConfig(ctx,key) {
+        if (!AFK_TOGGLES.enabled('retrial')) return null;
+        if (key === '50') {
+            const cfg = TRIAL_50_CFG[ctx.source.cls];
+            return cfg && ctx.source.trialStage >= cfg.stages.length + 1 ? {reqs:[[cfg.exMat,cfg.exMatCnt || 1]],rewards:cfg.rewards.map(r=>r.id),lv:50} : null;
+        }
+        const cfg = TRIAL_Q[key];
+        return cfg && cfg.cls === ctx.source.cls && trialQStateFor(ctx.source,key) >= 1 ? cfg : null;
+    }
+    function allyRepeatSets(ctx,cfg) {
+        return Math.min(100,...cfg.reqs.map(([id,need]) => Math.floor(Math.min(questCountId(id),_allyQuestLootCount(ctx.ally,id))/need)));
+    }
+    AFK_RETRIAL.exAlly = function (slotN,key) {
+        const ctx = _allyManagerSource(slotN,true), cfg = ctx && allyRepeatConfig(ctx,key);
+        if (!cfg) return;
+        const sets = allyRepeatSets(ctx,cfg), value = Number(document.getElementById('ally-retrial-qty-'+key)?.value);
+        if (sets < 1 || !Number.isInteger(value) || value < 1) return;
+        const count = Math.min(sets,value), before = effectActorCopy(player);
+        try {
+            _allyConsumeQuestProgress(slotN,cfg.reqs.map(([id,need])=>[id,need*count]));
+            for (let n=0;n<count;n++) _allyGrantTrialRewards(cfg.rewards);
+            if (saveGame() !== true) throw Error('save failed');
+        } catch (e) {
+            for (const key of Object.keys(player)) delete player[key];
+            Object.assign(player,before);
+            updateUI(); renderTabs(true);
+            logSys('<span class="text-red-400">隊員試煉重複兌換未能儲存，已還原材料與獎勵。</span>');
+            return;
+        }
+        logSys('隊員試煉重複兌換 ×'+count+'：獎勵已交給隊長，原試煉進度保留。');
+        updateUI(); renderTabs(); openAllyQuestManager(slotN);
+    };
+    const renderAllyQuests = window.renderAllyQuestManager;
+    window.renderAllyQuestManager = function (div,slotN) {
+        const result = renderAllyQuests.apply(this,arguments);
+        if (!AFK_TOGGLES.enabled('retrial')) return result;
+        const ctx = _allyManagerSource(slotN,false);
+        if (!ctx) return result;
+        const section = document.createElement('section'); section.className = 'guild-repeat-trials';
+        const title = document.createElement('h3'); title.textContent = '試煉重複兌換'; section.appendChild(title);
+        for (const key of [...Object.keys(TRIAL_Q),'50']) {
+            const cfg = allyRepeatConfig(ctx,key);
+            if (!cfg) continue;
+            const sets = allyRepeatSets(ctx,cfg), row = document.createElement('div');
+            row.innerHTML = '<p>'+cfg.lv+' 級 · '+cfg.reqs.map(([id,need])=>partyEscape(DB.items[id].n)+' ×'+need).join('、')+' → '+cfg.rewards.map(id=>partyEscape(DB.items[id].n)).join('、')+'</p>'+
+                '<label>數量 <input type="number" id="ally-retrial-qty-'+key+'" min="1" max="'+sets+'" value="1"'+(sets ? '' : ' disabled')+'></label>'+
+                '<button type="button" class="btn" data-ally-retrial="'+key+'"'+(sets ? '' : ' disabled')+'>兌換（可換 '+sets+' 份）</button>';
+            row.querySelector('button').onclick = () => AFK_RETRIAL.exAlly(ctx.slotN,key);
+            section.appendChild(row);
+        }
+        if (section.children.length > 1) div.firstElementChild.appendChild(section);
+        return result;
+    };
     document.addEventListener('touchstart',() => { window.addonTouchTooltip = true; },{passive:true,capture:true});
     document.addEventListener('pointermove',event => { if (event.pointerType === 'mouse') window.addonTouchTooltip = false; },{passive:true,capture:true});
     if (AFK_TOGGLES.enabled('dollcursor')) {

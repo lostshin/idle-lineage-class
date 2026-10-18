@@ -53,12 +53,12 @@ if (!options.baseline) {
     await check('equipment alone changes the header close action into return to roster',()=>page.evaluate(()=>document.getElementById('guild-window-close').textContent==='返回'&&document.getElementById('guild-window-close').getAttribute('aria-label')==='返回名冊'));
     await check('A design shows native equipment slots with explicit body-part labels',()=>page.evaluate(()=>document.querySelectorAll('#guild-paperdoll [data-equipment-slot]').length===19&&[...document.querySelectorAll('#guild-paperdoll [data-equipment-slot]')].every(e=>!!e.querySelector('.party-equipment-label')?.textContent)&&!!document.querySelector('#guild-paperdoll .party-paperdoll-figure img')));
     await check('B layout puts role switching and backpack on the right, with equipment pages at bottom left',()=>page.evaluate(()=>{const scene=document.getElementById('guild-body-scroll').getBoundingClientRect();return !!document.getElementById('guild-member-select')&&['guild-window-drag','guild-member-strip','guild-candidates'].every(id=>document.getElementById(id).getBoundingClientRect().left>=scene.right-1)&&[...document.querySelectorAll('[data-guild-page]')].every(e=>{const r=e.getBoundingClientRect(),canvas=document.querySelector('#guild-paperdoll .equipment-window-slots').getBoundingClientRect();return r.left>=canvas.left&&r.right<=canvas.left+canvas.width*.56+1&&r.bottom<=canvas.bottom+1&&r.top>canvas.top+canvas.height*.8;});}));
-    await check('the original equipment canvas fills the entire left pane without changing its native artwork',()=>page.evaluate(()=>{const area=document.getElementById('guild-body-scroll'),canvas=document.querySelector('#guild-paperdoll .equipment-window-slots');return Math.abs(canvas.getBoundingClientRect().width-area.getBoundingClientRect().width)<2&&document.querySelector('#guild-paperdoll .party-equipment-backdrop').src.includes('party-equipment-backdrop-v3-tall.webp');}));
+    await check('the original equipment canvas fills the entire left pane without changing its native artwork',()=>page.evaluate(()=>{const area=document.getElementById('guild-body-scroll'),canvas=document.querySelector('#guild-paperdoll .equipment-window-slots');return Math.abs(canvas.getBoundingClientRect().width-area.clientWidth*getUiScale())<2&&document.querySelector('#guild-paperdoll .party-equipment-backdrop').src.includes('party-equipment-backdrop-v3-tall.webp');}));
     await page.click('#guild-paperdoll [data-equipment-slot="wpn"]');
     await check('selecting a body part filters candidates to that equipment slot',()=>page.evaluate(()=>document.querySelectorAll('[data-guild-item]').length>80&&[...document.querySelectorAll('[data-guild-item]')].every(e=>DB.items[player.inv.find(i=>i.uid===e.dataset.guildItem).id].type==='wpn')));
-    await page.click('[data-guild-item="guild-sword"]');await page.click('#guild-equip');
+    await page.dblclick('[data-guild-item="guild-sword"]');
     await check('native equip transfers only one stacked item and writes the correct source role',()=>page.evaluate(()=>accountRoleDoc(2).p.eq.wpn?.en===7&&player.inv.find(i=>i.uid==='guild-sword')?.cnt===1&&document.querySelector('#guild-paperdoll [data-equipment-slot="wpn"]').getAttribute('aria-pressed')==='true'));
-    await page.click('#guild-unequip');
+    await page.dblclick('#guild-paperdoll [data-equipment-slot="wpn"]');
     await check('unequip returns the item to the leader and clears the exact source slot',()=>page.evaluate(()=>!accountRoleDoc(2).p.eq.wpn&&player.inv.filter(i=>i.id==='wpn_katana'&&i.en===7).reduce((n,i)=>n+(i.cnt||1),0)>=2));
     await page.click('[data-guild-page="1"]');
     await check('special page retains all nine native slots and empty slot labels',()=>page.evaluate(()=>document.querySelectorAll('#guild-paperdoll [data-equipment-slot]').length===9&&!!document.querySelector('[data-equipment-slot="rem_claw"]')));
@@ -73,9 +73,9 @@ if (!options.baseline) {
     await check('guild resize handles work with native pointer input',()=>page.evaluate(w=>Math.abs(document.getElementById('guild-window-frame').getBoundingClientRect().width-(w-30))<2,pos.w));
     await page.fill('#guild-search','武士');
     await page.evaluate(()=>{__failKey='lineage_idle_save_2';});
-    await page.click('[data-guild-item="guild-sword"]');await page.click('#guild-equip');
+    await page.dblclick('[data-guild-item="guild-sword"]');
     await check('source write failure retains the leader inventory and leaves source equipment unchanged',()=>page.evaluate(()=>!accountRoleDoc(2).p.eq.wpn&&player.inv.some(i=>i.uid==='guild-sword')));
-    await page.evaluate(()=>{__failKey='';});await page.click('#guild-equip');
+    await page.evaluate(()=>{__failKey='';});await page.dblclick('[data-guild-item="guild-sword"]');
     await check('retry keeps the selected body part and search while applying exactly once',()=>page.evaluate(()=>accountRoleDoc(2).p.eq.wpn?.en===7&&document.getElementById('guild-search').value==='武士'&&document.querySelector('[data-equipment-slot="wpn"]').getAttribute('aria-pressed')==='true'));
     await page.click('#guild-window-close');
     await check('return button keeps the guild open and returns to its native roster without tabs',()=>page.evaluate(()=>guildWindow.isOpen()&&document.getElementById('guild-window-close').textContent==='×'&&!document.querySelector('[data-guild-tab]')&&!!document.querySelector('[data-guild-manage="2"]')));
@@ -89,12 +89,12 @@ if (!options.baseline) {
     });
     await check('level-locked accessory sockets are visible but cannot be selected',()=>page.evaluate(()=>document.querySelector('[data-equipment-slot="ring3"]').disabled&&document.querySelector('[data-equipment-slot="ring4"]').disabled&&!document.querySelector('[data-equipment-slot="ear2"]').disabled));
     await page.fill('#guild-search','');await page.click('#guild-all-slots');await page.click('[data-guild-item="guild-ring"]');
-    const openedAt=Date.now();await page.click('#guild-equip');await page.waitForSelector('[data-acc-slot="ring2"]');
+    const openedAt=Date.now();await page.dblclick('[data-guild-item="guild-ring"]');await page.waitForSelector('[data-acc-slot="ring2"]');
     await check('full rings use the native slot chooser without transferring anything prematurely',()=>page.evaluate(()=>accountRoleDoc(2).p.eq.ring1.uid==='old-left'&&accountRoleDoc(2).p.eq.ring2.uid==='old-right'&&player.inv.some(i=>i.uid==='guild-ring')));
     await page.waitForFunction(at=>Date.now()-at>=450,openedAt);await page.click('[data-acc-slot="ring2"]');
     await check('choosing the right ring replaces only that slot and returns its old item',()=>page.evaluate(()=>accountRoleDoc(2).p.eq.ring1.uid==='old-left'&&accountRoleDoc(2).p.eq.ring2.en===5&&player.inv.some(i=>i.uid==='old-right')&&!player.inv.some(i=>i.uid==='guild-ring')));
     await page.evaluate(()=>{player.inv.push(__gear(__ringId,'guild-ring-direct',4));openAllyEquipmentManager('2');});
-    await page.click('[data-equipment-slot="ring1"]');await page.click('[data-guild-item="guild-ring-direct"]');await page.click('#guild-equip');
+    await page.click('[data-equipment-slot="ring1"]');await page.dblclick('[data-guild-item="guild-ring-direct"]');
     await check('an explicitly selected ring slot equips there without an additional chooser',()=>page.evaluate(()=>accountRoleDoc(2).p.eq.ring1.en===4&&accountRoleDoc(2).p.eq.ring2.en===5&&[...document.querySelectorAll('[data-acc-slot]')].every(e=>!e.checkVisibility())));
     await page.evaluate(()=>{const d=accountRoleDoc(2);d.p.avatar='女騎士';_lzSet('lineage_idle_save_2',_saveWrap(JSON.stringify(d)));refreshAllyOnce('2');openAllyEquipmentManager('2');});
     await check('the paperdoll uses the viewed source role gender and class',()=>page.evaluate(()=>{const key=loadStartKeyFromSummary({avatar:'女騎士',rawCls:'knight'});return document.querySelector('#guild-paperdoll .party-paperdoll-figure img').src===new URL(loadFrameSrc(key,loadFirstFrame(key)),location.href).href;}));
@@ -103,7 +103,7 @@ if (!options.baseline) {
         await page.evaluate(s=>{setUiScale(s);_ffProgressUpdate({ticks:10},5000);},scale);
         await check(`${scale}% actual-progress renderer covers the viewport and hides after completion`,()=>page.evaluate(()=>{const e=document.getElementById('ff-progress-indicator'),r=e.getBoundingClientRect();const covered=Math.abs(r.width-document.documentElement.clientWidth)<2&&Math.abs(r.height-document.documentElement.clientHeight)<2;_ffProgressHide();return covered&&getComputedStyle(e).visibility==='hidden'||{bounds:r.toJSON(),vw:document.documentElement.clientWidth,vh:document.documentElement.clientHeight};}));
     }
-    await check('native candidate grid scrolls independently without growing the guild window',()=>page.evaluate(()=>{const e=document.getElementById('guild-candidates');return e.scrollHeight>e.clientHeight&&getComputedStyle(e).overflowY==='auto';}));
+    await check('native candidate grid scrolls independently without growing the guild window',()=>page.evaluate(()=>{const e=document.getElementById('guild-candidates');return e.scrollHeight>e.clientHeight&&getComputedStyle(e).overflowY==='scroll';}));
     await page.click('#guild-window-close');await page.click('#guild-window-close');
     await check('outer X closes the guild and restores the original NPC content host',()=>page.evaluate(()=>!guildWindow.isOpen()&&!document.getElementById('guild-content-host').contains(document.getElementById('interaction-content'))));
     await page.evaluate(()=>{guildWindow.open();openAllyEquipmentManager('2');});

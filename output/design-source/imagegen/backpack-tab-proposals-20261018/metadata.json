@@ -1,0 +1,44 @@
+{
+  "generator": "Built-in image_gen",
+  "kind": "ui-mockup concept proposals",
+  "implemented": true,
+  "reference": "User Image #2 is the visual target; Image #1 is existing-function context only.",
+  "review": "Three compositions inspected: top, left bookmark, bottom tabs; all use simple black cells and thin dividers, outer silver frame and full item illustrations. Text/counts/icons are illustrative; original game assets and exact square geometry must be retained in implementation.",
+  "variants": [
+    {
+      "id": "a-top-tabs",
+      "label": "A：上方橫向 tab",
+      "path": "output/design-source/imagegen/backpack-tab-proposals-20261018/a-top-tabs.png",
+      "size": [
+        971,
+        1619
+      ],
+      "sha256": "57bd5743c709f54bc34a702c836b7eb7cab60e787acf23f0935948a01daa0fc7",
+      "selected": true
+    },
+    {
+      "id": "b-side-tabs",
+      "label": "B：側邊書籤 tab",
+      "path": "output/design-source/imagegen/backpack-tab-proposals-20261018/b-side-tabs.png",
+      "size": [
+        971,
+        1619
+      ],
+      "sha256": "0f480a1707ab96a0008d0d6e1ed05009eb62e052297222acf6a3a8b8ef5f2d66",
+      "selected": false
+    },
+    {
+      "id": "c-bottom-tabs",
+      "label": "C：下方嵌入式 tab",
+      "path": "output/design-source/imagegen/backpack-tab-proposals-20261018/c-bottom-tabs.png",
+      "size": [
+        971,
+        1619
+      ],
+      "sha256": "c175382b2a5cc337896b152bfcac049f593cd25fed45db102a5798128fac4b8a",
+      "selected": false
+    }
+  ],
+  "omittedRow": "武器／防具／道具",
+  "implementation": "assets/ui/backpack-a-frame-v1.webp + backpack-a-button-v1.webp, original item icons and native handlers"
+}

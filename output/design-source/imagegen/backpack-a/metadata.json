@@ -1,0 +1,31 @@
+{
+  "generator": "Built-in image_gen",
+  "selectedProposal": "a-top-tabs",
+  "omit": "Main category tab row \u6b66\u5668/\u9632\u5177/\u9053\u5177; reuse existing native navigation",
+  "assets": [
+    {
+      "source": "assets/ui/backpack-a-frame-v1.png",
+      "runtime": "assets/ui/backpack-a-frame-v1.webp",
+      "size": [
+        971,
+        1619
+      ],
+      "quality": 90,
+      "psnrDb": 41.373334304474874,
+      "sourceSha256": "d2ba55d8638204b6e1b164d256c8c5d5a959753f6e33c58be84e92fda1a45b68",
+      "runtimeSha256": "2b4ce11aa03e2c810acef0384112dfe204bef776fbdc5aa301691eea98289e8d"
+    },
+    {
+      "source": "assets/ui/backpack-a-button-v1.png",
+      "runtime": "assets/ui/backpack-a-button-v1.webp",
+      "size": [
+        2172,
+        724
+      ],
+      "quality": 90,
+      "psnrDb": 43.287459692041956,
+      "sourceSha256": "bf3282ce28c326ee43d3f8bb18206b69ca80bab66bfc964014ecbcf7103ae1f1",
+      "runtimeSha256": "de97fdb469b3d5b45ee64da4b5dc76cb63cbdd3740783eac7a3f0fcf7467321b"
+    }
+  ]
+}

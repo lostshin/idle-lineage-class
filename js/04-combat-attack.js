@@ -1706,8 +1706,8 @@ function killPlayer() {
     if(player.cls === 'illusion') player.skills.forEach(s => { let _d = DB.skills[s]; if(_d && (_d.cube || _d.illuSummon || _d.painReflect || _d.dmgTakenReduce)) player.buffs[s] = 0; });
     // 🌀 時空裂痕：死亡＝結束挑戰——不損失經驗（含經典模式）、不需手動復活，自動回到時空裂痕入口（無原地復活）
     if (state.riftRun) {
-        logSys('<span class="text-red-500 font-bold text-lg">你在時空裂痕中力竭倒下……（時空裂痕：死亡不損失經驗）</span>');
-        logCombat('你的角色已經死亡。', 'enemy');
+        logSys('<span class="text-red-500 font-bold text-lg">你在時空裂痕中力竭倒下……（時空裂痕：死亡不損失經驗）不列入死亡經驗買回。</span>');
+        logCombat('你的角色已經死亡。不列入死亡經驗買回。', 'enemy');
         riftEndRun();   // 結算停留時間排名＋產生待領獎勵（並清 state.riftRun）
         player.dead = false;
         player.statuses = { stun: 0, freeze: 0, stone: 0, poison: 0, poisonDmg: 0, poisonTick: 0, burn: 0, burnDmg: 0, burnTick: 0, scald: 0, scaldDmg: 0, scaldTick: 0, bleed: 0, bleedDmg: 0, bleedTick: 0, sleep: 0, silence: 0, paralyze: 0, magicseal: 0, armorBreak: 0, slowAtk: 0, cleave: 0, evilAura: 0 };   // ⚠️ 補齊 armorBreak/slowAtk/cleave/evilAura：漏鍵會讓 js/03 的到期還原永遠列舉不到（下方已有 calcStats）
@@ -1721,6 +1721,7 @@ function killPlayer() {
     }
     if (!_duelDeath) pvpChaoticDeathItemLoss();   // ⚔️ 決鬥落敗不噴裝（即使是紅名）
     let msg = "你的角色已經死亡。（死亡不損失經驗值。）";
+    let deathExpLoss = 0;
     let _siegeDeath = (typeof isSiegeArea === 'function' && typeof mapState !== 'undefined' && mapState && isSiegeArea(mapState.current));
     // 🎮 經典模式：死亡損失「該等級最大經驗」的 5%（v3.0.15 由 10% 調降·per-level 進度，最多扣到該等級 0% → 不會降等）
     if (_duelDeath) {
@@ -1730,6 +1731,7 @@ function killPlayer() {
         let _before = player.exp;
         player.exp = Math.max(0, player.exp - _lossCap);
         let _actualLoss = _before - player.exp;
+        deathExpLoss = _actualLoss;
         msg = `你的角色已經死亡。<span class="text-red-300">（經典模式：損失了 ${_actualLoss} 點經驗）</span>`;
         // 🕊️ 死亡紀錄（聖使阿卡塔·亞丁·經典限定）：只記「實際扣掉的經驗」（下限夾 0 後的差額）——當級 0% 死亡損失 0 → 不建檔，杜絕買回沒失去的經驗；上限 10 筆，滿了淘汰最舊；隨 player 入存檔（逐角色獨立）
         if (_actualLoss > 0) {
@@ -1741,9 +1743,10 @@ function killPlayer() {
         msg = '你的角色已經死亡。<span class="text-amber-300">（攻城區：死亡不損失經驗值。）</span>';
     }
 
+    if (deathExpLoss === 0) msg += '不列入死亡經驗買回。';
     // 顯示系統與戰鬥日誌
     logSys(`<span class="text-red-500 font-bold text-lg">${msg}</span>`);
-    logCombat(`你的角色已經死亡。`, 'enemy');
+    logCombat('你的角色已經死亡。' + (deathExpLoss === 0 ? '不列入死亡經驗買回。' : ''), 'enemy');
     
     // 重新顯示「祈求復活」按鈕（⚔️ 決鬥落敗除外：改由 js/28 的決鬥結果視窗處理——選「繼續」就地整備、選「回村莊」送回古魯丁，兩條路都會解除死亡，不必也不該手動復活）
     if (!_duelDeath) {

@@ -4,6 +4,39 @@ const TAB_WHEEL_IDLE_MS = 180;
 const CLASSIC_GRID_COLUMNS = 4;
 const CLASSIC_GRID_ROWS = 6;
 const CLASSIC_PAGE_CELLS = CLASSIC_GRID_COLUMNS * CLASSIC_GRID_ROWS;
+let inventoryCategories = {wpn:'all',arm:'all',item:'all'};
+let inventoryCategoryScroll = {wpn:0,arm:0,item:0};
+const INVENTORY_WEAPON_GROUPS = {
+    dagger:'blade',sword1:'blade',sword2:'blade',katana:'blade',dual:'blade',chainsword:'blade',
+    blunt1:'blunt',blunt2:'blunt',spear:'blunt',bow:'bow',xbow:'bow',wand:'magic',qigu:'magic',claw:'claw'
+};
+function inventoryCategoryOptions(type) {
+    if (type === 'wpn') return [['all','全部'],['blade','刀劍'],['blunt','鈍器／矛'],['bow','弓弩'],['magic','法器'],['claw','鋼爪'],['arrow','箭矢'],['other','其他']];
+    if (type === 'arm') return [['all','全部'],['arm','防具'],['acc','飾品'],['belt','腰帶']];
+    return [['all','全部'],...MISC_CATEGORIES.filter(c=>c.key !== 'special').map(c=>[c.key,c.name]),['card','卡片'],['special','其他']];
+}
+function inventoryCategoryMatches(item, data, type) {
+    const selected = inventoryCategories[type];
+    if (selected === 'all') return true;
+    if (type === 'arm') return selected === 'belt' ? data.slot === 'belt' : data.type === selected && data.slot !== 'belt';
+    const key = type === 'wpn' ? (data.isArrow ? 'arrow' : INVENTORY_WEAPON_GROUPS[equipCatKey(item.id,data)] || 'other') :
+        (data.eff === 'card' || item.id.startsWith('card_') ? 'card' : miscCatKey(item.id,data) || 'special');
+    return key === selected;
+}
+function setInventoryCategory(type, category) {
+    if (quickEnh[type]?.active || quickJunk[type].active || !inventoryCategoryOptions(type).some(([key])=>key === category)) return;
+    inventoryCategories[type] = category;
+    renderTabs(true);
+    const div = document.getElementById('tab-'+({wpn:'weapons',arm:'armors',item:'items'}[type]));
+    div.querySelector('.classic-inventory-viewport').scrollTop = 0;
+    const button = div.querySelector('[data-inventory-category="'+category+'"]');
+    button.focus({preventScroll:true});
+    button.scrollIntoView({block:'nearest',inline:'nearest'});
+}
+function restoreInventoryCategoryScroll(div) {
+    const strip = div.querySelector('.backpack-categories');
+    if (strip && !div.classList.contains('hidden') && strip.scrollLeft !== inventoryCategoryScroll[strip.dataset.inventoryType]) strip.scrollLeft = inventoryCategoryScroll[strip.dataset.inventoryType];
+}
 // 🗑️ v3.5.83 移除 plainInventoryItemName()：零引用，且與實際使用中的 _autoSellPlainItemName 功能重複。
 function _initTabGuard() {
     let panel = document.getElementById('tab-content-panel');
@@ -169,6 +202,10 @@ function renderTabs(force) {
     if(_tabThrottleTimer) { clearTimeout(_tabThrottleTimer); _tabThrottleTimer = null; }
     // ===== 內容簽章：背包/裝備/技能等實際內容沒變時直接跳過重建 =====
     // 避免戰鬥中(掉寶、射箭扣箭、夥伴耗肉等)頻繁重繪，導致游標所在欄位閃動、捲動跳回頂端、以及 mousedown/mouseup 落在不同元素造成點擊失效。
+    if (renderTabs._actor !== player) {
+        inventoryCategories = {wpn:'all',arm:'all',item:'all'};
+        inventoryCategoryScroll = {wpn:0,arm:0,item:0};
+    }
     let signatures = (function(){
         let inv = {weapons:[],armors:[],items:[]};
         for (const i of player.inv) {
@@ -183,7 +220,7 @@ function renderTabs(force) {
         const common = `${eq}#${(player.skills||[]).join(',')}#${(player.grantedSkills||[]).join(',')}#${player.cls}#${player.lv}#${player.elfEle||''}#${player.mastery||''}#${dd.str+dd.dex+dd.con+dd.int+dd.wis}`;
         const blessCount = type => quickEnh[type].active ? (player.inv.find(i => i.id === (type === 'wpn' ? 'scroll_weapon_b' : 'scroll_armor_b'))?.cnt || 0) : 0;
         return {equip:`${common}#${dd.weightPct||0}.${dd.loadTier||0}`,skill:`${common}#${Math.round(dd.magicDmg||0)}.${Math.round(dd.mr||0)}`,
-            weapons:common+'#'+inv.weapons.join(';')+'#'+blessCount('wpn'),armors:common+'#'+inv.armors.join(';')+'#'+blessCount('arm'),items:common+'#'+inv.items.join(';')};
+            weapons:common+'#'+inv.weapons.join(';')+'#'+blessCount('wpn')+'#'+inventoryCategories.wpn,armors:common+'#'+inv.armors.join(';')+'#'+blessCount('arm')+'#'+inventoryCategories.arm,items:common+'#'+inv.items.join(';')+'#'+inventoryCategories.item};
     })();
     const changed = Object.fromEntries(Object.keys(signatures).map(tab => [tab, !!force || renderTabs._actor !== player || signatures[tab] !== renderTabs._signatures?.[tab]]));
     if (!Object.values(changed).some(Boolean)) return;
@@ -297,6 +334,7 @@ player.inv.forEach(i => {
     let d = DB.items[i.id];
     const tab = d.type === 'wpn' ? 'weapons' : d.type === 'arm' || d.type === 'acc' ? 'armors' : 'items';
     if (!changed[tab]) return;
+    if (!inventoryCategoryMatches(i,d,tab === 'weapons' ? 'wpn' : tab === 'armors' ? 'arm' : 'item')) return;
 
     // ===== 視覺狀態判定 =====
     let statusTag = '';
@@ -396,7 +434,7 @@ player.inv.forEach(i => {
     let sDiv = document.getElementById('tab-skill');
     if (changed.skill) renderClassicSkillBook(sDiv);
     // 還原各分頁捲動位置
-    ['tab-items','tab-weapons','tab-armors','tab-equip','tab-skill'].forEach(id => { let el = document.getElementById(id); if(el && _scroll[id] != null) { let sc=el.querySelector('.classic-inventory-viewport,.classic-skill-grid-scroll'); if(sc)sc.scrollTop=_scroll[id]; else el.scrollTop=_scroll[id]; } });   // 🎨 v3.0.40 1.8皮膚：捲動位置還原到內層 viewport（技能頁為 .classic-skill-grid-scroll）
+    ['tab-items','tab-weapons','tab-armors','tab-equip','tab-skill'].forEach(id => { let el = document.getElementById(id); if(el && _scroll[id] != null) { let sc=el.querySelector('.classic-inventory-viewport,.classic-skill-grid-scroll'); if(sc)sc.scrollTop=_scroll[id]; else el.scrollTop=_scroll[id]; restoreInventoryCategoryScroll(el); } });   // 🎨 v3.0.40 1.8皮膚：捲動位置還原到內層 viewport（技能頁為 .classic-skill-grid-scroll）
     updateSummonLock();
     if (changed.equip && typeof refreshEquipmentWindow === 'function') refreshEquipmentWindow();
 }
@@ -439,7 +477,26 @@ function decorateClassicInventoryTab(div){
     shell.appendChild(viewport); shell.appendChild(up); shell.appendChild(down);
     let quick=Array.from(div.children).find(x=>x.classList.contains('sticky'));
     if(quick)quick.classList.add('classic-list-toolbar');
+    if (div.id !== 'tab-equip') {
+        div.classList.add('player-backpack-tab');
+        const type = {'tab-weapons':'wpn','tab-armors':'arm','tab-items':'item'}[div.id];
+        const filters = document.createElement('div'), busy = quickEnh[type]?.active || quickJunk[type].active;
+        filters.className = 'backpack-categories'; filters.setAttribute('role','group');
+        filters.dataset.inventoryType = type;
+        filters.onscroll = () => { if (filters.isConnected) inventoryCategoryScroll[type] = filters.scrollLeft; };
+        filters.setAttribute('aria-label',({wpn:'武器分類',arm:'防具與飾品分類',item:'道具分類'}[type]));
+        for (const [value,label] of inventoryCategoryOptions(type)) {
+            const button = document.createElement('button'); button.type = 'button'; button.className = 'btn';
+            button.dataset.inventoryCategory = value;
+            button.dataset[({wpn:'weaponCategory',arm:'backpackCategory',item:'itemCategory'}[type])] = value;
+            button.textContent = label; button.setAttribute('aria-pressed',String(inventoryCategories[type] === value)); button.disabled = !!busy;
+            if (busy) button.title = '請先完成或取消批次操作';
+            button.onclick = () => setInventoryCategory(type,value); filters.appendChild(button);
+        }
+        div.prepend(filters);
+    }
     div.appendChild(shell);
+    if (quick && div.id !== 'tab-equip') div.appendChild(quick);
 }
 
 // ===== 召喚類技能互斥：迷魅 / 召喚 / 造屍 / 召喚屬性精靈 / 召喚強力屬性精靈 同時只能開啟一個 =====
@@ -1628,8 +1685,8 @@ function executeCurseDeEnhance(targetUid, isEq, scrollId) {
 //    防止 noEnhance 等不合格物品顯示可勾（藍框）卻在執行時被靜默略過、表頭全選狀態對不上
 function _qeCanSelect(d, i, type) {
     if (!d || i.lock || d.noEnhance) return false;   // 🪆 無法強化(古老系列/魔法娃娃)不列入快速強化
-    if (type === 'wpn') return d.type === 'wpn' && !d.isArrow;
-    return d.type === 'arm' || d.type === 'acc';
+    if (type === 'wpn') return d.type === 'wpn' && !d.isArrow && inventoryCategoryMatches(i,d,type);
+    return (d.type === 'arm' || d.type === 'acc') && inventoryCategoryMatches(i,d,type);
 }
 // 該分頁可被批次強化的背包裝備（未鎖定；武器分頁＝武器(非箭矢)，防具分頁＝防具/飾品）
 function _qeEligibleItems(type) {
@@ -1756,6 +1813,7 @@ function _qjCanSelect(d, i, type) {
     if (!d || i.lock || d.noJunk) return false;   // 🎴 noJunk(收集冊等)不納入快速廢品
     const limit = quickJunk[type].maxEnhance;
     if ((d.type === 'wpn' || d.type === 'arm' || d.type === 'acc') && limit != null && limit !== 'all' && (Number(i.en) || 0) > Number(limit)) return false;
+    if (!inventoryCategoryMatches(i,d,type)) return false;
     if (type === 'wpn') return d.type === 'wpn';
     if (type === 'arm') return d.type === 'arm' || d.type === 'acc';
     return d.type !== 'wpn' && d.type !== 'arm' && d.type !== 'acc';
@@ -2601,6 +2659,7 @@ function switchTab(t, btn) {
     if(t === 'pvp' && typeof renderPvpTab === 'function') renderPvpTab();
     if(t === 'clan' && typeof renderClanTab === 'function') renderClanTab();
     if(t === 'automation' && typeof syncNpcLanguageSetting === 'function') syncNpcLanguageSetting();
+    restoreInventoryCategoryScroll(document.getElementById('tab-'+t));
 }
 
 // ===== 🤝 協力傭兵隊伍面板（Phase 1：顯示血/魔/經驗條＋每傭兵攻擊技能/治癒魔法設定）=====

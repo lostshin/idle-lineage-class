@@ -1,0 +1,15 @@
+{
+  "generator": "image_gen built-in",
+  "reference": "assets/ui/warehouse-row-v1.png",
+  "selected": true,
+  "source": "output/design-source/imagegen/guild-comparison/guild-comparison-v1.png",
+  "runtime": "assets/ui/guild-comparison-v1.webp",
+  "size": [
+    2172,
+    724
+  ],
+  "quality": 90,
+  "psnrDb": 43.1333957407924,
+  "sourceSha256": "8f2350d52fdad8df7492e0ac2a953f271fedcedd6c010bc746e26050ff598f98",
+  "runtimeSha256": "76d4b7d2b49c30107a1d0117c56021741d9749421bf17ef26b5f8dba41a499ee"
+}

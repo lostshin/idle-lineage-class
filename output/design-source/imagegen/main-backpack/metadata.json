@@ -1,0 +1,17 @@
+{
+  "selected": false,
+  "generator": "image_gen built-in",
+  "reference": "assets/ui/party-equipment-socket-v1.png",
+  "source": "output/design-source/imagegen/main-backpack/backpack-slot-v1.png",
+  "runtime": "assets/ui/backpack-slot-v1.webp",
+  "size": [
+    1254,
+    1254
+  ],
+  "quality": 90,
+  "psnrDb": 42.09297998519684,
+  "sha256": "55cce1e29083e93c40caf428ff45b144c2bdf59cdbb524bcdc6cfe529cf02bed",
+  "runtimeRemoved": true,
+  "retiredRuntimeSha256": "55cce1e29083e93c40caf428ff45b144c2bdf59cdbb524bcdc6cfe529cf02bed",
+  "reason": "Replaced by user-selected A: black cells with thin dividers; retain PNG/prompt as design history."
+}

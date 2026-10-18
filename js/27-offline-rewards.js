@@ -1311,6 +1311,7 @@
     function _offlineLootHtml(result) {
         let itemRows = Object.keys(result.items || {}).map(id => ({
             name: (typeof DB !== 'undefined' && DB.items && DB.items[id] && DB.items[id].n) || id,
+            color: DB.items[id]?.c || 'text-white',
             count: result.items[id]
         })).sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
         let tierName = { 1: '普卡', 2: '銀卡', 3: '金卡' };
@@ -1321,7 +1322,7 @@
         let rows = itemRows.concat(cardRows);
         if (!rows.length) return '<div style="color:#64748b;">本次未取得怪物掉落物。</div>';
         let shown = rows.map(row =>
-            '<div style="display:flex;justify-content:space-between;gap:12px;"><span>' + _offlineEsc(row.name) +
+            '<div style="display:flex;justify-content:space-between;gap:12px;"><span class="' + _offlineEsc(row.color || 'text-white') + '">' + _offlineEsc(row.name) +
             '</span><b style="color:#fef08a;">× ' + row.count.toLocaleString() + '</b></div>').join('');
         return shown;
     }
@@ -1367,6 +1368,11 @@
         if (typeof logSys !== 'function') return;
         logSys('<span class="text-amber-300 font-bold">離線掛機完成：</span>' + _offlineEsc(result.mapName) + '，離線 ' +
             _offlineFormatDuration(result.requestedElapsedMs || result.elapsedMs) + (result.capped ? '（已達 12 小時上限）' : '') + '。');
+        let duration = result.requestedElapsedMs || result.elapsedMs;
+        if (duration >= 600000) {
+            logSys('每 10 分鐘效益：經驗 ' + Math.round(result.exp * 600000 / duration).toLocaleString() +
+                '、金幣 ' + Math.round(result.gold * 600000 / duration).toLocaleString() + '。');
+        }
         if (result.potionUsed > 0) {
             const name = DB.items[result.potionId]?.n || result.potionId;
             logSys('離線消耗：' + _offlineEsc(name) + ' ×' + result.potionUsed.toLocaleString() +

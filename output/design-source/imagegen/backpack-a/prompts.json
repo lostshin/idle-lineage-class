@@ -1,0 +1,13 @@
+{
+  "generator": "Built-in image_gen",
+  "prompts": [
+    {
+      "id": "frame",
+      "prompt": "Use case: precise-object-edit. Production game UI asset extraction. Input image is the user-selected approved design A. Extract and faithfully reproduce ONLY its outer ornate weathered silver inventory frame and its very dark green-charcoal stone inner background. Flat front view rectangular portrait, aspect ratio 3:5, all four complete edges visible and flush with canvas. Preserve the distinctive winged center silver ornament, aged metal corner scrolls, narrow side rails, and bottom corner detail from the reference, matching the old Lineage pixel-painted material and color. Remove the entire 武器 防具 道具 tab row, ALL text, search field, subfilter buttons, item icons, slot grid and lines, scrollbar, utility controls and close X. The result is a single EMPTY reusable textured panel skin. Interior is uninterrupted very dark subtle stone texture, low contrast for HTML controls to overlay. All ornament confined to a narrow outer 4% rim. No additional outer padding, shadows outside the rectangular canvas, logos, text, glyphs, numbers or icons. This is a runtime background asset, not a concept sheet. Keep decoration symmetrical enough for nine-slice rendering and preserve high-quality pixel-painted texture."
+    },
+    {
+      "id": "button",
+      "prompt": "Use case: game-ui-asset. Production UI asset matching the input user-approved inventory design A. Generate ONE empty horizontal rectangular button surface, aspect ratio 3:1, flat frontal orthographic view, edge-to-edge full canvas. Match the dark black-green stone, carved thin worn silver double bevel and small clipped silver corners of the reference's rectangular subcategory buttons (全部 / 防具 / 飾品 / 腰帶). Single state, NOT a sprite sheet and NOT multiple buttons. Keep the interior nearly black subtle stone/grain so HTML text remains legible. Continuous silver rim confined to outer 6%, refined old-school late-1990s Lineage fantasy RPG pixel-painted style, restrained highlights and weathered metal. Absolutely no text, glyphs, images, icons, symbols, glow, rounded modern pill shape, floating shadow, surrounding scene or margins. An empty border-plus-fill graphic suitable for CSS border-image nine-slice."
+    }
+  ]
+}

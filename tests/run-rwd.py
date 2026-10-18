@@ -16,6 +16,11 @@ SUITES += ['optional-addons','comfort-release','creation-id','guild-settlement']
 SUITES += ['gear-accelerator']
 SUITES += ['ken-reports']
 SUITES += ['precise-shot']
+SUITES += ['player-feedback']
+SUITES += ['main-backpack']
+SUITES += ['equipment-trials']
+SUITES += ['backpack-a']
+SUITES += ['guild-inventory-filters']
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--desktop-only', action='store_true', help='Skip mobile and tablet viewport checks')

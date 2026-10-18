@@ -280,13 +280,18 @@
 .guild-item-icon .classic-icon-values { right:3px; bottom:1px; }
 .guild-item-name { display:block; flex:none; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:13px; }
 .guild-empty { grid-column:1/-1; padding:15px 4px; font-size:13px; color:#a69a84; }
-.guild-actions { flex:none; display:grid; grid-template-columns:minmax(0,1fr) auto; gap:5px 8px; padding:8px; border-top:1px solid #77603e; background:#171511; }
+.guild-actions { flex:none; display:grid; grid-template-columns:minmax(0,1fr); gap:5px 8px; padding:8px; border-top:1px solid #77603e; background:#171511; }
 .guild-actions > div { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:13px; align-self:center; }
 #guild-current { grid-column:1; grid-row:1; color:#beb39b; }
 #guild-candidate { grid-column:1; grid-row:2; color:#e4c581; }
-#guild-equip { grid-column:2; grid-row:1; }
-#guild-unequip { grid-column:2; grid-row:2; }
-.guild-actions .btn { min-width:68px; padding:3px 12px; font-size:14px; }
+#guild-actions-hint { grid-column:1; grid-row:4; margin:0; color:#ad9d7c; font-size:11px; line-height:1.5; }
+.guild-repeat-trials { padding:10px; border:1px solid #736045; background:#14120f; }
+.guild-repeat-trials h3 { color:#e0c58c; font-size:16px; margin:0 0 8px; }
+.guild-repeat-trials > div { padding:8px 0; border-top:1px solid #55452e; }
+.guild-repeat-trials p { margin:0 0 6px; color:#c5baa4; font-size:13px; overflow-wrap:anywhere; }
+.guild-repeat-trials label { color:#c5baa4; font-size:13px; margin-right:8px; }
+.guild-repeat-trials input { width:65px; padding:4px; background:#171615; color:#eee5d3; border:1px solid #766346; }
+.guild-repeat-trials .btn { padding:4px 8px; font-size:13px; }
 .guild-footer { flex:none; margin:0; padding:6px 0 0; text-align:center; font-size:12px; color:#ad9d7c; }
 @container guild (max-width:800px) {
     #guild-window-drag { flex-basis:44px; }
@@ -350,7 +355,7 @@
 .guild-equipment-view .guild-filters { flex-wrap:nowrap; padding:6px; }
 .guild-equipment-view .guild-filters select { width:62px; }
 .guild-equipment-view .guild-filters button { width:auto; font-size:11px; padding:3px; }
-.guild-equipment-view .guild-actions { gap:5px; padding:6px; }
+.guild-equipment-view .guild-actions { flex:0 0 45%; min-height:0; grid-template-rows:auto auto minmax(0,1fr) auto; gap:5px; padding:6px; }
 
 /* Match the player's equipment controls: inside the artwork, at bottom left. */
 .party-equipment-pages,.guild-equipment-view .guild-pages {
@@ -364,3 +369,22 @@
 }
 
 .guild-equipment-view #guild-window-close { min-width:64px; width:64px; height:30px; padding:3px 8px; font-size:14px; }
+
+/* The comparison is a separate leather inset; the native equipment canvas stays intact. */
+#guild-comparison {
+    grid-column:1 / -1; grid-row:3; min-width:0; min-height:0; max-height:none; align-self:stretch; padding:8px;
+    border:5px solid transparent; border-image:url('../assets/ui/guild-comparison-v1.webp') 24 fill stretch;
+    overflow:auto; white-space:normal; overflow-wrap:anywhere; line-height:1.7; color:#c5baa4;
+    scrollbar-width:thin; scrollbar-color:#8c7649 #101115;
+}
+#guild-comparison strong { display:block; margin-bottom:3px; color:#e0c58c; font-size:13px; }
+#guild-comparison > div { display:flex; justify-content:space-between; flex-wrap:wrap; gap:0 8px; font-size:12px; }
+#guild-comparison b { font-weight:600; font-variant-numeric:tabular-nums; }
+#guild-comparison .guild-gain { color:#86efac; }
+#guild-comparison .guild-loss { color:#fca5a5; }
+
+/* Native overlay scrollbars must not change the paperdoll or candidate grid width. */
+#guild-body-scroll,#guild-candidates,#guild-comparison { overflow-y:scroll; overflow-x:hidden; scrollbar-gutter:stable; scrollbar-width:auto; scrollbar-color:auto; }
+:is(#guild-body-scroll,#guild-candidates,#guild-comparison)::-webkit-scrollbar { width:10px; }
+:is(#guild-body-scroll,#guild-candidates,#guild-comparison)::-webkit-scrollbar-track { background:#101115; }
+:is(#guild-body-scroll,#guild-candidates,#guild-comparison)::-webkit-scrollbar-thumb { background:#8c7649; border:2px solid #101115; border-radius:4px; }

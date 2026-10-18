@@ -212,6 +212,9 @@ function _auditMobDrops(mobName) {
 }
 function renderAuditDrops(el) {
     let pool = (typeof DB !== 'undefined' && DB.maps && typeof mapState !== 'undefined') ? (DB.maps[mapState.current] || null) : null;
+    // Dungeon bosses spawn outside the random pool; include their transform chain for display only.
+    let boss = ANTHARAS_AREA_BOSS[mapState.current];
+    if (boss) pool = [...new Set([...(pool || []), boss])];
     let body;
     if (!pool || !pool.length) {
         body = '<div class="text-slate-500 text-sm">目前地圖沒有怪物掉落資料。</div>';
