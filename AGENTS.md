@@ -34,7 +34,7 @@
 - 開發產物：已採用美術與 prompts 在 `output/design-source/imagegen/`，`output/imagegen` 為舊引用連結；歷史驗收在 `tests/artifacts/archive/2026-10-17/`，`tmp/` 全部忽略。清除前看 metadata 的選擇、最終報告引用與現用腳本輸入；不要只按日期、檔名第一字或尺寸判斷過時。保留必要來源，刪除記錄舊路徑／SHA／原因；只歸檔不等於已清理。
 - 舊浮動開關面板已移除；`js/addon-switches.js` 明列固定基底與可選 catalog，不讀舊 `afk_toggle_*`；未知 ID 預設關閉。`statpts` 與主角點數來源面板維持移除。
 
-## 已確認的產品決策（更新至 2026-10-17）
+## 已確認的產品決策（更新至 2026-10-18）
 
 完整原文在 [docs/agent-decisions.md](docs/agent-decisions.md)。**修改下列功能、樣式、素材或對應測試前，先讀該小節**（`rg -n '^### ' docs/agent-decisions.md` 取行號後只讀那段）；與小節衝突時以該檔為準，不恢復已否決／已移除的方案。
 
@@ -45,14 +45,22 @@
 | 裝置縮放 | UI 縮放 60～100%、遷移、座標換算 |
 | 能力提示、隊友浮窗與技能條件 | 能力來源 tooltip、寵物能力、隊友浮窗、裝備提示、技能卡／喝水條件、`_hpSkillPct` |
 | 召喚物圖片與地圖名稱 | `companionSpriteForm`、召喚物名稱、地圖懸浮、`AREA_1920`、hit mask |
-| 裝備美術、負重與狀態圖示 | 裝備背景／槽位比例、裝備控制列、負重、狀態圖示、UI 素材 WebP 與換檔名 |
+| 裝備美術、負重與狀態圖示 | 裝備背景／槽位比例、主角背包 A 與單列分類、負重、狀態圖示、UI 素材 WebP 與換檔名 |
 | DPS 與日誌 | DPS 快照與圖表、寵物 DPS、戰鬥／系統日誌與篩選 |
 | 戰鬥、經驗與村莊增益 | 寵物／召喚物加速、隊友 EXP、村莊 buff |
 | 離線掛機 | 離線結算條件、補跑呈現、歷史紀錄 |
-| 傭兵公會 | `js/guild-window.js` 版面與換裝 |
+| 傭兵公會 | `js/guild-window.js` 雙擊換裝、隊員能力比較、固定捲軸與控制欄比例 |
 | 倉庫 | 倉庫外框、尺寸、雙欄捲動、數量交易 |
 | 強化與金額記憶 | 強化視窗、`modalguard`、捐獻／倉庫金額 |
 | 效能與線上人數 | 虛擬化、`renderTabs` 失效與 tick 內重建、能力預覽、`online-presence`、量測門檻與 CPU profile、延後載入、DOM 寫入、登入動畫 |
+
+## 介面修正的範圍與驗收
+
+- 「主角背包」（`js/10-ui-tabs.js`）、「公會的隊長背包」（`js/guild-window.js`）與唯讀隊友浮窗是三個不同介面；先依截圖／入口核對對象。改錯的介面只撤回誤改部分，保留另行要求的能力比較等功能。
+- 主角背包沿用已選 A 美術；不恢復被刪除的內層「武器／防具／道具」列。細分類固定單列橫向滑動，武器 8／道具 7 項（含全部），不得再展開成每種武器一格的多排分類；完整名稱與窄欄可用性優先。
+- 背包格須驗證大量物品下的相鄰座標與不重疊，不能只量單格寬高比。flex／grid 中的百分比子高度可能壓縮隱含列；沿用現有 `grid-auto-rows:max-content` 與絕對定位圖示層，不以固定高度掩蓋根因。
+- 分類須與搜尋、快速強化／廢品共用篩選；批次操作時鎖住分類，避免操作隱藏物品。各頁獨立保存分類與橫向位置，重繪／切頁仍保留，換角色才重設。
+- 公會捲軸與比較區須對照無選取／已選取／搜尋無結果三態；預留固定軌道，核對畫布與清單寬度不跳動。幾何量測取扣除捲軸的 `clientWidth` 再換算 UI 縮放，不拿外框寬度當內容寬度。
 
 ## 開發與驗證
 
@@ -62,11 +70,11 @@
 - 測試報告預設寫入 `tmp/test-runs/`（不進 git）；要更新受追蹤的 `tests/artifacts/` 才加 `--record`（runner 與 `*.integration.js` 相同）；runner 可用 `--artifacts <目錄>` 指定其他輸出位置，與 `--record` 互斥。
 - 成功後只呼叫一次 `finish({keep:[]})` 並等待完成；耗時時用背景程序讀回結果，不用短 timeout 中止再反覆重送。有 `finished <id>` 與成功結束碼後，不再操作該空間。
 - 必跑 `rwd`、`ui-scale`、`gameplay`、`account-gameplay`、`companion-commands` 的 HTTP／file：`--space <id> --suite required --protocol both --desktop-only`。
-- 相關 E2E：`compact-layout`、`party-refinements`、`party-equipment`、`village-clan-warehouse`、`skill-cards`、`ally-skill-stop`、`town-buffs-enhance`、`summon-display`、`desktop-feedback`、`desktop-acceptance`、`tooltip-stability`、`effect-details`、`guild-settlement`、`offline-rewards`、`creation-id`、`comfort-release`、`mobile-status`、`party-header`、`field-reports`；同樣帶 `--desktop-only`。
+- 相關 E2E：`compact-layout`、`party-refinements`、`party-equipment`、`village-clan-warehouse`、`skill-cards`、`ally-skill-stop`、`town-buffs-enhance`、`summon-display`、`desktop-feedback`、`desktop-acceptance`、`tooltip-stability`、`effect-details`、`guild-settlement`、`offline-rewards`、`creation-id`、`comfort-release`、`mobile-status`、`party-header`、`field-reports`、`backpack-a`、`main-backpack`、`guild-inventory-filters`、`equipment-trials`、`player-feedback`；同樣帶 `--desktop-only`。
 - TaskSpace 消失不能自行重建；使用者暫緩重建時，先完成本地工作並記錄待跑的瀏覽器檢查，後續不得把 Node VM／幾何替身說成瀏覽器 E2E 通過。
 - 所有 `visual-*` 必須緊接同一 space 的對應行為 fixture，例如 `account-gameplay visual-account-gameplay`；中間不可插入其他 suite，各 fixture 的全域儲存不可互換。runner 會拒絕順序錯誤的組合。
 - 狀態節點／控制項測試依 `data-*`／欄位語意定位，不假設職業為名稱的 `nextElementSibling`。創角 fixture 須明填合成 ID；舊未命名存檔另建 fixture，不繞過必填限制。需求已變就改舊斷言，不恢復已移除功能；找長單行斷言用 `rg --no-ignore -o '.{60}舊字串.{60}' tests`，不用 `grep -n | cut`。相同物品（同 id／強化）簽章不含 uid，互換位置不會重建；斷言比可見內容，不比 uid。
-- 每個 suite 明確設定起始視窗；靜態 fixture 停計時器也設 `state.running=false`；離線讀檔須先等原生非同步結算回呼完成才停止 running，否則會誤擋結算。縮放／切尺寸後等版面穩定；原生滾輪須等 scrollTop 連續畫格穩定後再比對，避免把慣性誤判為兩側連動。原生命中須選目前可視控制項，不能固定取已捲出視窗的第一格；比例／不重疊仍檢查全體。原生選擇器點擊若因自動捲動被 sticky 欄擋住，先觀察命中元素，再聚焦、核對 `elementFromPoint`、用原生滑鼠點擊；不盲目重試或強制穿透。
+- 每個 suite 明確設定起始視窗；靜態 fixture 停計時器也設 `state.running=false`；離線讀檔須先等原生非同步結算回呼完成才停止 running，否則會誤擋結算。縮放／切尺寸後等版面穩定；原生滾輪每輪先以目前目標 rect 的中心執行 `page.mouse.move()`，再 `wheel()`；不能假設 `hover()` 已把游標留在捲動區。scrollTop／scrollLeft 連續畫格穩定後再比對，避免把慣性誤判為兩側連動。原生命中須選目前可視控制項，不能固定取已捲出視窗的第一格；比例／不重疊仍檢查全體。原生選擇器點擊若因自動捲動被 sticky 欄擋住，先觀察命中元素，再聚焦、核對 `elementFromPoint`、用原生滑鼠點擊；不盲目重試或強制穿透。
 - 懸浮測試先等 resize／scroll 與版面穩定；選不被其他 sprite 遮住、離透明邊緣足夠遠的像素，避免取點到送入滑鼠事件間角色已移動。可短暫固定合成場景的原生畫格，完成後還原；不冒充完整戰鬥驗證。
 - 不直接改寵物記憶體陣列充當已儲存名冊；用原生 dirty／save 流程，避免下一次查詢把測試寵物清掉。
 - 擷取圖片不可用／`Page.captureScreenshot` 逾時時，從失敗 suite 接續 `--skip-screenshots`，不重跑已通過的；用 Ego screen-media PDF 轉 PNG。PDF 放 `tmp/pdfs/`、驗收後刪除；標示協定、轉圖工具與實際 dpi（本輪 sips 為 72dpi），不宣稱直接截圖。
@@ -102,6 +110,8 @@
 - push 成功不代表已上線；追蹤這次 HEAD 的 `pages build and deployment`，等 build／deploy 成功。長操作用背景程序並定期回報，不因正常等待重新推送或重建。
 - 發布後以公開 HTTPS 比對線上 `index.html`、本次改動的 JS／CSS／素材與本機已提交內容 SHA256；保存 commit、run URL、結果與時間。這是資源驗證，不等於線上瀏覽器 E2E，也不讀寫玩家儲存。
 
-## 最新進度與驗證基準（2026-10-17）
+## 最新進度與驗證基準（2026-10-18）
 
-版本、近期 commit、報告位置與已結束的 TaskSpace 見 [docs/agent-progress.md](docs/agent-progress.md)；接手、發布或引用舊報告前讀。
+- 功能 commit `d33d3945e`：主角背包 A／單列分類、大量物品不重疊、公會雙擊換裝／隊員比較／固定捲軸、隊員試煉重複兌換、死亡提示／離線效益與顏色／副本掉落顯示已完成；先前 `ec7cc70d1` 含預設關閉的齒輪加速器與精準射擊等回報修正。
+- 最終功能基準：`tmp/test-runs/guild-inventory-filters/completion.json`，HTTP／file 20 份／1,042 項全過、本地 13/13，來源 SHA 已核對；7 張預覽為實際 HTTP Ego screen-media PDF→sips 72dpi。TaskSpace 2 已 `finish` 成功，禁止重用；手機／安裝版未實測。
+- 發布版 `v3.9.5` 另跑 `comfort-release` HTTP／file 各 39/39；發布 TaskSpace 3 已結束。不冒充上述功能測試重跑；發布證據放 `tmp/test-runs/session-release-20261018/`，push／部署／公開資源 SHA 分開核對。完整歷史與接手限制見 [docs/agent-progress.md](docs/agent-progress.md)；`tmp/` 為本機報告，不保證乾淨 clone 存在。

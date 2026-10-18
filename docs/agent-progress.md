@@ -1,6 +1,17 @@
-# 最新進度與驗證基準（2026-10-17）
+# 最新進度與驗證基準（2026-10-18）
 
 由 `AGENTS.md` 移出；接手、發布或引用舊報告前讀。
+
+## 2026-10-18：背包、公會與玩家回報
+
+- 發布版 `v3.9.5`，原版 `GAME_VERSION` 維持 `v3.8.34`。本次發布包含先前未推送的 `ec7cc70d1`（齒輪開關／精準射擊文案／KEN 回報），以及 `d33d3945e`（背包 A／橫向粗分類、公會雙擊／能力比較／穩定捲軸、隊員重複試煉、死亡與離線／副本顯示）。
+- 主角與公會背包已分清：只有主角換 A 美術與分類；誤套在公會的分類／清單改版已撤回，保留要求的隊員比較。最新分類固定一列，武器 8／道具 7 項，不恢復多排 17 種細分類或內層主導航。
+- 最終功能驗收 `tmp/test-runs/guild-inventory-filters/completion.json`：20 份 HTTP／file、1,042 項全過；本地 13/13。新專項各協定 70 項，含原生觸控／橫向滾輪、重繪保留位置、搜尋／批次操作與三態公會穩定尺寸。來源 SHA 已對應 `d33d3945e`，非升版後重跑；早期報告在 completion 標為 historical／superseded，不混算。
+- 大背包驗證 372 格正方且不重疊；公會三態畫布 455.789px、候選 clientWidth 309px、比較 208.094px 均不變。7 張預覽在同報告的 `preview/`，方法為實際 HTTP Ego screen-media PDF → sips 72dpi，非直接截圖。
+- TaskSpace 2 已單次 `finish({keep:[]})`、exit 0；預覽 HTTP 8123 已停止。實體手機、安裝版、iCloud 未實測，不得重用已完成空間或以 file 替代安裝版驗證。
+- 本輪版本／文件變動另跑本地檢查及 `comfort-release` HTTP／file 各 39/39，登入顯示 `v3.9.5`／原版 `v3.8.34` 正確；發布 TaskSpace 3 已單次 finish、exit 0。push、Pages run、公開 HTTPS SHA 驗證分別保存於 `tmp/test-runs/session-release-20261018/`。報告為本機產物，乾淨 clone 需依測試入口重跑，不保證 `tmp/` 存在。
+
+## 2026-10-17 歷史基準
 
 - 版本 `v3.9.4`／原版 `v3.8.34`。公會 B、創角必填／順序、左下裝備控制列、倉庫直接數量交易與返回系統日誌已完成；先前 852 項與創角 550 項報告各有版本時序，見 `guild-art-20261017/completion.json`、`creation-name-layout/completion.json`，不可混算。
 - `f63bb996b` 為線上人數，`d9c4f2eb9` 為效能修復。效能回歸 22 份／954 項；最後跨分類祝福卷補丁另跑 4 份／84 項（`tmp/test-runs/performance-fix/`），非全部在補丁後重跑。倉庫 5000 格約 565→10～11ms，能力冷重算約 22→7ms，僅本機操作耗時。
