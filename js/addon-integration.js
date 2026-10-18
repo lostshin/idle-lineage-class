@@ -27,6 +27,8 @@ migrateAddonPreferences();
 
 // Preserve the local grouping feature when the original add-on handles select-all.
 document.addEventListener('DOMContentLoaded', () => {
+    const manifest = document.querySelector('link[rel="manifest"]');
+    if (manifest) manifest.href = 'comfort.webmanifest';
     const selectAll = window.quickJunkSelectAll;
     window.quickJunkSelectAll = function (type, checked) {
         quickJunk[type].groups = {};
