@@ -1,6 +1,37 @@
-# 最新進度與驗證基準（2026-10-18）
+# 進度與驗證歷史（更新至 2026-10-19）
 
 由 `AGENTS.md` 移出；接手、發布或引用舊報告前讀。
+
+## 2026-10-19：KEN 離線、分類與返回日誌（v3.9.7）
+
+- 六個隱藏區的離線樣本與結算摘要改用 `HIDDEN_AREA_NAMES`，結算時重新解析地名，因此舊存檔已保存的英文代碼也會修正。
+- 普通地圖離線頭目戰遵守 `set-teleport` 與每地圖指定清單；選擇透過 `AFK_BOSSAVOID.picked(map)` 讀取，並將原始頭目 ID 解析為最終變身名稱。維持完整遭遇池後略過迴避對象，不將機率轉給其他頭目；純頭目房維持原生不迴避例外。
+- 主角防具維持 A 銀框、單列滑動與左右箭頭，保留全部／防具／飾品／腰帶，增加原生九部位：頭盔、盔甲、盾牌／副手、斗篷、手套、長靴、內衣、脛甲、寵物裝備。共用原篩選，搜尋、快速強化／廢品與分類位置記憶仍有效。
+- 外掛設定新增 `keepview`「返回時保留日誌分頁」，預設關閉；啟用後 `focus`／`visibilitychange`／BFCache 返回保留原分頁。新建／載入角色與真正離線摘要維持原本系統日誌流程，偏好仍走既有草稿、取消、寫入確認與重載。
+- `tmp/test-runs/ken-offline-settings/completion.json`：升版前本輪 HTTP／file 20 份、998/998，本地 13/13，69 個鏡像原檔 SHA 不變；原程式 25 項有 17 項預期失敗。基線使用 `git HEAD` 原始程式與現行 E2E 的暫存覆蓋層，來源 SHA 已核對；未回退髒工作樹。
+- 實際 file 預覽在同目錄 `preview/`：Ego 直接截圖、1330×900、100%、右欄 300px；分類另外實測 1330／1920px、60／75／80／100%、220／300／460px。TaskSpace 已 finish，歷史 id 不重用。升版後發布驗收／commit／Pages 與公開資源證據另存 `tmp/test-runs/ken-offline-settings-release/`，不冒充 998 項在升版後重跑。
+- 升版後另實跑 `comfort-release` HTTP／file 各 41/41、本地 13/13；登入顯示 v3.9.7、原版 v3.8.34，未重跑或合計成新的 998 項功能驗證。
+- 本輪不改玩家存檔格式、鏡像、`sw.js` 或原版 `GAME_VERSION`；實體手機、安裝版與 iCloud 未實測。
+
+## 2026-10-19：改名與 v3.9.6 歷史基準
+
+- **目前已上線 commit `35addf157`**：現有專案改為「放置天堂 - 日出之國｜舒適版」，更新 GitHub 簡介、README 首行、網頁／登入標題與 PWA 名稱及實際連結；版號仍為 v3.9.6，原版基底仍為 v3.8.34。
+- 最新驗證：`tmp/test-runs/project-name-correction/completion.json`，HTTP／file 的 `comfort-release`＋required 共 12 份、586/586，本地 13/13；公開資源 SHA256 4/4。Pages run [39166881023](https://github.com/lostshin/idle-lineage-class/actions/runs/39166881023) 對應上述 commit 且成功。TaskSpace 已 finish；手機與已安裝 PWA 的改名未實測。
+- `lostshin/lineage-aquamarine` 儲存庫、Pages、Release、本機副本及暫存下載／ZIP 均已刪除；刪除後 GitHub API 與 Pages 都是 404，證據在 `tmp/test-runs/project-name-correction/deleted-remote.json`、`deleted-local.json`。外站鏡像的缺檔／遊玩報告不屬於本專案基準，不再引用已刪除的 `/tmp/` 產物。
+- 五個歷史附註標籤與繁中 Releases 已建立，標題格式為「舒適版 vX.Y.Z」，只有 v3.9.6 是 Latest；內文取 README 各版本表格，缺 v3.9.2 時依 commit／diff 摘述，末行保留本專案遊玩網址及秋玥原版 3.8.34 歸屬。
+
+| 標籤 | 固定目標 commit |
+|---|---|
+| v3.9.2 | `7e3c899` |
+| v3.9.3 | `6d1b976` |
+| v3.9.4 | `3f12eaf` |
+| v3.9.5 | `4543ec4` |
+| v3.9.6 | `b16514b` |
+
+- 前階段功能 commit `b16514b40`：分類箭頭、主角安全能力比較、A 固定雙窗、原版三頁保留、雙擊創角、離線稀有色、即時職業 tooltip、Buff 提示穩定、強化操作及紅 X；隊員試煉保存失敗會還原原始存檔並保留隊友 runtime 參照。
+- 物品功能報告：`tmp/test-runs/window-action-polish/completion.json` 908/908、本地 13/13，三張實際 file 預覽為 Ego screen-media PDF→pypdfium2 96dpi。前階段 `item-readability/completion.json` 為 878/878，含 Buff／tooltip／強化；其中 `visible-baseline/` 證明舊程式閱讀提示時 48 畫格有 45 格隱藏。
+- 其他歷史報告：`tmp/test-runs/backpack-feedback/completion.json` 1064/1064、`item-window-fixed/completion.json` 720/720；v3.9.6 原發布驗收在 `tmp/test-runs/session-release-20261019/`（`comfort-release` HTTP／file 各 39/39）。各階段不可合計成獨立覆蓋或冒充最新版本重跑；上述 TaskSpace 均已 finish，歷史 id 不可重用。
+- `tmp/` 報告只在本機，乾淨 clone 不保證存在。接手先核對報告與來源 SHA；更早進度見 [docs/agent-progress.md](docs/agent-progress.md)。
 
 ## 2026-10-18：背包、公會與玩家回報
 

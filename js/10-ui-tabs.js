@@ -12,13 +12,13 @@ const INVENTORY_WEAPON_GROUPS = {
 };
 function inventoryCategoryOptions(type) {
     if (type === 'wpn') return [['all','全部'],['blade','刀劍'],['blunt','鈍器／矛'],['bow','弓弩'],['magic','法器'],['claw','鋼爪'],['arrow','箭矢'],['other','其他']];
-    if (type === 'arm') return [['all','全部'],['arm','防具'],['acc','飾品'],['belt','腰帶']];
+    if (type === 'arm') return [['all','全部'],['arm','防具'],['helm','頭盔'],['armor','盔甲'],['shield','盾牌／副手'],['cloak','斗篷'],['gloves','手套'],['boots','長靴'],['tshirt','內衣'],['shin','脛甲'],['petarm','寵物裝備'],['acc','飾品'],['belt','腰帶']];
     return [['all','全部'],...MISC_CATEGORIES.filter(c=>c.key !== 'special').map(c=>[c.key,c.name]),['card','卡片'],['special','其他']];
 }
 function inventoryCategoryMatches(item, data, type) {
     const selected = inventoryCategories[type];
     if (selected === 'all') return true;
-    if (type === 'arm') return selected === 'belt' ? data.slot === 'belt' : data.type === selected && data.slot !== 'belt';
+    if (type === 'arm') return selected === 'arm' || selected === 'acc' ? data.type === selected && data.slot !== 'belt' : data.slot === selected;
     const key = type === 'wpn' ? (data.isArrow ? 'arrow' : INVENTORY_WEAPON_GROUPS[equipCatKey(item.id,data)] || 'other') :
         (data.eff === 'card' || item.id.startsWith('card_') ? 'card' : miscCatKey(item.id,data) || 'special');
     return key === selected;

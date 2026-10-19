@@ -1985,6 +1985,7 @@ function switchLogTab(tab) {
         if (document.hidden || !away) return;
         away = false;
         if (!player || !player.cls || document.getElementById('game-screen')?.classList.contains('hidden')) return;
+        if (AFK_TOGGLES.enabled('keepview')) return;
         switchLogTab('sys'); sysLogToBottom();
     }
     window.addEventListener('blur', () => { away = true; });

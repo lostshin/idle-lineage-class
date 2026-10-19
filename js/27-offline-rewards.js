@@ -137,6 +137,7 @@
 
     function _offlineMapName(map) {
         try {
+            if (HIDDEN_AREA_NAMES[map]) return HIDDEN_AREA_NAMES[map];
             if (typeof mapEntryOf === 'function') {
                 let entry = mapEntryOf(map);
                 if (entry && entry.t) return entry.t;
@@ -862,6 +863,8 @@
         let map = profile && profile.map;
         let pool = _offlineBossPool(map);
         let proofs = _offlineBossProfiles(profile && profile.bosses);
+        let avoidBosses = document.getElementById('set-teleport')?.checked;
+        let avoidedNames = window.AFK_BOSSAVOID ? AFK_BOSSAVOID.picked(map).map(id => _offlineFinalMob(DB.mobs[id])?.n) : [];
         normalKills = Math.max(0, Math.floor(_offlineFinite(normalKills, 0)));
         elapsedMs = Math.max(0, Math.floor(_offlineFinite(elapsedMs, 0)));
         if (!pool.length || !proofs.length || !normalKills || !elapsedMs) return result;
@@ -875,6 +878,7 @@
             let requested = Math.max(0, Math.floor(_offlineFinite(split[name], 0)));
             let proof = proofs.find(row => row.n === name);
             if (!requested || !proof) return;
+            if (avoidBosses && (!avoidedNames.length || avoidedNames.includes(name))) return;
             let perKillMs = _offlineClamp(proof.avgKillMs, TICK_MS, OFFLINE_MAX_MS);
             let count = Math.min(requested, Math.floor(remainingMs / perKillMs));
             if (!count) return;
@@ -1558,7 +1562,7 @@
             logSys('<span class="text-red-400 font-bold">' + label + '已套用至目前畫面，但存檔失敗，請立即再按一次存檔。</span>');
         }
         let result = {
-            mapName: source.mapName || profile.mapName || source.map,
+            mapName: _offlineMapName(source.map),
             elapsedMs: elapsed,
             requestedElapsedMs: requestedElapsed,
             died: survivalPlan.died,

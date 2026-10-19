@@ -23,6 +23,7 @@ SUITES += ['backpack-a']
 SUITES += ['guild-inventory-filters']
 SUITES += ['backpack-feedback']
 SUITES += ['item-window-controls']
+SUITES += ['ken-offline-settings']
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--desktop-only', action='store_true', help='Skip mobile and tablet viewport checks')

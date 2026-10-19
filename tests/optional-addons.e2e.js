@@ -47,7 +47,7 @@ await page.reload();await page.waitForFunction(()=>document.readyState==='comple
 await check('all optional features default off, old preferences cannot disable the fixed base',()=>page.evaluate(()=>!AFK_TOGGLES.enabled('mobile')&&!AFK_TOGGLES.enabled('sellconfirm')&&AFK_TOGGLES.enabled('training')&&AFK_TOGGLES.enabled('dograce')&&AFK_TOGGLES.enabled('wpnfix')&&!AFK_TOGGLES.enabled('unregistered-addon')));
 await page.evaluate(()=>{selectClass('m_mage');document.getElementById('creation-name').value='合成測試角色';startGame();stopGameTimers();state.running=false;player.name='合成加掛驗收';player.config.addonUnknown='keep';});
 await settings();
-await check('settings contains exactly eighteen optional switches and no floating switch panel',()=>page.evaluate(()=>document.querySelectorAll('#settings-addons input[data-addon-id]').length===18&&!document.getElementById('afk-toggles-entry')&&document.getElementById('settings-general').classList.contains('hidden')));
+await check('settings contains exactly nineteen optional switches and no floating switch panel',()=>page.evaluate(()=>document.querySelectorAll('#settings-addons input[data-addon-id]').length===19&&!document.getElementById('afk-toggles-entry')&&document.getElementById('settings-general').classList.contains('hidden')));
 await nativeClick('[data-addon-id="invlist"]');
 await check('editing a switch does not change the running game',()=>page.evaluate(()=>!AFK_TOGGLES.enabled('invlist')&&!document.body.classList.contains('afk-invlist')));
 await nativeClick('#addons-cancel');
