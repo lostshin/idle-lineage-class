@@ -26,7 +26,8 @@ function inventoryCategoryMatches(item, data, type) {
 function setInventoryCategory(type, category) {
     if (quickEnh[type]?.active || quickJunk[type].active || !inventoryCategoryOptions(type).some(([key])=>key === category)) return;
     inventoryCategories[type] = category;
-    renderTabs(true);
+    _tabWheelActive = false; // Explicit category clicks must not wait for wheel-idle redraw.
+    renderTabs();
     const div = document.getElementById('tab-'+({wpn:'weapons',arm:'armors',item:'items'}[type]));
     div.querySelector('.classic-inventory-viewport').scrollTop = 0;
     const button = div.querySelector('[data-inventory-category="'+category+'"]');
@@ -322,7 +323,9 @@ function renderTabs(force) {
     let wDiv = document.getElementById('tab-weapons');
     let aDiv = document.getElementById('tab-armors');
     let iDiv = document.getElementById('tab-items');
-    for (const [tab, div] of [['weapons',wDiv],['armors',aDiv],['items',iDiv]]) if (changed[tab]) div.innerHTML = '';
+    for (const [tab, div] of [['weapons',wDiv],['armors',aDiv],['items',iDiv]]) if (changed[tab]) {
+        for (const child of Array.from(div.children)) if (!child.classList.contains('backpack-category-nav')) child.remove();
+    }
 
     // ⚡🗑️ 快速操作頭部：武器/防具分頁＝[快速強化][快速廢品]；道具分頁＝[快速廢品]
     if (changed.weapons) wDiv.appendChild(buildQuickHeader('wpn'));
@@ -459,7 +462,7 @@ function decorateClassicInventoryTab(div){
     shell.className='classic-inventory-shell';
     let viewport=document.createElement('div');
     viewport.className='classic-inventory-viewport';
-    Array.from(div.children).filter(x=>!x.classList.contains('classic-list-toolbar')&&!x.classList.contains('sticky')).forEach(x=>viewport.appendChild(x));
+    Array.from(div.children).filter(x=>!x.classList.contains('classic-list-toolbar')&&!x.classList.contains('sticky')&&!x.classList.contains('backpack-category-nav')).forEach(x=>viewport.appendChild(x));
     // 新版底圖的可視格線為 4 欄 × 6 排＝24 格；更多內容保留在內部捲動區。
     let used=viewport.querySelectorAll('.list-item,.classic-grid-empty').length;   // 🦴 v3.1.75 裝備欄會自行插入 .classic-grid-empty 填充格（把遺骸推到最後兩排）→ 一併計入，否則這裡會重複補格撐出第 9 排
     for(let n=used;n<CLASSIC_PAGE_CELLS;n++){
@@ -480,27 +483,38 @@ function decorateClassicInventoryTab(div){
     if (div.id !== 'tab-equip') {
         div.classList.add('player-backpack-tab');
         const type = {'tab-weapons':'wpn','tab-armors':'arm','tab-items':'item'}[div.id];
-        const filters = document.createElement('div'), busy = quickEnh[type]?.active || quickJunk[type].active;
-        filters.className = 'backpack-categories'; filters.setAttribute('role','group');
-        filters.dataset.inventoryType = type;
-        filters.onscroll = () => { if (filters.isConnected) inventoryCategoryScroll[type] = filters.scrollLeft; };
-        filters.setAttribute('aria-label',({wpn:'武器分類',arm:'防具與飾品分類',item:'道具分類'}[type]));
-        for (const [value,label] of inventoryCategoryOptions(type)) {
-            const button = document.createElement('button'); button.type = 'button'; button.className = 'btn';
-            button.dataset.inventoryCategory = value;
-            button.dataset[({wpn:'weaponCategory',arm:'backpackCategory',item:'itemCategory'}[type])] = value;
-            button.textContent = label; button.setAttribute('aria-pressed',String(inventoryCategories[type] === value)); button.disabled = !!busy;
-            if (busy) button.title = '請先完成或取消批次操作';
-            button.onclick = () => setInventoryCategory(type,value); filters.appendChild(button);
+        const existingNavigation = div.querySelector('.backpack-category-nav'), busy = quickEnh[type]?.active || quickJunk[type].active;
+        if (existingNavigation) {
+            for (const button of existingNavigation.querySelectorAll('button')) {
+                button.disabled = !!busy;
+                if (button.dataset.inventoryCategory) {
+                    button.setAttribute('aria-pressed',String(inventoryCategories[type] === button.dataset.inventoryCategory));
+                    if (busy) button.title = '請先完成或取消批次操作'; else button.removeAttribute('title');
+                }
+            }
+        } else {
+            const filters = document.createElement('div');
+            filters.className = 'backpack-categories'; filters.setAttribute('role','group');
+            filters.dataset.inventoryType = type;
+            filters.onscroll = () => { if (filters.isConnected) inventoryCategoryScroll[type] = filters.scrollLeft; };
+            filters.setAttribute('aria-label',({wpn:'武器分類',arm:'防具與飾品分類',item:'道具分類'}[type]));
+            for (const [value,label] of inventoryCategoryOptions(type)) {
+                const button = document.createElement('button'); button.type = 'button'; button.className = 'btn';
+                button.dataset.inventoryCategory = value;
+                button.dataset[({wpn:'weaponCategory',arm:'backpackCategory',item:'itemCategory'}[type])] = value;
+                button.textContent = label; button.setAttribute('aria-pressed',String(inventoryCategories[type] === value)); button.disabled = !!busy;
+                if (busy) button.title = '請先完成或取消批次操作';
+                button.onclick = () => setInventoryCategory(type,value); filters.appendChild(button);
+            }
+            const navigation = document.createElement('div'); navigation.className = 'backpack-category-nav';
+            for (const [direction,label,sign] of [['left','分類向左捲動',-1],['right','分類向右捲動',1]]) {
+                const arrow = document.createElement('button'); arrow.type = 'button'; arrow.className = 'btn backpack-category-arrow'; arrow.dataset.categoryScroll = direction;
+                arrow.textContent = sign < 0 ? '‹' : '›'; arrow.setAttribute('aria-label',label); arrow.title = label; arrow.disabled = !!busy;
+                arrow.onclick = () => filters.scrollBy({left:sign * Math.max(58,filters.clientWidth * .75),behavior:'instant'});
+                navigation.appendChild(arrow);
+            }
+            navigation.insertBefore(filters,navigation.lastChild); div.prepend(navigation);
         }
-        const navigation = document.createElement('div'); navigation.className = 'backpack-category-nav';
-        for (const [direction,label,sign] of [['left','分類向左捲動',-1],['right','分類向右捲動',1]]) {
-            const arrow = document.createElement('button'); arrow.type = 'button'; arrow.className = 'btn backpack-category-arrow'; arrow.dataset.categoryScroll = direction;
-            arrow.textContent = sign < 0 ? '‹' : '›'; arrow.setAttribute('aria-label',label); arrow.title = label; arrow.disabled = !!busy;
-            arrow.onclick = () => filters.scrollBy({left:sign * Math.max(58,filters.clientWidth * .75),behavior:'instant'});
-            navigation.appendChild(arrow);
-        }
-        navigation.insertBefore(filters,navigation.lastChild); div.prepend(navigation);
     }
     div.appendChild(shell);
     if (quick && div.id !== 'tab-equip') div.appendChild(quick);

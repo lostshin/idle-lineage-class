@@ -161,7 +161,11 @@ function gainItem(id, cnt=1, silent=false, forceNormal=false, affixOld=false, de
     // 紀錄這次產生的物品屬性
     let itemInfo = { id: id, cnt: cnt, en: _tEn, bless: bless, anc: anc, attr: attr, seteff: seteff };
     
-    if (!silent && d) {
+    if (!silent && d && _lootMobInfo && _lootMobInfo.items) {
+        let drop = _lootMobInfo.items.find(item => sameItemSig(item,itemInfo));
+        if (drop) drop.cnt += cnt;
+        else _lootMobInfo.items.push({...itemInfo});
+    } else if (!silent && d) {
         // ✦ v3.6.69 物品日誌亮點：只有「傳說」與「遺物」才加亮點提示（傳說＝琥珀橘 c-legend／遺物＝海藍 c-relic）。
         //   ⚠️ 一般掉落刻意維持 sys-item-gain 的統一米色（css 有 `#sys-log .sys-item-gain *` 的 !important 全域壓色），
         //      因此稀有名稱必須另掛 sys-drop-rare 才不被壓成同色 —— 加 class 後務必實機量 computed 色。

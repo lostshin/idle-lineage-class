@@ -87,6 +87,11 @@
 - 普通地圖離線頭目戰讀 `set-teleport` 與 `AFK_BOSSAVOID.picked(map)`：空清單全部迴避，指定清單只略過對象；原 ID 解析到最終變身名稱。保留完整遭遇池及原本其他頭目機率，純頭目房維持線上不迴避例外，不修改 vendor。
 - 加掛選項共 19 個、預設全關。`keepview`「返回時保留日誌分頁」啟用後才停止返回時自動切 `sys`；涵蓋 focus／visibility／BFCache。新建／載入及真正離線摘要仍走原系統日誌流程；沿用既有草稿、取消、保存與重載，不另存偏好鍵。
 
+### 同怪掉落與分類列（2026-10-19）
+
+- 同次擊殺的非 silent 掉落先依原生 `sameItemSig` 彙整副本，再以「完整物品名 ×數量、…」寫一則系統日誌；名稱仍走 `getItemFullName`，傳入 `cnt:1` 避免括號數量與 ×數量重複。保留原生詞綴色、傳說／遺物亮點及未讀點；分次擊殺不合併、空掉落不寫，異常先清上下文再輸出已發放物品，不改 RNG／實得量或商店製作等獨立訊息。
+- 切分類用 `renderTabs()` 的分頁簽章更新，保留 `.backpack-category-nav` 原節點連續相連，不移入物品格或重建；同步更新 `aria-pressed`／disabled，保留搜尋、批次鎖定與橫向位置。手動點分類立即解除 wheel-idle 延後，不能把清單捲動保護變成點擊後 180ms 才換內容。
+
 ### 避免重複繞路的規則
 
 - 改名先核對 GitHub Description、README 首行、HTML title／登入 h1、PWA name／short_name／description 與**實際 manifest 連結**，不只搜尋顯示字串。較長標題須驗 1330／1920px 的邊界與副標題間距。
@@ -104,7 +109,7 @@
 - 測試報告預設寫入 `tmp/test-runs/`（不進 git）；要更新受追蹤的 `tests/artifacts/` 才加 `--record`（runner 與 `*.integration.js` 相同）；runner 可用 `--artifacts <目錄>` 指定其他輸出位置，與 `--record` 互斥。
 - 成功後只呼叫一次 `finish({keep:[]})` 並等待完成；耗時時用背景程序讀回結果，不用短 timeout 中止再反覆重送。有 `finished <id>` 與成功結束碼後，不再操作該空間。
 - 必跑 `rwd`、`ui-scale`、`gameplay`、`account-gameplay`、`companion-commands` 的 HTTP／file：`--space <id> --suite required --protocol both --desktop-only`。
-- 相關 E2E：`compact-layout`、`party-refinements`、`party-equipment`、`village-clan-warehouse`、`skill-cards`、`ally-skill-stop`、`town-buffs-enhance`、`summon-display`、`desktop-feedback`、`desktop-acceptance`、`tooltip-stability`、`effect-details`、`guild-settlement`、`offline-rewards`、`creation-id`、`comfort-release`、`backpack-feedback`、`item-window-controls`、`mobile-status`、`party-header`、`field-reports`、`backpack-a`、`main-backpack`、`guild-inventory-filters`、`equipment-trials`、`player-feedback`、`ken-offline-settings`；同樣帶 `--desktop-only`。
+- 相關 E2E：`compact-layout`、`party-refinements`、`party-equipment`、`village-clan-warehouse`、`skill-cards`、`ally-skill-stop`、`town-buffs-enhance`、`summon-display`、`desktop-feedback`、`desktop-acceptance`、`tooltip-stability`、`effect-details`、`guild-settlement`、`offline-rewards`、`creation-id`、`comfort-release`、`backpack-feedback`、`item-window-controls`、`mobile-status`、`party-header`、`field-reports`、`backpack-a`、`main-backpack`、`guild-inventory-filters`、`equipment-trials`、`player-feedback`、`ken-offline-settings`、`loot-nav`；同樣帶 `--desktop-only`。
 - TaskSpace 消失不能自行重建；使用者暫緩重建時，先完成本地工作並記錄待跑的瀏覽器檢查，後續不得把 Node VM／幾何替身說成瀏覽器 E2E 通過。
 - 所有 `visual-*` 必須緊接同一 space 的對應行為 fixture，例如 `account-gameplay visual-account-gameplay`；中間不可插入其他 suite，各 fixture 的全域儲存不可互換。runner 會拒絕順序錯誤的組合。
 - 狀態節點／控制項測試依 `data-*`／欄位語意定位，不假設職業為名稱的 `nextElementSibling`。創角 fixture 須明填合成 ID；舊未命名存檔另建 fixture，不繞過必填限制。需求已變就改舊斷言，不恢復已移除功能；找長單行斷言用 `rg --no-ignore -o '.{60}舊字串.{60}' tests`，不用 `grep -n | cut`。相同物品（同 id／強化）簽章不含 uid，互換位置不會重建；強化也可能換 uid；斷言比可見內容與實際物品欄位，不比 uid。
@@ -150,7 +155,8 @@
 
 ## 最新進度與驗證基準（2026-10-19）
 
-- 本輪版本 **v3.9.7**（原版基底 `v3.8.34`）：修復六個隱藏區／舊存檔離線地名，離線頭目戰遵守迴避清單，增加九個防具部位分類及 `keepview` 返回日誌偏好；產品邊界見上方決策。
-- 功能驗收 `tmp/test-runs/ken-offline-settings/completion.json`：HTTP／file 共 20 份、998/998，本地 13/13、鏡像 SHA 69/69；原程式 25 項有 17 項預期失敗。報告記錄升版前來源，升版後只補發布驗收，不宣稱整套重跑。
-- 兩張實際 file 預覽在同目錄 `preview/`：Ego 直接截圖、1330×900、100%、右欄 300px。TaskSpace 已 finish；手機、安裝版與 iCloud 未實測。
-- 升版後 `comfort-release` HTTP／file 各 41/41、本地 13/13；本輪發布驗收、commit／Pages run／公開 HTTPS SHA 證據保存於 `tmp/test-runs/ken-offline-settings-release/`；push 與部署成功分開核對。`tmp/` 僅本機存在，接手先讀報告、核對來源 SHA；歷史名稱更正、取消鏡像、Releases 固定目標與先前驗收見 [docs/agent-progress.md](docs/agent-progress.md)。
+- 本輪版本 **v3.9.8**（原版基底 `v3.8.34`）：同怪掉落合併為一則頓號串接／×數量日誌；分類列保留節點、只重繪受影響分頁，手動點擊不等 wheel-idle；既有規則與功能邊界見上方決策。
+- 功能驗收 `tmp/test-runs/loot-nav/completion.json`：升版前 HTTP／file 共 22 份、914/914，本地 13/13、鏡像 SHA 69/69；原程式專項 16 項有 12 項預期失敗。功能來源未變則沿用，升版後只補發布驗收，不宣稱整套重跑。
+- 同目錄 `comparison.json`：同一腳本、本機 1,000 件混合物品，分類同步耗時中位數 34.15→18.90ms（約降 44.7%）、分類列替換 8→0；前後各 60 秒實際戰鬥 CPU profile。是局部操作量測，非整體 FPS；16ms 是調查門檻。HTTP 預覽為直接 Ego 截圖、1920×1080／80%，在 `preview/grouped-loot-http.png`。
+- `ui-performance --soak-minutes 0` 各協定完成兩組 60 秒戰鬥，不算長掛。TaskSpace 已 finish、預覽伺服器已停止；實體觸控板／手機、安裝版與長測未驗。升版後 `comfort-release` HTTP／file 各 41/41、本地 13/13；發布驗收、commit／Pages run／公開 HTTPS SHA 證據保存於 `tmp/test-runs/loot-nav-release/`。
+- `tmp/` 僅本機存在，乾淨 clone 不保證有報告；接手先核對方法、來源 SHA 與結果。較早版本、改名／取消鏡像及 Releases 歷史見 [docs/agent-progress.md](docs/agent-progress.md)。

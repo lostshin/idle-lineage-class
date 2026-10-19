@@ -370,7 +370,7 @@ function killMob(idx) {
     _sherineLootCtx = mob._sherine ? { mad: !!mob._sherineMad } : null;   // 🔮 一般怪祝福率 ×3／×5；頭目由 rollAffixesNew 搭配 _lootMobInfo 固定為 20%／30%
     _tradLootCtx = traditionalActive();   // 🏛️ 傳統模式：本次擊殺掉落的裝備隨機自帶強化值＋抑制施法卷軸（於 _sherineLootCtx 清除處一併關閉）
     _vfxLootCtx = true;   // ✨ VFX：本次擊殺掉落期間→gainItem 對潘朵拉權重=1 物品閃光
-    _lootMobInfo = { n: mob.n, lv: mob.lv, boss: !!mob.boss };   // 🐾 本次擊殺掉落來源；頭目裝備由 gainItem 套用 10% 祝福率
+    let killLoot = _lootMobInfo = { n: mob.n, lv: mob.lv, boss: !!mob.boss, items: [] };   // 🐾 本次擊殺掉落來源；頭目裝備由 gainItem 套用 10% 祝福率
     // 🩹 v3.3.25 擊殺／掉落訊息一律歸「玩家」來源：寵物/召喚/傭兵補刀時 _combatSrc 為 'pet'/'summon'/'mercenary'，
     //   killMob 的「擊敗了…」與 gainItem 掉落訊息若繼承該來源，會被戰鬥日誌「來源過濾」隱藏 → 玩家把該來源關掉時，
     //   頭目被寵物/召喚補刀致死看起來就像「無訊息直接消失、又沒掉落」。擊殺是全隊事件，強制以 'player' 記錄（不影響 DPS，
@@ -600,6 +600,16 @@ function killMob(idx) {
         _tradLootCtx = false;     // 🏛️ 傳統模式掠奪上下文一併關閉
         _vfxLootCtx = false;      // ✨ VFX：擊殺掉落上下文一併關閉
         _lootMobInfo = null;      // 🐾 掉落來源怪物上下文一併關閉（杜絕殘留洩漏到兌換/任務其他 gainItem）
+        if (killLoot.items.length) {
+            let rare = '';
+            let drops = killLoot.items.map(item => {
+                let data = DB.items[item.id], rarity = data.relic ? 'relic' : data.legend ? 'legend' : '';
+                if (rarity) rare = rarity;
+                return `<span class="${getItemColor(item)} font-bold${rarity ? ' sys-drop-rare sys-drop-' + rarity : ''}">${rarity ? '✦ ' : ''}${getItemFullName({...item,cnt:1})} ×${item.cnt.toLocaleString()}</span>`;
+            }).join('、');
+            let color = typeof getMobColor === 'function' ? getMobColor(killLoot.lv) : '';
+            logSys(`<span class="sys-item-gain"><span class="${color}">${killLoot.n}</span> 給你 ${drops}。</span>`, rare);
+        }
     }
     renderMobs();
     updateUI();

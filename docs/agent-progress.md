@@ -2,6 +2,16 @@
 
 由 `AGENTS.md` 移出；接手、發布或引用舊報告前讀。
 
+## 2026-10-19：同怪掉落與分類滑動（v3.9.8）
+
+- `killMob` 沿用原掉落上下文收集 `gainItem` 的非 silent 實得物品，以 `sameItemSig` 合併副本；finally 清理後統一寫一則「怪名 給你 物品 ×數量、…」。名稱以 `cnt:1` 呼叫原生格式器，避免括號數量重複；保留詞綴色、傳說／遺物亮點與稀有未讀點。不同擊殺、商店／製作訊息與空掉落各依原本語意處理，RNG／物品授予不變。
+- 分類切換不再 `renderTabs(true)` 全頁重建，改用分類簽章；重繪保留分類列連續相連，只更新選取與 disabled，避免背景更新中斷水平滑動。手動選分類解除 wheel-idle 延後，修復原生自動捲動後點擊有 180ms 延遲的回歸，搜尋／批次／位置記憶與其他頁面保留。
+- 升版前本輪 `tmp/test-runs/loot-nav/completion.json`：HTTP／file 22 份、914/914，本地 13/13、69 個鏡像 SHA 不變。`loot-nav` 原程式 16 項有 12 項預期失敗，含分次擊殺、數量／原生色／稀有點、異常清理、原生水平滑動及無關分頁保留。
+- `comparison.json` 為同腳本、本機 1,000 件混合物品；分類同步耗時中位數 34.15→18.90ms、約降 44.7%，分類列替換 8→0，前後各留 60 秒原生戰鬥 CPU profile。戰鬥 RNG 不同，rAF／長任務僅供診斷，不宣稱整體 FPS；16ms 是調查門檻。
+- `ui-performance --soak-minutes 0` HTTP／file 各兩組 60 秒戰鬥，沒有長掛。KEN 設定一次停在 document interactive；偏好已保存、控制項已掛載且無 runtime error，未改正式程式／fixture，在原空間接續後 70/70。
+- 實際 HTTP 預覽 `tmp/test-runs/loot-nav/preview/grouped-loot-http.png`：直接 Ego 截圖、1920×1080、UI80%，使用合成角色、保證掉落及固定無詞綴場景。TaskSpace 已 finish，預覽伺服器已停；實體觸控板／手機、安裝版與長掛未實測。
+- 升版後另跑 `comfort-release` HTTP／file 各 41/41、本地 13/13，登入顯示 v3.9.8／原版 v3.8.34；不冒充 914 項重跑。版本、commit／push、Pages run 與公開資源 SHA 保存於 `tmp/test-runs/loot-nav-release/`。
+
 ## 2026-10-19：KEN 離線、分類與返回日誌（v3.9.7）
 
 - 六個隱藏區的離線樣本與結算摘要改用 `HIDDEN_AREA_NAMES`，結算時重新解析地名，因此舊存檔已保存的英文代碼也會修正。
@@ -11,6 +21,7 @@
 - `tmp/test-runs/ken-offline-settings/completion.json`：升版前本輪 HTTP／file 20 份、998/998，本地 13/13，69 個鏡像原檔 SHA 不變；原程式 25 項有 17 項預期失敗。基線使用 `git HEAD` 原始程式與現行 E2E 的暫存覆蓋層，來源 SHA 已核對；未回退髒工作樹。
 - 實際 file 預覽在同目錄 `preview/`：Ego 直接截圖、1330×900、100%、右欄 300px；分類另外實測 1330／1920px、60／75／80／100%、220／300／460px。TaskSpace 已 finish，歷史 id 不重用。升版後發布驗收／commit／Pages 與公開資源證據另存 `tmp/test-runs/ken-offline-settings-release/`，不冒充 998 項在升版後重跑。
 - 升版後另實跑 `comfort-release` HTTP／file 各 41/41、本地 13/13；登入顯示 v3.9.7、原版 v3.8.34，未重跑或合計成新的 998 項功能驗證。
+- v3.9.7 已上線 commit `d629c15d6`；Pages run [39202240091](https://github.com/lostshin/idle-lineage-class/actions/runs/39202240091) 成功、公開資源 SHA 6/6，證據在 `tmp/test-runs/ken-offline-settings-release/completion.json`。
 - 本輪不改玩家存檔格式、鏡像、`sw.js` 或原版 `GAME_VERSION`；實體手機、安裝版與 iCloud 未實測。
 
 ## 2026-10-19：改名與 v3.9.6 歷史基準
