@@ -101,7 +101,7 @@
 .lobby-seat[data-action="nod"] .lobby-camper-sprite { animation: lobby-nod .65s cubic-bezier(.77,0,.175,1) 4; }
 .lobby-seat[data-action="cheer"] .lobby-camper-sprite { animation: lobby-cheer .5s cubic-bezier(.77,0,.175,1) 5; }
 .lobby-seat[data-action="nod"] .lobby-greeting, .lobby-seat[data-action="cheer"] .lobby-greeting { opacity: 1; }
-#lobby-activity-frame { position: absolute; left: 50%; bottom: 72%; transform: translate(-50%, calc(10px * var(--ui-scale-inverse, 1))); max-width: 85%; width: max-content; font-size: clamp(10px,1.7cqw,13px); pointer-events: none; z-index: 95; }
+#lobby-activity-frame { position: absolute; left: 50%; bottom: 72%; transform: translate(-50%, calc(30px * var(--ui-scale-inverse, 1))); max-width: 85%; width: max-content; font-size: clamp(10px,1.7cqw,13px); pointer-events: none; z-index: 95; }
 #lobby-activity { position: relative; box-sizing: border-box; width: 100%; margin: 0; padding: 0; border: 0; background: none; color: #f3dba6; line-height: 1.4; text-align: center; overflow-wrap: anywhere; text-shadow: 0 1px 2px #000, 0 0 4px #000; box-shadow: none; }
 #lobby-activity.is-burning { color: transparent; text-shadow: none; background: linear-gradient(to bottom,#f3dba6 0 44%,#7e3617 47%,#ff8b29 49%,#fff6bb 50%,transparent 52%) 0 0 / 100% 200%; background-clip: text; animation: lobby-paper-burn .8s linear forwards, lobby-burn-edge .8s linear forwards; }
 #lobby-activity.is-burning::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 18% 90%,#ffd575 0 1px,transparent 2px),radial-gradient(circle at 57% 96%,#ffae36 0 1px,transparent 2px),radial-gradient(circle at 84% 86%,#ffe9aa 0 1px,transparent 2px); animation: lobby-burn-embers .8s cubic-bezier(.23,1,.32,1) forwards; }
