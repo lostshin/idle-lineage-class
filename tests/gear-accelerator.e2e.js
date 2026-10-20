@@ -89,8 +89,9 @@ await check('successful native in-place revival consumes one scroll and does not
 await page.evaluate(()=>{setMapSelectors(getHomeTown());changeMap(true);state.running=false;player.pandoraMarket2.futureGear={keep:true};player.pandoraMarket2.buyOrder={id:'wpn_katana',price:99999};});
 const keyword=await page.evaluate(()=>DB.items.wpn_katana.n);await page.fill('#pandora-search-input',keyword);await page.click('#gear-refresh-market');
 await check('specified market stock uses native prices and preserves existing order and unknown fields',()=>page.evaluate(()=>{const m=player.pandoraMarket2;return m.slots.length===PANDORA_SLOT_COUNT&&m.slots.every(s=>s.id==='wpn_katana'&&Number.isSafeInteger(s.price)&&s.price>0)&&m.buyOrder.price===99999&&m.futureGear.keep&&accountRoleDoc(1).p.pandoraMarket2.futureGear.keep;}));
+const beforeInvalid=await page.evaluate(()=>JSON.stringify(player.pandoraMarket2));
 await page.fill('#pandora-search-input','合成不存在道具');await page.click('#gear-refresh-market');
-await check('invalid keywords fall back to native random stock without invalid items',()=>page.evaluate(()=>player.pandoraMarket2.slots.length===PANDORA_SLOT_COUNT&&player.pandoraMarket2.slots.every(s=>!!DB.items[s.id])&&document.getElementById('sys-log').textContent.includes('隨機刷新')));
+await check('invalid keywords leave stock unchanged and explain the failure beside input',()=>page.evaluate(before=>JSON.stringify(player.pandoraMarket2)===before&&document.getElementById('pandora-search-status').textContent.includes('找不到'),beforeInvalid));
 const offlineBase=await page.evaluate(()=>{
     setMapSelectors('training');changeMap(true);player.lv=60;player.exp=0;calcStats();state.running=true;player.hp=player.mhp;player.mp=player.mmp;
     for(let i=0;i<3;i++){

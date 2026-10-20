@@ -1,0 +1,29 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "idle-lineage-lobby",
+  "main": "src/worker.mjs",
+  "compatibility_date": "2026-10-19",
+  "workers_dev": true,
+  "vars": {
+    "ALLOWED_ORIGINS": "https://lostshin.github.io",
+    "ALLOW_LOCAL_CLIENTS": "true",
+    "ADMIN_USER_IDS": ""
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "idle-lineage-lobby",
+      "database_id": "fa77efcd-5b25-4919-8284-4fe3040f9711",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "triggers": {
+    "crons": [
+      "17 * * * *"
+    ]
+  },
+  "observability": {
+    "enabled": false
+  },
+  "account_id": "15679658e5174601908932ce0751618c"
+}

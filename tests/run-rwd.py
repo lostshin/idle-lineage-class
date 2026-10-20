@@ -25,6 +25,10 @@ SUITES += ['backpack-feedback']
 SUITES += ['item-window-controls']
 SUITES += ['ken-offline-settings']
 SUITES += ['loot-nav']
+SUITES += ['social-lobby']
+SUITES += ['lobby-camp']
+SUITES += ['lobby-fit']
+SUITES += ['ken-market']
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--desktop-only', action='store_true', help='Skip mobile and tablet viewport checks')

@@ -139,6 +139,7 @@
 #modal-actions > label { order:-3; justify-content:flex-start; }
 #modal-actions > button[data-modal-equip] { order:-2; color:#ffe4a0; border-image-slice:100; background:linear-gradient(#604c28,#3c2b12); }
 #modal-actions > [onclick^="showEnhanceOptions("] { order:-1; }
+#modal-actions button:is([onclick^="showEnhanceOptions("],[onclick^="executeAutoSafeEnhance("],[onclick^="executeEnhance("]:not([data-enhance-blessed])) { border-image-slice:100; background:#15304e; color:#a4cdf4; }
 #modal-actions > [onclick^="sellItem("] { order:1; color:#c6b89c; }
 #modal-actions button:is([onclick^="AFK_CURSEBATCH.open("],[onclick^="executeCurseDeEnhance("]) { border-image-slice:100; background:#421518; color:#e3a19b; }
 #modal-actions button[data-enhance-blessed] { border-image-slice:100; color:#ffe485; background:linear-gradient(#514018,#2a220f); box-shadow:inset 0 0 8px #e9bf4166,0 0 9px #f1c84c66; text-shadow:0 0 6px #ffcb50; }
@@ -488,7 +489,7 @@
 #tab-content-panel .player-backpack-tab .classic-sort-menu { top:auto; bottom:calc(100% + 5px); left:0; width:220px; max-width:calc(100vw - 48px); min-width:180px; background:#151712; border:4px solid transparent; border-image:url('../assets/ui/backpack-a-button-v1.webp') 100 fill stretch; }
 #tab-content-panel .player-backpack-tab .classic-sort-menu label { white-space:normal; font-size:12px; }
 #tab-content-panel .player-backpack-tab .classic-inventory-shell { flex:1 1 auto; min-height:0; aspect-ratio:auto; background:none; }
-body:not(.afk-invlist) #tab-content-panel .player-backpack-tab .classic-inventory-viewport { inset:2px; width:auto; height:auto; gap:0; grid-auto-rows:max-content; align-content:start; background:#000; scrollbar-width:thin; scrollbar-color:#8c7649 #101115; }
+body:not(.afk-invlist) #tab-content-panel .player-backpack-tab .classic-inventory-viewport { inset:2px; width:auto; height:auto; gap:0; grid-template-columns:repeat(auto-fill,minmax(calc(55px * var(--ui-scale-inverse,1)),1fr)); grid-auto-rows:max-content; align-content:start; background:#000; scrollbar-width:thin; scrollbar-color:#8c7649 #101115; }
 body:not(.afk-invlist) #tab-content-panel .player-backpack-tab .classic-inventory-viewport > :is(.list-item,.classic-grid-empty) { position:relative; align-self:start; height:auto !important; aspect-ratio:1; background:#000 !important; border:1px solid #414a40 !important; box-shadow:none !important; }
 /* Percentage-height children must not set an implicit row's minimum height. */
 body:not(.afk-invlist) #tab-content-panel .player-backpack-tab .classic-inventory-viewport > .list-item > .classic-item-main { position:absolute; inset:0; width:100%; height:100%; }

@@ -151,7 +151,8 @@ function _preloadDeathFx(name, n) {
 // 🌙 v3.6.03 掛網記憶體：分頁隱藏(document.hidden)也視同靜音——背景分頁 CSS 動畫不推進(animationend 不觸發)、
 //    WAAPI onfinish 暫停、保險 setTimeout 被 Chrome 節流到每分鐘 1 次 → 特效元素「只進不出」越積越多。
 //    隱藏時本來就看不見，跳過生成對特效表現零影響；配合檔尾 visibilitychange→_vfxClearAll() 立即釋放已存在的。
-function _vfxMute() { return !!(window.__vfxOff || (typeof document !== 'undefined' && document.hidden) || (typeof state !== 'undefined' && state.ff)); }
+function _battleSceneHidden() { return document.hidden || (typeof socialLobby !== 'undefined' && socialLobby.isOpen()); }
+function _vfxMute() { return !!(window.__vfxOff || _battleSceneHidden() || (typeof state !== 'undefined' && state.ff)); }
 function playSpellFx(skn, mob, caster) {
     try {
         if (_vfxMute() || !mob) return;
@@ -547,14 +548,14 @@ function _vfxQueueDmg(m) {
     let d = prev - m.curHp;
     m._vfxHp = m.curHp;
     let big = m._vfxBig; m._vfxBig = false;   // 'crit' | 'heavy' | undefined（只有爆擊/重擊才放大上色，不再用傷害量門檻）
-    if (d > 0 && m.curHp > 0 && !document.hidden) {   // 致命一擊交給 vfxKill 的粒子，這裡只顯示非致命傷害數字；🌙 v3.6.03 分頁隱藏不入佇列（_vfxHp 已於上方消化差值→回前景不會補噴巨量舊傷害）
+    if (d > 0 && m.curHp > 0 && !_battleSceneHidden()) {   // 致命一擊交給 vfxKill 的粒子，這裡只顯示非致命傷害數字；🌙 v3.6.03 分頁隱藏不入佇列（_vfxHp 已於上方消化差值→回前景不會補噴巨量舊傷害）
         let ele = (m.justHit && m.justHit !== true) ? m.justHit : 'normal';
         _vfxPending.push({ uid: m.uid, dmg: d, ele: ele, big: big });
     }
 }
 // innerHTML 重建後呼叫：此時格子已布局，可取螢幕座標生成飄字
 function _vfxFlush() {
-    if (document.hidden) { _vfxPending = []; return; }   // 🌙 v3.6.03 分頁隱藏：丟棄佇列不生成（看不見·且背景中移除管線停擺會堆積）
+    if (_battleSceneHidden()) { _vfxPending = []; return; }   // 🌙 v3.6.03 分頁隱藏：丟棄佇列不生成（看不見·且背景中移除管線停擺會堆積）
     if (window.__vfxOff && window.__vfxNumOff) { _vfxPending = []; return; }   // 🔢 v3.0.9 特效關但數字開→仍走 flush 顯示數字（粒子/impact 於下方另由 __vfxOff 個別關）
     if (!_vfxPending.length) return;
     let layer = _vfxLayer();
@@ -582,7 +583,7 @@ function _vfxFlush() {
 }
 // 未命中沒有 HP 差值，無法走 _vfxQueueDmg；直接依目標目前的畫面位置顯示淡灰提示。
 function vfxMiss(mob) {
-    if (window.__vfxNumOff || !mob || document.hidden || (typeof state !== 'undefined' && state.ff)) return;   // 🌙 v3.6.03 分頁隱藏不生成
+    if (window.__vfxNumOff || !mob || _battleSceneHidden() || (typeof state !== 'undefined' && state.ff)) return;   // 🌙 v3.6.03 分頁隱藏不生成
     let ml = document.getElementById('mob-list');
     let slot = ml && ml.querySelector('.mob-target[data-uid="' + mob.uid + '"]');
     if (!slot) return;
@@ -677,7 +678,7 @@ function _mobImgAnchor(imgEl) {
 function vfxKill(mob) {
     try {
         if (!mob) return;
-        if (document.hidden) return;   // 🌙 v3.6.03 分頁隱藏：死亡殘影/粒子/致命數字全跳過（掛網擊殺最頻繁·殘影幀步進 interval 在背景被節流到 1/分鐘＝每隻殘影卡場數分鐘）
+        if (_battleSceneHidden()) return;   // 🌙 v3.6.03 分頁隱藏：死亡殘影/粒子/致命數字全跳過（掛網擊殺最頻繁·殘影幀步進 interval 在背景被節流到 1/分鐘＝每隻殘影卡場數分鐘）
         if (typeof state !== 'undefined' && state.ff && !state.ffSmall) return;   // 🚀 v3.2.65 背景補跑不播擊殺特效 → 🩹 v3.4.49 小補跑(≤2秒·前景微卡頓 GC/存檔造成)放行：死亡殘影仍受 _deathGhostCount<12 節流·長補跑維持靜音免回前景爆量
         // 🎚️ v3.0.1 關閉特效時「保留死亡動畫」：不再整個 return，改為只擋「傷害數字/頭目閃光」等純裝飾（見下），死亡序列殘影(death_*.png)＋死亡特效層(death_effect)照播＝怪物死亡畫面不消失
         let ml = document.getElementById('mob-list');
@@ -1038,7 +1039,7 @@ const _BOSS_ENTRANCE_ELE = {
 let _bossEntranceLast = {};
 function vfxBossEntrance(mob, opts) {
     try {
-        if (!mob || window.__vfxOff || document.hidden) return;   // 🌙 v3.6.03 分頁隱藏不播出場特效（閃光/暗角/名條多元素·背景中無法回收）
+        if (!mob || window.__vfxOff || _battleSceneHidden()) return;   // 🌙 v3.6.03 分頁隱藏不播出場特效（閃光/暗角/名條多元素·背景中無法回收）
         if (typeof state !== 'undefined' && state.ff && !state.ffSmall) return;   // 🩹 v3.4.97 比照 vfxKill(v3.4.49)：前景微卡頓的小補跑(≤2秒)放行——變身/出怪常落在補跑批次·原 _vfxMute 一律靜音＝「變身名條有時不出現」主因；長背景補跑維持靜音（2 秒同名去重防爆量）
         let cfg = BOSS_ENTRANCE_FX[mob.n];
         if (!cfg) {
@@ -1232,6 +1233,7 @@ if (typeof castSkill === 'function' && !castSkill._vfxWrapped) {
 }
 
 function _renderMobsImpl() {
+    if (typeof socialLobby !== 'undefined' && socialLobby.isOpen()) return;
     if(state.ff) return; // 補跑期間不刷新畫面
     _initMobListGuard();
     if(_mobPointerDown) { _mobRebuildPending = true; return; }   // 🚀 按住怪物卡期間延後重繪→點擊切換目標不被中斷
@@ -2459,7 +2461,7 @@ function _allySpritesApply() {   // 8fps ticker 驅動
         }
     });
 }
-setInterval(() => { if (!document.hidden && !(typeof catchupActive === 'function' && catchupActive())) { try { _mobAnimApply(); } catch (e) {} try { _updateFreezeFx(); } catch (e) {} try { _updateMobSkillFx(); } catch (e) {} try { _allySpritesApply(); } catch (e) {} try { _playerMorphApply(); } catch (e) {} } }, Math.floor(1000 / MOB_ANIM_FPS));
+setInterval(() => { if (!_battleSceneHidden() && !(typeof catchupActive === 'function' && catchupActive())) { try { _mobAnimApply(); } catch (e) {} try { _updateFreezeFx(); } catch (e) {} try { _updateMobSkillFx(); } catch (e) {} try { _allySpritesApply(); } catch (e) {} try { _playerMorphApply(); } catch (e) {} } }, Math.floor(1000 / MOB_ANIM_FPS));
 
 // 🌙 v3.6.03 掛網記憶體釋放：切到背景的瞬間清空 #vfx-layer 全部特效元素＋冰凍/怪技能追蹤 dict。
 //    背景分頁的移除管線全數停擺（animationend 不觸發·WAAPI onfinish 暫停·setTimeout 節流至 1/分鐘），

@@ -1,0 +1,66 @@
+{
+  "tool": "built-in image_gen",
+  "assets": [
+    {
+      "source": "output/design-source/imagegen/lobby-camp-20261020/lobby-camp-v1.png",
+      "asset": "assets/ui/lobby-camp-v1.webp",
+      "dimensions": [
+        1672,
+        941
+      ],
+      "mode": "RGB",
+      "sha256": "5c6f9859638e65ce1145197caffdad627a548a6fc8f8bf8980061bbc39efcb14",
+      "processing": "format conversion to WebP; alpha preserved, no artwork edits"
+    },
+    {
+      "source": "output/design-source/imagegen/lobby-camp-20261020/lobby-campers-v1.png",
+      "asset": "assets/ui/lobby-campers-v1.webp",
+      "dimensions": [
+        887,
+        1774
+      ],
+      "mode": "RGBA",
+      "sha256": "e149c3739a236304b6f03a4bba6f3fd0cd7dc774cdd20e279576463fb0e5b684",
+      "processing": "format conversion to WebP; alpha preserved, no artwork edits"
+    },
+    {
+      "source": "output/design-source/imagegen/lobby-camp-20261020/lobby-campfire-v1.png",
+      "asset": "assets/ui/lobby-campfire-v1.webp",
+      "dimensions": [
+        1536,
+        1024
+      ],
+      "mode": "RGBA",
+      "sha256": "230b1d8180c8cb1d6d9640e52439a43fe14f8365107d18185b00c2462706ee0a",
+      "processing": "format conversion to WebP; alpha preserved, no artwork edits"
+    }
+  ],
+  "spriteLayout": {
+    "campers": {
+      "columns": 4,
+      "rows": 8,
+      "rowOrder": [
+        "royal",
+        "knight",
+        "elf",
+        "mage",
+        "dark",
+        "dragon",
+        "illusion",
+        "warrior"
+      ],
+      "columnOrder": [
+        "male seated",
+        "male greeting",
+        "female seated",
+        "female greeting"
+      ]
+    },
+    "campfire": {
+      "columns": 3,
+      "rows": 2,
+      "order": "row major",
+      "fps": 5
+    }
+  }
+}

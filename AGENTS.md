@@ -30,7 +30,7 @@
 
 ## 結構、載入順序與加掛來源
 
-- 原生 JavaScript，共用全域狀態，沒有 `package.json`、建置流程或 formatter／linter；`index.html` 是 script 載入順序的真相，不得按檔名排序。
+- 前端為原生 JavaScript、共用全域狀態，無 npm 建置流程；`index.html` 是 script 載入順序的真相，不得按檔名排序。大廳後端獨立在 `backend/lobby/`（Workers／D1，有自己的 `package.json`），不把前端改成 Astro 或搬移單機存檔。
 - `js/00-data.js`～`js/32-threat.js` 與具名模組處理遊戲；`css/` 為樣式，`assets/` 為原版美術／音效，`public/assets/` 為登入素材；`tests/` 為 Ego E2E、`tests/artifacts/` 為驗收／合成預覽、`docs/` 為既有說明。
 - 沿用附近排版，展開區塊通常為四個空白；變數／函式用 camelCase，常數用 UPPER_SNAKE_CASE。
 - 前端資源修改後，執行 `python3 scripts/update-cache.py` 更新對應 URL 的 SHA 快取版本。
@@ -40,7 +40,7 @@
 - 開發產物：已採用美術與 prompts 在 `output/design-source/imagegen/`，`output/imagegen` 為舊引用連結；歷史驗收在 `tests/artifacts/archive/2026-10-17/`，`tmp/` 全部忽略。清除前看 metadata 的選擇、最終報告引用與現用腳本輸入；不要只按日期、檔名第一字或尺寸判斷過時。保留必要來源，刪除記錄舊路徑／SHA／原因；只歸檔不等於已清理。
 - 舊浮動開關面板已移除；`js/addon-switches.js` 明列固定基底與可選 catalog，不讀舊 `afk_toggle_*`；未知 ID 預設關閉。`statpts` 與主角點數來源面板維持移除。
 
-## 已確認的產品決策（更新至 2026-10-19）
+## 已確認的產品決策（更新至 2026-10-20）
 
 本檔下方為本次最新決策；其他細節見 [docs/agent-decisions.md](docs/agent-decisions.md)。**修改對應功能、樣式、素材或測試前，先讀該小節**（`rg -n '^### ' docs/agent-decisions.md` 取行號後只讀那段）。最新使用者指示優先，不恢復已否決／已移除的方案。
 
@@ -65,6 +65,7 @@
 - 「主角背包」（`js/10-ui-tabs.js`）、「公會的隊長背包」（`js/guild-window.js`）與唯讀隊友浮窗是三個不同介面；先依截圖／入口核對對象。改錯的介面只撤回誤改部分，保留另行要求的能力比較等功能。
 - 主角背包沿用已選 A 美術；不恢復被刪除的內層「武器／防具／道具」列。細分類固定單列橫向滑動，武器 8／防具 13／道具 7 項（含全部），不得再展開成每種武器一格的多排分類；完整名稱與窄欄可用性優先。
 - 背包格須驗證大量物品下的相鄰座標與不重疊，不能只量單格寬高比。flex／grid 中的百分比子高度可能壓縮隱含列；沿用現有 `grid-auto-rows:max-content` 與絕對定位圖示層，不以固定高度掩蓋根因。
+- 武器／防具／道具格以**螢幕實際至少 55×55px**為基準，正方形、每列均分填滿；沿用 `auto-fill/minmax` 與 `--ui-scale-inverse`。不可只看未縮放的 CSS 55px；驗證縮放後的 rect、相鄰間距與右側留白，不改回固定三欄。
 - 分類須與搜尋、快速強化／廢品共用篩選；批次操作時鎖住分類，避免操作隱藏物品。各頁獨立保存分類與橫向位置，重繪／切頁仍保留，換角色才重設。防具新增部位沿用原生 `slot`（內衣 `tshirt`、脛甲 `shin`、寵物裝備 `petarm`），不另造裝備種類。
 - 公會捲軸與比較區須對照無選取／已選取／搜尋無結果三態；預留固定軌道，核對畫布與清單寬度不跳動。幾何量測取扣除捲軸的 `clientWidth` 再換算 UI 縮放，不拿外框寬度當內容寬度。
 
@@ -75,7 +76,7 @@
 - 比較窗保留目前裝備圖示、說明及角色名稱；只有差值區採小字緊湊單行 `能力｜原值 → 新值（差值）`，有利綠、不利紅，AC／間隔反向。參考圖只改指定區塊，不據此刪掉整窗既有內容。
 - 物品雙窗以透明銀框 `item-modal-frame-v1.webp` 疊倉庫皮革，背景限制在 padding-box、無外陰影；閱讀區用單純不透明深色。已選素材與 prompts 留在 `output/design-source/imagegen/item-modal-proposals-20261019/`。
 - 右上 C 款紅色 X 用 `item-modal-close-v1.webp`；無底部關閉按鈕。關閉物品資訊須連比較窗一起關閉，左 X 只關比較窗。倉庫、公會名冊／任務共用此 X；公會裝備頁仍是「返回名冊」。
-- 操作順序為廢品標記→裝備→強化→一鍵弱化→販賣。裝備底色填滿內框；祝福卷軸強化發光黃，弱化／詛咒卷暗紅，保留 disabled、消耗、機率與原生 handler。
+- 操作順序為廢品標記→裝備→強化→一鍵弱化→販賣。裝備底色填滿內框；強化入口、普通卷與一鍵強化為藍色，祝福卷發光黃，弱化／詛咒卷暗紅。配色在共用 `#modal-actions` 修正，核對 `border-image` 的 fill，保留 disabled、消耗、機率與原生 handler。
 - 主角與公會共用 `renderEquipmentComparison`，只對角色副本跑原生換裝／能力公式；不改 live、RNG 或存檔。飾品只列已解鎖部位，預覽選位必須傳給實際裝備操作。
 - 職業圖示用共用 tooltip 立即顯示名稱，移除延遲的原生 title，保留 alt／aria 與鍵盤提示；勿誤觸整件物品提示或取消普通物品的 notip 偏好。
 - 空角色格單擊只選取，必須左鍵雙擊才進創角；原創角按鈕、鍵盤與已存角色雙擊載入保留。取消不寫檔、不留下草稿。
@@ -91,6 +92,22 @@
 
 - 同次擊殺的非 silent 掉落先依原生 `sameItemSig` 彙整副本，再以「完整物品名 ×數量、…」寫一則系統日誌；名稱仍走 `getItemFullName`，傳入 `cnt:1` 避免括號數量與 ×數量重複。保留原生詞綴色、傳說／遺物亮點及未讀點；分次擊殺不合併、空掉落不寫，異常先清上下文再輸出已發放物品，不改 RNG／實得量或商店製作等獨立訊息。
 - 切分類用 `renderTabs()` 的分頁簽章更新，保留 `.backpack-category-nav` 原節點連續相連，不移入物品格或重建；同步更新 `aria-pressed`／disabled，保留搜尋、批次鎖定與橫向位置。手動點分類立即解除 wheel-idle 延後，不能把清單捲動保護變成點擊後 180ms 才換內容。
+
+### 冒險者大廳（2026-10-20）
+
+- 地圖地區選單為「冒險者大廳」、子選單「肝膽相照」，同頁覆蓋社交場景；保留黑市／瞬移／回城與兩個地圖選單。沿用原冒險地圖 `min(800px,100%)`／16:9，不增加永久資訊欄或上下捲動。
+- 大廳不是狩獵地圖：保留實際 `mapState.current`、狩獵設定與 `map-select` 的真實地圖值，房間另用 dataset 標示；重選房間不可觸發傳送、離線結算或重複發獎。戰鬥依既有規則繼續，僅停止隱藏場景的特效繪製與排隊，離開後恢復。
+- 點角色才開場景內的非 modal `<dialog>` 名片；編輯／預覽／收藏／留言在同一彈窗分頁，不另佔場景。Escape／外點只關彈窗、保留大廳並恢復角色焦點；自訂地圖選單不被誤判為外點。長內容採分頁並驗窄欄。
+- 美術沿用原版天堂質感；營火居中、旅人席地而坐、依職業／性別顯示代表角色及招手姿勢。生成 atlas 各格的石圈可能不同，**只讓火焰層換格，石圈／木柴用第一格固定裁切層**；逐幀比對固定區像素，不只量外框是否移動。
+- 無註冊登入，匿名身分綁定瀏覽器隨機 device key 與 bearer token，不用角色名認證。只在確認發布後上傳勾選的名片欄位；角色存檔留本機，不把自報能力用於排名／交易。清除網站資料或換裝置不會自動恢復身分。
+- 公共 API 為 `https://idle-lineage-lobby.lostshinanalytics.workers.dev`；Cloudflare 帳號為 `lostshinanalytics`。`ALLOW_LOCAL_CLIENTS` 支援 localhost／loopback 與 file 的 `Origin:null`，仍須 bearer 認證，不開任意 Origin 或依賴第三方 Cookie；禁止改成只有正式站能連線。
+- 後端驗證用 `npm test --prefix backend/lobby`；真實前後端串接用 `python3 tests/run-social-lobby.py --space <id> --keep-space --skip-screenshots`，runner 建隔離本機 D1，不碰正式玩家資料。後端來源未變不因前端發布重複部署。
+
+### 齒輪加速器黑市搜尋（2026-10-20）
+
+- `js/gear-accelerator.js` 是本版整合層；指定資格沿用原生 `gachaWeight > 0`，不為寒冰長靴／耳環等擴張商品池，不混用收購單的資格規則。
+- 輸入旁即時顯示提示與可點候選（最多 8 件）；完全同名優先，同名但不合資格不能退選較長名稱。部分相符多筆須選候選或補全，選取只填入、按刷新才換貨；**非空無效輸入不換貨，只有留空才隨機刷新**。
+- 候選名稱用 `textContent`，保留鍵盤操作與 `aria-describedby`／錯誤狀態；中文組字中的 Enter 不刷新。成功指定沿用原生價格、商品格數、公告與存檔流程，保留收購單／未知欄位，儲存失敗也就地提示。
 
 ### 避免重複繞路的規則
 
@@ -109,7 +126,7 @@
 - 測試報告預設寫入 `tmp/test-runs/`（不進 git）；要更新受追蹤的 `tests/artifacts/` 才加 `--record`（runner 與 `*.integration.js` 相同）；runner 可用 `--artifacts <目錄>` 指定其他輸出位置，與 `--record` 互斥。
 - 成功後只呼叫一次 `finish({keep:[]})` 並等待完成；耗時時用背景程序讀回結果，不用短 timeout 中止再反覆重送。有 `finished <id>` 與成功結束碼後，不再操作該空間。
 - 必跑 `rwd`、`ui-scale`、`gameplay`、`account-gameplay`、`companion-commands` 的 HTTP／file：`--space <id> --suite required --protocol both --desktop-only`。
-- 相關 E2E：`compact-layout`、`party-refinements`、`party-equipment`、`village-clan-warehouse`、`skill-cards`、`ally-skill-stop`、`town-buffs-enhance`、`summon-display`、`desktop-feedback`、`desktop-acceptance`、`tooltip-stability`、`effect-details`、`guild-settlement`、`offline-rewards`、`creation-id`、`comfort-release`、`backpack-feedback`、`item-window-controls`、`mobile-status`、`party-header`、`field-reports`、`backpack-a`、`main-backpack`、`guild-inventory-filters`、`equipment-trials`、`player-feedback`、`ken-offline-settings`、`loot-nav`；同樣帶 `--desktop-only`。
+- 相關 E2E 見 `tests/run-rwd.py` 的 `SUITES`；背包用 `backpack-a`／`main-backpack`／`backpack-feedback`，強化與搜尋用 `ken-market`／`gear-accelerator`，大廳用 `social-lobby`／`lobby-camp`／`lobby-fit`；同樣帶 `--desktop-only`，其他既有專項依實際改動選用。
 - TaskSpace 消失不能自行重建；使用者暫緩重建時，先完成本地工作並記錄待跑的瀏覽器檢查，後續不得把 Node VM／幾何替身說成瀏覽器 E2E 通過。
 - 所有 `visual-*` 必須緊接同一 space 的對應行為 fixture，例如 `account-gameplay visual-account-gameplay`；中間不可插入其他 suite，各 fixture 的全域儲存不可互換。runner 會拒絕順序錯誤的組合。
 - 狀態節點／控制項測試依 `data-*`／欄位語意定位，不假設職業為名稱的 `nextElementSibling`。創角 fixture 須明填合成 ID；舊未命名存檔另建 fixture，不繞過必填限制。需求已變就改舊斷言，不恢復已移除功能；找長單行斷言用 `rg --no-ignore -o '.{60}舊字串.{60}' tests`，不用 `grep -n | cut`。相同物品（同 id／強化）簽章不含 uid，互換位置不會重建；強化也可能換 uid；斷言比可見內容與實際物品欄位，不比 uid。
@@ -153,10 +170,12 @@
 - push 成功不代表已上線；追蹤這次 HEAD 的 `pages build and deployment`，等 build／deploy 成功。長操作用背景程序並定期回報，不因正常等待重新推送或重建。
 - 發布後以公開 HTTPS 比對線上 `index.html`、本次改動的 JS／CSS／素材與本機已提交內容 SHA256；保存 commit、run URL、結果與時間。這是資源驗證，不等於線上瀏覽器 E2E，也不讀寫玩家儲存。
 
-## 最新進度與驗證基準（2026-10-19）
+## 最新進度與驗證基準（2026-10-20）
 
-- 本輪版本 **v3.9.8**（原版基底 `v3.8.34`）：同怪掉落合併為一則頓號串接／×數量日誌；分類列保留節點、只重繪受影響分頁，手動點擊不等 wheel-idle；既有規則與功能邊界見上方決策。
-- 功能驗收 `tmp/test-runs/loot-nav/completion.json`：升版前 HTTP／file 共 22 份、914/914，本地 13/13、鏡像 SHA 69/69；原程式專項 16 項有 12 項預期失敗。功能來源未變則沿用，升版後只補發布驗收，不宣稱整套重跑。
-- 同目錄 `comparison.json`：同一腳本、本機 1,000 件混合物品，分類同步耗時中位數 34.15→18.90ms（約降 44.7%）、分類列替換 8→0；前後各 60 秒實際戰鬥 CPU profile。是局部操作量測，非整體 FPS；16ms 是調查門檻。HTTP 預覽為直接 Ego 截圖、1920×1080／80%，在 `preview/grouped-loot-http.png`。
-- `ui-performance --soak-minutes 0` 各協定完成兩組 60 秒戰鬥，不算長掛。TaskSpace 已 finish、預覽伺服器已停止；實體觸控板／手機、安裝版與長測未驗。升版後 `comfort-release` HTTP／file 各 41/41、本地 13/13；發布驗收、commit／Pages run／公開 HTTPS SHA 證據保存於 `tmp/test-runs/loot-nav-release/`。
+- 本輪版本 **v3.9.9**（原版基底 `v3.8.34`）：同頁營火大廳／匿名名片與互動、本機公共大廳連線、場景內彈窗與固定營火底座、背包格實際至少 55px 並填滿每列、強化藍色及黑市候選／完全同名優先；完整邊界見上方決策。
+- 最新功能實跑：`tmp/test-runs/ken-market/completion.json`，HTTP／file 共 16 份、736/736（含核心、搜尋、加速器與背包），本地 13/13、鏡像 SHA 69/69；原程式專項 24 項有 20 項預期失敗。來源未變則沿用，不因整理文件或提交重跑整套。
+- 先前大廳驗收：`tmp/test-runs/lobby-fit/completion.json` 629/629；固定石圈 2,944 像素無變動、火焰 1,750 像素改變。`tmp/test-runs/lobby-camp/completion.json` 記錄本機／公共 API 與素材驗收；後端部署版本 `d983cebd-f328-4fd2-a91e-5a92f9c22050`。接手須比來源 SHA，這些是前輪報告，不冒稱本輪重跑。
+- 本輪強化／搜尋預覽在 `tmp/test-runs/ken-market/preview/combined.png`，大廳預覽在 `tmp/test-runs/lobby-fit/preview/`；均為實際 Ego screen-media PDF 以 pypdfium2 96dpi 轉圖，非直接截圖。相關 TaskSpace 已 finish、測試伺服器已停止；Safari、實體手機、安裝版及長測未驗。
+- 本次文件／發布階段另實跑 `comfort-release` HTTP／file 各 41/41、本地 13/13、後端 2/2；功能來源未改，沿用上列功能報告。v3.9.9 的 commit／Pages run／公開 HTTPS SHA 證據集中 `tmp/test-runs/session-release-20261020/`；是否已發布以實際結果及遠端 HEAD 為準，不依進度文字推定成功。
+- v3.9.8 功能／效能歷史留在 `tmp/test-runs/loot-nav/` 與 `loot-nav-release/`：分類中位數 34.15→18.90ms、節點替換 8→0，屬局部操作量測，非整體 FPS；既有掉落／分類規則仍有效。
 - `tmp/` 僅本機存在，乾淨 clone 不保證有報告；接手先核對方法、來源 SHA 與結果。較早版本、改名／取消鏡像及 Releases 歷史見 [docs/agent-progress.md](docs/agent-progress.md)。

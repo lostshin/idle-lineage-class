@@ -35,9 +35,11 @@
         </div>
 
         <div class="flex justify-center items-center gap-2 mb-3 shrink-0" style="margin: 10px 0px 0px 0px;">
-            <input type="text" aria-label="指定黑市道具關鍵字" style="min-width:0; width:150px;" id="pandora-search-input" placeholder="輸入道具名稱(關鍵字)" class="px-2 py-1 text-xs bg-slate-800 border border-slate-600 rounded text-white outline-none focus:border-purple-500" onkeydown="if(event.key==='Enter') doPandoraSpecificSearch()">
+            <input type="text" aria-label="指定黑市道具關鍵字" aria-describedby="pandora-search-status" aria-controls="pandora-search-suggestions" autocomplete="off" style="min-width:0; width:150px;" id="pandora-search-input" placeholder="輸入道具名稱(關鍵字)" class="px-2 py-1 text-xs bg-slate-800 border border-slate-600 rounded text-white outline-none focus:border-purple-500">
             <button id="gear-refresh-market" onclick="doPandoraSpecificSearch()" class="btn bg-purple-700 hover:bg-purple-600 border-purple-500 px-3 py-1 text-xs font-bold rounded shadow" title="馬上刷新潘朵拉商品內容！">刷新黑市</button>
         </div>
+        <div id="pandora-search-status" role="status" style="font-size:12px; color:#cbd5e1; margin-top:5px; overflow-wrap:anywhere;"></div>
+        <div id="pandora-search-suggestions" style="display:flex; flex-direction:column; gap:3px; max-height:150px; overflow:auto;"></div>
         <div style="border-top: 1px solid #334155; margin: 10px 0;"></div>
 
         <div style="font-size: 12px; color: #94a3b8; text-align: center;">
@@ -80,20 +82,59 @@
         if (state.running && _tickDebt >= TICK_MS) _ffScheduleNext();
     };
 
+    const searchInput = document.getElementById('pandora-search-input');
+    const searchStatus = document.getElementById('pandora-search-status');
+    const suggestions = document.getElementById('pandora-search-suggestions');
+    let selectedItem = null;
+    function suggestPandoraItems() {
+        const keyword = searchInput.value.trim();
+        const named = keyword ? Object.keys(DB.items).filter(id => DB.items[id]?.n?.includes(keyword)) : [];
+        const exact = named.filter(id => DB.items[id].n === keyword);
+        const available = named.filter(id => DB.items[id].gachaWeight > 0).sort((a, b) =>
+            Number(DB.items[b].n === keyword) - Number(DB.items[a].n === keyword) || DB.items[a].n.length - DB.items[b].n.length);
+        const targets = (exact.length ? exact : named).filter(id => DB.items[id].gachaWeight > 0);
+        searchInput.setAttribute('aria-invalid', String(!!keyword && !targets.length));
+        searchStatus.textContent = !keyword ? '留空會隨機刷新；只能指定黑市商品池內的物品。'
+            : !targets.length ? (exact.length || named.length ? '此物品不在黑市商品池，無法指定；未刷新。' : '找不到相符物品；請檢查名稱，未刷新。')
+            : targets.length > 1 ? `符合 ${targets.length} 件，請選下方候選或輸入完整名稱。`
+            : '可指定：' + DB.items[targets[0]].n + '；按刷新黑市確認。';
+        suggestions.replaceChildren();
+        for (const id of available.slice(0, 8)) {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'pandora-buy-suggestion';
+            button.style.cssText = 'width:100%; white-space:normal; overflow-wrap:anywhere; text-align:left;';
+            button.textContent = DB.items[id].n;
+            button.addEventListener('click', () => {
+                searchInput.value = DB.items[id].n;
+                selectedItem = id;
+                suggestions.replaceChildren();
+                searchInput.setAttribute('aria-invalid', 'false');
+                searchStatus.textContent = '已選擇：' + DB.items[id].n + '；按刷新黑市確認。';
+                searchInput.focus();
+            });
+            suggestions.appendChild(button);
+        }
+        if (available.length > 8) searchStatus.textContent += ' 僅列前 8 件，可繼續輸入縮小範圍。';
+        return targets;
+    }
+    searchInput.addEventListener('input', e => { selectedItem = null; if (!e.isComposing) suggestPandoraItems(); });
+    searchInput.addEventListener('compositionend', () => { selectedItem = null; suggestPandoraItems(); });
+    searchInput.addEventListener('keydown', e => {
+        if (e.key === 'Enter' && !e.isComposing && e.keyCode !== 229) { e.preventDefault(); doPandoraSpecificSearch(); }
+    });
+    suggestPandoraItems();
+
     window.doPandoraSpecificSearch = function () {
         if (!player.cls || document.getElementById('game-screen').classList.contains('hidden')) return;
-        const keyword = document.getElementById('pandora-search-input').value.trim();
-        let targetId = null;
-        for (const id in DB.items) {
-            const d = DB.items[id];
-            if (keyword && d && d.n && d.n.includes(keyword) && d.gachaWeight > 0) {
-                targetId = id;
-                break;
-            }
-        }
-        if (!targetId) {
+        const keyword = searchInput.value.trim();
+        const matches = suggestPandoraItems();
+        const targetId = matches.includes(selectedItem) ? selectedItem : matches.length === 1 ? matches[0] : null;
+        if (keyword && !targetId) return;
+        if (!keyword) {
             refreshPandoraMarket(true);
-            logSys(keyword ? '道具名稱無效或不允許在黑市刷出，使用隨機刷新！' : '成功刷新潘朵拉商品！');
+            searchStatus.textContent = '已隨機刷新潘朵拉商品。';
+            logSys('成功刷新潘朵拉商品！');
         } else {
             const nowT = state.ticks, slots = [];
             for (let i = 0; i < PANDORA_SLOT_COUNT; i++) {
@@ -109,8 +150,13 @@
             renderSyslogPandora();
             if (_pandoraDiv && document.body.contains(_pandoraDiv) && _pandoraDiv.querySelector('#pandora-msg')) pandoraRenderMarket(_pandoraDiv);
             logSys('已為您指定刷新：' + DB.items[targetId].n + '！');
+            searchStatus.textContent = '已指定刷新：' + DB.items[targetId].n + '。';
         }
-        if (saveGame() !== true && !catchupActive()) logSys('黑市已更新，但儲存失敗，請重試儲存。');
+        suggestions.replaceChildren();
+        if (saveGame() !== true && !catchupActive()) {
+            searchStatus.textContent += ' 黑市已更新，但儲存失敗，請重試儲存。';
+            logSys('黑市已更新，但儲存失敗，請重試儲存。');
+        }
     };
 
     function _dumpSpeedhackSummary() {
