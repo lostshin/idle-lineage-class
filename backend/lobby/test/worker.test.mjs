@@ -12,6 +12,7 @@ export function testDatabase() {
     sqlite.exec(readFileSync(new URL('../migrations/0001_lobby.sql', import.meta.url), 'utf8'));
     sqlite.exec(readFileSync(new URL('../migrations/0002_greeting.sql', import.meta.url), 'utf8'));
     sqlite.exec(readFileSync(new URL('../migrations/0003_presence_map.sql', import.meta.url), 'utf8'));
+    sqlite.exec(readFileSync(new URL('../migrations/0004_presence_actor.sql', import.meta.url), 'utf8'));
     return {
         sqlite,
         prepare(sql) {
@@ -159,4 +160,29 @@ test('online list and live maps respect published cards, heartbeats and location
     assert.equal((await request('/cards/'+a.user.id,'GET',undefined,c.token)).data.currentMap,'');
     assert.equal((await request('/cards?view=online','GET',undefined,c.token)).data.cards.length,0);
     DB.sqlite.close();
+});
+
+test('live players do not need cards and class/sex always come from the latest actor heartbeat', async()=>{
+    const DB=testDatabase(),api=createHandler(),env={DB,ALLOWED_ORIGINS:'https://game.test'};
+    async function request(path,method='GET',data,token){const r=await api.fetch(new Request('https://api.test/v1'+path,{method,headers:{Origin:'https://game.test','CF-Connecting-IP':'synthetic-live',...(token?{Authorization:'Bearer '+token}:{}),...(data?{'Content-Type':'application/json'}:{})},body:data?JSON.stringify(data):undefined}),env);return{status:r.status,data:await r.json()};}
+    const a=(await request('/auth/guest','POST',{deviceKey:'a'.repeat(64)})).data,b=(await request('/auth/guest','POST',{deviceKey:'b'.repeat(64)})).data;
+    const actor={name:'合成女法師',cls:'mage',avatar:'女法師'};
+    assert.equal((await request('/presence','POST',{actor,map:'不公開地圖'},a.token)).status,200);
+    let result=await request('/players','GET',undefined,b.token);assert.equal(result.status,200);assert.equal(result.data.players.length,1);assert.deepEqual(result.data.players[0].actor,actor);assert.equal(result.data.players[0].hasCard,false);assert.ok(!JSON.stringify(result.data).includes('不公開地圖'));
+    assert.equal((await request('/me','GET',undefined,a.token)).data.card,null);
+    assert.equal((await request('/greeting','POST',{},a.token)).status,200);assert.ok((await request('/players','GET',undefined,b.token)).data.players[0].greetingAt>0);
+    assert.equal((await request('/presence','POST',{actor:{...actor,avatar:'女騎士'}},a.token)).status,400);
+    assert.equal((await request('/presence','POST',{actor:{...actor,inventory:[]}},a.token)).status,400);
+    assert.equal((await request('/presence','POST',{actor:{...actor,cls:'unknown'}},a.token)).status,400);
+    assert.equal((await request('/presence','POST',{actor})).status,401);
+    assert.equal((await request('/me/card','PUT',{card:{name:'舊騎士名片',cls:'knight',avatar:'男騎士'},version:0},a.token)).status,200);
+    result=await request('/players','GET',undefined,b.token);assert.deepEqual(result.data.players[0].actor,actor);assert.equal(result.data.players[0].hasCard,true);
+    assert.equal((await request('/cards/'+a.user.id,'GET',undefined,b.token)).data.card.name,'舊騎士名片');
+    DB.sqlite.prepare('DELETE FROM rate_limits').run();
+    for(const [cls,avatars]of Object.entries({royal:['王子','公主'],knight:['男騎士','女騎士'],elf:['男妖精','女妖精'],mage:['男法師','女法師'],dark:['男黑暗妖精','女黑暗妖精'],dragon:['男龍騎士','女龍騎士'],illusion:['男幻術士','女幻術士'],warrior:['男戰士','女戰士']}))for(const avatar of avatars){
+        DB.sqlite.prepare('DELETE FROM rate_limits').run();const current={name:'當前'+avatar,cls,avatar};assert.equal((await request('/presence','POST',{actor:current},a.token)).status,200);assert.deepEqual((await request('/players','GET',undefined,b.token)).data.players[0].actor,current);
+    }
+    DB.sqlite.prepare('UPDATE users SET last_seen=? WHERE id=?').run(Date.now()-180000,a.user.id);assert.equal((await request('/players','GET',undefined,b.token)).data.players.length,0);
+    assert.equal((await request('/players?offset=-1','GET',undefined,b.token)).status,400);
+    await request('/me','DELETE',{confirm:true},a.token);assert.equal((await request('/players','GET',undefined,b.token)).data.players.length,0);DB.sqlite.close();
 });

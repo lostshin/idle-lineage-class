@@ -11,7 +11,7 @@ async function worker(path, method = 'GET', body, token) {
 if (options.lobbyApi) {
     visitor = await worker('/auth/guest', 'POST', { deviceKey: crypto.randomBytes(32).toString('hex') });
     await worker('/me/card', 'PUT', { card: { name: '合成旅人', intro: '<img src=x onerror=alert(1)>', cls: 'knight', avatar: '男騎士', level: 65 }, version: 0 }, visitor.token);
-    await worker('/presence', 'POST', {}, visitor.token);
+    await worker('/presence', 'POST', {actor:{name:'合成旅人',cls:'knight',avatar:'男騎士'}}, visitor.token);
 }
 console.log({ spaceId: task.spaceId });
 for (const file of ['index.html', 'js/social-lobby.js', 'js/11-world-map.js', 'js/09-vfx-render.js', 'css/social-lobby.css', 'tests/social-lobby.e2e.js', ...(options.lobbyApi ? ['backend/lobby/src/worker.mjs', 'backend/lobby/migrations/0001_lobby.sql'] : [])]) {
@@ -47,6 +47,7 @@ const init = (await page.cdp('Page.addScriptToEvaluateOnNewDocument', { source: 
         if(path.endsWith('/auth/guest'))value={token:'synthetic',user:{id:'00000000-0000-4000-8000-000000000001',admin:false}};
         else if(path.endsWith('/me'))value={user:{id:'00000000-0000-4000-8000-000000000001',admin:false},card:null};
         else if(path.endsWith('/cards'))value={cards:[card],next:null};
+        else if(path.endsWith('/players'))value={players:[{id:card.id,actor:card.card,lastSeen:card.lastSeen,hasCard:true}],next:null};
         else if(path.endsWith('/comments'))value={comments:[],next:null};
         else if(path.endsWith('/me/card'))value={version:1};
         else if(path.includes('/cards/'))value={...card,favorite:false};
@@ -67,7 +68,7 @@ await check('lobby is available in the original map category selector', () => pa
 await page.selectOption('#map-category', 'social_lobby');
 await page.waitForSelector('#social-lobby:not([hidden])');
 await check('entering does not teleport, replace mobs, consume items or replace the actor', () => page.evaluate(() => mapState.current === __lobbyBefore.map && mapState.mobs === __lobbyBefore.mobs && player === __lobbyBefore.player && player.gold === __lobbyBefore.gold && JSON.stringify(player.inv) === __lobbyBefore.inv && player.lastBattleMap === __lobbyBefore.lastMap));
-await check('entry does not publish any player data', () => page.evaluate(() => __lobbyRequests.every(r => !r.body || Object.keys(JSON.parse(r.body)).every(k => k === 'deviceKey'))));
+await check('entry announces only current role identity and does not publish a card or private map', () => page.evaluate(() => !__lobbyRequests.some(r=>r.path==='/v1/me/card')&&__lobbyRequests.every(r=>{if(r.path!=='/v1/presence')return true;const b=JSON.parse(r.body);return !b.map&&Object.keys(b.actor).every(k=>['name','cls','avatar'].includes(k));})));
 await check('battle scene is concealed while the lobby scene is visible', () => page.evaluate(() => getComputedStyle(document.getElementById('battle-view')).display === 'none' && document.getElementById('social-lobby').getBoundingClientRect().height > 100));
 await check('lobby mode is absent from the serialized player', () => page.evaluate(() => !JSON.stringify(player).includes('social_lobby')));
 await check('portable account exports do not contain the browser visitor credential', () => page.evaluate(() => {
@@ -85,11 +86,12 @@ await check('preview is local and contains only checked fields', () => page.eval
 await click('#lobby-editor-close');
 if (!options.lobbyApi) await page.evaluate(() => { socialLobby.setSession({token:'synthetic',user:{id:'00000000-0000-4000-8000-000000000001',admin:false}}); });
 await click('#lobby-roster');await click('#lobby-refresh');
-await page.waitForSelector('#lobby-visitors [data-card-id]');
-await page.evaluate(() => { window.__lobbyVisitorNode=document.querySelector('#lobby-visitors [data-card-id]'); });
+const visitorSelector=options.lobbyApi ? '#lobby-visitors [data-card-id="'+visitor.user.id+'"]' : '#lobby-visitors [data-card-id]';
+await page.waitForSelector(visitorSelector);
+await page.evaluate(selector => { window.__lobbyVisitorNode=document.querySelector(selector); },visitorSelector);
 await click('#lobby-refresh');
-await check('an unchanged list refresh preserves the original visitor node', () => page.evaluate(() => document.querySelector('#lobby-visitors [data-card-id]') === __lobbyVisitorNode));
-await click('#lobby-visitors [data-card-id]');
+await check('an unchanged list refresh preserves the original visitor node', () => page.evaluate(selector => document.querySelector(selector) === __lobbyVisitorNode,visitorSelector));
+await click(visitorSelector);
 await page.waitForSelector('#lobby-card-detail:not([hidden])');
 await check('remote content is rendered as text rather than executable HTML', () => page.evaluate(() => document.getElementById('lobby-card-detail').textContent.includes('<img src=x onerror=alert(1)>') && !document.querySelector('#lobby-card-detail img[src="x"]')));
 if (options.lobbyApi) {

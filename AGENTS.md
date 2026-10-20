@@ -98,11 +98,13 @@
 - 地圖地區選單為「冒險者大廳」、子選單「肝膽相照」，同頁覆蓋社交場景；保留黑市／瞬移／回城與兩個地圖選單。沿用原冒險地圖 `min(800px,100%)`／16:9，不增加永久資訊欄或上下捲動。
 - 大廳不是狩獵地圖：保留實際 `mapState.current`、狩獵設定與 `map-select` 的真實地圖值，房間另用 dataset 標示；重選房間不可觸發傳送、離線結算或重複發獎。戰鬥依既有規則繼續，僅停止隱藏場景的特效繪製與排隊，離開後恢復。
 - 點角色才開場景內的非 modal `<dialog>` 名片；編輯／預覽／收藏／留言在同一彈窗，不另佔場景。Escape／外點只關彈窗、保留大廳並恢復角色焦點；自訂地圖選單不被誤判為外點。編輯／預覽維持分頁，留言例外見下條，均驗窄欄。
-- 大廳預設用 `view=online`，只列已發布名片且兩分鐘內有心跳的玩家；不是「最近到訪」或只算在大廳的人。遊戲開著、在其他圖掛機也算在線；30 秒心跳獨立於大廳的五秒列表刷新，離開大廳只停列表，關頁才停心跳。瀏覽器凍結可能造成逾時，不宣稱永久背景在線。
+- 大廳在線列表用 `/v1/players`，**不必發布名片或先進大廳**；遊戲開著、在其他圖掛機也算在線。心跳只自動送目前角色 `name/cls/avatar`，不讀舊名片作在線外觀；後端驗八職業／男女配對。30 秒心跳獨立於五秒列表刷新，離開大廳只停列表，關頁才停心跳；兩分鐘沒心跳便不列入，瀏覽器凍結可能逾時。
+- 在線角色與公開名片分開：`/v1/cards` 保留已發布名片／收藏；未發名片的玩家點開只顯示在線角色資訊，隱藏收藏／留言，不自動替他建立名片。換角色後外觀須跟目前角色同步，不因曾發布男騎士名片就覆蓋現在的公主／女法師。
 - 名片 `shareMap` 預設不公開，須在「展示」勾選目前地圖、預覽後發布。心跳送目前實際狩獵地名（隱藏區先查 `HIDDEN_AREA_NAMES`，一般圖用 `mapEntryOf().t`），不送整份角色；後端也核對公開與同意狀態，離線／取消分享不回傳位置，不把快照攻略進度當即時地圖。
 - 留言依時間向下排列、最新在底部，一次呈現多則；只有 `#lobby-comments` 可上下捲動，外層場景／dialog 不捲。載入較早留言接到上方並維持閱讀位置，保留刪除權限／重試去重／安全文字；不要恢復「上一則／下一則」的單則分頁。
-- 美術沿用原版天堂質感；營火居中、旅人席地而坐、依職業／性別顯示代表角色及招手姿勢。生成 atlas 各格的石圈可能不同，**只讓火焰層換格，石圈／木柴用第一格固定裁切層**；逐幀比對固定區像素，不只量外框是否移動。
-- 無註冊登入，匿名身分綁定瀏覽器隨機 device key 與 bearer token，不用角色名認證。只在確認發布後上傳勾選的名片欄位；角色存檔留本機，不把自報能力用於排名／交易。清除網站資料或換裝置不會自動恢復身分。
+- 美術沿用原版天堂質感；營火居中，依八職業／男女顯示坐姿、站姿或單膝休息及招手。姿勢以 actor ID／avatar 決定，刷新不隨機抽換，不耗遊戲 RNG。生成營火 atlas 的石圈可能不同，**只讓火焰層換格，石圈／木柴用第一格固定裁切層**；逐幀比對固定區像素，不只量外框是否移動。
+- 新角色 atlas 為 4 欄（男一般／男招手／女一般／女招手）×8 職業列，PNG／WebP 保留 alpha。生成結果不保證每列完全齊整；依 `metadata.json` 的內容範圍與 `cssTopPercent` 取樣，驗完整頭腳、排除相鄰職業，不只按行數均分。站立編修的 `reference-standing-proposal.png` 是重現輸入，保留，不能按 proposal 名稱誤刪；來源／prompts 在 `output/design-source/imagegen/lobby-poses-20261020/`。
+- 無註冊登入，匿名身分綁定瀏覽器隨機 device key 與 bearer token，不用角色名認證。角色名／職業／性別是在線外觀，介紹／裝備／地圖等仍須勾選、預覽、確認發布；角色存檔留本機，不把自報能力用於排名／交易。清除網站資料或換裝置不會自動恢復身分。
 - 公共 API 為 `https://idle-lineage-lobby.lostshinanalytics.workers.dev`；Cloudflare 帳號為 `lostshinanalytics`。`ALLOW_LOCAL_CLIENTS` 支援 localhost／loopback 與 file 的 `Origin:null`，仍須 bearer 認證，不開任意 Origin 或依賴第三方 Cookie；禁止改成只有正式站能連線。
 - 後端驗證用 `npm test --prefix backend/lobby`；真實前後端串接用 `python3 tests/run-social-lobby.py --space <id> --keep-space --skip-screenshots`，runner 建隔離本機 D1，不碰正式玩家資料。後端來源未變不因前端發布重複部署。
 
@@ -129,7 +131,8 @@
 - 測試報告預設寫入 `tmp/test-runs/`（不進 git）；要更新受追蹤的 `tests/artifacts/` 才加 `--record`（runner 與 `*.integration.js` 相同）；runner 可用 `--artifacts <目錄>` 指定其他輸出位置，與 `--record` 互斥。
 - 成功後只呼叫一次 `finish({keep:[]})` 並等待完成；耗時時用背景程序讀回結果，不用短 timeout 中止再反覆重送。有 `finished <id>` 與成功結束碼後，不再操作該空間。
 - 必跑 `rwd`、`ui-scale`、`gameplay`、`account-gameplay`、`companion-commands` 的 HTTP／file：`--space <id> --suite required --protocol both --desktop-only`。
-- 相關 E2E 見 `tests/run-rwd.py` 的 `SUITES`；背包用 `backpack-a`／`main-backpack`／`backpack-feedback`，強化與搜尋用 `ken-market`／`gear-accelerator`，大廳用 `social-lobby`／`lobby-camp`／`lobby-fit`；同樣帶 `--desktop-only`，其他既有專項依實際改動選用。
+- 相關 E2E 見 `tests/run-rwd.py` 的 `SUITES`；背包用 `backpack-a`／`main-backpack`／`backpack-feedback`，強化與搜尋用 `ken-market`／`gear-accelerator`，大廳用 `social-lobby`／`lobby-camp`／`lobby-fit`／`lobby-live-actors`；同樣帶 `--desktop-only`，其他既有專項依實際改動選用。
+- 創角／載入會自動連線大廳；合成回歸先用同一 p1 的 `Page.addScriptToEvaluateOnNewDocument` 隔離預設公共 API，保留明確指定的合成 API／本機 workerd 連線。不可讓核心測試大量建立公共訪客，也不可改正式碼來停用測試中的功能；報告標明隔離方式。在線名冊可含自己，點指定訪客用其 ID，不假設第一筆就是別人。
 - TaskSpace 消失不能自行重建；使用者暫緩重建時，先完成本地工作並記錄待跑的瀏覽器檢查，後續不得把 Node VM／幾何替身說成瀏覽器 E2E 通過。
 - 所有 `visual-*` 必須緊接同一 space 的對應行為 fixture，例如 `account-gameplay visual-account-gameplay`；中間不可插入其他 suite，各 fixture 的全域儲存不可互換。runner 會拒絕順序錯誤的組合。
 - 狀態節點／控制項測試依 `data-*`／欄位語意定位，不假設職業為名稱的 `nextElementSibling`。創角 fixture 須明填合成 ID；舊未命名存檔另建 fixture，不繞過必填限制。需求已變就改舊斷言，不恢復已移除功能；找長單行斷言用 `rg --no-ignore -o '.{60}舊字串.{60}' tests`，不用 `grep -n | cut`。相同物品（同 id／強化）簽章不含 uid，互換位置不會重建；強化也可能換 uid；斷言比可見內容與實際物品欄位，不比 uid。
@@ -178,11 +181,12 @@
 
 ## 最新進度與驗證基準（2026-10-20）
 
-- 本輪版本 **v3.9.10**（原版基底 `v3.8.34`）：修復角色偏好壓縮造成的帳號重匯入失敗、統一弱化執行按鈕暗紅；大廳顯示在線玩家、可選即時地圖分享與向下多則留言。既有大廳美術、背包尺寸、強化／搜尋決策保留。
-- 功能證據在 `tmp/test-runs/import-lobby/completion.json`：HTTP／file 與真實本機 workerd／D1 共 21 份、721/721，本地 13/13、鏡像 SHA 69/69、後端 3/3、公共 API 8/8；原程式專項 12 項有 9 項預期失敗。真實 30 秒心跳已驗證離開大廳回村後仍更新 D1，公共合成訪客已刪除。
-- D1 `0003_presence_map.sql` 只新增 `users.current_map`、保留既有資料；公共後端已部署為 `d7f32149-412c-4ec0-914c-8b6b94c3c2c9`，本輪發布前端不再重跑遠端 migration／deploy。API 與前端發布分開記錄，後端成功不等於 Pages 已更新。
-- 本輪預覽 `tmp/test-runs/import-lobby/preview/combined.png` 是實際 Ego screen-media PDF 以 pypdfium2 96dpi 轉圖，非直接截圖。相關 TaskSpace 已 finish、測試伺服器已停止；未操作真實玩家存檔，Safari、實體手機、安裝版與長測未驗。
-- 本次升版另實跑 `comfort-release` HTTP／file 各 41/41、本地 13/13、後端 3/3；功能來源未變，沿用上述 721 項報告。v3.9.10 的 commit／Pages run／公開 HTTPS SHA 證據集中 `tmp/test-runs/import-lobby-release/`；是否已發布以實際結果及遠端 HEAD 為準，不依進度文字推定成功。
+- 本輪版本 **v3.9.11**（原版基底 `v3.8.34`）：在線玩家不再以發布名片為前提；目前職業／性別外觀取代舊名片快照，新增站立／單膝與招手素材，保留原坐姿、名片、地圖分享與留言功能。
+- 功能證據在 `tmp/test-runs/lobby-live-actors/completion.json`：HTTP／file 與真實本機 workerd／D1 共 20 份、703/703，本地 13/13、鏡像 SHA 69/69、後端 4/4、公共 API 8/8；原程式專項 23 項有 22 項預期失敗。九位含未發名片角色的營地、八職業男女切換、原有社交與核心流程均已驗；公共合成訪客已刪除。
+- D1 `0004_presence_actor.sql` 新增 `users.presence_actor`、保留既有名片／留言；公共後端已部署為 `8a9c2748-3c91-4007-a27f-fa7959742a12`，本輪前端發布不重跑遠端 migration／deploy。API 與前端發布分開記錄，後端成功不等於 Pages 已更新。
+- 預覽在 `tmp/test-runs/lobby-live-actors/preview/`（camp／unpublished-role），是實際 Ego screen-media PDF 以 pypdfium2 96dpi 轉圖，非直接截圖；16 個 atlas 列取樣範圍與 alpha 完整保留已驗證。相關 TaskSpace 已 finish、測試伺服器已停止；Safari、實體手機、安裝版及長測未驗。
+- 本次升版另實跑 `comfort-release` HTTP／file 各 41/41、本地 13/13、後端 4/4；功能來源未變，沿用上述 703 項報告。v3.9.11 的 commit／Pages run／公開 HTTPS SHA 證據集中 `tmp/test-runs/lobby-live-actors-release/`；是否已發布以實際結果及遠端 HEAD 為準，不依進度文字推定成功。
+- v3.9.10 歷史：`tmp/test-runs/import-lobby/`（721/721，匯入／配色／地圖／留言），`import-lobby-release/`（發布）；其匯入與留言規則仍有效，已發名片才算在線的限制已由本輪取代。
 - v3.9.9 歷史：`tmp/test-runs/ken-market/`（736/736）、`lobby-fit/`（629/629，石圈固定像素驗收）、`session-release-20261020/`（發布）；接手先比來源 SHA，不把舊報告冒稱本輪重跑。
 - v3.9.8 功能／效能歷史留在 `tmp/test-runs/loot-nav/` 與 `loot-nav-release/`：分類中位數 34.15→18.90ms、節點替換 8→0，屬局部操作量測，非整體 FPS；既有掉落／分類規則仍有效。
 - `tmp/` 僅本機存在，乾淨 clone 不保證有報告；接手先核對方法、來源 SHA 與結果。較早版本、改名／取消鏡像及 Releases 歷史見 [docs/agent-progress.md](docs/agent-progress.md)。

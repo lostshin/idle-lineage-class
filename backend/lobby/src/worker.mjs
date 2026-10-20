@@ -1,5 +1,6 @@
-const CLASSES = new Set(['royal', 'knight', 'elf', 'mage', 'dark', 'dragon', 'illusion', 'warrior']);
-const AVATARS = new Set(['王子', '公主', '男騎士', '女騎士', '男妖精', '女妖精', '男法師', '女法師', '男黑暗妖精', '女黑暗妖精', '男龍騎士', '女龍騎士', '男幻術士', '女幻術士', '男戰士', '女戰士']);
+const CLASS_AVATARS = {royal:['王子','公主'],knight:['男騎士','女騎士'],elf:['男妖精','女妖精'],mage:['男法師','女法師'],dark:['男黑暗妖精','女黑暗妖精'],dragon:['男龍騎士','女龍騎士'],illusion:['男幻術士','女幻術士'],warrior:['男戰士','女戰士']};
+const CLASSES = new Set(Object.keys(CLASS_AVATARS));
+const AVATARS = new Set(Object.values(CLASS_AVATARS).flat());
 const now = () => Date.now();
 const fail = (status, message) => { throw Object.assign(new Error(message), { status }); };
 const text = (value, limit, required = false) => {
@@ -38,6 +39,12 @@ function validateCard(input) {
         card.equipment = { name: text(input.equipment.name, 100, true) };
     }
     return card;
+}
+
+function validateActor(input) {
+    if (!input || typeof input !== 'object' || Array.isArray(input) || Object.keys(input).some(key => !['name','cls','avatar'].includes(key))) fail(400, '在線角色格式不正確。');
+    if (!CLASSES.has(input.cls) || !CLASS_AVATARS[input.cls].includes(input.avatar)) fail(400, '在線角色職業與外觀不符。');
+    return { name: text(input.name, 12, true), cls: input.cls, avatar: input.avatar };
 }
 
 async function body(request) {
@@ -122,11 +129,12 @@ export function createHandler() {
                 }
                 if (path === '/v1/presence' && method === 'POST') {
                     const data = await body(request);
-                    if (Object.keys(data).some(key => key !== 'map')) fail(400, '連線狀態包含未允許的欄位。');
+                    if (Object.keys(data).some(key => !['map','actor'].includes(key))) fail(400, '連線狀態包含未允許的欄位。');
                     const map = text(data.map ?? '', 100);
+                    const actor = data.actor === undefined ? null : JSON.stringify(validateActor(data.actor));
                     const card = await first(env, 'SELECT payload FROM cards WHERE user_id=? AND published=1', user.id);
                     await rate(env, 'presence:' + user.id, 6);
-                    await run(env, 'UPDATE users SET last_seen=?,current_map=? WHERE id=?', now(), card && JSON.parse(card.payload).shareMap ? map : '', user.id);
+                    await run(env, 'UPDATE users SET last_seen=?,current_map=?,presence_actor=COALESCE(?,presence_actor) WHERE id=?', now(), card && JSON.parse(card.payload).shareMap ? map : '', actor, user.id);
                     return json({ ok: true });
                 }
                 if (path === '/v1/greeting' && method === 'POST') {
@@ -148,6 +156,12 @@ export function createHandler() {
                     } else changed = await run(env, 'UPDATE cards SET published=0,version=version+1,updated_at=? WHERE user_id=? AND version=?', now(), user.id, data.version);
                     if (!changed.meta.changes) fail(409, '名片已在其他視窗更新，請重新載入後再編輯。');
                     return json({ version: data.version + 1 });
+                }
+                if (path === '/v1/players' && method === 'GET') {
+                    const offset = Number(url.searchParams.get('offset') || 0);
+                    if (!Number.isInteger(offset) || offset < 0 || offset > 10000) fail(400, '分頁不正確。');
+                    const rows = await all(env, 'SELECT u.id,u.presence_actor,u.last_seen,u.greeting_at,c.published FROM users u LEFT JOIN cards c ON c.user_id=u.id WHERE u.suspended=0 AND u.presence_actor IS NOT NULL AND u.last_seen>? ORDER BY u.last_seen DESC,u.id LIMIT 21 OFFSET ?', now() - 120000, offset);
+                    return json({ players: rows.slice(0,20).map(row => ({id:row.id,actor:JSON.parse(row.presence_actor),lastSeen:row.last_seen,greetingAt:row.greeting_at || 0,hasCard:!!row.published})), next: rows.length>20 ? offset+20 : null });
                 }
                 if (path === '/v1/cards' && method === 'GET') {
                     const view = url.searchParams.get('view') || 'recent';

@@ -17,6 +17,7 @@ const init=(await page.cdp('Page.addScriptToEvaluateOnNewDocument',{source:`(()=
   else if(p==='/v1/presence')__feedback.presence=b;
   else if(p==='/v1/me')value={user:{id:'00000000-0000-4000-8000-000000000001',admin:false},card:__feedback.mine};
   else if(p==='/v1/me/card'){__feedback.mine={card:b.card,version:1,published:true};value={version:1};}
+  else if(p.endsWith('/players'))value={players:[{id:card.id,actor:card.card,lastSeen:stamp,hasCard:true}],next:null};
   else if(p.endsWith('/cards'))value={cards:u.searchParams.get('view')==='online'?[card]:[card,{...card,id:'00000000-0000-4000-8000-000000000003',lastSeen:stamp-300000,card:{name:'離線旅人'}}],next:null};
   else if(p.endsWith('/comments'))value={comments:Array.from({length:5},(_,i)=>({id:5-i,author:'留言旅人'+i,text:'留言內容'+i,createdAt:stamp+i,canDelete:false})),next:null};
   else if(p.includes('/cards/'))value={...card,favorite:false};
@@ -39,7 +40,7 @@ await page.click('#modal-actions [onclick^="AFK_CURSEBATCH.open("]');
 await check('batch weaken confirmation has the same dark-red fill as curse actions',()=>page.evaluate(()=>{const b=document.querySelector('#modal-actions [onclick^="AFK_CURSEBATCH.run("]'),s=getComputedStyle(b);return s.backgroundColor==='rgb(66, 21, 24)'&&s.color==='rgb(227, 161, 155)'&&!s.borderImageSlice.includes('fill');}));
 await page.click('#modal-actions [onclick^="AFK_CURSEBATCH.run("]');await page.click('loc=role:button[name="開始"]');await check('red confirmation still weakens to -1 and spends exactly five scrolls',()=>page.evaluate(()=>player.inv.find(i=>i.uid==='f-helm').en===-1&&player.inv.find(i=>i.uid==='f-curse').cnt===3));
 await page.evaluate(()=>{closeModal();setMapSelectors('training');changeMap(true);state.running=false;});await page.selectOption('#map-category','social_lobby');await page.waitForFunction(()=>document.getElementById('social-lobby').getAttribute('aria-busy')!=='true');
-await check('camp requests online players rather than recent historical cards',()=>page.evaluate(()=>__feedback.requests.some(r=>r.query.includes('view=online'))&&!document.querySelector('[data-camp-id="00000000-0000-4000-8000-000000000003"]')));
+await check('camp requests online players rather than recent historical cards',()=>page.evaluate(()=>__feedback.requests.some(r=>r.path==='/v1/players')&&!document.querySelector('[data-camp-id="00000000-0000-4000-8000-000000000003"]')));
 async function click(selector){await page.waitForFunction(()=>document.getElementById('social-lobby').getAttribute('aria-busy')!=='true');await page.click(selector);await page.waitForFunction(()=>document.getElementById('social-lobby').getAttribute('aria-busy')!=='true');}
 await click('[data-camp-id="00000000-0000-4000-8000-000000000002"]');
 await check('remote card displays live current map',()=>page.evaluate(()=>document.getElementById('lobby-detail-body').textContent.includes('目前地圖：象牙塔7樓')));

@@ -1,0 +1,132 @@
+{
+  "tool": "built-in image_gen",
+  "processing": "Selected PNG copied unchanged; WebP format conversion preserves alpha; source-row offsets are CSS sampling metadata, not pixel edits.",
+  "columns": [
+    "male idle",
+    "male greeting",
+    "female idle",
+    "female greeting"
+  ],
+  "rows": [
+    "royal",
+    "knight",
+    "elf",
+    "mage",
+    "dark",
+    "dragon",
+    "illusion",
+    "warrior"
+  ],
+  "assets": [
+    {
+      "pose": "standing",
+      "source": "output/design-source/imagegen/lobby-poses-20261020/lobby-standing-v1.png",
+      "asset": "assets/ui/lobby-standing-v1.webp",
+      "dimensions": [
+        887,
+        1774
+      ],
+      "mode": "RGBA",
+      "sha256": "e6212ff39bf9589e2c4fc414acba57625f3d843f2cbc6ae2ff5b6a17ecbe1ba0",
+      "cssTopPercent": [
+        18.4555,
+        114.0586,
+        212.8185,
+        309.3236,
+        407.6325,
+        502.7847,
+        599.2897,
+        691.2852
+      ],
+      "contentRowYBounds": [
+        [
+          68,
+          240
+        ],
+        [
+          286,
+          452
+        ],
+        [
+          495,
+          671
+        ],
+        [
+          711,
+          885
+        ],
+        [
+          931,
+          1103
+        ],
+        [
+          1142,
+          1314
+        ],
+        [
+          1353,
+          1528
+        ],
+        [
+          1558,
+          1732
+        ]
+      ]
+    },
+    {
+      "pose": "kneeling",
+      "source": "output/design-source/imagegen/lobby-poses-20261020/lobby-kneeling-v1.png",
+      "asset": "assets/ui/lobby-kneeling-v1.webp",
+      "dimensions": [
+        887,
+        1774
+      ],
+      "mode": "RGBA",
+      "sha256": "4440e5e59b8f4b9a30589e2f70761356b30b9226b517b97bde29f9cfe79896c1",
+      "cssTopPercent": [
+        4.9267,
+        105.4904,
+        203.3484,
+        303.9121,
+        406.2796,
+        505.0395,
+        605.1522,
+        703.9121
+      ],
+      "contentRowYBounds": [
+        [
+          35,
+          210
+        ],
+        [
+          253,
+          433
+        ],
+        [
+          467,
+          650
+        ],
+        [
+          696,
+          873
+        ],
+        [
+          916,
+          1100
+        ],
+        [
+          1132,
+          1319
+        ],
+        [
+          1357,
+          1541
+        ],
+        [
+          1576,
+          1760
+        ]
+      ]
+    }
+  ]
+}

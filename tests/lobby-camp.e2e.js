@@ -1,5 +1,5 @@
 // Failure cases: local HTTP/file cannot connect, an unpublished self disappears,
-// representative sprites stand instead of sitting, the campfire is static, or gestures leak after exit.
+// representative sprites use wrong class/sex, the campfire is static, or gestures leak after exit.
 const fs = await import('node:fs/promises'), crypto = await import('node:crypto');
 const task = await taskSpace(options.space || '大廳本機連線與營地'), page = task.page('p1'), reports = [], sources = {};
 const peers=[];
@@ -10,8 +10,7 @@ async function backend(path,method='GET',body,token){
 if(options.lobbyApi){
     for(const [index,avatar]of ['女騎士','男妖精','女妖精','男法師','女法師','男黑暗妖精','女龍騎士','男戰士'].entries()){
         const visitor=await backend('/auth/guest','POST',{deviceKey:crypto.randomBytes(32).toString('hex')});peers.push(visitor);
-        await backend('/me/card','PUT',{card:{name:'合成旅人'+(index+1),intro:'營地合成測試',avatar},version:0},visitor.token);
-        await backend('/presence','POST',{},visitor.token);
+        await backend('/presence','POST',{actor:{name:'合成旅人'+(index+1),cls:['knight','elf','elf','mage','mage','dark','dragon','warrior'][index],avatar}},visitor.token);
     }
 }
 console.log({ spaceId: task.spaceId });
