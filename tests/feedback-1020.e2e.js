@@ -13,7 +13,8 @@ const init=(await page.cdp('Page.addScriptToEvaluateOnNewDocument',{source:`(()=
   if(!String(input).startsWith('http://127.0.0.1:9998'))return nativeFetch(input,options);
   const u=new URL(input),p=u.pathname,b=options.body?JSON.parse(options.body):{};__feedback.requests.push({path:p,query:u.search,method:options.method||'GET',body:b});
   const stamp=Date.now(),card={id:'00000000-0000-4000-8000-000000000002',version:1,lastSeen:stamp,currentMap:'象牙塔7樓',card:{name:'在線旅人',cls:'mage',avatar:'女法師',intro:'一起冒險',shareMap:true}};
-  let value={};if(p.endsWith('/auth/guest'))value={token:'synthetic',user:{id:'00000000-0000-4000-8000-000000000001',admin:false}};
+  let value={};if(p==='/v1/actions')value={actions:[],more:false};
+  else if(p.endsWith('/auth/guest'))value={token:'synthetic',user:{id:'00000000-0000-4000-8000-000000000001',admin:false}};
   else if(p==='/v1/presence')__feedback.presence=b;
   else if(p==='/v1/me')value={user:{id:'00000000-0000-4000-8000-000000000001',admin:false},card:__feedback.mine};
   else if(p==='/v1/me/card'){__feedback.mine={card:b.card,version:1,published:true};value={version:1};}

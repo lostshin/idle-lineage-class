@@ -10,7 +10,8 @@ const init=(await page.cdp('Page.addScriptToEvaluateOnNewDocument',{source:`(()=
  const timer=setTimeout;window.setTimeout=function(fn,ms,...args){if(ms===300000)__actors.timers.push(()=>fn(...args));return timer.call(this,fn,ms,...args);};
  const nativeFetch=fetch;window.fetch=async(input,options={})=>{if(!String(input).startsWith('http://127.0.0.1:9998'))return nativeFetch(input,options);const u=new URL(input),path=u.pathname,body=options.body?JSON.parse(options.body):{};__actors.requests.push({path,method:options.method||'GET',body});
  const stamp=Date.now(),player={id:'00000000-0000-4000-8000-000000000002',actor:__actors.actor||{name:'未發名片女法師',cls:'mage',avatar:'女法師'},lastSeen:stamp,greetingAt:0,hasCard:false};let value={};
- if(path==='/v1/auth/guest')value={token:'synthetic',user:{id:'00000000-0000-4000-8000-000000000001',admin:false}};
+ if(path==='/v1/actions')value={actions:[],more:false};
+ else if(path==='/v1/auth/guest')value={token:'synthetic',user:{id:'00000000-0000-4000-8000-000000000001',admin:false}};
  else if(path==='/v1/me')value={user:{id:'00000000-0000-4000-8000-000000000001',admin:false},card:__actors.mine};
  else if(path==='/v1/players')value={players:[player,{...player,id:'00000000-0000-4000-8000-000000000003',lastSeen:stamp-86400001}],next:null,serverTime:stamp,onlineCount:2,siteOnlineCount:0,siteRecentCount:0};
  else if(path==='/v1/cards')value={cards:[],next:null,serverTime:stamp,onlineCount:2,siteOnlineCount:0,siteRecentCount:0};
@@ -33,7 +34,7 @@ if(await page.evaluate(()=>!!document.querySelector('[data-camp-id="00000000-000
  await page.keyboard.press('Escape');
 }
 await page.click('#lobby-greet');await page.waitForFunction(()=>document.getElementById('social-lobby').getAttribute('aria-busy')!=='true');
-await check('greeting works without a published card',()=>page.evaluate(()=>__actors.requests.some(r=>r.path==='/v1/greeting')&&document.querySelector('[data-self="true"]').classList.contains('is-greeting')));
+await check('greeting works without a published card',()=>page.evaluate(()=>__actors.requests.some(r=>r.path==='/v1/actions'&&r.body?.type==='greet')&&document.querySelector('[data-self="true"]').classList.contains('is-greeting')));
 const pairs={royal:['王子','公主'],knight:['男騎士','女騎士'],elf:['男妖精','女妖精'],mage:['男法師','女法師'],dark:['男黑暗妖精','女黑暗妖精'],dragon:['男龍騎士','女龍騎士'],illusion:['男幻術士','女幻術士'],warrior:['男戰士','女戰士']};
 await page.evaluate(()=>{__actors.mine={card:{name:'舊名片男騎士',cls:'knight',avatar:'男騎士'},published:true,version:1};});await page.click('#lobby-exit');await page.selectOption('#map-category','social_lobby');await page.waitForFunction(()=>document.getElementById('social-lobby').getAttribute('aria-busy')!=='true');
 for(const[cls,avatars]of Object.entries(pairs))for(const avatar of avatars){

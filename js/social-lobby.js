@@ -6,6 +6,8 @@ const socialLobby = (() => {
     let failures = 0, busy = false, editorActor = null, requestId = null;
     let visitorsSignature = '', popupReturnFocus = null, commentRows = [];
     let campGuests = [], selfGreeting = 0, greetingTimer = null;
+    let actionQueue = [], actionTimer = null, actionsPending = null, actionMore = false, pendingAction = null, actionReadThrough = 0;
+    const actionLabels = {greet:'打了聲招呼',nod:'點頭致意',cheer:'開心地歡呼'};
     let presenceTimer = null, presencePending = null, loginPending = null, disconnected = false, presenceFailures = 0;
     let campServerTime = 0, campReceivedAt = 0, stateTimer = null, listReceivedAt = null;
     let selfSeen = 0, selfReceivedAt = 0, selfMap = '';
@@ -77,12 +79,13 @@ const socialLobby = (() => {
             campServerTime = selfSeen; campReceivedAt = selfReceivedAt;
             onlinePresence.update(result.siteRecentCount, result.serverTime);
             presenceFailures = 0;
-            if (active) updateRecentState();
+            if (active) { updateRecentState(); await loadActions(); }
         } catch (error) { presenceFailures++; onlinePresence.unavailable(); if (active) status(error.message); }
         finally { presenceTimer = setTimeout(heartbeat, Math.min(1800000, 300000 * 2 ** presenceFailures)); }
     }
     function stop() {
         clearTimeout(poll); poll = null;
+        clearTimeout(actionTimer); actionTimer = null;
         clearTimeout(stateTimer); stateTimer = null;
         clearTimeout(greetingTimer); greetingTimer = null;
         requestEpoch++;
@@ -109,7 +112,8 @@ const socialLobby = (() => {
                         <div class="lobby-campfire-base"><img src="assets/ui/lobby-campfire-v1.webp" alt="" draggable="false"></div>
                     </div>
                     <div id="lobby-seats"></div>
-                    <div class="lobby-camp-controls"><span id="lobby-camp-count" hidden></span><span id="lobby-status" role="status" aria-live="polite" hidden></span><div><button id="lobby-roster" type="button">旅人</button><button id="lobby-greet" type="button">打招呼</button><button id="lobby-exit" type="button">返回冒險</button></div></div>
+                    <div id="lobby-activity-frame"><p id="lobby-activity" role="status" aria-live="polite" hidden></p></div>
+                    <div class="lobby-camp-controls"><span id="lobby-camp-count" hidden></span><span id="lobby-status" role="status" aria-live="polite" hidden></span><div><button id="lobby-roster" type="button">旅人</button><button id="lobby-greet" type="button">打招呼</button><select id="lobby-action" aria-label="其他動作"><option value="">其他動作</option><option value="nod">點頭致意</option><option value="cheer">歡呼</option></select><button id="lobby-exit" type="button">返回冒險</button></div></div>
                     <dialog id="lobby-popup" aria-label="冒險者名片">
                         <section id="lobby-editor" class="lobby-paper" aria-label="編輯公開名片" hidden>
                             <div class="lobby-section-heading"><h3>我的名片</h3><button id="lobby-editor-close" type="button" aria-label="關閉名片編輯">×</button></div>
@@ -140,7 +144,12 @@ const socialLobby = (() => {
                 </div>
             </section>`;
         $('map-view-panel').appendChild(root);
+        new IntersectionObserver(() => {
+            if (!actionVisible()) { clearTimeout(actionTimer); actionTimer = null; }
+            else if (!actionTimer) playAction();
+        },{threshold:1}).observe($('lobby-activity-frame'));
         $('lobby-greet').onclick = () => perform(greet);
+        $('lobby-action').onchange = event => { const type = event.target.value; event.target.value = ''; if (type) perform(() => doAction(type)); };
         $('lobby-roster').onclick = () => perform(async () => { showSection('roster-panel'); if (session) await refresh(); else await login(); });
         $('lobby-roster-close').onclick = () => showSection('common');
         $('lobby-popup').addEventListener('keydown', event => { if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); showSection('common'); } });
@@ -237,7 +246,8 @@ const socialLobby = (() => {
                 seat.dataset.greetingAt = String(item.greetingAt); seat.dataset.greetingUntil = String(Date.now()+3000);
             }
             const remaining = Number(seat.dataset.greetingUntil || 0)-Date.now();
-            seat.classList.toggle('is-greeting',remaining>0);
+            if (remaining<=0) { delete seat.dataset.action; seat.querySelector('.lobby-greeting').textContent = '嗨，旅人！'; }
+            seat.classList.toggle('is-greeting',remaining>0 && (!seat.dataset.action || seat.dataset.action==='greet'));
             if (remaining>0) greetingRemaining = Math.max(greetingRemaining,remaining);
         }
         $('lobby-camp-count').textContent = guests.length === 1 ? '你在營火旁歇腳' : '營火旁 · '+guests.length+' 位旅人';
@@ -270,13 +280,82 @@ const socialLobby = (() => {
         const remaining = times.flatMap(at => [at+600000-campNow(),at+86400000-campNow()]).filter(ms => ms>0);
         if (remaining.length) stateTimer = setTimeout(updateRecentState, Math.min(...remaining)+1);
     }
+    function animateActor(event) {
+        const id = event.userId === session?.user.id ? 'self' : event.userId;
+        const seat = [...$('lobby-seats').children].find(seat => seat.dataset.campId === id);
+        if (!seat) return;
+        seat.dataset.action = event.type; seat.dataset.greetingUntil = String(Date.now()+3000);
+        seat.querySelector('.lobby-greeting').textContent = event.type==='greet' ? '嗨，旅人！' : event.type==='nod' ? '向你致意' : '太棒了！';
+        seat.classList.toggle('is-greeting',event.type==='greet');
+        clearTimeout(greetingTimer); greetingTimer = setTimeout(renderCamp,3030);
+    }
+    function actionVisible() {
+        if (!live() || $('lobby-popup').open || $('lobby-activity').hidden) return false;
+        const r = $('lobby-activity').getBoundingClientRect();
+        return r.width>0 && r.top>=0 && r.left>=0 && r.right<=innerWidth && r.bottom<=innerHeight;
+    }
+    function playAction() {
+        clearTimeout(actionTimer); actionTimer = null;
+        if (!live() || $('lobby-popup').open) return;
+        if (!actionQueue.length) { $('lobby-activity').hidden = true; return; }
+        $('lobby-activity').classList.remove('is-burning');
+        const event = actionQueue[0], epoch = requestEpoch;
+        $('lobby-activity').textContent = event.actor.name+' '+actionLabels[event.type]+'。';
+        $('lobby-activity').hidden = false;
+        $('lobby-activity').title = '動作時間：'+new Date(event.createdAt).toLocaleString('zh-TW');
+        if (!actionVisible()) return;
+        animateActor(event);
+        actionTimer = setTimeout(() => {
+            actionTimer = null;
+            if (!actionVisible() || epoch !== requestEpoch) return;
+            $('lobby-activity').classList.add('is-burning');
+            actionTimer = setTimeout(async () => {
+                actionTimer = null;
+                if (!actionVisible() || epoch !== requestEpoch) return;
+                try {
+                    await api('/actions/read','POST',{through:event.id});
+                    if (epoch !== requestEpoch) return;
+                    actionReadThrough = Math.max(actionReadThrough,event.id);
+                    actionQueue.shift();
+                    if (!actionQueue.length && actionMore) await loadActions();
+                    else playAction();
+                } catch (error) { if (active) { $('lobby-activity').classList.remove('is-burning'); status('動作閱讀進度尚未保存，下次更新時會重播。'); } }
+            },800);
+        },4000);
+    }
+
+    async function loadActions() {
+        if (!live() || !session || !onlinePresence.canConnect()) return;
+        if (actionsPending) return actionsPending;
+        const epoch = requestEpoch;
+        actionsPending = (async () => {
+            const result = await api('/actions');
+            if (epoch !== requestEpoch || !live()) return;
+            if (!Array.isArray(result.actions)) throw Error('動作紀錄格式不正確。');
+            const events = result.actions;
+            actionReadThrough = Math.max(actionReadThrough,result.cursor || 0);
+            actionMore = result.more === true;
+            const queued = new Set(actionQueue.map(event => event.id));
+            for (const event of events) if (Number.isSafeInteger(event.id) && actionLabels[event.type] && event.actor && event.id>actionReadThrough && !queued.has(event.id)) { actionQueue.push(event); queued.add(event.id); }
+            actionQueue.sort((a,b) => a.id-b.id);
+            if (!actionTimer) playAction();
+        })().catch(error => { if (epoch === requestEpoch && active) status('營火動作暫時無法更新，稍後會再試。'); }).finally(() => { actionsPending = null; });
+        return actionsPending;
+    }
+    async function doAction(type) {
+        if (!session) return;
+        renderCamp();
+        if (!pendingAction) pendingAction = {type,requestId:crypto.randomUUID()};
+        if (pendingAction.type !== type) throw Error('上一個動作尚未確認，請先重試同一個動作。');
+        const request = pendingAction;
+        await api('/actions','POST',request); pendingAction = null;
+        if (type === 'greet') selfGreeting = Date.now();
+        animateActor({userId:session.user.id,type}); status('');
+        await loadActions();
+    }
     async function greet() {
-        if (Date.now()-selfGreeting < 10000) return;
-        selfGreeting = Date.now(); renderCamp();
-        if (session) {
-            await api('/greeting','POST',{});
-            status('');
-        } else status('');
+        if (!pendingAction && Date.now()-selfGreeting < 10000) return;
+        await doAction('greet');
     }
     function editorPage(name) {
         for (const page of $('lobby-editor-form').children) page.hidden = page.dataset.editorPage !== name;
@@ -284,6 +363,7 @@ const socialLobby = (() => {
     }
     function showSection(name) {
         const popup = $('lobby-popup');
+        clearTimeout(actionTimer); actionTimer = null;
         for (const key of ['editor', 'card-detail', 'comment-panel', 'roster-panel']) $('lobby-' + key).hidden = key !== name;
         if (name === 'common') {
             popup.close();
@@ -295,6 +375,7 @@ const socialLobby = (() => {
         }
         if (name !== 'common') $('lobby-' + name).querySelector('button')?.focus({preventScroll:true});
         $('social-lobby').classList.toggle('lobby-motion-paused', document.hidden || name !== 'common');
+        if (name === 'common') playAction();
     }
     function open() {
         mount(); if (active) return;
@@ -307,7 +388,7 @@ const socialLobby = (() => {
         $('map-select').replaceChildren(room); $('map-select').dataset.lobbyRoom = 'gandan';
         _vfxClearAll(); showSection('common'); updateAuth();
         renderCamp();
-        for (const id of ['lobby-greet','lobby-roster']) $(id).disabled = !onlinePresence.canConnect();
+        for (const id of ['lobby-greet','lobby-action','lobby-roster']) $(id).disabled = !onlinePresence.canConnect();
         if (!onlinePresence.canConnect()) {
             status('本機不加入公共大廳。請前往正式網站與旅人交流。');
             const link = node('a','前往正式網站'); link.href = 'https://lostshin.github.io/idle-lineage-class/';
@@ -371,7 +452,7 @@ const socialLobby = (() => {
             for (const name of ['online', 'favorites']) $('lobby-view-' + name).setAttribute('aria-pressed', String(view === name));
             $('lobby-list-title').textContent = view === 'favorites' ? '收藏的冒險者' : '近 24 小時旅人';
             failures = 0;
-            status(''); scheduleRecentState();
+            status(''); scheduleRecentState(); await loadActions();
         } catch (error) { if (epoch !== requestEpoch || !active) return; failures++; onlinePresence.unavailable(); status(error.name === 'AbortError' ? '連線已中斷。' : error.message); }
     }
     async function detail(id, onlineActor = null) {
@@ -487,12 +568,12 @@ const socialLobby = (() => {
         if (!playing() || disconnected || !onlinePresence.canConnect()) return;
         setSession(result); await loadMine();
     }
-    function setSession(value) { session = value; updateAuth(); renderCamp(); }
+    function setSession(value) { if (session?.user.id !== value.user.id) { actionQueue = []; pendingAction = null; actionReadThrough = 0; } session = value; updateAuth(); renderCamp(); }
     document.addEventListener('visibilitychange', () => {
         if (!active) return;
         $('social-lobby').classList.toggle('lobby-motion-paused', document.hidden || $('lobby-popup').open);
         if (document.hidden) stop();
-        else { updateRecentState(); if (session && (listReceivedAt === null || performance.now()-listReceivedAt >= 600000)) perform(refresh); }
+        else { updateRecentState(); playAction(); if (session && (listReceivedAt === null || performance.now()-listReceivedAt >= 600000)) perform(refresh); }
     });
     window.addEventListener('pagehide', () => { clearTimeout(presenceTimer); close(false); });
     window.addEventListener('pageshow', heartbeat);

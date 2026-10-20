@@ -104,7 +104,7 @@ export function createHandler() {
                     if (!/^[a-f0-9]{64}$/.test(data.deviceKey || '')) fail(400, '訪客識別格式不正確。');
                     const subject = await hash(data.deviceKey);
                     if (!await first(env, 'SELECT id FROM users WHERE subject=?', subject)) await rate(env, 'new-visitor:' + ipKey, 10, 3600000);
-                    await run(env, 'INSERT INTO users(id,subject) VALUES(?,?) ON CONFLICT(subject) DO NOTHING', crypto.randomUUID(), subject);
+                    await run(env, 'INSERT INTO users(id,subject,action_cursor) VALUES(?,?,COALESCE((SELECT MAX(id) FROM lobby_actions),0)) ON CONFLICT(subject) DO NOTHING', crypto.randomUUID(), subject);
                     const user = await first(env, 'SELECT * FROM users WHERE subject=?', subject);
                     if (user.suspended) fail(403, '此社交帳號已停權。');
                     const token = random(), expiresAt = now() + 86400000;
@@ -143,11 +143,32 @@ export function createHandler() {
                     await run(env, 'UPDATE users SET last_seen=?,current_map=?,presence_actor=COALESCE(?,presence_actor),site_seen=CASE WHEN ? THEN ? ELSE site_seen END WHERE id=?', serverTime, card && JSON.parse(card.payload).shareMap ? map : '', actor, official ? 1 : 0, serverTime, user.id);
                     return json({ ok: true, serverTime, onlineCount:await onlineCount(env,serverTime), siteOnlineCount:await siteOnlineCount(env,serverTime), siteRecentCount:await siteRecentCount(env,serverTime) });
                 }
-                if (path === '/v1/greeting' && method === 'POST') {
-                    await rate(env, 'greeting:' + user.id, 6);
+                if (path === '/v1/actions' && method === 'GET') {
+                    const rows = await all(env, 'SELECT a.* FROM lobby_actions a JOIN users u ON u.id=a.user_id WHERE a.id>? AND u.suspended=0 ORDER BY a.id LIMIT 21', user.action_cursor);
+                    return json({cursor:user.action_cursor,actions:rows.slice(0,20).map(row => ({id:row.id,userId:row.user_id,type:row.type,actor:JSON.parse(row.actor),createdAt:row.created_at})),more:rows.length>20});
+                }
+                if (path === '/v1/actions/read' && method === 'POST') {
+                    const data = await body(request), sequence = await first(env, "SELECT seq FROM sqlite_sequence WHERE name='lobby_actions'");
+                    if (Object.keys(data).some(key => key !== 'through') || !Number.isSafeInteger(data.through) || data.through < 0 || data.through > (sequence?.seq || 0)) fail(400, '動作閱讀位置不正確。');
+                    await run(env, 'UPDATE users SET action_cursor=MAX(action_cursor,?) WHERE id=?', data.through, user.id);
+                    return json({ok:true});
+                }
+                if (['/v1/greeting','/v1/actions'].includes(path) && method === 'POST') {
+                    const legacy = path === '/v1/greeting', data = legacy ? {type:'greet',requestId:crypto.randomUUID()} : await body(request);
+                    if (Object.keys(data).some(key => !['type','requestId'].includes(key)) || !['greet','nod','cheer'].includes(data.type) || !/^[a-f0-9-]{36}$/.test(data.requestId || '')) fail(400, '動作格式不正確。');
+                    if (!user.presence_actor && !legacy) fail(400, '請先進入遊戲並完成角色回報。');
+                    const existing = await first(env, 'SELECT id,type FROM lobby_actions WHERE user_id=? AND request_id=?', user.id, data.requestId);
+                    if (existing) { if (existing.type !== data.type) fail(409, '此動作與上次送出不同。'); return json({id:existing.id}); }
+                    await rate(env, 'action:' + user.id, 6);
                     const at = now();
-                    await run(env, 'UPDATE users SET greeting_at=?,last_seen=? WHERE id=?', at, at, user.id);
-                    return json({ greetingAt: at });
+                    if (data.type === 'greet') await run(env, 'UPDATE users SET greeting_at=?,last_seen=? WHERE id=?', at, at, user.id);
+                    if (user.presence_actor) {
+                        await run(env, 'INSERT INTO lobby_actions(user_id,request_id,type,actor,created_at) VALUES(?,?,?,?,?) ON CONFLICT(user_id,request_id) DO NOTHING', user.id, data.requestId, data.type, user.presence_actor, at);
+                        const stored = await first(env, 'SELECT id,type FROM lobby_actions WHERE user_id=? AND request_id=?', user.id, data.requestId);
+                        if (stored.type !== data.type) fail(409, '此動作與上次送出不同。');
+                        return json({id:stored.id,...(legacy ? {greetingAt:at} : {})},legacy ? 200 : 201);
+                    }
+                    return json({greetingAt:at});
                 }
                 if (path === '/v1/me/card' && (method === 'PUT' || method === 'DELETE')) {
                     const data = await body(request);
@@ -245,7 +266,7 @@ export function createHandler() {
             }
         },
         async scheduled(_event, env) {
-            await env.DB.batch(['sessions', 'rate_limits'].map(table => statement(env, 'DELETE FROM ' + table + ' WHERE expires_at<?', now())));
+            await env.DB.batch([...['sessions', 'rate_limits'].map(table => statement(env, 'DELETE FROM ' + table + ' WHERE expires_at<?', now())), statement(env, 'DELETE FROM lobby_actions WHERE id<=COALESCE((SELECT MIN(action_cursor) FROM users WHERE suspended=0),0)')]);
         }
     };
 }

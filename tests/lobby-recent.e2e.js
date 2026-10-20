@@ -10,7 +10,8 @@ const init=(await page.cdp('Page.addScriptToEvaluateOnNewDocument',{source:`(()=
  addEventListener('error',e=>__recent.errors.push(e.message));const timeout=setTimeout;window.setTimeout=(fn,ms,...args)=>{const t={ms,run:()=>fn(...args)};__recent.timers.push(t);return timeout(fn,ms,...args);};
  const native=fetch;window.fetch=async(input,opts={})=>{if(!String(input).includes('/v1/'))return native(input,opts);const u=new URL(input),path=u.pathname,method=opts.method||'GET',body=opts.body?JSON.parse(opts.body):{};__recent.requests.push({path,search:u.search,method,body,host:u.host});if(__recent.offline)throw TypeError('synthetic outage');const serverTime=__recent.stamp;let value={};const id=n=>'00000000-0000-4000-8000-'+String(n).padStart(12,'0');
  const guests=[{id:id(2),actor:{name:'離線女法師',cls:'mage',avatar:'女法師'},lastSeen:serverTime-3600000,hasCard:false},{id:id(3),actor:{name:'即將離線騎士',cls:'knight',avatar:'男騎士'},lastSeen:serverTime-598000,hasCard:false},{id:id(4),actor:{name:'即將離場王族',cls:'royal',avatar:'公主'},lastSeen:serverTime-86396000,hasCard:false},{id:id(5),actor:{name:'過期旅人',cls:'elf',avatar:'男妖精'},lastSeen:serverTime-86400001,hasCard:false}];
- if(path==='/v1/auth/guest')value={token:'synthetic',user:{id:id(1),admin:false}};
+ if(path==='/v1/actions')value={actions:[],more:false};
+ else if(path==='/v1/auth/guest')value={token:'synthetic',user:{id:id(1),admin:false}};
  else if(path==='/v1/me')value={user:{id:id(1),admin:false},card:null};
  else if(path==='/v1/presence')value={ok:true,siteRecentCount:__recent.count,siteOnlineCount:2,onlineCount:12,serverTime};
  else if(path==='/v1/players')value={players:__recent.order?guests.toReversed():guests,next:20,siteRecentCount:__recent.count,siteOnlineCount:2,onlineCount:12,serverTime};

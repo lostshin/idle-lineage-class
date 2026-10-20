@@ -15,6 +15,7 @@ export function testDatabase() {
     sqlite.exec(readFileSync(new URL('../migrations/0004_presence_actor.sql', import.meta.url), 'utf8'));
     sqlite.exec(readFileSync(new URL('../migrations/0005_site_presence.sql', import.meta.url), 'utf8'));
     sqlite.exec(readFileSync(new URL('../migrations/0006_comments_users.sql', import.meta.url), 'utf8'));
+    sqlite.exec(readFileSync(new URL('../migrations/0007_lobby_actions.sql', import.meta.url), 'utf8'));
     return {
         sqlite,
         prepare(sql) {
@@ -257,5 +258,32 @@ test('recent official visitors survive 24 hours, count only 30 minutes and accep
     assert.equal((await request('/players?view=recent','GET',undefined,repeat.token)).data.siteRecentCount,0);
     DB.sqlite.prepare('UPDATE users SET suspended=1 WHERE id=?').run(b.user.id);
     assert.equal((await request('/cards/'+b.user.id,'GET',undefined,a.token)).status,404);
+    DB.sqlite.close();
+});
+
+test('durable actions are ordered, retried once, acknowledged per visitor and resume across sessions',async()=>{
+    const DB=testDatabase(),api=createHandler(),env={DB,ALLOWED_ORIGINS:'https://lostshin.github.io'};
+    async function req(path,method='GET',data,token){const r=await api.fetch(new Request('https://api.test/v1'+path,{method,headers:{Origin:'https://lostshin.github.io','CF-Connecting-IP':'actions-fixture',...(data?{'Content-Type':'application/json'}:{}),...(token?{Authorization:'Bearer '+token}:{})},body:data?JSON.stringify(data):undefined}),env);return{status:r.status,data:await r.json()};}
+    const a=(await req('/auth/guest','POST',{deviceKey:'1'.repeat(64)})).data,b=(await req('/auth/guest','POST',{deviceKey:'2'.repeat(64)})).data;
+    const actor={name:'動作旅人',cls:'mage',avatar:'女法師'};
+    await req('/presence','POST',{actor,page:'/idle-lineage-class/'},a.token);
+    const data={type:'nod',requestId:crypto.randomUUID()};
+    assert.equal((await req('/actions','POST',{...data,type:'unknown'},a.token)).status,400);
+    assert.equal((await req('/actions','POST',data,b.token)).status,400);
+    const sent=await req('/actions','POST',data,a.token);assert.equal(sent.status,201);
+    assert.equal((await req('/actions','POST',data,a.token)).data.id,sent.data.id);
+    assert.equal((await req('/actions','POST',{...data,type:'cheer'},a.token)).status,409);
+    let list=await req('/actions','GET',undefined,b.token);assert.equal(list.data.actions.length,1);assert.equal(list.data.actions[0].actor.name,actor.name);
+    assert.equal((await req('/actions','GET',undefined,b.token)).data.actions.length,1);
+    const again=(await req('/auth/guest','POST',{deviceKey:'2'.repeat(64)})).data;assert.equal((await req('/actions','GET',undefined,again.token)).data.actions[0].id,sent.data.id);
+    assert.equal((await req('/actions/read','POST',{through:sent.data.id+1},again.token)).status,400);
+    assert.equal((await req('/actions/read','POST',{through:sent.data.id},again.token)).status,200);
+    assert.equal((await req('/actions','GET',undefined,b.token)).data.actions.length,0);
+    assert.equal((await req('/actions','GET',undefined,a.token)).data.actions.length,1);
+    const fresh=(await req('/auth/guest','POST',{deviceKey:'3'.repeat(64)})).data;assert.equal((await req('/actions','GET',undefined,fresh.token)).data.actions.length,0);
+    const next=await req('/actions','POST',{type:'cheer',requestId:crypto.randomUUID()},a.token);assert.equal(next.status,201);assert.ok(next.data.id>sent.data.id);
+    assert.deepEqual((await req('/actions','GET',undefined,a.token)).data.actions.map(x=>x.type),['nod','cheer']);
+    assert.equal((await req('/actions','GET',undefined,b.token)).data.actions[0].type,'cheer');
+    await req('/me','DELETE',{confirm:true},a.token);assert.equal((await req('/actions','GET',undefined,b.token)).data.actions.length,0);
     DB.sqlite.close();
 });

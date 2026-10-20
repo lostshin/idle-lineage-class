@@ -47,7 +47,8 @@ const init = (await page.cdp('Page.addScriptToEvaluateOnNewDocument', { source: 
         if(${!!options.lobbyApi})return nativeFetch(input,options);
         const card={id:'00000000-0000-4000-8000-000000000002',version:1,updatedAt:snapshotTime,lastSeen:snapshotTime,card:{name:'合成旅人',intro:'<img src=x onerror=alert(1)>',progress:'一起聊配裝',cls:'knight',avatar:'男騎士',level:65}};
         let value={};
-        if(path.endsWith('/auth/guest'))value={token:'synthetic',user:{id:'00000000-0000-4000-8000-000000000001',admin:false}};
+        if(path==='/v1/actions')value={actions:[],more:false};
+        else if(path.endsWith('/auth/guest'))value={token:'synthetic',user:{id:'00000000-0000-4000-8000-000000000001',admin:false}};
         else if(path.endsWith('/me'))value={user:{id:'00000000-0000-4000-8000-000000000001',admin:false},card:null};
         else if(path.endsWith('/cards'))value={cards:[card],next:null};
         else if(path.endsWith('/players'))value={players:[{id:card.id,actor:card.card,lastSeen:card.lastSeen,hasCard:true}],next:null,serverTime:Date.now(),onlineCount:2,siteOnlineCount:0,siteRecentCount:0};
@@ -133,6 +134,9 @@ if (options.lobbyApi) {
     await check('unpublished visitor receives native browser message persisted in real D1',async()=>
         (await worker('/cards/'+basicVisitor.user.id+'/comments','GET',undefined,basicVisitor.token)).comments.some(row=>row.text==='未發名片仍可收留言'));
     await click('#lobby-comment-close');await click('#lobby-detail-close');
+    await page.selectOption('#lobby-action','nod');await page.waitForFunction(()=>document.getElementById('social-lobby').getAttribute('aria-busy')!=='true');
+    await check('native action persists for a different unread visitor in real D1',async()=>
+        (await worker('/actions','GET',undefined,basicVisitor.token)).actions.some(event=>event.type==='nod'&&event.actor.name==='合成大廳角色'));
     await worker('/me','DELETE',{confirm:true},basicVisitor.token);
 }
 await page.evaluate(() => { window.__lobbyCombatTicks = state.ticks; state.running = true; for (let i=0;i<10;i++) { state.inTick=true; tick(); state.inTick=false; settleDeadMobs(); } flushTickRender(); });
