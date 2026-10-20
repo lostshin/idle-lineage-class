@@ -21,7 +21,7 @@
     <link rel="stylesheet" href="css/tailwind-built.css?v=932535789f"><!-- 🔧 預編譯 Tailwind（取代執行期 JIT tailwind.js）：只含實際用到的 class，省 407KB runtime + 移除持續掃描 DOM 的成本。置於 style.css 之後以保留原 cascade（utility 平手時勝過自訂 class，與舊 JIT 注入順序一致） -->
     <link rel="stylesheet" href="css/responsive.css?v=ed59f7d9d8">
     <link rel="stylesheet" href="css/addons.css?v=420511a7ea">
-    <link rel="stylesheet" href="css/social-lobby.css?v=addbb1b3a5">
+    <link rel="stylesheet" href="css/social-lobby.css?v=b6051186a2">
 </head>
 <body class="h-screen w-screen overflow-hidden">
 
@@ -253,6 +253,7 @@
         <button onclick="revive()" id="btn-revive" class="hidden bg-red-800 hover:bg-red-700 px-6 py-1.5 text-white font-bold border border-red-500 rounded anim-flash text-base shadow-md">祈求復活</button>
         <button onclick="reviveInPlace()" id="btn-revive-inplace" class="hidden bg-yellow-700 hover:bg-yellow-600 px-6 py-1.5 text-white font-bold border border-yellow-500 rounded anim-flash text-base shadow-md">原地復活</button>
         <button onclick="openPandoraShortcut()" id="btn-pandora-shortcut" class="bg-amber-950 hover:bg-amber-900 px-3 py-1 text-amber-200 font-bold border border-amber-700 rounded text-sm shadow-md whitespace-nowrap min-w-[3.25rem] text-center" title="與潘朵拉對話，開啟黑市">黑市</button>
+        <button onclick="socialLobby.isOpen() ? socialLobby.close() : socialLobby.open()" id="btn-social-lobby" aria-controls="social-lobby" aria-pressed="false" class="bg-amber-950 hover:bg-amber-900 px-3 py-1 text-amber-200 font-bold border border-amber-700 rounded text-sm shadow-md whitespace-nowrap min-w-[3.25rem] text-center" title="冒險者大廳・肝膽相照">冒險者大廳</button>
         <button onclick="playerTeleport()" id="btn-teleport" class="hidden bg-fuchsia-800 hover:bg-fuchsia-700 px-3 py-1 text-white font-bold border border-fuchsia-500 rounded text-sm shadow-md whitespace-nowrap min-w-[3.25rem] text-center" title="傳送術／瞬間移動卷軸（於對應地圖可進入隱藏狩獵區域）">瞬移</button>
         <button onclick="returnToTown()" id="btn-return-town" class="bg-emerald-800 hover:bg-emerald-700 px-3 py-1 text-white font-bold border border-emerald-500 rounded text-sm shadow-md whitespace-nowrap min-w-[3.25rem] text-center">回村</button>
         <select id="map-category" class="bg-slate-800 border border-slate-600 text-white px-3 py-1.5 text-base rounded outline-none" onchange="onMapCategoryChange()">
@@ -623,13 +624,13 @@
     </script>
 
     <script src="js/anim-manifest.js?v=14d284fa9f"></script>
-    <script src="js/00-data.js?v=567272861d"></script>
+    <script src="js/00-data.js?v=28a4065c7b"></script>
     <script src="js/game-layout.js?v=0c5d56ca90"></script>
 <script src="js/01-drops-config.js?v=4bdb1eafef"></script>
 <script src="js/02-stats-recompute.js?v=b4d0f38161"></script>
     <script src="js/03-combat-core.js?v=e440a5ba87"></script>
     <script src="js/04-combat-attack.js?v=6ae493f45f"></script>
-<script src="js/05-kill-progression.js?v=c81f095951"></script>
+<script src="js/05-kill-progression.js?v=afb1cd8cac"></script>
     <script src="js/06-status-allies.js?v=9b594166f3"></script>
     <script src="js/07-skills-cast.js?v=2ff536efb6"></script>
 <script src="js/08-items-equip.js?v=137b1b3028"></script>
@@ -639,7 +640,7 @@
     <script src="js/party-portrait-bounds.js?v=57f5054baa"></script>
     <script src="js/party-roster.js?v=0a51636f3f"></script>
     <script src="js/10-ui-tabs.js?v=e2ee2b2e45"></script>
-<script src="js/11-world-map.js?v=86f6c23846"></script>
+<script src="js/11-world-map.js?v=bd8b319b1d"></script>
 <script src="js/12-npc-quests.js?v=ae5e168b32"></script>
 <script src="js/13-shop-save.js?v=e51000822e"></script>
 <script src="js/14-craft-pandora.js?v=9d00a98a6f"></script>
@@ -657,7 +658,7 @@
     <script src="js/24-pandora-relic-market.js?v=f4dc248558"></script>
     <script src="js/25-clan-system.js?v=0edd878cc5"></script>
     <script src="js/26-world-channel.js?v=6f37c8a1cb"></script>
-<script src="js/27-offline-rewards.js?v=6809d56bbd"></script>
+<script src="js/27-offline-rewards.js?v=2b4003f172"></script>
 <script src="js/28-pvp-arena.js?v=5254f7adfb"></script>
 <script src="js/29-siege-v2-data.js?v=379d78bb1e"></script>
 <script src="js/30-siege-v2.js?v=09b50f9871"></script>
@@ -732,6 +733,6 @@
     <script src="js/gear-accelerator.js?v=5d4cccf5d3"></script>
     <script src="js/addon-settings.js?v=60043ce12f"></script>
     <script src="js/online-presence.js?v=9bb1b15138"></script>
-    <script src="js/social-lobby.js?v=c222727ed2"></script>
+    <script src="js/social-lobby.js?v=6d70c4b0d8"></script>
 </body>
 </html>

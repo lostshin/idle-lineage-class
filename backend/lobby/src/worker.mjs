@@ -45,9 +45,10 @@ function validateCard(input) {
 }
 
 function validateActor(input) {
-    if (!input || typeof input !== 'object' || Array.isArray(input) || Object.keys(input).some(key => !['name','cls','avatar'].includes(key))) fail(400, '在線角色格式不正確。');
+    if (!input || typeof input !== 'object' || Array.isArray(input) || Object.keys(input).some(key => !['name','cls','avatar','pose'].includes(key))) fail(400, '在線角色格式不正確。');
     if (!CLASSES.has(input.cls) || !CLASS_AVATARS[input.cls].includes(input.avatar)) fail(400, '在線角色職業與外觀不符。');
-    return { name: text(input.name, 12, true), cls: input.cls, avatar: input.avatar };
+    if (input.pose !== undefined && !['standing','seated','kneeling'].includes(input.pose)) fail(400, '角色姿勢不正確。');
+    return { name: text(input.name, 12, true), cls: input.cls, avatar: input.avatar, pose: input.pose ?? 'standing' };
 }
 
 async function body(request) {

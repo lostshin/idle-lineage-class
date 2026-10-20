@@ -17,17 +17,17 @@
 .lobby-campfire-strip, .lobby-campfire-base img { position: absolute; left: 0; top: 0; width: 300%; height: 200%; max-width: none; }
 .lobby-campfire-strip { animation: lobby-campfire 1.2s steps(1) infinite; }
 #lobby-seats { position: absolute; inset: 0; pointer-events: none; }
-#social-lobby .lobby-seat { position: absolute; display: flex; flex-direction: column; align-items: center; padding: 0; width: 14%; max-width: 72px; transform: translate(-50%, -70%); background: transparent; border: 0; pointer-events: auto; isolation: isolate; }
+#social-lobby .lobby-seat { position: absolute; display: flex; flex-direction: column; align-items: center; padding: 0; width: 10%; max-width: 72px; transform: translate(-50%, -70%); background: transparent; border: 0; pointer-events: auto; isolation: isolate; }
 .lobby-camper-sprite { position: relative; display: block; width: 100%; aspect-ratio: 1; overflow: hidden; filter: drop-shadow(0 3px 2px #0009); pointer-events: none; }
-.lobby-camper-sprite img { position: absolute; width: 400%; height: 800%; max-width: none; pointer-events: none; }
+.lobby-camper-sprite img { position: absolute; max-width: none; pointer-events: none; image-rendering: pixelated; }
 .lobby-seat-name { display: block; max-width: 100%; padding: 2px 4px; color: #e9dfc0; background: #11170fb3; border-radius: 2px; overflow: hidden; text-overflow: ellipsis; font-size: clamp(9px, 1.6cqw, 12px); white-space: nowrap; text-shadow: 0 1px 2px #000; }
 [data-self="true"] .lobby-seat-name { color: #f5d993; }
 #social-lobby .lobby-seat:hover { background: transparent; }
 .lobby-greeting { position: absolute; bottom: 98%; left: 50%; transform: translateX(-50%); background: #e2d4af; color: #302718; border: 1px solid #89734b; padding: 4px 8px; white-space: nowrap; font-size: 12px; opacity: 0; pointer-events: none; }
 .is-greeting .lobby-greeting { opacity: 1; }
-.is-greeting .lobby-camper-sprite img { animation: lobby-wave 1s steps(1) 3; }
+.is-greeting .lobby-camper-sprite { animation: lobby-greet .6s ease-in-out 5 alternate; }
 .lobby-camp-controls { position: absolute; inset: auto 8px 8px; display: flex; align-items: end; justify-content: space-between; gap: 8px; z-index: 96; pointer-events: none; }
-.lobby-camp-controls > div { display: flex; gap: 4px; margin-left: auto; white-space: nowrap; pointer-events: auto; }
+.lobby-camp-controls > div { display: flex; flex-wrap: wrap; justify-content: flex-end; max-width: 100%; gap: 4px; margin-left: auto; white-space: nowrap; pointer-events: auto; }
 #social-lobby .lobby-camp-controls button { background: #211c14e6; font-size: 12px; }
 #lobby-status { min-width: 0; margin: 0; padding: 4px 6px; background: #141810d9; font-size: 11px; line-height: 1.4; overflow-wrap: anywhere; }
 #lobby-popup { position: absolute; inset: 50% auto auto 50%; transform: translate(-50%, -50%); margin: 0; width: min(400px, calc(100% - 16px)); max-width: none; max-height: calc(100% - 16px); padding: 10px; border: 1px solid #9b8558; background: #141812; color: #ded0ad; box-shadow: 0 4px 18px #000c; overflow: hidden; z-index: 110; font-family: inherit; font-size: 12px; line-height: 1.4; }
@@ -76,11 +76,10 @@
     83.333% { transform: translate(-66.666667%, -50%); }
 }
 @keyframes lobby-fire-glow { from { opacity: .65; } to { opacity: 1; } }
-@keyframes lobby-wave { 0%, 100% { transform: translateX(0); } 25%, 75% { transform: translateX(-25%); } 50% { transform: translateX(0); } }
+@keyframes lobby-greet { from { transform: rotate(-3deg); } to { transform: rotate(3deg); } }
 .lobby-motion-paused .lobby-campfire-strip, .lobby-motion-paused .lobby-fire-glow, .lobby-motion-paused .lobby-camper-sprite img { animation-play-state: paused; }
 @media (prefers-reduced-motion: reduce) {
     .lobby-campfire-strip, .lobby-fire-glow, .is-greeting .lobby-camper-sprite img { animation: none; }
-    .is-greeting .lobby-camper-sprite img { transform: translateX(-25%); }
 }
 @container (max-width: 440px) {
     #lobby-seats .lobby-seat:nth-child(n+6) { display: none; }
@@ -124,3 +123,6 @@
 @keyframes lobby-nod { 0%,100% { transform: rotate(0); } 50% { transform: rotate(5deg) scaleY(.96); } }
 @keyframes lobby-cheer { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
 @media (prefers-reduced-motion: reduce) { .lobby-camper-sprite, .lobby-seat[data-action] .lobby-camper-sprite { animation: none; } }
+
+#lobby-room-title { position: absolute; top: 8px; left: 10px; color: #d8c58c; font-size: clamp(11px,2cqw,16px); text-shadow: 0 1px 3px #000; z-index: 96; pointer-events: none; }
+#lobby-hunt-status { position: absolute; bottom: 50px; left: 8px; right: 8px; margin: 0; font-size: clamp(9px,1.6cqw,12px); color: #ead5a1; text-shadow: 0 1px 3px #000; pointer-events: none; z-index: 96; }

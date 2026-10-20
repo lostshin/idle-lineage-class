@@ -319,6 +319,7 @@
             awaySince: Math.max(0, Math.floor(_offlineFinite(raw.awaySince, 0))),
             map: raw.map ? String(raw.map) : '',
             mapName: raw.mapName ? String(raw.mapName) : '',
+            lobbyExpMap: typeof raw.lobbyExpMap === 'string' ? raw.lobbyExpMap : '',
             profile: profile,
             profiles: profiles
         };
@@ -480,13 +481,10 @@
     }
 
     function _offlineExpectedPartyExp(mob) {
-        let base = Math.max(0, Number(mob && mob.exp) || 0);
-        let bonus = typeof partyExpBonusPct === 'function' ? Number(partyExpBonusPct()) || 0 : 0;
-        let ally = Math.floor(base * (1 + bonus / 100));
-        let doll = typeof dollFieldVal === 'function' ? Number(dollFieldVal('expBonus')) || 0 : 0;
+        const base = monsterExperience(mob, 1);
         return {
-            pet: Math.max(0, Math.floor(ally * (1 + doll / 100))),
-            ally: Math.max(0, ally)
+            pet: Math.max(0, base.pet),
+            ally: Math.max(0, Math.floor(base.each))
         };
     }
 
@@ -620,6 +618,7 @@
         st.awaySince = snapshotNow;
         st.map = eligible ? String(mapState.current) : '';
         st.mapName = eligible ? _offlineMapName(mapState.current) : '';
+        st.lobbyExpMap = eligible && adventureLobbyExpMult() > 1 ? st.map : '';
         let checkpoint = {
             v: OFFLINE_VERSION,
             lastActive: snapshotNow,
@@ -1533,6 +1532,12 @@
             { items: {}, cards: {}, itemCount: 0, cardCount: 0 };
         let safeRoom = Number.MAX_SAFE_INTEGER - Math.max(0, Number(player.gold) || 0);
         gold = Math.min(gold, Math.max(0, safeRoom));
+        // Samples exclude the lobby bonus; apply it once to this interval, including bosses.
+        if (source.lobbyExpMap && source.lobbyExpMap === source.map) {
+            exp = Math.min(Number.MAX_SAFE_INTEGER, Math.floor(exp * 1.05));
+            petExp = Math.min(Number.MAX_SAFE_INTEGER, Math.floor(petExp * 1.05));
+            allyExp = Math.min(Number.MAX_SAFE_INTEGER, Math.floor(allyExp * 1.05));
+        }
         if ((player.lv || 1) < 100 && exp > 0) {
             player.exp = Math.max(0, Number(player.exp) || 0) + exp;
             if (typeof checkLvUp === 'function') checkLvUp();
@@ -1675,6 +1680,7 @@
                     awaySince: Math.max(0, Math.floor(_offlineFinite(cpSnapshot.awaySince, cpActive))),
                     map: cpSnapshot.map ? String(cpSnapshot.map) : '',
                     mapName: cpSnapshot.mapName ? String(cpSnapshot.mapName) : '',
+                    lobbyExpMap: typeof cpSnapshot.lobbyExpMap === 'string' ? cpSnapshot.lobbyExpMap : '',
                     profile: _offlineProfile(cpSnapshot.profile)
                 };
             }
@@ -1803,6 +1809,8 @@
             let beforeGold = tracked ? Math.max(0, Number(player.gold) || 0) : 0;
             let beforeProgress = tracked ? _offlineExpProgress(player.lv, player.exp) : 0;
             let partyExp = tracked ? _offlineExpectedPartyExp(mob) : { pet: 0, ally: 0 };
+            const sampleBase = tracked ? monsterExperience(mob, 1) : null;
+            const sampleActual = tracked ? monsterExperience(mob) : null;
             let bossPetBefore = null;
             let bossAllyBefore = null;
             if (validBoss) {
@@ -1822,6 +1830,7 @@
                 let afterProgress = _offlineExpProgress(player.lv, player.exp);
                 let now = _offlineNow();
                 let expGain = afterProgress - beforeProgress;
+                if (sampleActual.player > sampleBase.player) expGain = Math.floor(expGain * sampleBase.player / sampleActual.player);
                 let goldGain = Math.max(0, (Number(player.gold) || 0) - beforeGold);
                 if (validBoss) {
                     let petGain = partyExp.pet;
@@ -1829,11 +1838,13 @@
                     try {
                         if (bossPetBefore != null && typeof _ffPetProgressSum === 'function') {
                             petGain = Math.max(0, _ffPetProgressSum() - bossPetBefore);
+                            if (sampleActual.pet > sampleBase.pet) petGain = Math.floor(petGain * sampleBase.pet / sampleActual.pet);
                         }
                         if (bossAllyBefore != null && typeof _ffAllyProgress === 'function' && Array.isArray(player.allies)) {
                             let allyAfter = player.allies.reduce((sum, ally) =>
                                 sum + (ally ? _ffAllyProgress(ally) : 0), 0);
                             allyGain = Math.max(0, allyAfter - bossAllyBefore);
+                            if (sampleActual.each > sampleBase.each) allyGain = Math.floor(allyGain * Math.floor(sampleBase.each) / Math.floor(sampleActual.each));
                         }
                     } catch (e) {}
                     try {

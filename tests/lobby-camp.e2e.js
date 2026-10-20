@@ -10,7 +10,7 @@ async function backend(path,method='GET',body,token){
 if(options.lobbyApi){
     for(const [index,avatar]of ['女騎士','男妖精','女妖精','男法師','女法師','男黑暗妖精','女龍騎士','男戰士'].entries()){
         const visitor=await backend('/auth/guest','POST',{deviceKey:crypto.randomBytes(32).toString('hex')});peers.push(visitor);
-        await backend('/presence','POST',{actor:{name:'合成旅人'+(index+1),cls:['knight','elf','elf','mage','mage','dark','dragon','warrior'][index],avatar},page:'/idle-lineage-class/'},visitor.token);
+        await backend('/presence','POST',{actor:{name:'合成旅人'+(index+1),cls:['knight','elf','elf','mage','mage','dark','dragon','warrior'][index],avatar,pose:['standing','seated','kneeling'][index%3]},page:'/idle-lineage-class/'},visitor.token);
     }
 }
 console.log({ spaceId: task.spaceId });
@@ -24,13 +24,13 @@ async function check(name, fn) {
     await fs.writeFile(options.artifacts + '/lobby-camp-' + (options.baseline ? 'baseline-' : '') + options.protocol + '.json',JSON.stringify({method:options.lobbyApi?'Actual Ego browser with isolated local workerd and D1':'Actual Ego browser, isolated synthetic storage; local page connects to public HTTPS API as a synthetic visitor, no automatic card publishing',sources,reports},null,2));
 }
 const init = (await page.cdp('Page.addScriptToEvaluateOnNewDocument',{source:`(()=>{
- const data={};window.__campErrors=[];window.__campWrites=[];
+ const data={};window.__campErrors=[];window.__campWrites=[];window.__campPresencePose='';
  const storage={getItem:k=>data[k]??null,setItem:(k,v)=>data[k]=String(v),removeItem:k=>delete data[k],key:i=>Object.keys(data)[i]??null,get length(){return Object.keys(data).length}};
  for(const key of ['localStorage','sessionStorage'])Object.defineProperty(window,key,{value:storage,configurable:true});
  window.BroadcastChannel=undefined;addEventListener('error',event=>__campErrors.push(event.message));
  const nativeFetch=window.fetch;window.fetch=async(input,options={})=>{
   if(String(input).includes('.workers.dev')){if(options.method&&options.method!=='GET')__campWrites.push({path:new URL(input).pathname,body:options.body});}
-  return nativeFetch(input,options);
+  const response=await nativeFetch(input,options);if(String(input).endsWith('/v1/presence')&&response.ok)__campPresencePose=JSON.parse(options.body).actor?.pose;return response;
  };
 })();`})).identifier;
 await page.cdp('Emulation.setDeviceMetricsOverride',{width:1330,height:900,deviceScaleFactor:1,mobile:false});
@@ -40,7 +40,7 @@ await page.evaluate(api=>{
  if(api)document.getElementById('social-lobby-api').content=api;
  _bgHeartbeatWorker?.terminate();_bgHeartbeatWorker=null;selectClass('m_knight');document.getElementById('creation-name').value='合成營地騎士';startGame();stopGameTimers();state.running=false;setUiScale(80);setMapSelectors('training');changeMap(true);window.__campPlayer=player;
 },options.lobbyApi || null);
-await page.selectOption('#map-category','social_lobby');
+await page.click('#btn-social-lobby');
 await page.waitForFunction(()=>document.getElementById('social-lobby')?.getAttribute('aria-busy')!=='true');
 await check('local '+options.protocol+' connects to the public lobby without third-party login',()=>page.evaluate(()=>document.getElementById('lobby-auth-state').textContent.includes('連線中')||document.getElementById('lobby-status').textContent));
 await check('unpublished local self is seated exactly once, using the current representative avatar',()=>page.evaluate(()=>{const seats=document.querySelectorAll('#lobby-seats [data-self="true"]');return seats.length===1&&seats[0].textContent.includes('合成營地騎士')&&seats[0].querySelector('[data-avatar="男騎士"]')!==null;}));
@@ -59,14 +59,17 @@ await check('campfire sprite exposes six distinct frames on its looping CSS time
 await check('greeting control and seated sprite are available',()=>page.evaluate(()=>!!document.getElementById('lobby-greet')&&!!document.querySelector('[data-self="true"] .lobby-camper-sprite')));
 if(!options.baseline){
  await page.click('#lobby-greet');
- await check('greeting swaps to the raised-hand pose and shows readable feedback',()=>page.evaluate(()=>!!document.querySelector('[data-self="true"].is-greeting')&&document.querySelector('[data-self="true"] .lobby-greeting').textContent.includes('嗨')));
+ await check('greeting animates the original character and shows readable feedback',()=>page.evaluate(()=>!!document.querySelector('[data-self="true"].is-greeting')&&document.querySelector('[data-self="true"] .lobby-greeting').textContent.includes('嗨')));
  await page.cdp('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-motion',value:'reduce'}]});
  await check('reduced motion keeps a still flame with greeting feedback',()=>page.evaluate(()=>getComputedStyle(document.querySelector('.lobby-campfire-strip')).animationName==='none'));
  await page.cdp('Emulation.setEmulatedMedia',{features:[]});
- await page.click('[data-self="true"]');await page.click('#lobby-edit');await page.fill('#lobby-intro','合成營火測試');await page.click('#lobby-preview');await page.click('#lobby-publish');
+ await page.click('[data-self="true"]');await page.selectOption('#lobby-pose','seated');
+ await page.waitForFunction(()=>__campPresencePose==='seated');
+ if(options.lobbyApi)await check('another visitor reads the selected pose from the real Worker and D1',async()=>{const rows=await backend('/players','GET',undefined,peers[0].token);return rows.players.some(row=>row.actor.name==='合成營地騎士'&&row.actor.pose==='seated');});
+ await page.click('#lobby-edit');await page.fill('#lobby-intro','合成營火測試');await page.click('#lobby-preview');await page.click('#lobby-publish');
  await page.waitForFunction(()=>document.getElementById('social-lobby').getAttribute('aria-busy')!=='true');
  await check('published self remains present once among the camp guests',()=>page.evaluate(()=>document.querySelectorAll('#lobby-seats [data-self="true"]').length===1));
- await check('own published avatar retains its sitting pose',()=>page.evaluate(()=>!!document.querySelector('[data-self="true"] [data-avatar="男騎士"]')));
+ await check('own published avatar retains its current original identity',()=>page.evaluate(()=>!!document.querySelector('[data-self="true"] [data-avatar="男騎士"]')));
  if(options.lobbyApi){
   await backend('/greeting','POST',{},peers[0].token);await page.click('#lobby-roster');await page.click('#lobby-refresh');await page.click('#lobby-roster-close');
   await check('a remote greeting is shown on the matching seated avatar',()=>page.evaluate(id=>!!document.querySelector('[data-camp-id="'+id+'"].is-greeting'),peers[0].user.id));

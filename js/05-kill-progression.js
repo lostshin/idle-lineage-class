@@ -85,7 +85,7 @@ function auditTrackKill(mob) {
     // 📊 v3.6.58 刻意**不乘** getExpGainMult(player.lv)：該倍率在 Lv100 為 0（滿等不入帳），統計頁會整片歸零、
     //    連「這張圖效率如何」都看不出來。此處改記「同條件下應得的經驗」＝練功效率指標（Lv<100 時倍率恆 1，數字與實得完全相同）。
     //    ⚠️ 實際入帳仍在 killMob :320（照樣乘 getExpGainMult）——統計是參考值，不是經驗來源，勿把這裡當入帳口徑。
-    let g = Math.floor((mob.exp || 0) * (1 + partyExpBonusPct() / 100) * (1 + (typeof dollFieldVal === 'function' ? dollFieldVal('expBonus') : 0) / 100));   // 🤝 v3.7.62 組隊不再拆分經驗；統計記主玩家完整應得值
+    let g = monsterExperience(mob).pet;   // Keep audit and awarded experience on the same formula, including the lobby bonus.
     if (g > 0) _audit.exp += g;
     _audit.kills++;
 }
@@ -290,6 +290,14 @@ function partyQuestDropSubject(result) {
     if (result && result.main) return names.length ? `你與隊員 ${names.join('、')}` : '你';
     return names.length ? `隊長（隊員 ${names.join('、')}）` : '你';
 }
+function adventureLobbyExpMult() {
+    return typeof socialLobby !== 'undefined' ? socialLobby.expMultiplier() : 1;
+}
+function monsterExperience(mob, lobbyMult = adventureLobbyExpMult()) {
+    const each = (mob.exp || 0) * (1 + partyExpBonusPct() / 100) * lobbyMult;
+    const pet = Math.floor(each * (1 + (typeof dollFieldVal === 'function' ? dollFieldVal('expBonus') : 0) / 100));
+    return { each, pet, player: Math.floor(pet * getExpGainMult(player.lv)) };
+}
 // 🤝 組隊經驗加成保留：每名未倒地隊友使每位存活成員取得的完整怪物經驗再增加（王族隊長 8%／非王族 4%）。
 function partyExpBonusPct() {
     let _mates = (player.allies || []).filter(a => a && !a._downed).length;
@@ -384,9 +392,10 @@ function killMob(idx) {
     let _hideKillMsg = (mob.race === '建築' && mob.noAutoTeleport);
     if(!_hideKillMsg) logCombat(`擊敗了 <span class="${getMobColor(mob.lv)}">${mob.n}</span>！`, 'player-heavy');  // 👈 新增
     // 🤝 v3.7.62 組隊經驗不再拆分：主玩家、每名未倒地傭兵、每隻未倒地寵物各取得完整經驗；既有組隊加成保留。
-    let _expEach = mob.exp * (1 + partyExpBonusPct() / 100);
-    let _petExpGain = Math.floor(_expEach * (1 + dollFieldVal('expBonus') / 100));   // 🐾 每隻存活寵物各得完整玩家份額；玩家滿等不影響養寵
-    let _playerExpGain = Math.floor(_petExpGain * getExpGainMult(player.lv));   // ⚠️v3.0.82 經典×0.5 已移除；Lv100 玩家自身仍不獲得經驗
+    const _experience = monsterExperience(mob);
+    let _expEach = _experience.each;
+    let _petExpGain = _experience.pet;   // Each surviving pet receives a full share, even when the player is capped.
+    let _playerExpGain = _experience.player;
     player.exp += _playerExpGain;
     checkLvUp();
     // 🐾 寵物經驗：每隻未倒地出戰寵物各得完整份額；不受玩家 Lv100 經驗封頂影響（升級需求＝玩家表 1/10）

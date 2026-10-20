@@ -24,10 +24,10 @@ await page.cdp('Network.setCacheDisabled',{cacheDisabled:true});await page.cdp('
 await page.evaluate(()=>{_bgHeartbeatWorker?.terminate();_bgHeartbeatWorker=null;_getLzWorker=()=>null;selectClass('f_royal');document.getElementById('creation-name').value='合成近期旅人';startGame();stopGameTimers();state.running=false;setUiScale(80);});
 await page.evaluate(()=>new Promise(r=>setTimeout(r,100)));
 await check('default local/file game does not contact production social API',()=>page.evaluate(()=>!__recent.requests.length));
-await page.selectOption('#map-category','social_lobby');await check('local lobby gives official link without joining',()=>page.evaluate(()=>!__recent.requests.length&&!!document.querySelector('#social-lobby a[href="https://lostshin.github.io/idle-lineage-class/"]')));
+await page.click('#btn-social-lobby');await check('local lobby gives official link without joining',()=>page.evaluate(()=>!__recent.requests.length&&!!document.querySelector('#social-lobby a[href="https://lostshin.github.io/idle-lineage-class/"]')));
 await page.click('#lobby-exit');
 await page.evaluate(()=>{__recent.requests=[];document.getElementById('social-lobby-api').content='http://127.0.0.1:9998';});
-await page.selectOption('#map-category','social_lobby');await page.waitForFunction(()=>document.getElementById('social-lobby').getAttribute('aria-busy')!=='true');
+await page.click('#btn-social-lobby');await page.waitForFunction(()=>document.getElementById('social-lobby').getAttribute('aria-busy')!=='true');
 const seat=n=>'[data-camp-id="00000000-0000-4000-8000-'+String(n).padStart(12,'0')+'"]';
 await check('recent API is selected and server total is independent of seats/pagination',()=>page.evaluate(()=>__recent.requests.some(r=>r.path==='/v1/players'&&new URLSearchParams(r.search).get('view')==='recent')&&document.getElementById('world-online-count').textContent==='（近 30 分鐘活躍 18 人）'));
 await check('offline visitor remains visible with correct avatar despite fast wall clock',()=>page.evaluate(s=>{const e=document.querySelector(s);return !!e&&e.dataset.online==='false'&&e.querySelector('.lobby-camper-sprite').dataset.avatar==='女法師';},seat(2)));

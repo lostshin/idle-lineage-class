@@ -1,0 +1,593 @@
+{
+  "tool": "built-in image_gen",
+  "reference": "original-16-reference.png",
+  "pilot": "knights-pilot.png",
+  "assets": [
+    {
+      "avatar": "王子",
+      "pose": "seated",
+      "cell": [
+        0,
+        0,
+        313,
+        313
+      ],
+      "alphaBounds": [
+        0,
+        18,
+        313,
+        313
+      ],
+      "path": "assets/ui/lobby-poses-v2/王子-seated.webp",
+      "sha256": "67b1c96c9a90d093b7c0974684c59a94955a5057298b9d96584cb5d2ed947faf"
+    },
+    {
+      "avatar": "公主",
+      "pose": "seated",
+      "cell": [
+        313,
+        0,
+        626,
+        313
+      ],
+      "alphaBounds": [
+        0,
+        3,
+        313,
+        313
+      ],
+      "path": "assets/ui/lobby-poses-v2/公主-seated.webp",
+      "sha256": "c1ce70c981be01562d4746ec605ccdd5c9f7bf527e662ede6127b069767faf3f"
+    },
+    {
+      "avatar": "男騎士",
+      "pose": "seated",
+      "cell": [
+        626,
+        0,
+        939,
+        313
+      ],
+      "alphaBounds": [
+        0,
+        31,
+        313,
+        313
+      ],
+      "path": "assets/ui/lobby-poses-v2/男騎士-seated.webp",
+      "sha256": "a103e7a1348b400fa8a1be939f9e31552acacf132f4dfed2570fe9ebb576998e"
+    },
+    {
+      "avatar": "女騎士",
+      "pose": "seated",
+      "cell": [
+        939,
+        0,
+        1252,
+        313
+      ],
+      "alphaBounds": [
+        0,
+        20,
+        305,
+        313
+      ],
+      "path": "assets/ui/lobby-poses-v2/女騎士-seated.webp",
+      "sha256": "fbe4ae0ecfe2a04dbab504d6935ee47c4fb3e3f6395253a1317e726667e45fdc"
+    },
+    {
+      "avatar": "男妖精",
+      "pose": "seated",
+      "cell": [
+        0,
+        313,
+        313,
+        626
+      ],
+      "alphaBounds": [
+        18,
+        0,
+        313,
+        313
+      ],
+      "path": "assets/ui/lobby-poses-v2/男妖精-seated.webp",
+      "sha256": "201e5724cda3dd3eaa1d5844992554aff91f0a9d221c8d1ad9c01cdd8d7455bd"
+    },
+    {
+      "avatar": "女妖精",
+      "pose": "seated",
+      "cell": [
+        313,
+        313,
+        626,
+        626
+      ],
+      "alphaBounds": [
+        0,
+        0,
+        313,
+        313
+      ],
+      "path": "assets/ui/lobby-poses-v2/女妖精-seated.webp",
+      "sha256": "fa878c38adb6b2a129f9d5b6de20afcbf21cc33f111e4f4a088bd2bf4ceb91d3"
+    },
+    {
+      "avatar": "男法師",
+      "pose": "seated",
+      "cell": [
+        626,
+        313,
+        939,
+        626
+      ],
+      "alphaBounds": [
+        0,
+        0,
+        313,
+        313
+      ],
+      "path": "assets/ui/lobby-poses-v2/男法師-seated.webp",
+      "sha256": "78b30c7e6bfecc46d2faeee40fa8e33d60cdb7159dbec9b80869b11673623edf"
+    },
+    {
+      "avatar": "女法師",
+      "pose": "seated",
+      "cell": [
+        939,
+        313,
+        1252,
+        626
+      ],
+      "alphaBounds": [
+        0,
+        0,
+        303,
+        313
+      ],
+      "path": "assets/ui/lobby-poses-v2/女法師-seated.webp",
+      "sha256": "bdeafe0f68c1903cad3621ed89c0dcc34316729a50d662384771f6bb38719db7"
+    },
+    {
+      "avatar": "男黑暗妖精",
+      "pose": "seated",
+      "cell": [
+        0,
+        626,
+        313,
+        939
+      ],
+      "alphaBounds": [
+        0,
+        0,
+        313,
+        313
+      ],
+      "path": "assets/ui/lobby-poses-v2/男黑暗妖精-seated.webp",
+      "sha256": "c129c182eca2f6e11a3e4a3862d6673d8685b1f0dd73663126431acc81478496"
+    },
+    {
+      "avatar": "女黑暗妖精",
+      "pose": "seated",
+      "cell": [
+        313,
+        626,
+        626,
+        939
+      ],
+      "alphaBounds": [
+        1,
+        0,
+        312,
+        313
+      ],
+      "path": "assets/ui/lobby-poses-v2/女黑暗妖精-seated.webp",
+      "sha256": "a24f4d6cffc7c8056abca6e7c8e1f92f461d0115a7c6ef6e53886832da5780bf"
+    },
+    {
+      "avatar": "男龍騎士",
+      "pose": "seated",
+      "cell": [
+        626,
+        626,
+        939,
+        939
+      ],
+      "alphaBounds": [
+        0,
+        0,
+        313,
+        313
+      ],
+      "path": "assets/ui/lobby-poses-v2/男龍騎士-seated.webp",
+      "sha256": "81fcb8694fcbb413806fd5c1170410c5122c6b99c950050b659e8ea9f98293f3"
+    },
+    {
+      "avatar": "女龍騎士",
+      "pose": "seated",
+      "cell": [
+        939,
+        626,
+        1252,
+        939
+      ],
+      "alphaBounds": [
+        0,
+        0,
+        312,
+        313
+      ],
+      "path": "assets/ui/lobby-poses-v2/女龍騎士-seated.webp",
+      "sha256": "5baeb0ee29bc0c79506996b0550af6d9e4957cae163a73f40eed4edba140590b"
+    },
+    {
+      "avatar": "男幻術士",
+      "pose": "seated",
+      "cell": [
+        0,
+        939,
+        313,
+        1252
+      ],
+      "alphaBounds": [
+        0,
+        0,
+        313,
+        295
+      ],
+      "path": "assets/ui/lobby-poses-v2/男幻術士-seated.webp",
+      "sha256": "98b3270915dd0f12a4d8ef05cae242501d9ffbc8f7931e7b84550cae6cf75861"
+    },
+    {
+      "avatar": "女幻術士",
+      "pose": "seated",
+      "cell": [
+        313,
+        939,
+        626,
+        1252
+      ],
+      "alphaBounds": [
+        0,
+        0,
+        312,
+        303
+      ],
+      "path": "assets/ui/lobby-poses-v2/女幻術士-seated.webp",
+      "sha256": "74de374549f20560c4409a6c5937ed5929f673f205024049b7e1281ad8dc0a92"
+    },
+    {
+      "avatar": "男戰士",
+      "pose": "seated",
+      "cell": [
+        626,
+        939,
+        939,
+        1252
+      ],
+      "alphaBounds": [
+        0,
+        0,
+        313,
+        291
+      ],
+      "path": "assets/ui/lobby-poses-v2/男戰士-seated.webp",
+      "sha256": "8cea5765e751ba6bed09cee5521cc87264b46666623eb4e96a539c62814439c6"
+    },
+    {
+      "avatar": "女戰士",
+      "pose": "seated",
+      "cell": [
+        939,
+        939,
+        1252,
+        1252
+      ],
+      "alphaBounds": [
+        0,
+        0,
+        301,
+        307
+      ],
+      "path": "assets/ui/lobby-poses-v2/女戰士-seated.webp",
+      "sha256": "64cd42762eb21798abdc33cab69aee1f243f04a3557af11cb842db22a863976a"
+    },
+    {
+      "avatar": "王子",
+      "pose": "kneeling",
+      "cell": [
+        0,
+        0,
+        313,
+        313
+      ],
+      "alphaBounds": [
+        27,
+        33,
+        306,
+        313
+      ],
+      "path": "assets/ui/lobby-poses-v2/王子-kneeling.webp",
+      "sha256": "56ea7422cf0f54669e51063a578297a05f032ebe7fec327e725cae4041596acf"
+    },
+    {
+      "avatar": "公主",
+      "pose": "kneeling",
+      "cell": [
+        313,
+        0,
+        626,
+        313
+      ],
+      "alphaBounds": [
+        5,
+        29,
+        312,
+        313
+      ],
+      "path": "assets/ui/lobby-poses-v2/公主-kneeling.webp",
+      "sha256": "f3974c4cc411ccc767685e90f703af471114abd48776a6e648cdc9a328d25252"
+    },
+    {
+      "avatar": "男騎士",
+      "pose": "kneeling",
+      "cell": [
+        626,
+        0,
+        939,
+        313
+      ],
+      "alphaBounds": [
+        0,
+        39,
+        313,
+        313
+      ],
+      "path": "assets/ui/lobby-poses-v2/男騎士-kneeling.webp",
+      "sha256": "b9a93ead31f3bb95b84187c2d3e49c741c075d38c1b4869c8ffb15f9846acb42"
+    },
+    {
+      "avatar": "女騎士",
+      "pose": "kneeling",
+      "cell": [
+        939,
+        0,
+        1252,
+        313
+      ],
+      "alphaBounds": [
+        0,
+        26,
+        301,
+        313
+      ],
+      "path": "assets/ui/lobby-poses-v2/女騎士-kneeling.webp",
+      "sha256": "1da69fcff7f1f79c61f99acad62144d0cdf9c2bed6fd0f693a24bcc78e1fe7ac"
+    },
+    {
+      "avatar": "男妖精",
+      "pose": "kneeling",
+      "cell": [
+        0,
+        313,
+        313,
+        626
+      ],
+      "alphaBounds": [
+        29,
+        0,
+        312,
+        313
+      ],
+      "path": "assets/ui/lobby-poses-v2/男妖精-kneeling.webp",
+      "sha256": "e031aec32e7d0f186784470461298166fce679aa8f9110201a0b1333559ced13"
+    },
+    {
+      "avatar": "女妖精",
+      "pose": "kneeling",
+      "cell": [
+        313,
+        313,
+        626,
+        626
+      ],
+      "alphaBounds": [
+        9,
+        0,
+        313,
+        313
+      ],
+      "path": "assets/ui/lobby-poses-v2/女妖精-kneeling.webp",
+      "sha256": "9cdda5011954761f86eeab95ca22fa8b8e0e640ff586a671e167a1070a560bd5"
+    },
+    {
+      "avatar": "男法師",
+      "pose": "kneeling",
+      "cell": [
+        626,
+        313,
+        939,
+        626
+      ],
+      "alphaBounds": [
+        0,
+        0,
+        313,
+        313
+      ],
+      "path": "assets/ui/lobby-poses-v2/男法師-kneeling.webp",
+      "sha256": "af08c2fe4e34c92f223513bddb0ed07903a01773694f520cf5b4ca25f284315c"
+    },
+    {
+      "avatar": "女法師",
+      "pose": "kneeling",
+      "cell": [
+        939,
+        313,
+        1252,
+        626
+      ],
+      "alphaBounds": [
+        0,
+        0,
+        299,
+        313
+      ],
+      "path": "assets/ui/lobby-poses-v2/女法師-kneeling.webp",
+      "sha256": "da5938f413737615d6a7094aad8c751e41ce67856d78c026ac66840d5c280684"
+    },
+    {
+      "avatar": "男黑暗妖精",
+      "pose": "kneeling",
+      "cell": [
+        0,
+        626,
+        313,
+        939
+      ],
+      "alphaBounds": [
+        23,
+        0,
+        313,
+        313
+      ],
+      "path": "assets/ui/lobby-poses-v2/男黑暗妖精-kneeling.webp",
+      "sha256": "a177c37c57503e6132324eaabacc1d4a386e56035b5b89e8e2087eba85016919"
+    },
+    {
+      "avatar": "女黑暗妖精",
+      "pose": "kneeling",
+      "cell": [
+        313,
+        626,
+        626,
+        939
+      ],
+      "alphaBounds": [
+        0,
+        0,
+        313,
+        312
+      ],
+      "path": "assets/ui/lobby-poses-v2/女黑暗妖精-kneeling.webp",
+      "sha256": "30722abc4861d162007dafd92289d0ba601ebf7e54d9bfd678acf88026565da8"
+    },
+    {
+      "avatar": "男龍騎士",
+      "pose": "kneeling",
+      "cell": [
+        626,
+        626,
+        939,
+        939
+      ],
+      "alphaBounds": [
+        0,
+        0,
+        309,
+        313
+      ],
+      "path": "assets/ui/lobby-poses-v2/男龍騎士-kneeling.webp",
+      "sha256": "9424a3bc2ddea0f1b58a9d2c8f170895e4c1ef5d803dc7395b09f7d4363c0023"
+    },
+    {
+      "avatar": "女龍騎士",
+      "pose": "kneeling",
+      "cell": [
+        939,
+        626,
+        1252,
+        939
+      ],
+      "alphaBounds": [
+        8,
+        0,
+        295,
+        313
+      ],
+      "path": "assets/ui/lobby-poses-v2/女龍騎士-kneeling.webp",
+      "sha256": "4faad88536244684afefa05232c2fc5c3b964dff02d15d84cd7bf35ea131decb"
+    },
+    {
+      "avatar": "男幻術士",
+      "pose": "kneeling",
+      "cell": [
+        0,
+        939,
+        313,
+        1252
+      ],
+      "alphaBounds": [
+        25,
+        0,
+        313,
+        286
+      ],
+      "path": "assets/ui/lobby-poses-v2/男幻術士-kneeling.webp",
+      "sha256": "9d0a70fb553bb0e35b94a5862387720a0ab7cd67fa824b1ef02cd96904537ecf"
+    },
+    {
+      "avatar": "女幻術士",
+      "pose": "kneeling",
+      "cell": [
+        313,
+        939,
+        626,
+        1252
+      ],
+      "alphaBounds": [
+        0,
+        2,
+        313,
+        285
+      ],
+      "path": "assets/ui/lobby-poses-v2/女幻術士-kneeling.webp",
+      "sha256": "ac24bbc4e71dabb371cc88933d7e110a87c775d100a7fd77ff766b0cec07aa78"
+    },
+    {
+      "avatar": "男戰士",
+      "pose": "kneeling",
+      "cell": [
+        626,
+        939,
+        939,
+        1252
+      ],
+      "alphaBounds": [
+        0,
+        0,
+        290,
+        287
+      ],
+      "path": "assets/ui/lobby-poses-v2/男戰士-kneeling.webp",
+      "sha256": "2bc11fac83d5c6ad6dca7f86d9ce6ff076271f7e6fa3512ec551d58dfe85620b"
+    },
+    {
+      "avatar": "女戰士",
+      "pose": "kneeling",
+      "cell": [
+        939,
+        939,
+        1252,
+        1252
+      ],
+      "alphaBounds": [
+        4,
+        0,
+        293,
+        287
+      ],
+      "path": "assets/ui/lobby-poses-v2/女戰士-kneeling.webp",
+      "sha256": "fcf36cce9c7356ae4feae2c8fe9ea131d3c32861365ce77da9903644903e3271"
+    }
+  ],
+  "runtimeNormalization": {
+    "tile": [
+      128,
+      128
+    ],
+    "baseline": 115,
+    "seatedHeight": 64,
+    "kneelingHeight": 80,
+    "pixelScale": 2
+  }
+}

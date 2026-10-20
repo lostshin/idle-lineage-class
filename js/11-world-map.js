@@ -280,7 +280,6 @@ function rebuildMapCategoryOptions() {
     let opts = [];
     if (player.siege && player.siege.active) opts.push(['siege','攻城']);   // ⚔️ 攻城進行中（攻城獲勝城堡不再獨立成「城堡」分類，已注入肯特/風木/海音地區）
     MAP_REGIONS.forEach(r => { if (regionHasVisible(r.key)) opts.push([r.key, r.label]); });   // 🗺️ 17 地區（依 map_categories.md 順序；經典模式空地區自動隱藏）
-    if (typeof socialLobby !== 'undefined') opts.push(['social_lobby', '冒險者大廳']);
     catSel.innerHTML = opts.map(o => `<option value="${o[0]}">${o[1]}</option>`).join('');
 }
 // 🗼 是否持有指定樓層區間(N)的 傳送符 / 支配符 / 移動卷軸（任一即可進入；支配符可在塔內手動傳送）
@@ -320,8 +319,6 @@ function populateMapSelect(cat) {
 function onMapCategoryChange() {
     // 切換分類時，重建右側清單並讓人物一併移動到該分類的第一個可選地圖
     let cat = document.getElementById('map-category').value;
-    if (cat === 'social_lobby') { socialLobby.open(); return; }
-    if (typeof socialLobby !== 'undefined') socialLobby.close(false);
     populateMapSelect(cat);
     let list = regionMapList(cat);
     let firstOk = list.find(m => !mapOptDisabled(m));
@@ -336,7 +333,7 @@ function onMapCategoryChange() {
     else if (typeof mercRoleSafeAreaOnly === 'function' && mercRoleSafeAreaOnly() && typeof mercenaryRoleNotifySafeAreaOnly === 'function') mercenaryRoleNotifySafeAreaOnly();
 }
 function setMapSelectors(mapKey) {
-    if (typeof socialLobby !== 'undefined') socialLobby.close(false);
+    if (typeof socialLobby !== 'undefined') socialLobby.syncMap();
     // 將「分類選單 + 地圖選單」同步到指定地圖
     rebuildMapCategoryOptions();
     let cat = mapRegionOf(mapKey);   // 🗺️ 下拉改用「地區」分類（mapCategoryOf 仍為型別分類，供掉落/追蹤/背景等邏輯）
@@ -1121,8 +1118,6 @@ function ismaelBuyAcc() {
 }
 
 function changeMap(force) {
-    if (!force && typeof socialLobby !== 'undefined' && socialLobby.isOpen() && document.getElementById('map-select').dataset.lobbyRoom && document.getElementById('map-select').value === mapState.current) return;
-    if (typeof socialLobby !== 'undefined') socialLobby.close(false);
     // 行動限制狀態（石化／麻痺／冰凍／暈眩）時無法主動切換地圖；force=true 供復活、載入等內部流程略過
     if (!force && player.statuses &&
         (player.statuses.stone > 0 || player.statuses.paralyze > 0 || player.statuses.freeze > 0 || player.statuses.stun > 0 || player.statuses.sleep > 0)) {
@@ -1186,6 +1181,7 @@ function changeMap(force) {
     }
     if (_changeTarget !== mapState.current && typeof npcClanOnLeaveBattleArea === 'function') npcClanOnLeaveBattleArea(!force);
     if (typeof giltasKeepOnLeave === 'function' && document.getElementById('map-select').value !== mapState.current) giltasKeepOnLeave();   // 🌑 v3.4.16 離開受詛咒聖地（回村/戰敗復活/切圖統一經此·helper 自帶地圖 gate）→ 吉爾塔斯 HP 保留判定＋提示
+    if (_changeTarget !== mapState.current && typeof socialLobby !== 'undefined') socialLobby.close(false);
     mapState.current = document.getElementById('map-select').value;
     if (!mapState.current.startsWith('town_')) player.lastBattleMap = mapState.current;   // 🔧 記住最後所在的戰鬥地圖，供村莊「出發」按鈕一鍵返回
     { let _c = mapRegionOf(mapState.current); if(_c) { if(!player.lastMapByCat) player.lastMapByCat = {}; player.lastMapByCat[_c] = mapState.current; } }   // 記住各「地區」分類最後到過的地圖（與下拉同鍵）

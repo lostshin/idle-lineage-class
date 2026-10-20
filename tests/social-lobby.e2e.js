@@ -68,11 +68,11 @@ await page.evaluate(apiBase => {
     stopGameTimers(); state.running = false; setUiScale(80); setMapSelectors('training'); changeMap(true);
     window.__lobbyBefore = { map: mapState.current, lastMap: player.lastBattleMap, mobs: mapState.mobs, gold: player.gold, inv: JSON.stringify(player.inv), player };
 }, apiBase);
-await check('lobby is available in the original map category selector', () => page.evaluate(() => !!document.querySelector('#map-category option[value="social_lobby"]')));
-await page.selectOption('#map-category', 'social_lobby');
+await check('lobby has a dedicated button instead of a map-category entry', () => page.evaluate(() => !!document.getElementById('btn-social-lobby')&&!document.querySelector('#map-category option[value="social_lobby"]')));
+await page.click('#btn-social-lobby');
 await page.waitForSelector('#social-lobby:not([hidden])');
 await check('entering does not teleport, replace mobs, consume items or replace the actor', () => page.evaluate(() => mapState.current === __lobbyBefore.map && mapState.mobs === __lobbyBefore.mobs && player === __lobbyBefore.player && player.gold === __lobbyBefore.gold && JSON.stringify(player.inv) === __lobbyBefore.inv && player.lastBattleMap === __lobbyBefore.lastMap));
-await check('entry announces only current role identity and does not publish a card or private map', () => page.evaluate(() => !__lobbyRequests.some(r=>r.path==='/v1/me/card')&&__lobbyRequests.every(r=>{if(r.path!=='/v1/presence')return true;const b=JSON.parse(r.body);return !b.map&&Object.keys(b.actor).every(k=>['name','cls','avatar'].includes(k));})));
+await check('entry announces only current role identity and does not publish a card or private map', () => page.evaluate(() => !__lobbyRequests.some(r=>r.path==='/v1/me/card')&&__lobbyRequests.every(r=>{if(r.path!=='/v1/presence')return true;const b=JSON.parse(r.body);return !b.map&&Object.keys(b.actor).every(k=>['name','cls','avatar','pose'].includes(k));})));
 await check('battle scene is concealed while the lobby scene is visible', () => page.evaluate(() => getComputedStyle(document.getElementById('battle-view')).display === 'none' && document.getElementById('social-lobby').getBoundingClientRect().height > 100));
 await check('lobby mode is absent from the serialized player', () => page.evaluate(() => !JSON.stringify(player).includes('social_lobby')));
 await check('portable account exports do not contain the browser visitor credential', () => page.evaluate(() => {
@@ -134,7 +134,7 @@ if (options.lobbyApi) {
     await check('unpublished visitor receives native browser message persisted in real D1',async()=>
         (await worker('/cards/'+basicVisitor.user.id+'/comments','GET',undefined,basicVisitor.token)).comments.some(row=>row.text==='未發名片仍可收留言'));
     await click('#lobby-comment-close');await click('#lobby-detail-close');
-    await page.selectOption('#lobby-action','nod');await page.waitForFunction(()=>document.getElementById('social-lobby').getAttribute('aria-busy')!=='true');
+    await page.click('#lobby-nod');await page.waitForFunction(()=>document.getElementById('social-lobby').getAttribute('aria-busy')!=='true');
     await check('native action persists for a different unread visitor in real D1',async()=>
         (await worker('/actions','GET',undefined,basicVisitor.token)).actions.some(event=>event.type==='nod'&&event.actor.name==='合成大廳角色'));
     await worker('/me','DELETE',{confirm:true},basicVisitor.token);
@@ -152,12 +152,12 @@ if (options.lobbyApi) {
     await check('controlled five-minute heartbeat updates real D1 while the player is outside the lobby',async()=>
         (await worker('/cards?view=online','GET',undefined,visitor.token)).cards.some(row=>row.card.name==='合成大廳角色'&&row.currentMap===expected));
 }
-await page.selectOption('#map-category', 'social_lobby');
-await page.selectOption('#map-category', 'silverknight');
+await page.click('#btn-social-lobby');
+await page.selectOption('#map-category', 'talkingisland');
 await check('selecting a real map leaves lobby mode through the normal map flow', () => page.evaluate(() => document.getElementById('social-lobby').hidden && mapState.current !== 'social_lobby'));
 await check('no browser runtime errors', () => page.evaluate(() => !__lobbyErrors.length || __lobbyErrors));
 if (!options.skipScreenshots) {
-    await page.selectOption('#map-category', 'social_lobby');
+    await page.click('#btn-social-lobby');
     await page.screenshot({ path: options.artifacts + '/social-lobby-' + (options.lobbyApi ? 'worker-' : '') + options.protocol + '.png' });
 }
 if (options.lobbyApi) {
