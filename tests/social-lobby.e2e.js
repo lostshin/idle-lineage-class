@@ -47,7 +47,7 @@ const init = (await page.cdp('Page.addScriptToEvaluateOnNewDocument', { source: 
         if(path.endsWith('/auth/guest'))value={token:'synthetic',user:{id:'00000000-0000-4000-8000-000000000001',admin:false}};
         else if(path.endsWith('/me'))value={user:{id:'00000000-0000-4000-8000-000000000001',admin:false},card:null};
         else if(path.endsWith('/cards'))value={cards:[card],next:null};
-        else if(path.endsWith('/players'))value={players:[{id:card.id,actor:card.card,lastSeen:card.lastSeen,hasCard:true}],next:null};
+        else if(path.endsWith('/players'))value={players:[{id:card.id,actor:card.card,lastSeen:card.lastSeen,hasCard:true}],next:null,serverTime:Date.now(),onlineCount:2,siteOnlineCount:0};
         else if(path.endsWith('/comments'))value={comments:[],next:null};
         else if(path.endsWith('/me/card'))value={version:1};
         else if(path.includes('/cards/'))value={...card,favorite:false};
@@ -65,6 +65,7 @@ await page.evaluate(apiBase => {
     window.__lobbyBefore = { map: mapState.current, lastMap: player.lastBattleMap, mobs: mapState.mobs, gold: player.gold, inv: JSON.stringify(player.inv), player };
 }, apiBase);
 await check('lobby is available in the original map category selector', () => page.evaluate(() => !!document.querySelector('#map-category option[value="social_lobby"]')));
+if(options.lobbyApi)await page.evaluate(()=>{const nativeNow=Date.now;Date.now=()=>nativeNow()+300000;});
 await page.selectOption('#map-category', 'social_lobby');
 await page.waitForSelector('#social-lobby:not([hidden])');
 await check('entering does not teleport, replace mobs, consume items or replace the actor', () => page.evaluate(() => mapState.current === __lobbyBefore.map && mapState.mobs === __lobbyBefore.mobs && player === __lobbyBefore.player && player.gold === __lobbyBefore.gold && JSON.stringify(player.inv) === __lobbyBefore.inv && player.lastBattleMap === __lobbyBefore.lastMap));
@@ -88,6 +89,10 @@ if (!options.lobbyApi) await page.evaluate(() => { socialLobby.setSession({token
 await click('#lobby-roster');await click('#lobby-refresh');
 const visitorSelector=options.lobbyApi ? '#lobby-visitors [data-card-id="'+visitor.user.id+'"]' : '#lobby-visitors [data-card-id]';
 await page.waitForSelector(visitorSelector);
+if(options.lobbyApi)await check('actual D1 peer remains visible with a five-minute fast browser clock and shares the backend headcount',async()=>{
+    const result=await worker('/players','GET',undefined,visitor.token);
+    return page.evaluate(({id,count})=>!!document.querySelector('[data-camp-id="'+id+'"]')&&document.getElementById('world-online-count').textContent==='（正式站線上 '+count+' 人）',{id:visitor.user.id,count:result.siteOnlineCount});
+});
 await page.evaluate(selector => { window.__lobbyVisitorNode=document.querySelector(selector); },visitorSelector);
 await click('#lobby-refresh');
 await check('an unchanged list refresh preserves the original visitor node', () => page.evaluate(selector => document.querySelector(selector) === __lobbyVisitorNode,visitorSelector));

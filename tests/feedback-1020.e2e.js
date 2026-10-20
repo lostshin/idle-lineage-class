@@ -17,7 +17,7 @@ const init=(await page.cdp('Page.addScriptToEvaluateOnNewDocument',{source:`(()=
   else if(p==='/v1/presence')__feedback.presence=b;
   else if(p==='/v1/me')value={user:{id:'00000000-0000-4000-8000-000000000001',admin:false},card:__feedback.mine};
   else if(p==='/v1/me/card'){__feedback.mine={card:b.card,version:1,published:true};value={version:1};}
-  else if(p.endsWith('/players'))value={players:[{id:card.id,actor:card.card,lastSeen:stamp,hasCard:true}],next:null};
+  else if(p.endsWith('/players'))value={players:[{id:card.id,actor:card.card,lastSeen:stamp,hasCard:true}],next:null,serverTime:stamp,onlineCount:2,siteOnlineCount:0};
   else if(p.endsWith('/cards'))value={cards:u.searchParams.get('view')==='online'?[card]:[card,{...card,id:'00000000-0000-4000-8000-000000000003',lastSeen:stamp-300000,card:{name:'離線旅人'}}],next:null};
   else if(p.endsWith('/comments'))value={comments:Array.from({length:5},(_,i)=>({id:5-i,author:'留言旅人'+i,text:'留言內容'+i,createdAt:stamp+i,canDelete:false})),next:null};
   else if(p.includes('/cards/'))value={...card,favorite:false};

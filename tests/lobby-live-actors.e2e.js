@@ -12,8 +12,8 @@ const init=(await page.cdp('Page.addScriptToEvaluateOnNewDocument',{source:`(()=
  const stamp=Date.now(),player={id:'00000000-0000-4000-8000-000000000002',actor:__actors.actor||{name:'未發名片女法師',cls:'mage',avatar:'女法師'},lastSeen:stamp,greetingAt:0,hasCard:false};let value={};
  if(path==='/v1/auth/guest')value={token:'synthetic',user:{id:'00000000-0000-4000-8000-000000000001',admin:false}};
  else if(path==='/v1/me')value={user:{id:'00000000-0000-4000-8000-000000000001',admin:false},card:__actors.mine};
- else if(path==='/v1/players')value={players:[player,{...player,id:'00000000-0000-4000-8000-000000000003',lastSeen:stamp-180000}],next:null};
- else if(path==='/v1/cards')value={cards:[],next:null};
+ else if(path==='/v1/players')value={players:[player,{...player,id:'00000000-0000-4000-8000-000000000003',lastSeen:stamp-180000}],next:null,serverTime:stamp,onlineCount:2,siteOnlineCount:0};
+ else if(path==='/v1/cards')value={cards:[],next:null,serverTime:stamp,onlineCount:2,siteOnlineCount:0};
  else if(path.includes('/cards/'))return new Response(JSON.stringify({error:'此玩家尚未發布名片'}),{status:404,headers:{'Content-Type':'application/json'}});
  return new Response(JSON.stringify(value),{status:200,headers:{'Content-Type':'application/json'}});
  };
@@ -23,7 +23,7 @@ await page.evaluate(()=>{document.getElementById('social-lobby-api').content='ht
 async function pulse(){await page.evaluate(async()=>{const timer=__actors.timers.at(-1);if(timer)await timer();});}
 await pulse();
 await check('new player announces current role outside lobby without publishing any card',()=>page.evaluate(()=>!socialLobby.isOpen()&&__actors.requests.some(r=>r.path==='/v1/presence'&&r.body.actor?.name===player.name&&r.body.actor.cls===player.cls&&r.body.actor.avatar===player.avatar)&&!__actors.requests.some(r=>r.path==='/v1/me/card')));
-await check('automatic online payload contains only name/class/avatar and opt-in map',()=>page.evaluate(()=>{const body=__actors.requests.find(r=>r.path==='/v1/presence')?.body;return !!body&&Object.keys(body).every(k=>['map','actor'].includes(k))&&Object.keys(body.actor).sort().join(',')==='avatar,cls,name'&&!body.map;}));
+await check('automatic online payload contains only name/class/avatar and opt-in map',()=>page.evaluate(()=>{const body=__actors.requests.find(r=>r.path==='/v1/presence')?.body;return !!body&&Object.keys(body).every(k=>['map','actor','page'].includes(k))&&Object.keys(body.actor).sort().join(',')==='avatar,cls,name'&&!body.map;}));
 await page.selectOption('#map-category','social_lobby');await page.waitForFunction(()=>document.getElementById('social-lobby').getAttribute('aria-busy')!=='true');
 const remote='[data-camp-id="00000000-0000-4000-8000-000000000002"]';
 await check('camp displays unregistered female mage and excludes expired guests',()=>page.evaluate(()=>{const seat=document.querySelector('[data-camp-id="00000000-0000-4000-8000-000000000002"]');return seat?.textContent.includes('未發名片女法師')&&seat.querySelector('.lobby-camper-sprite').dataset.avatar==='女法師'&&!document.querySelector('[data-camp-id="00000000-0000-4000-8000-000000000003"]');}));

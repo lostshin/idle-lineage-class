@@ -6,7 +6,8 @@ const socialLobby = (() => {
     let failures = 0, busy = false, editorActor = null, requestId = null;
     let visitorsSignature = '', popupReturnFocus = null, commentRows = [];
     let campGuests = [], selfGreeting = 0, greetingTimer = null;
-    let presenceTimer = null, presenceBusy = false, disconnected = false, presenceFailures = 0;
+    let presenceTimer = null, presencePending = null, loginPending = null, disconnected = false, presenceFailures = 0;
+    let campServerTime = 0, campReceivedAt = 0;
     const avatarRows = [['王子','公主'],['男騎士','女騎士'],['男妖精','女妖精'],['男法師','女法師'],['男黑暗妖精','女黑暗妖精'],['男龍騎士','女龍騎士'],['男幻術士','女幻術士'],['男戰士','女戰士']];
     const defaultAvatar = {royal:'王子',knight:'男騎士',elf:'男妖精',mage:'男法師',dark:'男黑暗妖精',dragon:'男龍騎士',illusion:'男幻術士',warrior:'男戰士'};
     // Sample generated rows at their measured foot baseline, without clipping adjacent classes.
@@ -17,6 +18,7 @@ const socialLobby = (() => {
     const playing = () => player.cls && !$('game-screen').classList.contains('hidden');
     const currentMap = () => HIDDEN_AREA_NAMES[mapState.current] || mapEntryOf(mapState.current)?.t || '';
     const currentActor = () => ({name:String(player.name || '冒險者').slice(0,12),cls:player.cls,avatar:player.avatar || defaultAvatar[player.cls]});
+    const campNow = () => campServerTime + Math.max(0,performance.now()-campReceivedAt);
     const status = message => { $('lobby-status').textContent = message; $('lobby-status').hidden = !message; };
 
     function node(tag, value, className) {
@@ -34,7 +36,8 @@ const socialLobby = (() => {
         const url = new URL(apiBase);
         if (url.protocol !== 'https:' && !(url.protocol === 'http:' && ['127.0.0.1', 'localhost'].includes(url.hostname))) throw Error('大廳連線設定不正確。');
         const controller = new AbortController(), timeout = setTimeout(() => controller.abort(), 12000);
-        requests.add(controller);
+        const viewRequest = !['/auth/guest','/presence','/me'].includes(path);
+        if (viewRequest) requests.add(controller);
         const headers = {};
         if (session) headers.Authorization = 'Bearer ' + session.token;
         if (data !== undefined) headers['Content-Type'] = 'application/json';
@@ -56,17 +59,21 @@ const socialLobby = (() => {
         catch (error) { if (active) status(error.name === 'AbortError' ? '連線已中斷，請稍後再試。' : error.message); }
         finally { busy = false; $('social-lobby')?.setAttribute('aria-busy', 'false'); }
     }
-    async function heartbeat() {
-        if (presenceBusy) return;
-        clearTimeout(presenceTimer); presenceBusy = true;
+    function heartbeat() {
+        if (!presencePending) presencePending = sendHeartbeat().finally(() => { presencePending = null; });
+        return presencePending;
+    }
+    async function sendHeartbeat() {
+        clearTimeout(presenceTimer);
         try {
             if (!playing() || disconnected) return;
             if (!session) { mount(); await login(true); }
             if (!session || !playing()) return;
-            await api('/presence', 'POST', { actor:currentActor(), map: mine?.published && mine.card.shareMap ? currentMap() : '' });
+            const result = await api('/presence', 'POST', { actor:currentActor(), map: mine?.published && mine.card.shareMap ? currentMap() : '', page:onlinePresence.page });
+            onlinePresence.update(result.siteOnlineCount);
             presenceFailures = 0;
-        } catch (error) { presenceFailures++; if (active) status(error.message); }
-        finally { presenceBusy = false; presenceTimer = setTimeout(heartbeat, Math.min(300000, 30000 * 2 ** presenceFailures)); }
+        } catch (error) { presenceFailures++; onlinePresence.unavailable(); if (active) status(error.message); }
+        finally { presenceTimer = setTimeout(heartbeat, Math.min(300000, 30000 * 2 ** presenceFailures)); }
     }
     function stop() {
         clearTimeout(poll); poll = null;
@@ -187,7 +194,7 @@ const socialLobby = (() => {
     }
     function renderCamp() {
         const host = $('lobby-seats'); if (!host) return;
-        const guests = [{id:'self',actor:currentActor(),self:true,greetingAt:selfGreeting}, ...campGuests.filter(item => item.id !== session?.user.id && Date.now()-item.lastSeen < 120000).slice(0,8)];
+        const guests = [{id:'self',actor:currentActor(),self:true,greetingAt:selfGreeting}, ...campGuests.filter(item => item.id !== session?.user.id && campNow()-item.lastSeen < 120000).slice(0,8)];
         const positions = [[50,80],[31,73],[69,73],[14,53],[86,53],[25,33],[75,33],[41,24],[59,24]];
         const keep = new Set(); let greetingRemaining = 0;
         for (const [index, item] of guests.entries()) {
@@ -211,7 +218,7 @@ const socialLobby = (() => {
             seat.style.left = positions[index][0]+'%'; seat.style.top = positions[index][1]+'%'; seat.style.zIndex = positions[index][1];
             seat.querySelector('.lobby-seat-name').textContent = actor.name + (item.self ? '（你）' : '');
             seat.setAttribute('aria-label', item.self ? '我的代表角色：'+actor.name : '查看 '+actor.name+' 的名片');
-            if (item.greetingAt > Date.now()-10000 && seat.dataset.greetingAt !== String(item.greetingAt)) {
+            if (item.greetingAt > (item.self ? Date.now() : campNow())-10000 && seat.dataset.greetingAt !== String(item.greetingAt)) {
                 seat.dataset.greetingAt = String(item.greetingAt); seat.dataset.greetingUntil = String(Date.now()+3000);
             }
             const remaining = Number(seat.dataset.greetingUntil || 0)-Date.now();
@@ -284,8 +291,8 @@ const socialLobby = (() => {
         host.appendChild(node('small', item.presence ? '目前在線角色，尚未發布名片。' : '玩家分享的單機快照' + (item.updatedAt ? ' · ' + new Date(item.updatedAt).toLocaleString('zh-TW') : '')));
     }
     async function loadMine() {
-        const epoch = requestEpoch, result = await api('/me');
-        if (epoch !== requestEpoch) return;
+        const connection = session, result = await api('/me');
+        if (session !== connection) return;
         mine = result.card; session.user = result.user; updateAuth(); renderCamp();
     }
     async function refresh() {
@@ -296,15 +303,16 @@ const socialLobby = (() => {
             const result = await api(view === 'online' ? '/players?offset=' + offset : '/cards?view=favorites&offset=' + offset);
             const camp = view === 'online' && offset === 0 ? result : await api('/players?offset=0');
             if (epoch !== requestEpoch || !live() || view !== listingView || offset !== listingOffset) return;
-            campGuests = camp.players; renderCamp();
+            campServerTime = camp.serverTime; campReceivedAt = performance.now();
+            campGuests = camp.players; renderCamp(); onlinePresence.update(camp.siteOnlineCount);
             const rows = view === 'online' ? result.players : result.cards;
-            const signature = JSON.stringify({ view, offset, cards: rows.map(({greetingAt, ...item}) => ({ ...item, lastSeen: !!item.lastSeen && Date.now() - item.lastSeen < 120000 })) });
+            const signature = JSON.stringify({ view, offset, cards: rows.map(({greetingAt, ...item}) => ({ ...item, lastSeen: !!item.lastSeen && campNow() - item.lastSeen < 120000 })) });
             const list = $('lobby-visitors');
             if (signature !== visitorsSignature) {
                 visitorsSignature = signature; list.replaceChildren();
                 for (const item of rows.slice(0,3)) {
                     const el = button('', () => detail(item.id, item.actor ? item : null)); el.dataset.cardId = item.id; el.className = 'lobby-visitor';
-                    const title = node('strong', (item.actor || item.card).name), when = item.lastSeen && Date.now() - item.lastSeen < 120000 ? '在線' : '離線';
+                    const title = node('strong', (item.actor || item.card).name), when = item.lastSeen && campNow() - item.lastSeen < 120000 ? '在線' : '離線';
                     el.append(title, node('span', item.card?.intro || '來交換一段冒險故事吧'), node('small', when)); list.appendChild(el);
                 }
                 if (!rows.length) list.appendChild(node('p', view === 'favorites' ? '還沒有收藏的公開名片。' : '目前沒有其他在線的冒險者。', 'lobby-empty'));
@@ -314,7 +322,7 @@ const socialLobby = (() => {
             $('lobby-list-title').textContent = view === 'favorites' ? '收藏的冒險者' : '在線的冒險者';
             failures = 0;
             status('');
-        } catch (error) { failures++; if (epoch === requestEpoch && active) status(error.name === 'AbortError' ? '連線已中斷。' : error.message); }
+        } catch (error) { if (epoch !== requestEpoch || !active) return; failures++; onlinePresence.unavailable(); status(error.name === 'AbortError' ? '連線已中斷。' : error.message); }
         if (epoch === requestEpoch && live() && session) { clearTimeout(poll); poll = setTimeout(pollRefresh, Math.min(300000, 5000 * 2 ** failures)); }
     }
     function pollRefresh() {
@@ -417,8 +425,14 @@ const socialLobby = (() => {
         if (active) { showSection('common'); await refresh(); }
     }
     async function login(background = false) {
+        disconnected = false;
+        if (!loginPending) loginPending = connect().finally(() => { loginPending = null; });
+        await loginPending;
+        if (!background && active && session) { await heartbeat(); await refresh(); }
+    }
+    async function connect() {
         if (!base()) throw Error('大廳尚未開放連線，你可以先預覽自己的名片。');
-        const epoch = requestEpoch, key = 'lineage_social_lobby_device_v1';
+        const key = 'lineage_social_lobby_device_v1';
         let deviceKey = localStorage.getItem(key);
         if (!/^[a-f0-9]{64}$/.test(deviceKey || '')) {
             deviceKey = Array.from(crypto.getRandomValues(new Uint8Array(32)), byte => byte.toString(16).padStart(2, '0')).join('');
@@ -426,16 +440,15 @@ const socialLobby = (() => {
             if (!deviceKey) throw Error('無法保存訪客身分；請允許此網站儲存資料後再試。');
         }
         const result = await api('/auth/guest', 'POST', { deviceKey });
-        if ((!active && !background) || epoch !== requestEpoch) return;
-        disconnected = false; setSession(result); await loadMine();
-        if (!background) { await heartbeat(); await refresh(); }
+        if (!playing() || disconnected) return;
+        setSession(result); await loadMine();
     }
     function setSession(value) { session = value; updateAuth(); renderCamp(); }
     document.addEventListener('visibilitychange', () => { if (!active) return; $('social-lobby').classList.toggle('lobby-motion-paused', document.hidden || $('lobby-popup').open); if (document.hidden) stop(); else { renderCamp(); if (session) refresh(); } });
     window.addEventListener('pagehide', () => { clearTimeout(presenceTimer); close(false); });
-    window.addEventListener('pageshow', () => { if (!presenceBusy) heartbeat(); });
+    window.addEventListener('pageshow', heartbeat);
     presenceTimer = setTimeout(heartbeat, 30000);
-    window.addEventListener('online', () => { if (live() && session) refresh(); });
+    window.addEventListener('online', () => { heartbeat().then(() => { if (live() && session) refresh(); }); });
     new MutationObserver(() => { if (playing()) heartbeat(); }).observe($('game-screen'), {attributes:true,attributeFilter:['class']});
     document.addEventListener('pointerdown', event => { const popup = $('lobby-popup'); if (active && popup.open && !popup.contains(event.target) && !event.target.closest('#cdd-pop')) showSection('common'); });
     document.addEventListener('keydown', event => { if (!active || event.key !== 'Escape') return; if ($('lobby-popup').open) { event.preventDefault(); showSection('common'); } else if (!document.querySelector('dialog[open]')) close(); });

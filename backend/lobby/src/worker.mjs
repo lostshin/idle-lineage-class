@@ -14,6 +14,8 @@ const statement = (env, sql, ...args) => env.DB.prepare(sql).bind(...args);
 const first = (env, sql, ...args) => statement(env, sql, ...args).first();
 const run = (env, sql, ...args) => statement(env, sql, ...args).run();
 const all = async (env, sql, ...args) => (await statement(env, sql, ...args).all()).results;
+const onlineCount = async (env, serverTime) => (await first(env, 'SELECT COUNT(*) AS count FROM users WHERE suspended=0 AND presence_actor IS NOT NULL AND last_seen>?', serverTime - 120000)).count;
+const siteOnlineCount = async (env, serverTime) => (await first(env, 'SELECT COUNT(*) AS count FROM users WHERE suspended=0 AND presence_actor IS NOT NULL AND site_seen>?', serverTime - 120000)).count;
 const publicCard = row => ({ id: row.user_id, card: JSON.parse(row.payload), version: row.version, updatedAt: row.updated_at, lastSeen: row.last_seen, greetingAt: row.greeting_at || 0, currentMap: JSON.parse(row.payload).shareMap && row.last_seen > now() - 120000 ? row.current_map || '' : '' });
 
 function localOrigin(origin) {
@@ -129,13 +131,16 @@ export function createHandler() {
                 }
                 if (path === '/v1/presence' && method === 'POST') {
                     const data = await body(request);
-                    if (Object.keys(data).some(key => !['map','actor'].includes(key))) fail(400, '連線狀態包含未允許的欄位。');
+                    if (Object.keys(data).some(key => !['map','actor','page'].includes(key))) fail(400, '連線狀態包含未允許的欄位。');
                     const map = text(data.map ?? '', 100);
+                    const page = text(data.page ?? '', 100);
+                    const official = origin === 'https://lostshin.github.io' && ['/idle-lineage-class/','/idle-lineage-class/index.html'].includes(page);
                     const actor = data.actor === undefined ? null : JSON.stringify(validateActor(data.actor));
                     const card = await first(env, 'SELECT payload FROM cards WHERE user_id=? AND published=1', user.id);
                     await rate(env, 'presence:' + user.id, 6);
-                    await run(env, 'UPDATE users SET last_seen=?,current_map=?,presence_actor=COALESCE(?,presence_actor) WHERE id=?', now(), card && JSON.parse(card.payload).shareMap ? map : '', actor, user.id);
-                    return json({ ok: true });
+                    const serverTime = now();
+                    await run(env, 'UPDATE users SET last_seen=?,current_map=?,presence_actor=COALESCE(?,presence_actor),site_seen=CASE WHEN ? THEN ? ELSE site_seen END WHERE id=?', serverTime, card && JSON.parse(card.payload).shareMap ? map : '', actor, official ? 1 : 0, serverTime, user.id);
+                    return json({ ok: true, serverTime, onlineCount:await onlineCount(env,serverTime), siteOnlineCount:await siteOnlineCount(env,serverTime) });
                 }
                 if (path === '/v1/greeting' && method === 'POST') {
                     await rate(env, 'greeting:' + user.id, 6);
@@ -160,8 +165,9 @@ export function createHandler() {
                 if (path === '/v1/players' && method === 'GET') {
                     const offset = Number(url.searchParams.get('offset') || 0);
                     if (!Number.isInteger(offset) || offset < 0 || offset > 10000) fail(400, '分頁不正確。');
-                    const rows = await all(env, 'SELECT u.id,u.presence_actor,u.last_seen,u.greeting_at,c.published FROM users u LEFT JOIN cards c ON c.user_id=u.id WHERE u.suspended=0 AND u.presence_actor IS NOT NULL AND u.last_seen>? ORDER BY u.last_seen DESC,u.id LIMIT 21 OFFSET ?', now() - 120000, offset);
-                    return json({ players: rows.slice(0,20).map(row => ({id:row.id,actor:JSON.parse(row.presence_actor),lastSeen:row.last_seen,greetingAt:row.greeting_at || 0,hasCard:!!row.published})), next: rows.length>20 ? offset+20 : null });
+                    const serverTime = now();
+                    const rows = await all(env, 'SELECT u.id,u.presence_actor,u.last_seen,u.greeting_at,c.published FROM users u LEFT JOIN cards c ON c.user_id=u.id WHERE u.suspended=0 AND u.presence_actor IS NOT NULL AND u.last_seen>? ORDER BY u.last_seen DESC,u.id LIMIT 21 OFFSET ?', serverTime - 120000, offset);
+                    return json({ players: rows.slice(0,20).map(row => ({id:row.id,actor:JSON.parse(row.presence_actor),lastSeen:row.last_seen,greetingAt:row.greeting_at || 0,hasCard:!!row.published})), next: rows.length>20 ? offset+20 : null, serverTime, onlineCount:await onlineCount(env,serverTime), siteOnlineCount:await siteOnlineCount(env,serverTime) });
                 }
                 if (path === '/v1/cards' && method === 'GET') {
                     const view = url.searchParams.get('view') || 'recent';
