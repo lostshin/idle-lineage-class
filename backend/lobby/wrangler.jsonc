@@ -6,7 +6,7 @@
   "workers_dev": true,
   "vars": {
     "ALLOWED_ORIGINS": "https://lostshin.github.io",
-    "ALLOW_LOCAL_CLIENTS": "true",
+    "ALLOW_LOCAL_CLIENTS": "false",
     "ADMIN_USER_IDS": ""
   },
   "d1_databases": [

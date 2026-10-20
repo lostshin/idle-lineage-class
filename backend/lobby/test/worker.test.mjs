@@ -14,6 +14,7 @@ export function testDatabase() {
     sqlite.exec(readFileSync(new URL('../migrations/0003_presence_map.sql', import.meta.url), 'utf8'));
     sqlite.exec(readFileSync(new URL('../migrations/0004_presence_actor.sql', import.meta.url), 'utf8'));
     sqlite.exec(readFileSync(new URL('../migrations/0005_site_presence.sql', import.meta.url), 'utf8'));
+    sqlite.exec(readFileSync(new URL('../migrations/0006_comments_users.sql', import.meta.url), 'utf8'));
     return {
         sqlite,
         prepare(sql) {
@@ -157,7 +158,7 @@ test('online list and live maps respect published cards, heartbeats and location
     assert.equal((await request('/me/card','PUT',{card:{name:'公開地圖',shareMap:true},version:2},a.token)).status,200);
     assert.equal((await request('/presence','POST',{map:'古魯丁村莊'},a.token)).status,200);
     assert.equal((await request('/cards/'+a.user.id,'GET',undefined,c.token)).data.currentMap,'古魯丁村莊');
-    DB.sqlite.prepare('UPDATE users SET last_seen=? WHERE id=?').run(Date.now()-180000,a.user.id);
+    DB.sqlite.prepare('UPDATE users SET last_seen=? WHERE id=?').run(Date.now()-1800001,a.user.id);
     assert.equal((await request('/cards/'+a.user.id,'GET',undefined,c.token)).data.currentMap,'');
     assert.equal((await request('/cards?view=online','GET',undefined,c.token)).data.cards.length,0);
     DB.sqlite.close();
@@ -225,4 +226,36 @@ test('official site visitors are distinct from local/file and other GitHub proje
     r=await request('/players?offset=10000','GET',undefined,local.token,'http://localhost:8000');assert.equal(r.data.players.length,0);assert.equal(r.data.siteOnlineCount,1);assert.equal(r.data.onlineCount,4);
     DB.sqlite.prepare('UPDATE users SET suspended=1 WHERE id=?').run(a.user.id);assert.equal((await request('/players','GET',undefined,local.token)).data.siteOnlineCount,0);
     assert.equal((await request('/presence','POST',{actor,page:123},local.token)).status,400);DB.sqlite.close();
+});
+
+test('recent official visitors survive 24 hours, count only 30 minutes and accept unpublished messages',async()=>{
+    const DB=testDatabase(),api=createHandler(),env={DB,ALLOWED_ORIGINS:'https://lostshin.github.io'};
+    async function request(path,method='GET',data,token,origin='https://lostshin.github.io'){
+        const r=await api.fetch(new Request('https://api.test/v1'+path,{method,headers:{Origin:origin,'CF-Connecting-IP':'recent-fixture',...(token?{Authorization:'Bearer '+token}:{}),...(data?{'Content-Type':'application/json'}:{})},body:data?JSON.stringify(data):undefined}),env);return{status:r.status,data:await r.json()};
+    }
+    const a=(await request('/auth/guest','POST',{deviceKey:'a'.repeat(64)})).data,b=(await request('/auth/guest','POST',{deviceKey:'b'.repeat(64)})).data,c=(await request('/auth/guest','POST',{deviceKey:'c'.repeat(64)})).data;
+    const actor={name:'未發名片女法師',cls:'mage',avatar:'女法師'};
+    for(const v of [a,b,c])assert.equal((await request('/presence','POST',{actor,page:'/idle-lineage-class/'},v.token)).status,200);
+    DB.sqlite.prepare('UPDATE users SET site_seen=? WHERE id=?').run(Date.now()-3600000,b.user.id);
+    DB.sqlite.prepare('UPDATE users SET site_seen=? WHERE id=?').run(Date.now()-86400001,c.user.id);
+    let r=await request('/players?view=recent','GET',undefined,a.token);
+    assert.equal(r.status,200);assert.equal(r.data.siteRecentCount,1);assert.equal(r.data.players.length,2);assert.ok(r.data.players.some(p=>p.id===b.user.id));
+    assert.equal((await request('/cards/'+b.user.id,'GET',undefined,a.token)).data.presence,true);
+    assert.equal((await request('/cards/'+b.user.id+'/favorite','PUT',{},a.token)).status,404);
+    const message={text:'旅人你好 <img src=x>',requestId:crypto.randomUUID()},path='/cards/'+b.user.id+'/comments';
+    const sent=await request(path,'POST',message,a.token);assert.equal(sent.status,201);
+    assert.equal((await request(path,'POST',message,a.token)).data.id,sent.data.id);
+    r=await request(path,'GET',undefined,b.token);assert.equal(r.data.comments.length,1);assert.equal(r.data.comments[0].author,actor.name);
+    assert.equal((await request('/comments/'+sent.data.id,'DELETE',{},c.token)).status,403);
+    assert.equal((await request('/comments/'+sent.data.id,'DELETE',{},b.token)).status,200);
+    assert.equal((await request(path,'GET',undefined,a.token)).data.comments.length,0);
+    assert.equal(DB.sqlite.prepare('SELECT COUNT(*) n FROM cards').get().n,0);
+    assert.equal((await request('/presence','POST',{actor,page:'/idle-lineage-class/'},a.token,'http://localhost:8000')).status,403);
+    const repeat=(await request('/auth/guest','POST',{deviceKey:'a'.repeat(64)})).data;assert.equal(repeat.user.id,a.user.id);
+    assert.equal((await request('/presence','POST',{actor,page:'/idle-lineage-class/index.html'},repeat.token)).data.siteRecentCount,1);
+    DB.sqlite.prepare('UPDATE users SET site_seen=? WHERE id=?').run(Date.now()-1800001,a.user.id);
+    assert.equal((await request('/players?view=recent','GET',undefined,repeat.token)).data.siteRecentCount,0);
+    DB.sqlite.prepare('UPDATE users SET suspended=1 WHERE id=?').run(b.user.id);
+    assert.equal((await request('/cards/'+b.user.id,'GET',undefined,a.token)).status,404);
+    DB.sqlite.close();
 });

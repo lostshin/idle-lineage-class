@@ -16,7 +16,8 @@ const run = (env, sql, ...args) => statement(env, sql, ...args).run();
 const all = async (env, sql, ...args) => (await statement(env, sql, ...args).all()).results;
 const onlineCount = async (env, serverTime) => (await first(env, 'SELECT COUNT(*) AS count FROM users WHERE suspended=0 AND presence_actor IS NOT NULL AND last_seen>?', serverTime - 120000)).count;
 const siteOnlineCount = async (env, serverTime) => (await first(env, 'SELECT COUNT(*) AS count FROM users WHERE suspended=0 AND presence_actor IS NOT NULL AND site_seen>?', serverTime - 120000)).count;
-const publicCard = row => ({ id: row.user_id, card: JSON.parse(row.payload), version: row.version, updatedAt: row.updated_at, lastSeen: row.last_seen, greetingAt: row.greeting_at || 0, currentMap: JSON.parse(row.payload).shareMap && row.last_seen > now() - 120000 ? row.current_map || '' : '' });
+const siteRecentCount = async (env, serverTime) => (await first(env, 'SELECT COUNT(*) AS count FROM users WHERE suspended=0 AND presence_actor IS NOT NULL AND site_seen>?', serverTime - 1800000)).count;
+const publicCard = row => ({ id: row.user_id, card: JSON.parse(row.payload), version: row.version, updatedAt: row.updated_at, lastSeen: row.last_seen, greetingAt: row.greeting_at || 0, currentMap: JSON.parse(row.payload).shareMap && (row.site_seen || row.last_seen) > now() - 1800000 ? row.current_map || '' : '', mapReportedAt:row.site_seen || row.last_seen });
 
 function localOrigin(origin) {
     // file:// uses opaque Origin:null; sessions are explicit bearer tokens, never cookies.
@@ -122,7 +123,7 @@ export function createHandler() {
                     await run(env, 'DELETE FROM sessions WHERE token_hash=?', tokenHash); return json({ ok: true });
                 }
                 if (path === '/v1/me' && method === 'GET') {
-                    const row = await first(env, 'SELECT c.*,u.last_seen,u.greeting_at,u.current_map FROM cards c JOIN users u ON u.id=c.user_id WHERE c.user_id=?', user.id);
+                    const row = await first(env, 'SELECT c.*,u.last_seen,u.site_seen,u.greeting_at,u.current_map FROM cards c JOIN users u ON u.id=c.user_id WHERE c.user_id=?', user.id);
                     return json({ user: { id: user.id, admin }, card: row ? { ...publicCard(row), published: !!row.published } : null });
                 }
                 if (path === '/v1/me' && method === 'DELETE') {
@@ -140,7 +141,7 @@ export function createHandler() {
                     await rate(env, 'presence:' + user.id, 6);
                     const serverTime = now();
                     await run(env, 'UPDATE users SET last_seen=?,current_map=?,presence_actor=COALESCE(?,presence_actor),site_seen=CASE WHEN ? THEN ? ELSE site_seen END WHERE id=?', serverTime, card && JSON.parse(card.payload).shareMap ? map : '', actor, official ? 1 : 0, serverTime, user.id);
-                    return json({ ok: true, serverTime, onlineCount:await onlineCount(env,serverTime), siteOnlineCount:await siteOnlineCount(env,serverTime) });
+                    return json({ ok: true, serverTime, onlineCount:await onlineCount(env,serverTime), siteOnlineCount:await siteOnlineCount(env,serverTime), siteRecentCount:await siteRecentCount(env,serverTime) });
                 }
                 if (path === '/v1/greeting' && method === 'POST') {
                     await rate(env, 'greeting:' + user.id, 6);
@@ -166,15 +167,17 @@ export function createHandler() {
                     const offset = Number(url.searchParams.get('offset') || 0);
                     if (!Number.isInteger(offset) || offset < 0 || offset > 10000) fail(400, '分頁不正確。');
                     const serverTime = now();
-                    const rows = await all(env, 'SELECT u.id,u.presence_actor,u.last_seen,u.greeting_at,c.published FROM users u LEFT JOIN cards c ON c.user_id=u.id WHERE u.suspended=0 AND u.presence_actor IS NOT NULL AND u.last_seen>? ORDER BY u.last_seen DESC,u.id LIMIT 21 OFFSET ?', serverTime - 120000, offset);
-                    return json({ players: rows.slice(0,20).map(row => ({id:row.id,actor:JSON.parse(row.presence_actor),lastSeen:row.last_seen,greetingAt:row.greeting_at || 0,hasCard:!!row.published})), next: rows.length>20 ? offset+20 : null, serverTime, onlineCount:await onlineCount(env,serverTime), siteOnlineCount:await siteOnlineCount(env,serverTime) });
+                    const recent = url.searchParams.get('view') === 'recent';
+                    const field = recent ? 'site_seen' : 'last_seen', windowMs = recent ? 86400000 : 120000;
+                    const rows = await all(env, 'SELECT u.id,u.presence_actor,u.'+field+' AS last_seen,u.greeting_at,c.published FROM users u LEFT JOIN cards c ON c.user_id=u.id WHERE u.suspended=0 AND u.presence_actor IS NOT NULL AND u.'+field+'>? ORDER BY u.'+field+' DESC,u.id LIMIT 21 OFFSET ?', serverTime - windowMs, offset);
+                    return json({ players: rows.slice(0,20).map(row => ({id:row.id,actor:JSON.parse(row.presence_actor),lastSeen:row.last_seen,greetingAt:row.greeting_at || 0,hasCard:!!row.published})), next: rows.length>20 ? offset+20 : null, serverTime, onlineCount:await onlineCount(env,serverTime), siteOnlineCount:await siteOnlineCount(env,serverTime), siteRecentCount:await siteRecentCount(env,serverTime) });
                 }
                 if (path === '/v1/cards' && method === 'GET') {
                     const view = url.searchParams.get('view') || 'recent';
                     if (!['recent', 'online', 'favorites'].includes(view)) fail(400, '名片列表不正確。');
                     const offset = Number(url.searchParams.get('offset') || 0);
                     if (!Number.isInteger(offset) || offset < 0 || offset > 10000) fail(400, '分頁不正確。');
-                    const rows = await all(env, 'SELECT c.*,u.last_seen,u.greeting_at,u.current_map FROM cards c JOIN users u ON u.id=c.user_id WHERE c.published=1 AND u.suspended=0' +
+                    const rows = await all(env, 'SELECT c.*,u.last_seen,u.site_seen,u.greeting_at,u.current_map FROM cards c JOIN users u ON u.id=c.user_id WHERE c.published=1 AND u.suspended=0' +
                         (view === 'online' ? ' AND u.last_seen>?' : '') +
                         (view === 'favorites' ? ' AND EXISTS(SELECT 1 FROM favorites f WHERE f.card_id=c.user_id AND f.owner_id=?)' : '') +
                         ' ORDER BY u.last_seen DESC,c.user_id LIMIT 21 OFFSET ?', ...(view === 'online' ? [now() - 120000, offset] : view === 'favorites' ? [user.id, offset] : [offset]));
@@ -183,13 +186,17 @@ export function createHandler() {
                 const cardRoute = path.match(/^\/v1\/cards\/([a-f0-9-]{36})(?:\/(favorite|comments))?$/);
                 if (cardRoute) {
                     const id = cardRoute[1], action = cardRoute[2];
-                    const row = await first(env, 'SELECT c.*,u.last_seen,u.greeting_at,u.current_map FROM cards c JOIN users u ON u.id=c.user_id WHERE c.user_id=? AND c.published=1 AND u.suspended=0', id);
-                    if (!row) fail(404, '這張名片目前未公開。');
+                    const row = await first(env, 'SELECT c.*,u.last_seen,u.site_seen,u.greeting_at,u.current_map FROM cards c JOIN users u ON u.id=c.user_id WHERE c.user_id=? AND c.published=1 AND u.suspended=0', id);
+                    const recipient = await first(env, 'SELECT id,presence_actor,site_seen FROM users WHERE id=? AND suspended=0', id);
+                    const basic = recipient?.presence_actor && recipient.site_seen > 0;
+                    if (!row && !basic) fail(404, '找不到這位旅人。');
                     if (!action && method === 'GET') {
-                        const favorite = !!await first(env, 'SELECT 1 FROM favorites WHERE owner_id=? AND card_id=?', user.id, id);
-                        return json({ ...publicCard(row), favorite });
+                        const favorite = row && !!await first(env, 'SELECT 1 FROM favorites WHERE owner_id=? AND card_id=?', user.id, id);
+                        const result = row ? { ...publicCard(row), favorite, lastSeen:recipient.site_seen || row.last_seen } : {id,card:JSON.parse(recipient.presence_actor),presence:true,lastSeen:recipient.site_seen};
+                        return json({...result,serverTime:now()});
                     }
                     if (action === 'favorite' && ['PUT', 'DELETE'].includes(method)) {
+                        if (!row) fail(404, '這張名片目前未公開。');
                         if (method === 'PUT') await run(env, 'INSERT INTO favorites(owner_id,card_id,created_at) VALUES(?,?,?) ON CONFLICT DO NOTHING', user.id, id, now());
                         else await run(env, 'DELETE FROM favorites WHERE owner_id=? AND card_id=?', user.id, id);
                         return json({ ok: true });
@@ -197,8 +204,8 @@ export function createHandler() {
                     if (action === 'comments' && method === 'GET') {
                         const before = Number(url.searchParams.get('before') || Number.MAX_SAFE_INTEGER);
                         if (!Number.isSafeInteger(before) || before < 1) fail(400, '分頁不正確。');
-                        const rows = await all(env, 'SELECT m.id,m.author_id,m.text,m.created_at,c.payload FROM comments m JOIN users u ON u.id=m.author_id LEFT JOIN cards c ON c.user_id=u.id AND c.published=1 WHERE m.card_id=? AND m.text IS NOT NULL AND u.suspended=0 AND m.id<? ORDER BY m.id DESC LIMIT 21', id, before);
-                        return json({ comments: rows.slice(0, 20).map(m => ({ id: m.id, authorId: m.author_id, author: m.payload ? JSON.parse(m.payload).name : '冒險者', text: m.text, createdAt: m.created_at, canDelete: admin || user.id === m.author_id || user.id === id })), next: rows.length > 20 ? rows[19].id : null });
+                        const rows = await all(env, 'SELECT m.id,m.author_id,m.text,m.created_at,c.payload,u.presence_actor FROM comments m JOIN users u ON u.id=m.author_id LEFT JOIN cards c ON c.user_id=u.id AND c.published=1 WHERE m.card_id=? AND m.text IS NOT NULL AND u.suspended=0 AND m.id<? ORDER BY m.id DESC LIMIT 21', id, before);
+                        return json({ comments: rows.slice(0, 20).map(m => ({ id: m.id, authorId: m.author_id, author: m.payload ? JSON.parse(m.payload).name : m.presence_actor ? JSON.parse(m.presence_actor).name : '冒險者', text: m.text, createdAt: m.created_at, canDelete: admin || user.id === m.author_id || user.id === id })), next: rows.length > 20 ? rows[19].id : null });
                     }
                     if (action === 'comments' && method === 'POST') {
                         const data = await body(request), value = text(data.text, 300, true);
@@ -207,7 +214,7 @@ export function createHandler() {
                         const existing = await first(env, 'SELECT id,body_hash FROM comments WHERE author_id=? AND request_id=?', user.id, data.requestId);
                         if (existing) { if (existing.body_hash !== bodyHash) fail(409, '留言內容與上次送出不同。'); return json({ id: existing.id }); }
                         await rate(env, 'comment:' + user.id, 5);
-                        await run(env, 'INSERT INTO comments(card_id,author_id,request_id,text,body_hash,created_at) SELECT ?,?,?,?,?,? WHERE EXISTS(SELECT 1 FROM cards c JOIN users u ON u.id=c.user_id WHERE c.user_id=? AND c.published=1 AND u.suspended=0) ON CONFLICT(author_id,request_id) DO NOTHING', id, user.id, data.requestId, value, bodyHash, now(), id);
+                        await run(env, 'INSERT INTO comments(card_id,author_id,request_id,text,body_hash,created_at) SELECT ?,?,?,?,?,? WHERE EXISTS(SELECT 1 FROM users u WHERE u.id=? AND u.suspended=0 AND (u.site_seen>0 AND u.presence_actor IS NOT NULL OR EXISTS(SELECT 1 FROM cards c WHERE c.user_id=u.id AND c.published=1))) ON CONFLICT(author_id,request_id) DO NOTHING', id, user.id, data.requestId, value, bodyHash, now(), id);
                         const written = await first(env, 'SELECT id,body_hash FROM comments WHERE author_id=? AND request_id=?', user.id, data.requestId);
                         if (!written) fail(404, '這張名片目前未公開。');
                         if (written.body_hash !== bodyHash) fail(409, '留言內容與上次送出不同。');

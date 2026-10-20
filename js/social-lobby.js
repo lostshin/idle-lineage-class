@@ -7,7 +7,8 @@ const socialLobby = (() => {
     let visitorsSignature = '', popupReturnFocus = null, commentRows = [];
     let campGuests = [], selfGreeting = 0, greetingTimer = null;
     let presenceTimer = null, presencePending = null, loginPending = null, disconnected = false, presenceFailures = 0;
-    let campServerTime = 0, campReceivedAt = 0;
+    let campServerTime = 0, campReceivedAt = 0, stateTimer = null, listReceivedAt = null;
+    let selfSeen = 0, selfReceivedAt = 0, selfMap = '';
     const avatarRows = [['王子','公主'],['男騎士','女騎士'],['男妖精','女妖精'],['男法師','女法師'],['男黑暗妖精','女黑暗妖精'],['男龍騎士','女龍騎士'],['男幻術士','女幻術士'],['男戰士','女戰士']];
     const defaultAvatar = {royal:'王子',knight:'男騎士',elf:'男妖精',mage:'男法師',dark:'男黑暗妖精',dragon:'男龍騎士',illusion:'男幻術士',warrior:'男戰士'};
     // Sample generated rows at their measured foot baseline, without clipping adjacent classes.
@@ -18,7 +19,7 @@ const socialLobby = (() => {
     const playing = () => player.cls && !$('game-screen').classList.contains('hidden');
     const currentMap = () => HIDDEN_AREA_NAMES[mapState.current] || mapEntryOf(mapState.current)?.t || '';
     const currentActor = () => ({name:String(player.name || '冒險者').slice(0,12),cls:player.cls,avatar:player.avatar || defaultAvatar[player.cls]});
-    const campNow = () => campServerTime + Math.max(0,performance.now()-campReceivedAt);
+    const campNow = () => (campServerTime || selfSeen) + Math.max(0,performance.now()-(campServerTime ? campReceivedAt : selfReceivedAt));
     const status = message => { $('lobby-status').textContent = message; $('lobby-status').hidden = !message; };
 
     function node(tag, value, className) {
@@ -31,6 +32,7 @@ const socialLobby = (() => {
         const el = node('button', label); el.type = 'button'; el.addEventListener('click', () => perform(action)); return el;
     }
     async function api(path, method = 'GET', data) {
+        if (!onlinePresence.canConnect()) throw Error('本機不加入公共大廳，請使用正式網站。');
         const apiBase = base();
         if (!apiBase) throw Error('大廳尚未開放連線，你可以先預覽自己的名片。');
         const url = new URL(apiBase);
@@ -66,17 +68,22 @@ const socialLobby = (() => {
     async function sendHeartbeat() {
         clearTimeout(presenceTimer);
         try {
-            if (!playing() || disconnected) return;
+            if (!playing() || disconnected || !onlinePresence.canConnect()) return;
             if (!session) { mount(); await login(true); }
             if (!session || !playing()) return;
-            const result = await api('/presence', 'POST', { actor:currentActor(), map: mine?.published && mine.card.shareMap ? currentMap() : '', page:onlinePresence.page });
-            onlinePresence.update(result.siteOnlineCount);
+            const reportedMap = mine?.published && mine.card.shareMap ? currentMap() : '';
+            const result = await api('/presence', 'POST', { actor:currentActor(), map:reportedMap, page:onlinePresence.page });
+            selfSeen = result.serverTime; selfReceivedAt = performance.now(); selfMap = reportedMap;
+            campServerTime = selfSeen; campReceivedAt = selfReceivedAt;
+            onlinePresence.update(result.siteRecentCount, result.serverTime);
             presenceFailures = 0;
+            if (active) updateRecentState();
         } catch (error) { presenceFailures++; onlinePresence.unavailable(); if (active) status(error.message); }
-        finally { presenceTimer = setTimeout(heartbeat, Math.min(300000, 30000 * 2 ** presenceFailures)); }
+        finally { presenceTimer = setTimeout(heartbeat, Math.min(1800000, 300000 * 2 ** presenceFailures)); }
     }
     function stop() {
         clearTimeout(poll); poll = null;
+        clearTimeout(stateTimer); stateTimer = null;
         clearTimeout(greetingTimer); greetingTimer = null;
         requestEpoch++;
         for (const request of requests) request.abort();
@@ -126,7 +133,7 @@ const socialLobby = (() => {
                         </section>
                         <section id="lobby-roster-panel" class="lobby-paper" aria-label="旅人名冊" hidden>
                             <div class="lobby-section-heading"><h3 id="lobby-list-title">旅人名冊</h3><button id="lobby-roster-close" type="button" aria-label="關閉名冊">×</button></div>
-                            <div class="lobby-actions"><button id="lobby-view-online" type="button" aria-pressed="true">在線玩家</button><button id="lobby-view-favorites" type="button" aria-pressed="false">我的收藏</button><button id="lobby-refresh" type="button">重新整理</button></div>
+                            <div class="lobby-actions"><button id="lobby-view-online" type="button" aria-pressed="true">近期旅人</button><button id="lobby-view-favorites" type="button" aria-pressed="false">我的收藏</button><button id="lobby-refresh" type="button">重新整理</button></div>
                             <div id="lobby-visitors"></div><div class="lobby-actions"><button id="lobby-previous" type="button" hidden>上一頁</button><button id="lobby-more" type="button" hidden>下一頁</button></div>
                         </section>
                     </dialog>
@@ -194,17 +201,21 @@ const socialLobby = (() => {
     }
     function renderCamp() {
         const host = $('lobby-seats'); if (!host) return;
-        const guests = [{id:'self',actor:currentActor(),self:true,greetingAt:selfGreeting}, ...campGuests.filter(item => item.id !== session?.user.id && campNow()-item.lastSeen < 120000).slice(0,8)];
+        const recent = campGuests.filter(item => item.id !== session?.user.id && campNow()-item.lastSeen < 86400000);
+        const retained = [...host.children].map(seat => recent.find(item => item.id === seat.dataset.campId)).filter(Boolean);
+        const guests = [{id:'self',actor:currentActor(),self:true,greetingAt:selfGreeting}, ...retained.concat(recent.filter(item => !retained.includes(item))).slice(0,8)];
+        for (const seat of [...host.children]) if (!guests.some(item => item.id === seat.dataset.campId)) seat.remove();
         const positions = [[50,80],[31,73],[69,73],[14,53],[86,53],[25,33],[75,33],[41,24],[59,24]];
-        const keep = new Set(); let greetingRemaining = 0;
-        for (const [index, item] of guests.entries()) {
-            keep.add(item.id);
+        let greetingRemaining = 0;
+        for (const item of guests) {
             let seat = [...host.children].find(el => el.dataset.campId === item.id);
             if (!seat) {
                 seat = button('', () => item.self ? ownCard() : detail(item.id)); seat.className = 'lobby-seat'; seat.dataset.campId = item.id;
                 if (item.self) seat.dataset.self = 'true';
                 const sprite = node('span', undefined, 'lobby-camper-sprite'), image = node('img');
                 image.src = 'assets/ui/lobby-campers-v1.webp'; image.alt = ''; image.draggable = false; sprite.appendChild(image);
+                const used = new Set([...host.children].map(seat => Number(seat.dataset.position)));
+                seat.dataset.position = item.self ? '0' : String([1,2,3,4,5,6,7,8].find(position => !used.has(position)));
                 seat.append(node('span','嗨，旅人！','lobby-greeting'),sprite,node('span','','lobby-seat-name')); host.appendChild(seat);
             }
             const actor = item.actor;
@@ -215,7 +226,11 @@ const socialLobby = (() => {
             const pose = ['seated','standing','kneeling'][_seedHash(item.id+'|'+avatar)%3]; sprite.dataset.pose = pose;
             sprite.firstChild.src = 'assets/ui/' + (pose === 'seated' ? 'lobby-campers-v1.webp' : 'lobby-'+pose+'-v1.webp');
             sprite.firstChild.style.left = (-column*100)+'%'; sprite.firstChild.style.top = (-(poseRows[pose]?.[row] ?? row*100))+'%';
-            seat.style.left = positions[index][0]+'%'; seat.style.top = positions[index][1]+'%'; seat.style.zIndex = positions[index][1];
+            const position = positions[Number(seat.dataset.position)];
+            seat.style.left = position[0]+'%'; seat.style.top = position[1]+'%'; seat.style.zIndex = position[1];
+            seat.disabled = !onlinePresence.canConnect();
+            seat.dataset.online = String(item.self ? !disconnected && selfSeen>0 && performance.now()-selfReceivedAt < 600000 : campNow()-item.lastSeen < 600000);
+            seat.title = item.self && disconnected ? '離線 · 已中斷連線' : visitorStatus(item.self ? selfSeen : item.lastSeen);
             seat.querySelector('.lobby-seat-name').textContent = actor.name + (item.self ? '（你）' : '');
             seat.setAttribute('aria-label', item.self ? '我的代表角色：'+actor.name : '查看 '+actor.name+' 的名片');
             if (item.greetingAt > (item.self ? Date.now() : campNow())-10000 && seat.dataset.greetingAt !== String(item.greetingAt)) {
@@ -225,9 +240,35 @@ const socialLobby = (() => {
             seat.classList.toggle('is-greeting',remaining>0);
             if (remaining>0) greetingRemaining = Math.max(greetingRemaining,remaining);
         }
-        for (const seat of [...host.children]) if (!keep.has(seat.dataset.campId)) seat.remove();
         $('lobby-camp-count').textContent = guests.length === 1 ? '你在營火旁歇腳' : '營火旁 · '+guests.length+' 位旅人';
         clearTimeout(greetingTimer); greetingTimer = active && greetingRemaining>0 ? setTimeout(renderCamp,greetingRemaining+30) : null;
+        scheduleRecentState();
+    }
+    function visitorStatus(lastSeen) {
+        if (!lastSeen) return '尚無回報紀錄';
+        return (campNow()-lastSeen < 600000 ? '在線' : '離線')+' · 最後回報：'+new Date(lastSeen).toLocaleString('zh-TW');
+    }
+    function updateRecentState() {
+        if (!live()) return;
+        renderCamp();
+        for (const row of $('lobby-visitors').children) {
+            if (!row.dataset.lastSeen) continue;
+            const at = Number(row.dataset.lastSeen);
+            if (view === 'online' && campNow()-at >= 86400000) { row.remove(); continue; }
+            row.querySelector('small').textContent = visitorStatus(at);
+        }
+        const statusNode = $('lobby-detail-body').querySelector('[data-visitor-status]');
+        if (statusNode && selected) statusNode.textContent = visitorStatus(selected.lastSeen);
+    }
+    function scheduleRecentState() {
+        clearTimeout(stateTimer); stateTimer = null;
+        if (!live()) return;
+        const times = campGuests.map(item => item.lastSeen);
+        if (selfSeen) times.push(selfSeen);
+        for (const row of $('lobby-visitors').children) if (row.dataset.lastSeen) times.push(Number(row.dataset.lastSeen));
+        if (selected?.lastSeen) times.push(selected.lastSeen);
+        const remaining = times.flatMap(at => [at+600000-campNow(),at+86400000-campNow()]).filter(ms => ms>0);
+        if (remaining.length) stateTimer = setTimeout(updateRecentState, Math.min(...remaining)+1);
     }
     async function greet() {
         if (Date.now()-selfGreeting < 10000) return;
@@ -266,7 +307,14 @@ const socialLobby = (() => {
         $('map-select').replaceChildren(room); $('map-select').dataset.lobbyRoom = 'gandan';
         _vfxClearAll(); showSection('common'); updateAuth();
         renderCamp();
-        if (session) perform(async () => { await loadMine(); await heartbeat(); await refresh(); });
+        for (const id of ['lobby-greet','lobby-roster']) $(id).disabled = !onlinePresence.canConnect();
+        if (!onlinePresence.canConnect()) {
+            status('本機不加入公共大廳。請前往正式網站與旅人交流。');
+            const link = node('a','前往正式網站'); link.href = 'https://lostshin.github.io/idle-lineage-class/';
+            $('lobby-status').appendChild(link);
+            return;
+        }
+        if (session) perform(async () => { await loadMine(); await refresh(); });
         else { clearVisitors(); status(base() ? '連接大廳中…' : '大廳尚未開放連線'); if (base()) perform(login); }
     }
     function close(restore = true) {
@@ -287,8 +335,9 @@ const socialLobby = (() => {
         if (card.intro) host.appendChild(node('p', card.intro));
         if (card.progress) host.appendChild(node('p', '冒險近況：' + card.progress));
         if (card.equipment) host.appendChild(node('p', '展示裝備：' + card.equipment.name));
-        if (item.currentMap) host.appendChild(node('p', '目前地圖：' + item.currentMap, 'lobby-card-meta'));
-        host.appendChild(node('small', item.presence ? '目前在線角色，尚未發布名片。' : '玩家分享的單機快照' + (item.updatedAt ? ' · ' + new Date(item.updatedAt).toLocaleString('zh-TW') : '')));
+        if (item.currentMap) host.appendChild(node('p', '最近回報地圖：' + item.currentMap+' · '+new Date(item.mapReportedAt).toLocaleString('zh-TW'), 'lobby-card-meta'));
+        if (item.lastSeen) { const statusNode = node('p',visitorStatus(item.lastSeen),'lobby-card-meta'); statusNode.dataset.visitorStatus = ''; host.appendChild(statusNode); }
+        host.appendChild(node('small', item.presence ? '旅人基本資料，尚未發布名片。' : '玩家分享的單機快照' + (item.updatedAt ? ' · ' + new Date(item.updatedAt).toLocaleString('zh-TW') : '')));
     }
     async function loadMine() {
         const connection = session, result = await api('/me');
@@ -300,53 +349,47 @@ const socialLobby = (() => {
         clearTimeout(poll); poll = null;
         const epoch = requestEpoch, listingView = view, listingOffset = offset;
         try {
-            const result = await api(view === 'online' ? '/players?offset=' + offset : '/cards?view=favorites&offset=' + offset);
-            const camp = view === 'online' && offset === 0 ? result : await api('/players?offset=0');
+            const result = await api(view === 'online' ? '/players?view=recent&offset=' + offset : '/cards?view=favorites&offset=' + offset);
+            const camp = view === 'online' && offset === 0 ? result : await api('/players?view=recent&offset=0');
             if (epoch !== requestEpoch || !live() || view !== listingView || offset !== listingOffset) return;
             campServerTime = camp.serverTime; campReceivedAt = performance.now();
-            campGuests = camp.players; renderCamp(); onlinePresence.update(camp.siteOnlineCount);
+            campGuests = camp.players; listReceivedAt = performance.now(); renderCamp(); onlinePresence.update(camp.siteRecentCount, camp.serverTime);
             const rows = view === 'online' ? result.players : result.cards;
-            const signature = JSON.stringify({ view, offset, cards: rows.map(({greetingAt, ...item}) => ({ ...item, lastSeen: !!item.lastSeen && campNow() - item.lastSeen < 120000 })) });
+            const signature = JSON.stringify({ view, offset, cards: rows.map(({greetingAt, ...item}) => ({ ...item, lastSeen: !!item.lastSeen && campNow() - item.lastSeen < 600000 })) });
             const list = $('lobby-visitors');
             if (signature !== visitorsSignature) {
                 visitorsSignature = signature; list.replaceChildren();
                 for (const item of rows.slice(0,3)) {
                     const el = button('', () => detail(item.id, item.actor ? item : null)); el.dataset.cardId = item.id; el.className = 'lobby-visitor';
-                    const title = node('strong', (item.actor || item.card).name), when = item.lastSeen && campNow() - item.lastSeen < 120000 ? '在線' : '離線';
+                    el.dataset.lastSeen = String(item.lastSeen || 0);
+                    const title = node('strong', (item.actor || item.card).name), when = visitorStatus(item.lastSeen);
                     el.append(title, node('span', item.card?.intro || '來交換一段冒險故事吧'), node('small', when)); list.appendChild(el);
                 }
-                if (!rows.length) list.appendChild(node('p', view === 'favorites' ? '還沒有收藏的公開名片。' : '目前沒有其他在線的冒險者。', 'lobby-empty'));
+                if (!rows.length) list.appendChild(node('p', view === 'favorites' ? '還沒有收藏的公開名片。' : '近 24 小時還沒有其他旅人到訪。', 'lobby-empty'));
             }
             nextPage = rows.length>3 ? offset+3 : result.next; $('lobby-more').hidden = nextPage === null; $('lobby-previous').hidden = offset === 0;
             for (const name of ['online', 'favorites']) $('lobby-view-' + name).setAttribute('aria-pressed', String(view === name));
-            $('lobby-list-title').textContent = view === 'favorites' ? '收藏的冒險者' : '在線的冒險者';
+            $('lobby-list-title').textContent = view === 'favorites' ? '收藏的冒險者' : '近 24 小時旅人';
             failures = 0;
-            status('');
+            status(''); scheduleRecentState();
         } catch (error) { if (epoch !== requestEpoch || !active) return; failures++; onlinePresence.unavailable(); status(error.name === 'AbortError' ? '連線已中斷。' : error.message); }
-        if (epoch === requestEpoch && live() && session) { clearTimeout(poll); poll = setTimeout(pollRefresh, Math.min(300000, 5000 * 2 ** failures)); }
-    }
-    function pollRefresh() {
-        poll = null;
-        if (!live() || !session) return;
-        if (busy) { poll = setTimeout(pollRefresh, 1000); return; }
-        refresh();
     }
     async function detail(id, onlineActor = null) {
         const epoch = requestEpoch, guest = onlineActor || campGuests.find(item => item.id === id);
-        const result = guest?.hasCard === false ? {id,card:guest.actor,presence:true} : await api('/cards/' + id);
+        const result = guest?.hasCard === false ? {id,card:guest.actor,presence:true,lastSeen:guest.lastSeen} : await api('/cards/' + id);
         if (epoch !== requestEpoch || !active) return;
         selected = result; renderCard($('lobby-detail-body'), result); showSection('card-detail');
         $('lobby-edit').hidden = id !== session.user.id;
         $('lobby-favorite').hidden = !!result.presence || id === session.user.id;
-        $('lobby-open-comments').hidden = !!result.presence;
+        $('lobby-open-comments').hidden = false;
         $('lobby-favorite').textContent = result.favorite ? '取消收藏' : '收藏名片';
         $('lobby-suspend').hidden = !session.user.admin || id === session.user.id;
-        $('lobby-comment').value = ''; requestId = null; $('lobby-detail-close').focus({ preventScroll: true });
+        $('lobby-comment').value = ''; requestId = null; scheduleRecentState(); $('lobby-detail-close').focus({ preventScroll: true });
     }
     function ownCard() {
-        selected = mine?.published ? {...mine,id:session.user.id} : null;
+        selected = session ? {...mine,id:session.user.id,lastSeen:selfSeen} : null;
         const card = mine?.card || {name:player.name || '冒險者',cls:player.cls,avatar:player.avatar};
-        renderCard($('lobby-detail-body'), {card,updatedAt:mine?.updatedAt,currentMap:card.shareMap ? currentMap() : ''});
+        renderCard($('lobby-detail-body'), {card,updatedAt:mine?.updatedAt,currentMap:card.shareMap ? selfMap : '',mapReportedAt:selfSeen,lastSeen:session ? selfSeen : 0});
         $('lobby-edit').hidden = false; $('lobby-favorite').hidden = true; $('lobby-suspend').hidden = true;
         $('lobby-open-comments').hidden = !selected;
         showSection('card-detail');
@@ -425,6 +468,7 @@ const socialLobby = (() => {
         if (active) { showSection('common'); await refresh(); }
     }
     async function login(background = false) {
+        if (!onlinePresence.canConnect()) return;
         disconnected = false;
         if (!loginPending) loginPending = connect().finally(() => { loginPending = null; });
         await loginPending;
@@ -440,15 +484,20 @@ const socialLobby = (() => {
             if (!deviceKey) throw Error('無法保存訪客身分；請允許此網站儲存資料後再試。');
         }
         const result = await api('/auth/guest', 'POST', { deviceKey });
-        if (!playing() || disconnected) return;
+        if (!playing() || disconnected || !onlinePresence.canConnect()) return;
         setSession(result); await loadMine();
     }
     function setSession(value) { session = value; updateAuth(); renderCamp(); }
-    document.addEventListener('visibilitychange', () => { if (!active) return; $('social-lobby').classList.toggle('lobby-motion-paused', document.hidden || $('lobby-popup').open); if (document.hidden) stop(); else { renderCamp(); if (session) refresh(); } });
+    document.addEventListener('visibilitychange', () => {
+        if (!active) return;
+        $('social-lobby').classList.toggle('lobby-motion-paused', document.hidden || $('lobby-popup').open);
+        if (document.hidden) stop();
+        else { updateRecentState(); if (session && (listReceivedAt === null || performance.now()-listReceivedAt >= 600000)) perform(refresh); }
+    });
     window.addEventListener('pagehide', () => { clearTimeout(presenceTimer); close(false); });
     window.addEventListener('pageshow', heartbeat);
-    presenceTimer = setTimeout(heartbeat, 30000);
-    window.addEventListener('online', () => { heartbeat().then(() => { if (live() && session) refresh(); }); });
+    presenceTimer = setTimeout(heartbeat, 300000);
+    window.addEventListener('online', () => { heartbeat().then(() => { if (live() && session) perform(refresh); }); });
     new MutationObserver(() => { if (playing()) heartbeat(); }).observe($('game-screen'), {attributes:true,attributeFilter:['class']});
     document.addEventListener('pointerdown', event => { const popup = $('lobby-popup'); if (active && popup.open && !popup.contains(event.target) && !event.target.closest('#cdd-pop')) showSection('common'); });
     document.addEventListener('keydown', event => { if (!active || event.key !== 'Escape') return; if ($('lobby-popup').open) { event.preventDefault(); showSection('common'); } else if (!document.querySelector('dialog[open]')) close(); });

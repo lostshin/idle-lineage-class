@@ -57,7 +57,7 @@ try:
     with tempfile.TemporaryDirectory(prefix='local-d1-', dir=artifacts) as persist, (artifacts / 'workerd.log').open('w') as log:
         env = dict(os.environ, CLOUDFLARE_SEND_METRICS='false')
         subprocess.run([str(wrangler), 'd1', 'migrations', 'apply', 'DB', '--local', '--persist-to', persist], cwd=backend, env=env, check=True, stdout=log, stderr=log)
-        worker = subprocess.Popen([str(wrangler), 'dev', '--local', '--port', str(api_port), '--inspector-port', str(inspector_port), '--persist-to', persist, '--var', 'ALLOWED_ORIGINS:' + origin], cwd=backend, env=env, stdout=log, stderr=log)
+        worker = subprocess.Popen([str(wrangler), 'dev', '--local', '--port', str(api_port), '--inspector-port', str(inspector_port), '--persist-to', persist, '--var', 'ALLOWED_ORIGINS:' + origin + ',https://lostshin.github.io', '--var', 'ALLOW_LOCAL_CLIENTS:true'], cwd=backend, env=env, stdout=log, stderr=log)
         deadline = time.monotonic() + 30
         while True:
             if worker.poll() is not None:

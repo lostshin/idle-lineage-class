@@ -8,16 +8,16 @@ const init=(await page.cdp('Page.addScriptToEvaluateOnNewDocument',{source:`(()=
  const data={};window.__feedback={data,requests:[],errors:[],mine:null,presence:null,clock:Date.now(),fail:null,timers:[]};
  const s={getItem:k=>data[k]??null,setItem:(k,v)=>{if(k===__feedback.fail)throw Error('synthetic write failure');data[k]=String(v)},removeItem:k=>delete data[k],key:i=>Object.keys(data)[i]??null,get length(){return Object.keys(data).length}};
  for(const k of ['localStorage','sessionStorage'])Object.defineProperty(window,k,{value:s,configurable:true});window.BroadcastChannel=undefined;const inputClick=HTMLInputElement.prototype.click;HTMLInputElement.prototype.click=function(){if(this.type==='file'){document.getElementById('feedback-import')?.remove();this.id='feedback-import';this.hidden=true;document.body.appendChild(this);return;}return inputClick.call(this);};addEventListener('error',e=>__feedback.errors.push(e.message));
- const timeout=window.setTimeout;window.setTimeout=function(fn,ms,...args){if(ms===30000)__feedback.timers.push(()=>fn(...args));return timeout.call(this,fn,ms,...args);};
+ const timeout=window.setTimeout;window.setTimeout=function(fn,ms,...args){if(ms===300000)__feedback.timers.push(()=>fn(...args));return timeout.call(this,fn,ms,...args);};
  const nativeFetch=window.fetch;window.fetch=async(input,options={})=>{
-  if(!String(input).startsWith('https://lobby.synthetic.test'))return nativeFetch(input,options);
+  if(!String(input).startsWith('http://127.0.0.1:9998'))return nativeFetch(input,options);
   const u=new URL(input),p=u.pathname,b=options.body?JSON.parse(options.body):{};__feedback.requests.push({path:p,query:u.search,method:options.method||'GET',body:b});
   const stamp=Date.now(),card={id:'00000000-0000-4000-8000-000000000002',version:1,lastSeen:stamp,currentMap:'象牙塔7樓',card:{name:'在線旅人',cls:'mage',avatar:'女法師',intro:'一起冒險',shareMap:true}};
   let value={};if(p.endsWith('/auth/guest'))value={token:'synthetic',user:{id:'00000000-0000-4000-8000-000000000001',admin:false}};
   else if(p==='/v1/presence')__feedback.presence=b;
   else if(p==='/v1/me')value={user:{id:'00000000-0000-4000-8000-000000000001',admin:false},card:__feedback.mine};
   else if(p==='/v1/me/card'){__feedback.mine={card:b.card,version:1,published:true};value={version:1};}
-  else if(p.endsWith('/players'))value={players:[{id:card.id,actor:card.card,lastSeen:stamp,hasCard:true}],next:null,serverTime:stamp,onlineCount:2,siteOnlineCount:0};
+  else if(p.endsWith('/players'))value={players:[{id:card.id,actor:card.card,lastSeen:stamp,hasCard:true}],next:null,serverTime:stamp,onlineCount:2,siteOnlineCount:0,siteRecentCount:0};
   else if(p.endsWith('/cards'))value={cards:u.searchParams.get('view')==='online'?[card]:[card,{...card,id:'00000000-0000-4000-8000-000000000003',lastSeen:stamp-300000,card:{name:'離線旅人'}}],next:null};
   else if(p.endsWith('/comments'))value={comments:Array.from({length:5},(_,i)=>({id:5-i,author:'留言旅人'+i,text:'留言內容'+i,createdAt:stamp+i,canDelete:false})),next:null};
   else if(p.includes('/cards/'))value={...card,favorite:false};
@@ -26,7 +26,7 @@ const init=(await page.cdp('Page.addScriptToEvaluateOnNewDocument',{source:`(()=
 })();`})).identifier;
 await page.cdp('Network.setCacheDisabled',{cacheDisabled:true});await page.cdp('Emulation.setDeviceMetricsOverride',{width:1330,height:900,deviceScaleFactor:1,mobile:false});
 await page.goto(options.url+'?feedback-1020');await page.waitForFunction(()=>document.readyState==='complete'&&typeof startGame==='function');
-await page.evaluate(()=>{document.getElementById('social-lobby-api').content='https://lobby.synthetic.test';_bgHeartbeatWorker?.terminate();_bgHeartbeatWorker=null;selectClass('m_knight');document.getElementById('creation-name').value='合成匯入旅人';startGame();stopGameTimers();state.running=false;player.autoSellOn=false;setUiScale(80);window.showSaveFilePicker=undefined;window.__feedbackRoleId=accountRoleId(player);saveGame();returnToCharacterSelect();AFK_TOGGLES.set('synccompress',true);for(const prefix of ADDON_ROLE_PREFS)localStorage.setItem(prefix+'1',prefix==='afk_bossavoid_'?JSON.stringify({training:['orc']}):'1');});
+await page.evaluate(()=>{document.getElementById('social-lobby-api').content='http://127.0.0.1:9998';_bgHeartbeatWorker?.terminate();_bgHeartbeatWorker=null;selectClass('m_knight');document.getElementById('creation-name').value='合成匯入旅人';startGame();stopGameTimers();state.running=false;player.autoSellOn=false;setUiScale(80);window.showSaveFilePicker=undefined;window.__feedbackRoleId=accountRoleId(player);saveGame();returnToCharacterSelect();AFK_TOGGLES.set('synccompress',true);for(const prefix of ADDON_ROLE_PREFS)localStorage.setItem(prefix+'1',prefix==='afk_bossavoid_'?JSON.stringify({training:['orc']}):'1');});
 async function roundTrip(index){
  const downloadPromise=page.waitForEvent('download');await page.click('#load-btn-account-export');const download=await downloadPromise;const path=options.artifacts+'/synthetic-account-'+index+'.json';await download.saveAs(path);
  await page.click('#load-btn-account-import');await page.setInputFiles('#feedback-import',[path]);await page.waitForSelector('#account-import-confirm');await page.click('#account-import-confirm');
@@ -43,7 +43,7 @@ await page.evaluate(()=>{closeModal();setMapSelectors('training');changeMap(true
 await check('camp requests online players rather than recent historical cards',()=>page.evaluate(()=>__feedback.requests.some(r=>r.path==='/v1/players')&&!document.querySelector('[data-camp-id="00000000-0000-4000-8000-000000000003"]')));
 async function click(selector){await page.waitForFunction(()=>document.getElementById('social-lobby').getAttribute('aria-busy')!=='true');await page.click(selector);await page.waitForFunction(()=>document.getElementById('social-lobby').getAttribute('aria-busy')!=='true');}
 await click('[data-camp-id="00000000-0000-4000-8000-000000000002"]');
-await check('remote card displays live current map',()=>page.evaluate(()=>document.getElementById('lobby-detail-body').textContent.includes('目前地圖：象牙塔7樓')));
+await check('remote card displays live current map',()=>page.evaluate(()=>document.getElementById('lobby-detail-body').textContent.includes('最近回報地圖：象牙塔7樓')));
 await click('#lobby-open-comments');await check('message board renders several people vertically at once',()=>page.evaluate(()=>{const rows=[...document.querySelectorAll('#lobby-comments article')];return rows.length===5&&rows.every((r,i)=>i===0||r.getBoundingClientRect().top>=rows[i-1].getBoundingClientRect().bottom)&&['留言旅人0','留言旅人4'].every(n=>document.getElementById('lobby-comments').textContent.includes(n))&&!document.getElementById('lobby-comments-previous');}));
 await check('only comment feed scrolls; popup and scene stay within the map',()=>page.evaluate(()=>{const h=document.getElementById('lobby-comments'),p=document.getElementById('lobby-popup'),s=document.getElementById('social-lobby'),r=p.getBoundingClientRect(),b=s.getBoundingClientRect();return getComputedStyle(h).overflowY==='auto'&&p.scrollHeight<=p.clientHeight+1&&s.scrollHeight<=s.clientHeight+1&&r.top>=b.top&&r.bottom<=b.bottom;}));
 await page.keyboard.press('Escape');await click('[data-self="true"]');await click('#lobby-edit');await click('[data-editor-tab="sharing"]');

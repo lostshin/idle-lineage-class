@@ -88,3 +88,8 @@
 @container (max-width: 600px) {
     #lobby-popup { width: calc(100% - 16px); }
 }
+
+.lobby-seat-name::before { content: ''; display: inline-block; width: 5px; height: 5px; margin-right: 3px; border-radius: 50%; background: #8b8b80; vertical-align: middle; }
+[data-online="true"] .lobby-seat-name::before { background: #71bb73; }
+#social-lobby .lobby-visitor small { display: block; max-width: 50%; font-size: 10px; }
+#lobby-status a { display: block; color: #e4ca8a; text-decoration: underline; }

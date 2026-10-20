@@ -7,19 +7,19 @@ async function check(name,fn){try{const r=await fn();if(r!==true)throw Error(JSO
 const init=(await page.cdp('Page.addScriptToEvaluateOnNewDocument',{source:`(()=>{
  const data={};window.__actors={data,requests:[],timers:[],poses:[],errors:[],mine:null,actor:null};const storage={getItem:k=>data[k]??null,setItem:(k,v)=>data[k]=String(v),removeItem:k=>delete data[k],key:i=>Object.keys(data)[i]??null,get length(){return Object.keys(data).length}};
  for(const key of ['localStorage','sessionStorage'])Object.defineProperty(window,key,{value:storage,configurable:true});window.BroadcastChannel=undefined;addEventListener('error',e=>__actors.errors.push(e.message));
- const timer=setTimeout;window.setTimeout=function(fn,ms,...args){if(ms===30000)__actors.timers.push(()=>fn(...args));return timer.call(this,fn,ms,...args);};
- const nativeFetch=fetch;window.fetch=async(input,options={})=>{if(!String(input).startsWith('https://lobby.synthetic.test'))return nativeFetch(input,options);const u=new URL(input),path=u.pathname,body=options.body?JSON.parse(options.body):{};__actors.requests.push({path,method:options.method||'GET',body});
+ const timer=setTimeout;window.setTimeout=function(fn,ms,...args){if(ms===300000)__actors.timers.push(()=>fn(...args));return timer.call(this,fn,ms,...args);};
+ const nativeFetch=fetch;window.fetch=async(input,options={})=>{if(!String(input).startsWith('http://127.0.0.1:9998'))return nativeFetch(input,options);const u=new URL(input),path=u.pathname,body=options.body?JSON.parse(options.body):{};__actors.requests.push({path,method:options.method||'GET',body});
  const stamp=Date.now(),player={id:'00000000-0000-4000-8000-000000000002',actor:__actors.actor||{name:'未發名片女法師',cls:'mage',avatar:'女法師'},lastSeen:stamp,greetingAt:0,hasCard:false};let value={};
  if(path==='/v1/auth/guest')value={token:'synthetic',user:{id:'00000000-0000-4000-8000-000000000001',admin:false}};
  else if(path==='/v1/me')value={user:{id:'00000000-0000-4000-8000-000000000001',admin:false},card:__actors.mine};
- else if(path==='/v1/players')value={players:[player,{...player,id:'00000000-0000-4000-8000-000000000003',lastSeen:stamp-180000}],next:null,serverTime:stamp,onlineCount:2,siteOnlineCount:0};
- else if(path==='/v1/cards')value={cards:[],next:null,serverTime:stamp,onlineCount:2,siteOnlineCount:0};
+ else if(path==='/v1/players')value={players:[player,{...player,id:'00000000-0000-4000-8000-000000000003',lastSeen:stamp-86400001}],next:null,serverTime:stamp,onlineCount:2,siteOnlineCount:0,siteRecentCount:0};
+ else if(path==='/v1/cards')value={cards:[],next:null,serverTime:stamp,onlineCount:2,siteOnlineCount:0,siteRecentCount:0};
  else if(path.includes('/cards/'))return new Response(JSON.stringify({error:'此玩家尚未發布名片'}),{status:404,headers:{'Content-Type':'application/json'}});
  return new Response(JSON.stringify(value),{status:200,headers:{'Content-Type':'application/json'}});
  };
 })();`})).identifier;
 await page.cdp('Network.setCacheDisabled',{cacheDisabled:true});await page.cdp('Emulation.setDeviceMetricsOverride',{width:1330,height:900,deviceScaleFactor:1,mobile:false});await page.goto(options.url+'?live-actors');await page.waitForFunction(()=>document.readyState==='complete'&&typeof startGame==='function');
-await page.evaluate(()=>{document.getElementById('social-lobby-api').content='https://lobby.synthetic.test';_bgHeartbeatWorker?.terminate();_bgHeartbeatWorker=null;_getLzWorker=()=>null;selectClass('f_royal');document.getElementById('creation-name').value='合成在線公主';startGame();stopGameTimers();state.running=false;setUiScale(80);});
+await page.evaluate(()=>{document.getElementById('social-lobby-api').content='http://127.0.0.1:9998';_bgHeartbeatWorker?.terminate();_bgHeartbeatWorker=null;_getLzWorker=()=>null;selectClass('f_royal');document.getElementById('creation-name').value='合成在線公主';startGame();stopGameTimers();state.running=false;setUiScale(80);});
 async function pulse(){await page.evaluate(async()=>{const timer=__actors.timers.at(-1);if(timer)await timer();});}
 await pulse();
 await check('new player announces current role outside lobby without publishing any card',()=>page.evaluate(()=>!socialLobby.isOpen()&&__actors.requests.some(r=>r.path==='/v1/presence'&&r.body.actor?.name===player.name&&r.body.actor.cls===player.cls&&r.body.actor.avatar===player.avatar)&&!__actors.requests.some(r=>r.path==='/v1/me/card')));
@@ -29,7 +29,7 @@ const remote='[data-camp-id="00000000-0000-4000-8000-000000000002"]';
 await check('camp displays unregistered female mage and excludes expired guests',()=>page.evaluate(()=>{const seat=document.querySelector('[data-camp-id="00000000-0000-4000-8000-000000000002"]');return seat?.textContent.includes('未發名片女法師')&&seat.querySelector('.lobby-camper-sprite').dataset.avatar==='女法師'&&!document.querySelector('[data-camp-id="00000000-0000-4000-8000-000000000003"]');}));
 if(await page.evaluate(()=>!!document.querySelector('[data-camp-id="00000000-0000-4000-8000-000000000002"]'))){
  await page.click(remote);await page.waitForFunction(()=>document.getElementById('social-lobby').getAttribute('aria-busy')!=='true');
- await check('clicking a player without a card shows current role without a failed card request or unavailable social controls',()=>page.evaluate(()=>document.getElementById('lobby-popup').open&&document.getElementById('lobby-detail-body').textContent.includes('未發名片女法師')&&document.getElementById('lobby-open-comments').hidden&&document.getElementById('lobby-favorite').hidden&&!__actors.requests.some(r=>r.path.includes('/cards/'))));
+ await check('clicking a player without a card shows current role without a failed card request or unavailable social controls',()=>page.evaluate(()=>document.getElementById('lobby-popup').open&&document.getElementById('lobby-detail-body').textContent.includes('未發名片女法師')&&!document.getElementById('lobby-open-comments').hidden&&document.getElementById('lobby-favorite').hidden&&!__actors.requests.some(r=>r.path.includes('/cards/'))));
  await page.keyboard.press('Escape');
 }
 await page.click('#lobby-greet');await page.waitForFunction(()=>document.getElementById('social-lobby').getAttribute('aria-busy')!=='true');

@@ -170,7 +170,7 @@
 - tick 內不可呼叫 `renderTabs(true)`：背包簽章依陣列順序，排序後用 `renderTabs()` 就會重建且併入 250ms 節流。`autoSortInventory` 已改；延後重建在 1,000 件仍約 55～63ms，要再降須先處理上述 consumer，不可直接只重建可見分頁。
 - 不把 `index.html` 的 script 改為動態延後載入：`afk-pwa` 的 reconcileCode 以開頁時 DOM `script[src]` 為保留清單，之後插入的 script 會被清出程式快取、離線失效；攻城資料 eval 僅約 4～6ms，不值得。
 - 能力預覽用 `effectPreviewActor`，不深複製整份背包與巢狀隊伍；唯讀背包仍供原公式查持有頭盔授技，會修改的裝備／技能／Buff 用副本。保留來源加總、到期更新及 live／儲存／亂數不變性。
-- 功能未顯示先核對 URL、載入條件、遠端 commit 與 Pages 部署。`online-presence` 僅正式 origin／路徑進入角色後啟用，本機 HTTP／file 不加入公開房間；tracker 失敗顯示不可用，同瀏覽器多分頁合計一人，不傳角色或存檔。
+- 功能未顯示先核對 URL、載入條件、遠端 commit 與 Pages 部署。`online-presence` 使用大廳後端 `siteRecentCount`，正式站 30 分鐘活躍訪客、顯示最多 10 分鐘更新；5 分鐘心跳，斷線保留上次數字並註記。大廳保留 24 小時旅人，10 分鐘內標在線，無五秒輪詢；本機不參與正式大廳。未發布名片也能收留言，裝備／進度／地圖仍須本人選擇公開；不恢復舊 tracker 或以固定值補人數。
 - 效能回歸跑 `performance` 與 `ui-performance --soak-minutes 0` HTTP／file；長測另明傳時長，記錄硬體、快取、樣本數及來源 SHA。`--soak-minutes 0` 只驗短測；5／30 分鐘須依實際時間分別標示。rAF 未完成或受節流不能推算延遲／FPS；heap 不含圖片，GC 及量測成本須分開。影格／長任務紀錄固定容量，避免測試陣列自身增長污染長測；中止／縮時須明列。
 - DOM 同步比較 live 值後才寫；CSSOM 會正規化色碼、URL 與小數百分比，快取須同時核對實際值，避免每 tick 重寫或忽略外部改動。能力總值更新保留內層加成節點、focus 與重配點草稿，內容／版寬變動才量尺寸。
 - 登入首頁動畫與創角立繪是不同流程；保留原首幀，首頁可見才續載其餘影格。離開首頁或切背景須取消 rAF／排程並停止預載鏈，返回再續播；不靠每幀空轉判斷隱藏。

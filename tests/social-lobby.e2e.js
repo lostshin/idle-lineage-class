@@ -2,16 +2,18 @@
 // stale replies reopen closed UI, unsafe card text executes, or background combat stops.
 const fs = await import('node:fs/promises'), crypto = await import('node:crypto');
 const task = await taskSpace(options.space || '冒險者大廳驗收'), page = task.page('p1'), reports = [], sources = {};
-const apiBase = options.lobbyApi || 'https://lobby.synthetic.test', origin = new URL(options.url).origin;
-let visitor = null;
+const apiBase = options.lobbyApi || 'http://127.0.0.1:9998', origin = new URL(options.url).origin;
+let visitor = null, basicVisitor = null;
 async function worker(path, method = 'GET', body, token) {
-    const response = await fetch(apiBase + '/v1' + path, { method, headers: { Origin: origin, ...(body ? { 'Content-Type': 'application/json' } : {}), ...(token ? { Authorization: 'Bearer ' + token } : {}) }, body: body ? JSON.stringify(body) : undefined });
+    const response = await fetch(apiBase + '/v1' + path, { method, headers: { Origin: 'https://lostshin.github.io', ...(body ? { 'Content-Type': 'application/json' } : {}), ...(token ? { Authorization: 'Bearer ' + token } : {}) }, body: body ? JSON.stringify(body) : undefined });
     const result = await response.json(); if (!response.ok) throw Error(JSON.stringify(result)); return result;
 }
 if (options.lobbyApi) {
     visitor = await worker('/auth/guest', 'POST', { deviceKey: crypto.randomBytes(32).toString('hex') });
     await worker('/me/card', 'PUT', { card: { name: '合成旅人', intro: '<img src=x onerror=alert(1)>', cls: 'knight', avatar: '男騎士', level: 65 }, version: 0 }, visitor.token);
-    await worker('/presence', 'POST', {actor:{name:'合成旅人',cls:'knight',avatar:'男騎士'}}, visitor.token);
+    await worker('/presence', 'POST', {actor:{name:'合成旅人',cls:'knight',avatar:'男騎士'},page:'/idle-lineage-class/'}, visitor.token);
+    basicVisitor = await worker('/auth/guest','POST',{deviceKey:crypto.randomBytes(32).toString('hex')});
+    await worker('/presence','POST',{actor:{name:'未發名片旅人',cls:'mage',avatar:'女法師'},page:'/idle-lineage-class/'},basicVisitor.token);
 }
 console.log({ spaceId: task.spaceId });
 for (const file of ['index.html', 'js/social-lobby.js', 'js/11-world-map.js', 'js/09-vfx-render.js', 'css/social-lobby.css', 'tests/social-lobby.e2e.js', ...(options.lobbyApi ? ['backend/lobby/src/worker.mjs', 'backend/lobby/migrations/0001_lobby.sql'] : [])]) {
@@ -24,6 +26,7 @@ async function check(name, fn) {
 }
 async function click(selector) {
     await page.waitForFunction(() => document.getElementById('social-lobby')?.getAttribute('aria-busy') !== 'true');
+    await page.waitForSelector(selector, {state:'visible'});
     await page.evaluate(selector => { const el=document.querySelector(selector); el.focus({preventScroll:true}); el.scrollIntoView({block:'center',inline:'center',behavior:'instant'}); }, selector);
     await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
     const point=await page.evaluate(selector=>{const el=document.querySelector(selector),r=el.getBoundingClientRect(),x=r.x+r.width/2,y=r.y+r.height/2,hit=document.elementFromPoint(x,y);return hit===el||el.contains(hit)?{x,y}:null;},selector);
@@ -37,7 +40,7 @@ const init = (await page.cdp('Page.addScriptToEvaluateOnNewDocument', { source: 
     for (const key of ['localStorage','sessionStorage']) Object.defineProperty(window,key,{value:storage,configurable:true});
     window.BroadcastChannel=undefined;
     addEventListener('error',event=>__lobbyErrors.push(event.message));
-    const nativeFetch=window.fetch, snapshotTime=Date.now();
+    const nativeFetch=window.fetch, snapshotTime=Date.now();window.__lobbyTimers=[];const nativeTimeout=setTimeout;window.setTimeout=(fn,ms,...args)=>{if(ms===300000)__lobbyTimers.push(()=>fn(...args));return nativeTimeout(fn,ms,...args);};
     window.fetch=async (input,options={})=>{
         if(!String(input).startsWith('${apiBase}'))return nativeFetch(input,options);
         const path=new URL(input).pathname;requests.push({path,method:options.method||'GET',body:options.body});
@@ -47,7 +50,7 @@ const init = (await page.cdp('Page.addScriptToEvaluateOnNewDocument', { source: 
         if(path.endsWith('/auth/guest'))value={token:'synthetic',user:{id:'00000000-0000-4000-8000-000000000001',admin:false}};
         else if(path.endsWith('/me'))value={user:{id:'00000000-0000-4000-8000-000000000001',admin:false},card:null};
         else if(path.endsWith('/cards'))value={cards:[card],next:null};
-        else if(path.endsWith('/players'))value={players:[{id:card.id,actor:card.card,lastSeen:card.lastSeen,hasCard:true}],next:null,serverTime:Date.now(),onlineCount:2,siteOnlineCount:0};
+        else if(path.endsWith('/players'))value={players:[{id:card.id,actor:card.card,lastSeen:card.lastSeen,hasCard:true}],next:null,serverTime:Date.now(),onlineCount:2,siteOnlineCount:0,siteRecentCount:0};
         else if(path.endsWith('/comments'))value={comments:[],next:null};
         else if(path.endsWith('/me/card'))value={version:1};
         else if(path.includes('/cards/'))value={...card,favorite:false};
@@ -65,7 +68,6 @@ await page.evaluate(apiBase => {
     window.__lobbyBefore = { map: mapState.current, lastMap: player.lastBattleMap, mobs: mapState.mobs, gold: player.gold, inv: JSON.stringify(player.inv), player };
 }, apiBase);
 await check('lobby is available in the original map category selector', () => page.evaluate(() => !!document.querySelector('#map-category option[value="social_lobby"]')));
-if(options.lobbyApi)await page.evaluate(()=>{const nativeNow=Date.now;Date.now=()=>nativeNow()+300000;});
 await page.selectOption('#map-category', 'social_lobby');
 await page.waitForSelector('#social-lobby:not([hidden])');
 await check('entering does not teleport, replace mobs, consume items or replace the actor', () => page.evaluate(() => mapState.current === __lobbyBefore.map && mapState.mobs === __lobbyBefore.mobs && player === __lobbyBefore.player && player.gold === __lobbyBefore.gold && JSON.stringify(player.inv) === __lobbyBefore.inv && player.lastBattleMap === __lobbyBefore.lastMap));
@@ -89,9 +91,9 @@ if (!options.lobbyApi) await page.evaluate(() => { socialLobby.setSession({token
 await click('#lobby-roster');await click('#lobby-refresh');
 const visitorSelector=options.lobbyApi ? '#lobby-visitors [data-card-id="'+visitor.user.id+'"]' : '#lobby-visitors [data-card-id]';
 await page.waitForSelector(visitorSelector);
-if(options.lobbyApi)await check('actual D1 peer remains visible with a five-minute fast browser clock and shares the backend headcount',async()=>{
+if(options.lobbyApi)await check('actual D1 peer remains visible and shares the backend recent headcount',async()=>{
     const result=await worker('/players','GET',undefined,visitor.token);
-    return page.evaluate(({id,count})=>!!document.querySelector('[data-camp-id="'+id+'"]')&&document.getElementById('world-online-count').textContent==='（正式站線上 '+count+' 人）',{id:visitor.user.id,count:result.siteOnlineCount});
+    return page.evaluate(({id,count})=>!!document.querySelector('[data-camp-id="'+id+'"]')&&document.getElementById('world-online-count').textContent==='（近 30 分鐘活躍 '+count+' 人）',{id:visitor.user.id,count:result.siteRecentCount});
 });
 await page.evaluate(selector => { window.__lobbyVisitorNode=document.querySelector(selector); },visitorSelector);
 await click('#lobby-refresh');
@@ -123,6 +125,16 @@ if (options.lobbyApi) await check('actual D1 online list includes the published 
     const expected=await page.evaluate(()=>mapEntryOf(mapState.current).t);
     return (await worker('/cards?view=online','GET',undefined,visitor.token)).cards.some(row=>row.card.name==='合成大廳角色'&&row.currentMap===expected);
 });
+if (options.lobbyApi) {
+    await page.waitForFunction(()=>document.getElementById('social-lobby').getAttribute('aria-busy')!=='true');
+    await click('[data-camp-id="'+basicVisitor.user.id+'"]');
+    await click('#lobby-open-comments');await click('#lobby-write-comment');
+    await page.fill('#lobby-comment','未發名片仍可收留言');await click('#lobby-comment-send');
+    await check('unpublished visitor receives native browser message persisted in real D1',async()=>
+        (await worker('/cards/'+basicVisitor.user.id+'/comments','GET',undefined,basicVisitor.token)).comments.some(row=>row.text==='未發名片仍可收留言'));
+    await click('#lobby-comment-close');await click('#lobby-detail-close');
+    await worker('/me','DELETE',{confirm:true},basicVisitor.token);
+}
 await page.evaluate(() => { window.__lobbyCombatTicks = state.ticks; state.running = true; for (let i=0;i<10;i++) { state.inTick=true; tick(); state.inTick=false; settleDeadMobs(); } flushTickRender(); });
 await check('native combat still advances while the lobby remains open', () => page.evaluate(() => state.ticks === __lobbyCombatTicks + 10 && mapState.current === 'training' && !document.getElementById('social-lobby').hidden && state.running));
 await check('hidden battle effects do not accumulate in the social scene', () => page.evaluate(() => _vfxMute() && !document.querySelector('#vfx-layer > *')));
@@ -131,8 +143,9 @@ await check('exit restores the current battle without restoring an old actor sna
 await page.evaluate(() => { state.running=false; });
 if (options.lobbyApi) {
     const expected=await page.evaluate(()=>{setMapSelectors(getHomeTown());changeMap(true);state.running=false;return mapEntryOf(mapState.current).t;});
+    await page.evaluate(async()=>{await __lobbyTimers.at(-1)?.();});
     await page.waitForFunction(expected=>__lobbyRequests.some(r=>r.path==='/v1/presence'&&r.body&&JSON.parse(r.body).map===expected),expected,{timeout:40000});
-    await check('real 30-second heartbeat updates D1 while the player is outside the lobby',async()=>
+    await check('controlled five-minute heartbeat updates real D1 while the player is outside the lobby',async()=>
         (await worker('/cards?view=online','GET',undefined,visitor.token)).cards.some(row=>row.card.name==='合成大廳角色'&&row.currentMap===expected));
 }
 await page.selectOption('#map-category', 'social_lobby');

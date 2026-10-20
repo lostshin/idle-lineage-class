@@ -4,13 +4,13 @@ const fs = await import('node:fs/promises'), crypto = await import('node:crypto'
 const task = await taskSpace(options.space || '大廳本機連線與營地'), page = task.page('p1'), reports = [], sources = {};
 const peers=[];
 async function backend(path,method='GET',body,token){
-    const response=await fetch(options.lobbyApi+'/v1'+path,{method,headers:{Origin:new URL(options.url).origin,...(body?{'Content-Type':'application/json'}:{}),...(token?{Authorization:'Bearer '+token}:{})},body:body?JSON.stringify(body):undefined});
+    const response=await fetch(options.lobbyApi+'/v1'+path,{method,headers:{Origin:'https://lostshin.github.io',...(body?{'Content-Type':'application/json'}:{}),...(token?{Authorization:'Bearer '+token}:{})},body:body?JSON.stringify(body):undefined});
     const value=await response.json();if(!response.ok)throw Error(JSON.stringify(value));return value;
 }
 if(options.lobbyApi){
     for(const [index,avatar]of ['女騎士','男妖精','女妖精','男法師','女法師','男黑暗妖精','女龍騎士','男戰士'].entries()){
         const visitor=await backend('/auth/guest','POST',{deviceKey:crypto.randomBytes(32).toString('hex')});peers.push(visitor);
-        await backend('/presence','POST',{actor:{name:'合成旅人'+(index+1),cls:['knight','elf','elf','mage','mage','dark','dragon','warrior'][index],avatar}},visitor.token);
+        await backend('/presence','POST',{actor:{name:'合成旅人'+(index+1),cls:['knight','elf','elf','mage','mage','dark','dragon','warrior'][index],avatar},page:'/idle-lineage-class/'},visitor.token);
     }
 }
 console.log({ spaceId: task.spaceId });
