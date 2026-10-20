@@ -40,7 +40,7 @@ function buildAccountSnapshot() {
         if (!_FS) {
             d.p.accountAddonPrefs = {};
             for (const prefix of ADDON_ROLE_PREFS) {
-                const value = localStorage.getItem(prefix + (i + 1));
+                const value = _lzGet(prefix + (i + 1));
                 if (value != null) d.p.accountAddonPrefs[prefix] = value;
             }
         }
@@ -185,7 +185,7 @@ function accountWriteBatch(writes, action) {
     try {
         for (const w of writes) {
             if (w.value == null) { _lzRemoveStored(w.key); if (_lsGet(w.key) != null) throw Error('儲存失敗：'+w.key); }
-            else if (!_lzSet(w.key,w.value) || _lzGet(w.key)!==w.value) throw Error('儲存失敗：'+w.key);
+            else if (!(w.raw ? _lzSetStoredRaw(w.key,w.value) : _lzSet(w.key,w.value)) || (w.raw ? _lsGet(w.key) : _lzGet(w.key))!==w.value) throw Error('儲存失敗：'+w.key);
         }
         if (action) action();
         return {ok:true};
@@ -218,7 +218,7 @@ function applyAccountImport(plan) {
                 d.p.accountParty=(d.p.accountParty||[]).filter(r=>r.id!==accountRoleId(d.p)&&slots.has(r.id)&&!!final[slots.get(r.id)-1].p.classicMode===!!d.p.classicMode).map(r=>({...r,slot:slots.get(r.id)}));
                 writes.push({key:'lineage_idle_save_'+(i+1),value:_saveWrap(JSON.stringify(d))});
                 if (!_FS) for (const [prefix, value] of Object.entries(addonRolePreferences(d.p))) {
-                    if (ADDON_ROLE_PREFS.includes(prefix) && typeof value === 'string') writes.push({key:prefix+(i+1),value});
+                    if (ADDON_ROLE_PREFS.includes(prefix) && typeof value === 'string') writes.push({key:prefix+(i+1),value,raw:true});
                 }
             }
         }

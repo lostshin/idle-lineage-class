@@ -6,6 +6,11 @@ function addonRolePreferences(p) {
     if (typeof c.barrierStock === 'boolean' && prefs.afk_autobuy_magicbarrier_ == null) prefs.afk_autobuy_magicbarrier_ = c.barrierStock ? '1' : '0';
     if (c.bossAvoid && prefs.afk_bossavoid_ == null) prefs.afk_bossavoid_ = JSON.stringify(c.bossAvoid);
     if (c.bossMode && prefs.afk_bossring_on_ == null) prefs.afk_bossring_on_ = c.bossMode === 'hunt' ? '1' : '0';
+    // Older account imports compressed keys that the mirrored add-ons read as plain text.
+    for (const prefix of ADDON_ROLE_PREFS) if (typeof prefs[prefix] === 'string' && prefs[prefix].startsWith('LZ1:')) {
+        prefs[prefix] = LZString.decompressFromUTF16(prefs[prefix].slice(4));
+        if (typeof prefs[prefix] !== 'string') throw Error('加掛設定無法讀取：' + prefix);
+    }
     return prefs;
 }
 function migrateAddonPreferences() {
@@ -19,7 +24,11 @@ function migrateAddonPreferences() {
         if (!p?.cls) continue;
         for (const [prefix, value] of Object.entries(addonRolePreferences(p))) {
             if (!ADDON_ROLE_PREFS.includes(prefix)) continue;
-            try { if (localStorage.getItem(prefix + slot) == null) localStorage.setItem(prefix + slot, value); } catch (e) {}
+            try {
+                const key = prefix + slot, stored = localStorage.getItem(key);
+                if (stored?.startsWith('LZ1:')) { const plain = _lzGet(key); if (typeof plain === 'string') _lzSetStoredRaw(key, plain); }
+                else if (stored == null) localStorage.setItem(key, value);
+            } catch (e) {}
         }
     }
 }

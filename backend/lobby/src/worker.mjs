@@ -13,7 +13,7 @@ const statement = (env, sql, ...args) => env.DB.prepare(sql).bind(...args);
 const first = (env, sql, ...args) => statement(env, sql, ...args).first();
 const run = (env, sql, ...args) => statement(env, sql, ...args).run();
 const all = async (env, sql, ...args) => (await statement(env, sql, ...args).all()).results;
-const publicCard = row => ({ id: row.user_id, card: JSON.parse(row.payload), version: row.version, updatedAt: row.updated_at, lastSeen: row.last_seen, greetingAt: row.greeting_at || 0 });
+const publicCard = row => ({ id: row.user_id, card: JSON.parse(row.payload), version: row.version, updatedAt: row.updated_at, lastSeen: row.last_seen, greetingAt: row.greeting_at || 0, currentMap: JSON.parse(row.payload).shareMap && row.last_seen > now() - 120000 ? row.current_map || '' : '' });
 
 function localOrigin(origin) {
     // file:// uses opaque Origin:null; sessions are explicit bearer tokens, never cookies.
@@ -26,9 +26,10 @@ function localOrigin(origin) {
 
 function validateCard(input) {
     if (!input || typeof input !== 'object' || Array.isArray(input)) fail(400, '名片格式不正確。');
-    const allowed = ['name', 'intro', 'progress', 'cls', 'avatar', 'level', 'equipment'];
+    const allowed = ['name', 'intro', 'progress', 'cls', 'avatar', 'level', 'equipment', 'shareMap'];
     if (Object.keys(input).some(key => !allowed.includes(key))) fail(400, '名片包含未允許的欄位。');
     const card = { name: text(input.name, 12, true), intro: text(input.intro ?? '', 200), progress: text(input.progress ?? '', 100) };
+    if (input.shareMap !== undefined) { if (typeof input.shareMap !== 'boolean') fail(400, '地圖分享設定不正確。'); card.shareMap = input.shareMap; }
     if (input.cls !== undefined) { if (!CLASSES.has(input.cls)) fail(400, '職業不正確。'); card.cls = input.cls; }
     if (input.avatar !== undefined) { if (!AVATARS.has(input.avatar)) fail(400, '外觀不正確。'); card.avatar = input.avatar; }
     if (input.level !== undefined) { if (!Number.isInteger(input.level) || input.level < 1 || input.level > 100) fail(400, '等級不正確。'); card.level = input.level; }
@@ -112,7 +113,7 @@ export function createHandler() {
                     await run(env, 'DELETE FROM sessions WHERE token_hash=?', tokenHash); return json({ ok: true });
                 }
                 if (path === '/v1/me' && method === 'GET') {
-                    const row = await first(env, 'SELECT * FROM cards WHERE user_id=?', user.id);
+                    const row = await first(env, 'SELECT c.*,u.last_seen,u.greeting_at,u.current_map FROM cards c JOIN users u ON u.id=c.user_id WHERE c.user_id=?', user.id);
                     return json({ user: { id: user.id, admin }, card: row ? { ...publicCard(row), published: !!row.published } : null });
                 }
                 if (path === '/v1/me' && method === 'DELETE') {
@@ -120,7 +121,12 @@ export function createHandler() {
                     await run(env, 'DELETE FROM users WHERE id=?', user.id); return json({ ok: true });
                 }
                 if (path === '/v1/presence' && method === 'POST') {
-                    await run(env, 'UPDATE users SET last_seen=? WHERE id=? AND last_seen<?', now(), user.id, now() - 45000);
+                    const data = await body(request);
+                    if (Object.keys(data).some(key => key !== 'map')) fail(400, '連線狀態包含未允許的欄位。');
+                    const map = text(data.map ?? '', 100);
+                    const card = await first(env, 'SELECT payload FROM cards WHERE user_id=? AND published=1', user.id);
+                    await rate(env, 'presence:' + user.id, 6);
+                    await run(env, 'UPDATE users SET last_seen=?,current_map=? WHERE id=?', now(), card && JSON.parse(card.payload).shareMap ? map : '', user.id);
                     return json({ ok: true });
                 }
                 if (path === '/v1/greeting' && method === 'POST') {
@@ -145,18 +151,19 @@ export function createHandler() {
                 }
                 if (path === '/v1/cards' && method === 'GET') {
                     const view = url.searchParams.get('view') || 'recent';
-                    if (!['recent', 'favorites'].includes(view)) fail(400, '名片列表不正確。');
+                    if (!['recent', 'online', 'favorites'].includes(view)) fail(400, '名片列表不正確。');
                     const offset = Number(url.searchParams.get('offset') || 0);
                     if (!Number.isInteger(offset) || offset < 0 || offset > 10000) fail(400, '分頁不正確。');
-                    const rows = await all(env, 'SELECT c.*,u.last_seen,u.greeting_at FROM cards c JOIN users u ON u.id=c.user_id WHERE c.published=1 AND u.suspended=0' +
+                    const rows = await all(env, 'SELECT c.*,u.last_seen,u.greeting_at,u.current_map FROM cards c JOIN users u ON u.id=c.user_id WHERE c.published=1 AND u.suspended=0' +
+                        (view === 'online' ? ' AND u.last_seen>?' : '') +
                         (view === 'favorites' ? ' AND EXISTS(SELECT 1 FROM favorites f WHERE f.card_id=c.user_id AND f.owner_id=?)' : '') +
-                        ' ORDER BY u.last_seen DESC,c.user_id LIMIT 21 OFFSET ?', ...(view === 'favorites' ? [user.id, offset] : [offset]));
+                        ' ORDER BY u.last_seen DESC,c.user_id LIMIT 21 OFFSET ?', ...(view === 'online' ? [now() - 120000, offset] : view === 'favorites' ? [user.id, offset] : [offset]));
                     return json({ cards: rows.slice(0, 20).map(publicCard), next: rows.length > 20 ? offset + 20 : null });
                 }
                 const cardRoute = path.match(/^\/v1\/cards\/([a-f0-9-]{36})(?:\/(favorite|comments))?$/);
                 if (cardRoute) {
                     const id = cardRoute[1], action = cardRoute[2];
-                    const row = await first(env, 'SELECT c.*,u.last_seen,u.greeting_at FROM cards c JOIN users u ON u.id=c.user_id WHERE c.user_id=? AND c.published=1 AND u.suspended=0', id);
+                    const row = await first(env, 'SELECT c.*,u.last_seen,u.greeting_at,u.current_map FROM cards c JOIN users u ON u.id=c.user_id WHERE c.user_id=? AND c.published=1 AND u.suspended=0', id);
                     if (!row) fail(404, '這張名片目前未公開。');
                     if (!action && method === 'GET') {
                         const favorite = !!await first(env, 'SELECT 1 FROM favorites WHERE owner_id=? AND card_id=?', user.id, id);

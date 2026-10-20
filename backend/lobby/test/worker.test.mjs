@@ -11,6 +11,7 @@ export function testDatabase() {
     sqlite.exec('PRAGMA foreign_keys=ON');
     sqlite.exec(readFileSync(new URL('../migrations/0001_lobby.sql', import.meta.url), 'utf8'));
     sqlite.exec(readFileSync(new URL('../migrations/0002_greeting.sql', import.meta.url), 'utf8'));
+    sqlite.exec(readFileSync(new URL('../migrations/0003_presence_map.sql', import.meta.url), 'utf8'));
     return {
         sqlite,
         prepare(sql) {
@@ -125,4 +126,37 @@ test('loopback and file clients get explicit CORS without allowing arbitrary web
         assert.equal(response.status,403,origin);
     }
     env.DB.sqlite.close();
+});
+
+test('online list and live maps respect published cards, heartbeats and location consent', async () => {
+    const DB=testDatabase(),api=createHandler(),env={DB,ALLOWED_ORIGINS:'https://game.test'};
+    async function request(path,method='GET',data,token){
+        const r=await api.fetch(new Request('https://api.test/v1'+path,{method,headers:{Origin:'https://game.test','CF-Connecting-IP':'synthetic',...(token?{Authorization:'Bearer '+token}:{}),...(data?{'Content-Type':'application/json'}:{})},body:data?JSON.stringify(data):undefined}),env);
+        return {status:r.status,data:await r.json()};
+    }
+    const visitors=[];
+    for(let i=0;i<3;i++)visitors.push((await request('/auth/guest','POST',{deviceKey:String(i+1).repeat(64)})).data);
+    const [a,b,c]=visitors;
+    for(const v of [a,b])assert.equal((await request('/me/card','PUT',{card:{name:v===a?'合成在線':'合成離線',shareMap:true},version:0},v.token)).status,200);
+    assert.equal((await request('/presence','POST',{map:'象牙塔7樓'},a.token)).status,200);
+    assert.equal((await request('/presence','POST',{map:'未公開位置'},c.token)).status,200);
+    DB.sqlite.prepare('UPDATE users SET last_seen=? WHERE id=?').run(Date.now()-180000,b.user.id);
+    let result=await request('/cards?view=online','GET',undefined,c.token);
+    assert.equal(result.status,200);assert.deepEqual(result.data.cards.map(v=>v.id),[a.user.id]);assert.equal(result.data.cards[0].currentMap,'象牙塔7樓');
+    result=await request('/cards/'+a.user.id,'GET',undefined,c.token);assert.equal(result.data.currentMap,'象牙塔7樓');
+    assert.equal((await request('/presence','POST',{map:'<img src=x onerror=alert(1)>'},a.token)).status,200);
+    assert.equal((await request('/cards/'+a.user.id,'GET',undefined,c.token)).data.currentMap,'<img src=x onerror=alert(1)>');
+    assert.equal((await request('/presence','POST',{map:'字'.repeat(101)},a.token)).status,400);
+    assert.equal((await request('/presence','POST',{map:'象牙塔',player:{gold:99}},a.token)).status,400);
+    assert.equal((await request('/presence','POST',{map:'象牙塔'})).status,401);
+    assert.equal((await request('/me/card','PUT',{card:{name:'不公開地圖',shareMap:false},version:1},a.token)).status,200);
+    assert.equal((await request('/presence','POST',{map:'不應公開'},a.token)).status,200);
+    assert.equal((await request('/cards/'+a.user.id,'GET',undefined,c.token)).data.currentMap,'');
+    assert.equal((await request('/me/card','PUT',{card:{name:'公開地圖',shareMap:true},version:2},a.token)).status,200);
+    assert.equal((await request('/presence','POST',{map:'古魯丁村莊'},a.token)).status,200);
+    assert.equal((await request('/cards/'+a.user.id,'GET',undefined,c.token)).data.currentMap,'古魯丁村莊');
+    DB.sqlite.prepare('UPDATE users SET last_seen=? WHERE id=?').run(Date.now()-180000,a.user.id);
+    assert.equal((await request('/cards/'+a.user.id,'GET',undefined,c.token)).data.currentMap,'');
+    assert.equal((await request('/cards?view=online','GET',undefined,c.token)).data.cards.length,0);
+    DB.sqlite.close();
 });

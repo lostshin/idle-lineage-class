@@ -29,6 +29,7 @@ SUITES += ['social-lobby']
 SUITES += ['lobby-camp']
 SUITES += ['lobby-fit']
 SUITES += ['ken-market']
+SUITES += ['feedback-1020']
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--desktop-only', action='store_true', help='Skip mobile and tablet viewport checks')

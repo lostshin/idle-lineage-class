@@ -11,6 +11,7 @@ async function worker(path, method = 'GET', body, token) {
 if (options.lobbyApi) {
     visitor = await worker('/auth/guest', 'POST', { deviceKey: crypto.randomBytes(32).toString('hex') });
     await worker('/me/card', 'PUT', { card: { name: '合成旅人', intro: '<img src=x onerror=alert(1)>', cls: 'knight', avatar: '男騎士', level: 65 }, version: 0 }, visitor.token);
+    await worker('/presence', 'POST', {}, visitor.token);
 }
 console.log({ spaceId: task.spaceId });
 for (const file of ['index.html', 'js/social-lobby.js', 'js/11-world-map.js', 'js/09-vfx-render.js', 'css/social-lobby.css', 'tests/social-lobby.e2e.js', ...(options.lobbyApi ? ['backend/lobby/src/worker.mjs', 'backend/lobby/migrations/0001_lobby.sql'] : [])]) {
@@ -102,6 +103,7 @@ if (options.lobbyApi) {
 await click('#lobby-detail-close');
 await click('[data-self="true"]');await click('#lobby-edit');
 await page.fill('#lobby-intro', '合成公開介紹');
+if (options.lobbyApi) { await click('[data-editor-tab="sharing"]'); await click('#lobby-share-map'); }
 await click('#lobby-preview');
 await click('#lobby-publish');
 await page.waitForFunction(() => __lobbyRequests.some(r => r.path.endsWith('/me/card')));
@@ -110,12 +112,22 @@ await check('explicit publish sends a small allowlisted snapshot without save id
     return payload.card.name === '合成大廳角色' && !['inv','enSeed','eq','gold','stats','skills','offlineHunt'].some(k => JSON.stringify(payload).includes('"'+k+'"'));
 }));
 if (options.lobbyApi) await check('a second visitor sees the browser-published card from actual D1', async () => (await worker('/cards', 'GET', undefined, visitor.token)).cards.some(row => row.card.name === '合成大廳角色'));
+if (options.lobbyApi) await check('actual D1 online list includes the published browser player and its shared current map', async () => {
+    const expected=await page.evaluate(()=>mapEntryOf(mapState.current).t);
+    return (await worker('/cards?view=online','GET',undefined,visitor.token)).cards.some(row=>row.card.name==='合成大廳角色'&&row.currentMap===expected);
+});
 await page.evaluate(() => { window.__lobbyCombatTicks = state.ticks; state.running = true; for (let i=0;i<10;i++) { state.inTick=true; tick(); state.inTick=false; settleDeadMobs(); } flushTickRender(); });
 await check('native combat still advances while the lobby remains open', () => page.evaluate(() => state.ticks === __lobbyCombatTicks + 10 && mapState.current === 'training' && !document.getElementById('social-lobby').hidden && state.running));
 await check('hidden battle effects do not accumulate in the social scene', () => page.evaluate(() => _vfxMute() && !document.querySelector('#vfx-layer > *')));
 await click('#lobby-exit');
 await check('exit restores the current battle without restoring an old actor snapshot', () => page.evaluate(() => document.getElementById('social-lobby').hidden && !document.getElementById('map-view-panel').classList.contains('social-lobby-open') && player === __lobbyBefore.player && mapState.current === 'training' && document.getElementById('map-select').value === 'training' && !socialLobby.isPolling()));
 await page.evaluate(() => { state.running=false; });
+if (options.lobbyApi) {
+    const expected=await page.evaluate(()=>{setMapSelectors(getHomeTown());changeMap(true);state.running=false;return mapEntryOf(mapState.current).t;});
+    await page.waitForFunction(expected=>__lobbyRequests.some(r=>r.path==='/v1/presence'&&r.body&&JSON.parse(r.body).map===expected),expected,{timeout:40000});
+    await check('real 30-second heartbeat updates D1 while the player is outside the lobby',async()=>
+        (await worker('/cards?view=online','GET',undefined,visitor.token)).cards.some(row=>row.card.name==='合成大廳角色'&&row.currentMap===expected));
+}
 await page.selectOption('#map-category', 'social_lobby');
 await page.selectOption('#map-category', 'silverknight');
 await check('selecting a real map leaves lobby mode through the normal map flow', () => page.evaluate(() => document.getElementById('social-lobby').hidden && mapState.current !== 'social_lobby'));

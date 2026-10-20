@@ -2,15 +2,18 @@
 const socialLobby = (() => {
     const $ = id => document.getElementById(id);
     let active = false, session = null, mine = null, selected = null, preview = null;
-    let poll = null, requestEpoch = 0, view = 'recent', offset = 0, nextPage = null, commentsBefore = null;
+    let poll = null, requestEpoch = 0, view = 'online', offset = 0, nextPage = null, commentsBefore = null;
     let failures = 0, busy = false, editorActor = null, requestId = null;
-    let visitorsSignature = '', popupReturnFocus = null, commentRows = [], commentIndex = 0;
-    let campGuests = [], selfGreeting = 0, greetingTimer = null, lastHeartbeat = 0;
+    let visitorsSignature = '', popupReturnFocus = null, commentRows = [];
+    let campGuests = [], selfGreeting = 0, greetingTimer = null;
+    let presenceTimer = null, presenceBusy = false, disconnected = false, presenceFailures = 0;
     const avatarRows = [['王子','公主'],['男騎士','女騎士'],['男妖精','女妖精'],['男法師','女法師'],['男黑暗妖精','女黑暗妖精'],['男龍騎士','女龍騎士'],['男幻術士','女幻術士'],['男戰士','女戰士']];
     const defaultAvatar = {royal:'王子',knight:'男騎士',elf:'男妖精',mage:'男法師',dark:'男黑暗妖精',dragon:'男龍騎士',illusion:'男幻術士',warrior:'男戰士'};
     const requests = new Set();
     const base = () => ($('social-lobby-api')?.content || '').replace(/\/$/, '');
     const live = () => active && !document.hidden && !$('game-screen').classList.contains('hidden');
+    const playing = () => player.cls && !$('game-screen').classList.contains('hidden');
+    const currentMap = () => HIDDEN_AREA_NAMES[mapState.current] || mapEntryOf(mapState.current)?.t || '';
     const status = message => { $('lobby-status').textContent = message; $('lobby-status').hidden = !message; };
 
     function node(tag, value, className) {
@@ -50,6 +53,18 @@ const socialLobby = (() => {
         catch (error) { if (active) status(error.name === 'AbortError' ? '連線已中斷，請稍後再試。' : error.message); }
         finally { busy = false; $('social-lobby')?.setAttribute('aria-busy', 'false'); }
     }
+    async function heartbeat() {
+        if (presenceBusy) return;
+        clearTimeout(presenceTimer); presenceBusy = true;
+        try {
+            if (!playing() || disconnected) return;
+            if (!session && localStorage.getItem('lineage_social_lobby_device_v1')) { mount(); await login(true); }
+            if (!session || !mine?.published) return;
+            await api('/presence', 'POST', { map: mine.card.shareMap ? currentMap() : '' });
+            presenceFailures = 0;
+        } catch (error) { presenceFailures++; if (active) status(error.message); }
+        finally { presenceBusy = false; presenceTimer = setTimeout(heartbeat, Math.min(300000, 30000 * 2 ** presenceFailures)); }
+    }
     function stop() {
         clearTimeout(poll); poll = null;
         clearTimeout(greetingTimer); greetingTimer = null;
@@ -84,7 +99,7 @@ const socialLobby = (() => {
                             <nav id="lobby-editor-tabs" aria-label="名片設定"><button type="button" data-editor-tab="basic" aria-pressed="true">基本</button><button type="button" data-editor-tab="sharing" aria-pressed="false">展示</button><button type="button" data-editor-tab="manage" aria-pressed="false">管理</button></nav>
                             <div id="lobby-editor-form">
                                 <div data-editor-page="basic"><label>代表角色<select id="lobby-role"></select></label><label>自我介紹<textarea id="lobby-intro" maxlength="200" rows="2" placeholder="想和大家聊些什麼？"></textarea></label><p class="lobby-note">先預覽，再發布；不會上傳完整存檔。</p></div>
-                                <div data-editor-page="sharing" hidden><fieldset><legend>公開內容</legend><label><input id="lobby-share-class" type="checkbox" checked>職業／外觀</label><label><input id="lobby-share-level" type="checkbox">等級</label><label><input id="lobby-share-progress" type="checkbox">進度</label><label><input id="lobby-share-equipment" type="checkbox">裝備</label></fieldset><label>攻略進度<input id="lobby-progress" maxlength="100" placeholder="例如：攻略象牙塔七樓"></label><label>展示一件裝備<select id="lobby-equipment"></select></label></div>
+                                <div data-editor-page="sharing" hidden><fieldset><legend>公開內容</legend><label><input id="lobby-share-class" type="checkbox" checked>職業／外觀</label><label><input id="lobby-share-level" type="checkbox">等級</label><label><input id="lobby-share-progress" type="checkbox">進度</label><label><input id="lobby-share-equipment" type="checkbox">裝備</label><label><input id="lobby-share-map" type="checkbox">目前地圖（遊戲開啟時更新）</label></fieldset><label>攻略進度<input id="lobby-progress" maxlength="100" placeholder="例如：攻略象牙塔七樓"></label><label>展示一件裝備<select id="lobby-equipment"></select></label></div>
                                 <div data-editor-page="manage" hidden><p id="lobby-auth-state"></p><p class="lobby-note">訪客身分跟著這個瀏覽器；清除網站資料後無法自動找回。</p><div class="lobby-actions"><button id="lobby-login" type="button">連接大廳</button><button id="lobby-logout" type="button" hidden>中斷連線</button><button id="lobby-withdraw" type="button" hidden>下架名片</button><button id="lobby-delete-account" type="button" hidden>刪除大廳資料</button></div></div>
                             </div>
                             <div id="lobby-preview-text" class="lobby-card-preview" aria-label="公開名片預覽" hidden></div>
@@ -96,12 +111,12 @@ const socialLobby = (() => {
                         </section>
                         <section id="lobby-comment-panel" class="lobby-paper" aria-label="名片留言" hidden>
                             <div class="lobby-section-heading"><h3>旅人留言</h3><button id="lobby-comment-close" type="button">返回名片</button></div>
-                            <div id="lobby-comment-read"><div id="lobby-comments"></div><div class="lobby-actions"><button id="lobby-comments-latest" type="button">最新</button><button id="lobby-comments-previous" type="button">上一則</button><button id="lobby-comments-more" type="button" hidden>下一則</button><button id="lobby-write-comment" type="button">寫留言</button></div></div>
+                            <div id="lobby-comment-read"><div id="lobby-comments" tabindex="0" aria-label="旅人留言清單"></div><div class="lobby-actions"><button id="lobby-comments-latest" type="button">更新留言</button><button id="lobby-comments-more" type="button" hidden>載入較早留言</button><button id="lobby-write-comment" type="button">寫留言</button></div></div>
                             <div id="lobby-comment-compose" hidden><label>留言<textarea id="lobby-comment" maxlength="300" rows="3" placeholder="打聲招呼"></textarea></label><div class="lobby-actions"><button id="lobby-compose-back" type="button">返回留言</button><button id="lobby-comment-send" type="button">送出</button></div></div>
                         </section>
                         <section id="lobby-roster-panel" class="lobby-paper" aria-label="旅人名冊" hidden>
                             <div class="lobby-section-heading"><h3 id="lobby-list-title">旅人名冊</h3><button id="lobby-roster-close" type="button" aria-label="關閉名冊">×</button></div>
-                            <div class="lobby-actions"><button id="lobby-view-recent" type="button" aria-pressed="true">最近到訪</button><button id="lobby-view-favorites" type="button" aria-pressed="false">我的收藏</button><button id="lobby-refresh" type="button">重新整理</button></div>
+                            <div class="lobby-actions"><button id="lobby-view-online" type="button" aria-pressed="true">在線玩家</button><button id="lobby-view-favorites" type="button" aria-pressed="false">我的收藏</button><button id="lobby-refresh" type="button">重新整理</button></div>
                             <div id="lobby-visitors"></div><div class="lobby-actions"><button id="lobby-previous" type="button" hidden>上一頁</button><button id="lobby-more" type="button" hidden>下一頁</button></div>
                         </section>
                     </dialog>
@@ -119,11 +134,10 @@ const socialLobby = (() => {
         $('lobby-compose-back').onclick = () => showCommentComposer(false);
         $('lobby-comment-close').onclick = () => showSection('card-detail');
         $('lobby-comments-latest').onclick = () => perform(() => loadComments());
-        $('lobby-comments-previous').onclick = () => { commentIndex = Math.max(0, commentIndex-1); renderComments(); };
         $('lobby-exit').onclick = () => close();
         $('lobby-login').onclick = () => perform(login);
         $('lobby-logout').onclick = () => perform(async () => {
-            await api('/auth/logout', 'POST', {}); session = null; mine = null; stop(); updateAuth(); clearVisitors(); status('已中斷連線。再次連接仍使用此瀏覽器的訪客身分。');
+            await api('/auth/logout', 'POST', {}); disconnected = true; session = null; mine = null; stop(); updateAuth(); clearVisitors(); status('已中斷連線。再次連接仍使用此瀏覽器的訪客身分。');
         });
         $('lobby-edit').onclick = () => perform(edit);
         $('lobby-editor-close').onclick = () => showSection('common');
@@ -138,10 +152,10 @@ const socialLobby = (() => {
         });
         $('lobby-delete-account').onclick = () => perform(async () => {
             if (!confirm('確定刪除此訪客的名片、收藏與你留下的留言？本機角色存檔不受影響。')) return;
-            await api('/me', 'DELETE', { confirm: true }); session = null; mine = null; localStorage.removeItem('lineage_social_lobby_device_v1'); stop(); clearVisitors(); updateAuth(); showSection('common'); status('社交資料已刪除，本機角色保留。');
+            await api('/me', 'DELETE', { confirm: true }); disconnected = true; session = null; mine = null; localStorage.removeItem('lineage_social_lobby_device_v1'); stop(); clearVisitors(); updateAuth(); showSection('common'); status('社交資料已刪除，本機角色保留。');
         });
         $('lobby-refresh').onclick = () => perform(async () => { failures = 0; if (session) await refresh(); else await login(); });
-        for (const name of ['recent', 'favorites']) $('lobby-view-' + name).onclick = () => perform(async () => { view = name; offset = 0; await refresh(); });
+        for (const name of ['online', 'favorites']) $('lobby-view-' + name).onclick = () => perform(async () => { view = name; offset = 0; await refresh(); });
         $('lobby-more').onclick = () => perform(async () => { offset = nextPage; await refresh(); });
         $('lobby-previous').onclick = () => perform(async () => { offset = Math.max(0, offset - 3); await refresh(); });
         $('lobby-favorite').onclick = () => perform(async () => {
@@ -149,7 +163,7 @@ const socialLobby = (() => {
             await api('/cards/' + selected.id + '/favorite', selected.favorite ? 'DELETE' : 'PUT', {});
             selected.favorite = !selected.favorite; $('lobby-favorite').textContent = selected.favorite ? '取消收藏' : '收藏名片';
         });
-        $('lobby-comments-more').onclick = () => perform(async () => { if (commentIndex+1<commentRows.length) { commentIndex++; renderComments(); } else await loadComments(true); });
+        $('lobby-comments-more').onclick = () => perform(() => loadComments(true));
         $('lobby-comment').addEventListener('input', () => { requestId = null; });
         $('lobby-comment-send').onclick = () => perform(async () => {
             if (!selected || !$('lobby-comment').value.trim()) return;
@@ -240,7 +254,7 @@ const socialLobby = (() => {
         $('map-select').replaceChildren(room); $('map-select').dataset.lobbyRoom = 'gandan';
         _vfxClearAll(); showSection('common'); updateAuth();
         renderCamp();
-        if (session) perform(async () => { await loadMine(); await refresh(); });
+        if (session) perform(async () => { await loadMine(); await heartbeat(); await refresh(); });
         else { clearVisitors(); status(base() ? '連接大廳中…' : '大廳尚未開放連線'); if (base()) perform(login); }
     }
     function close(restore = true) {
@@ -261,6 +275,7 @@ const socialLobby = (() => {
         if (card.intro) host.appendChild(node('p', card.intro));
         if (card.progress) host.appendChild(node('p', '冒險近況：' + card.progress));
         if (card.equipment) host.appendChild(node('p', '展示裝備：' + card.equipment.name));
+        if (item.currentMap) host.appendChild(node('p', '目前地圖：' + item.currentMap, 'lobby-card-meta'));
         host.appendChild(node('small', '玩家分享的單機快照' + (item.updatedAt ? ' · ' + new Date(item.updatedAt).toLocaleString('zh-TW') : '')));
     }
     async function loadMine() {
@@ -273,9 +288,8 @@ const socialLobby = (() => {
         clearTimeout(poll); poll = null;
         const epoch = requestEpoch, listingView = view, listingOffset = offset;
         try {
-            if (Date.now() - lastHeartbeat > 45000) { await api('/presence', 'POST', {}); lastHeartbeat = Date.now(); }
             const result = await api('/cards?view=' + view + '&offset=' + offset);
-            const camp = view === 'recent' && offset === 0 ? result : await api('/cards?view=recent&offset=0');
+            const camp = view === 'online' && offset === 0 ? result : await api('/cards?view=online&offset=0');
             if (epoch !== requestEpoch || !live() || view !== listingView || offset !== listingOffset) return;
             campGuests = camp.cards; renderCamp();
             const signature = JSON.stringify({ view, offset, cards: result.cards.map(({greetingAt, ...item}) => ({ ...item, lastSeen: !!item.lastSeen && Date.now() - item.lastSeen < 120000 })) });
@@ -284,14 +298,14 @@ const socialLobby = (() => {
                 visitorsSignature = signature; list.replaceChildren();
                 for (const item of result.cards.slice(0,3)) {
                     const el = button('', () => detail(item.id)); el.dataset.cardId = item.id; el.className = 'lobby-visitor';
-                    const title = node('strong', item.card.name), when = item.lastSeen && Date.now() - item.lastSeen < 120000 ? '最近到訪' : '曾經到訪';
+                    const title = node('strong', item.card.name), when = item.lastSeen && Date.now() - item.lastSeen < 120000 ? '在線' : '離線';
                     el.append(title, node('span', item.card.intro || '來交換一段冒險故事吧'), node('small', when)); list.appendChild(el);
                 }
-                if (!result.cards.length) list.appendChild(node('p', view === 'favorites' ? '還沒有收藏的公開名片。' : '目前還沒有公開名片，成為第一位分享故事的旅人吧。', 'lobby-empty'));
+                if (!result.cards.length) list.appendChild(node('p', view === 'favorites' ? '還沒有收藏的公開名片。' : '目前沒有其他在線的冒險者。', 'lobby-empty'));
             }
             nextPage = result.cards.length>3 ? offset+3 : result.next; $('lobby-more').hidden = nextPage === null; $('lobby-previous').hidden = offset === 0;
-            for (const name of ['recent', 'favorites']) $('lobby-view-' + name).setAttribute('aria-pressed', String(view === name));
-            $('lobby-list-title').textContent = view === 'favorites' ? '收藏的冒險者' : '最近到訪的冒險者';
+            for (const name of ['online', 'favorites']) $('lobby-view-' + name).setAttribute('aria-pressed', String(view === name));
+            $('lobby-list-title').textContent = view === 'favorites' ? '收藏的冒險者' : '在線的冒險者';
             failures = 0;
             status('');
         } catch (error) { failures++; if (epoch === requestEpoch && active) status(error.name === 'AbortError' ? '連線已中斷。' : error.message); }
@@ -317,7 +331,7 @@ const socialLobby = (() => {
     function ownCard() {
         selected = mine?.published ? {...mine,id:session.user.id} : null;
         const card = mine?.card || {name:player.name || '冒險者',cls:player.cls,avatar:player.avatar};
-        renderCard($('lobby-detail-body'), {card,updatedAt:mine?.updatedAt});
+        renderCard($('lobby-detail-body'), {card,updatedAt:mine?.updatedAt,currentMap:card.shareMap ? currentMap() : ''});
         $('lobby-edit').hidden = false; $('lobby-favorite').hidden = true; $('lobby-suspend').hidden = true;
         $('lobby-open-comments').hidden = !selected;
         showSection('card-detail');
@@ -327,17 +341,19 @@ const socialLobby = (() => {
         const id = selected.id, epoch = requestEpoch;
         const result = await api('/cards/' + id + '/comments' + (append && commentsBefore ? '?before=' + commentsBefore : ''));
         if (epoch !== requestEpoch || selected?.id !== id) return;
-        commentRows = result.comments; commentIndex = 0; commentsBefore = result.next; renderComments();
+        const host = $('lobby-comments'), top = host.scrollTop, height = host.scrollHeight;
+        commentRows = (append ? result.comments.concat(commentRows) : result.comments).sort((a,b) => a.id-b.id);
+        commentsBefore = result.next; renderComments();
+        host.scrollTop = append ? top + host.scrollHeight - height : host.scrollHeight;
     }
     function renderComments() {
         const host = $('lobby-comments'); host.replaceChildren();
-        const item = commentRows[commentIndex];
-        if (item) {
+        for (const item of commentRows) {
             const row = node('article'); row.append(node('strong',item.author),node('p',item.text),node('small',new Date(item.createdAt).toLocaleString('zh-TW')));
             if(item.canDelete) row.appendChild(button('刪除',async()=>{await api('/comments/'+item.id,'DELETE',{});await loadComments();}));host.appendChild(row);
-        } else host.appendChild(node('p','還沒有人留言。'));
-        $('lobby-comments-previous').disabled = commentIndex===0;
-        $('lobby-comments-more').hidden = commentIndex+1>=commentRows.length && commentsBefore===null;
+        }
+        if (!commentRows.length) host.appendChild(node('p','還沒有人留言。'));
+        $('lobby-comments-more').hidden = commentsBefore===null;
     }
     function showCommentComposer(show) {
         $('lobby-comment-read').hidden = show; $('lobby-comment-compose').hidden = !show;
@@ -355,6 +371,7 @@ const socialLobby = (() => {
         $('lobby-intro').value = mine?.card.intro || ''; $('lobby-progress').value = mine?.card.progress || '';
         $('lobby-share-class').checked = mine ? !!mine.card.cls : true;
         $('lobby-share-level').checked = !!mine?.card.level; $('lobby-share-progress').checked = !!mine?.card.progress; $('lobby-share-equipment').checked = !!mine?.card.equipment;
+        $('lobby-share-map').checked = !!mine?.card.shareMap;
         chooseActor(); invalidatePreview(); editorPage('basic'); showSection('editor'); updateAuth();
     }
     function chooseActor() {
@@ -373,6 +390,7 @@ const socialLobby = (() => {
     function makePreview() {
         if (!editorActor?.cls) throw Error('此角色無法讀取，請重新選擇。');
         const card = { name: String(editorActor.name || '無名').slice(0, 12), intro: $('lobby-intro').value.trim() };
+        card.shareMap = $('lobby-share-map').checked;
         if ($('lobby-share-class').checked) { card.cls = editorActor.cls; card.avatar = editorActor.avatar; }
         if ($('lobby-share-level').checked) card.level = editorActor.lv;
         if ($('lobby-share-progress').checked) card.progress = $('lobby-progress').value.trim();
@@ -388,9 +406,10 @@ const socialLobby = (() => {
         if (!session || !preview) return;
         const result = await api('/me/card', 'PUT', { card: preview, version: mine?.version || 0 });
         mine = { card: preview, version: result.version, published: true }; preview = null; updateAuth();
+        await heartbeat();
         if (active) { showSection('common'); await refresh(); }
     }
-    async function login() {
+    async function login(background = false) {
         if (!base()) throw Error('大廳尚未開放連線，你可以先預覽自己的名片。');
         const epoch = requestEpoch, key = 'lineage_social_lobby_device_v1';
         let deviceKey = localStorage.getItem(key);
@@ -400,12 +419,15 @@ const socialLobby = (() => {
             if (!deviceKey) throw Error('無法保存訪客身分；請允許此網站儲存資料後再試。');
         }
         const result = await api('/auth/guest', 'POST', { deviceKey });
-        if (!active || epoch !== requestEpoch) return;
-        setSession(result); await loadMine(); await refresh();
+        if ((!active && !background) || epoch !== requestEpoch) return;
+        disconnected = false; setSession(result); await loadMine();
+        if (!background) { await heartbeat(); await refresh(); }
     }
-    function setSession(value) { session = value; lastHeartbeat = 0; updateAuth(); renderCamp(); }
+    function setSession(value) { session = value; updateAuth(); renderCamp(); }
     document.addEventListener('visibilitychange', () => { if (!active) return; $('social-lobby').classList.toggle('lobby-motion-paused', document.hidden || $('lobby-popup').open); if (document.hidden) stop(); else { renderCamp(); if (session) refresh(); } });
-    window.addEventListener('pagehide', () => close(false));
+    window.addEventListener('pagehide', () => { clearTimeout(presenceTimer); close(false); });
+    window.addEventListener('pageshow', () => { if (!presenceBusy) heartbeat(); });
+    presenceTimer = setTimeout(heartbeat, 30000);
     window.addEventListener('online', () => { if (live() && session) refresh(); });
     document.addEventListener('pointerdown', event => { const popup = $('lobby-popup'); if (active && popup.open && !popup.contains(event.target) && !event.target.closest('#cdd-pop')) showSection('common'); });
     document.addEventListener('keydown', event => { if (!active || event.key !== 'Escape') return; if ($('lobby-popup').open) { event.preventDefault(); showSection('common'); } else if (!document.querySelector('dialog[open]')) close(); });

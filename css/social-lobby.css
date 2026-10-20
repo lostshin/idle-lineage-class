@@ -59,6 +59,12 @@
 .lobby-visitor small { display: none; }
 .lobby-empty { font-size: 12px; color: #aaa58f; }
 #lobby-comments article { overflow-wrap: anywhere; font-size: 12px; }
+#lobby-popup:has(#lobby-comment-panel:not([hidden])) { height: calc(100% - 16px); width: min(480px, calc(100% - 16px)); }
+#lobby-comment-panel:not([hidden]), #lobby-comment-read:not([hidden]) { display: flex; flex-direction: column; min-height: 0; height: 100%; }
+#lobby-comment-read:not([hidden]) { flex: 1; }
+#lobby-comment-panel > .lobby-section-heading, #lobby-comment-read > .lobby-actions { flex: none; }
+#lobby-comments { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: #887049 #10130e; }
+#lobby-comments article { padding: 7px 3px; border-bottom: 1px solid #514b39; }
 #lobby-comments p { white-space: pre-wrap; margin: 4px 0; }
 #lobby-comments small { color: #a3a38b; font-size: 10px; margin-right: 7px; }
 @keyframes lobby-campfire {

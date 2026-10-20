@@ -141,7 +141,7 @@
 #modal-actions > [onclick^="showEnhanceOptions("] { order:-1; }
 #modal-actions button:is([onclick^="showEnhanceOptions("],[onclick^="executeAutoSafeEnhance("],[onclick^="executeEnhance("]:not([data-enhance-blessed])) { border-image-slice:100; background:#15304e; color:#a4cdf4; }
 #modal-actions > [onclick^="sellItem("] { order:1; color:#c6b89c; }
-#modal-actions button:is([onclick^="AFK_CURSEBATCH.open("],[onclick^="executeCurseDeEnhance("]) { border-image-slice:100; background:#421518; color:#e3a19b; }
+#modal-actions button:is([onclick^="AFK_CURSEBATCH.open("],[onclick^="AFK_CURSEBATCH.run("],[onclick^="executeCurseDeEnhance("]), #modal-actions:has(#afk-cb-goal) button:disabled { border-image-slice:100; background:#421518; color:#e3a19b; }
 #modal-actions button[data-enhance-blessed] { border-image-slice:100; color:#ffe485; background:linear-gradient(#514018,#2a220f); box-shadow:inset 0 0 8px #e9bf4166,0 0 9px #f1c84c66; text-shadow:0 0 6px #ffcb50; }
 #modal-actions [data-enhance-blessed]:disabled { box-shadow:none; text-shadow:none; }
 .modal-comparison-heading { font-size:13px; padding-bottom:8px; margin-bottom:10px; color:#e5d3ad; font-weight:bold; }
