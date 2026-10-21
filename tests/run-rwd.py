@@ -32,7 +32,7 @@ SUITES += ['ken-market']
 SUITES += ['feedback-1020']
 SUITES += ['lobby-live-actors']
 SUITES += ['lobby-presence']
-SUITES += ['feedback-reliability','lobby-rest']
+SUITES += ['feedback-reliability','lobby-rest','offline-team']
 SUITES += ['site-presence','lobby-recent','lobby-actions','lobby-adventure']
 
 parser = argparse.ArgumentParser()

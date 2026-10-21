@@ -112,7 +112,7 @@ if(!options.baseline){
  await page.click('[data-ally-poly="4"]');
  await check('explicit disabled preference survives rebuilding the same ally',()=>page.evaluate(()=>{snapshotMercPrefs(player.allies[0]);const a=buildAlly('4');return a._mercPolyAuto===false;}));
 }
-await check('changed equipment still requires a fresh qualified sample',()=>page.evaluate(()=>{player.eq.wpn={id:'wpn_katana',en:7,cnt:1,uid:'changed',bless:false,anc:false,attr:false,seteff:false};calcStats();saveGame();return !player.offlineHunt.eligible;}));
+await check('v3.9.18 sampling keeps its established map sample across equipment changes',()=>page.evaluate(()=>{player.eq.wpn={id:'wpn_katana',en:7,cnt:1,uid:'changed',bless:false,anc:false,attr:false,seteff:false};calcStats();saveGame();return player.offlineHunt.eligible;}));
 await check('no browser runtime errors',()=>page.evaluate(()=>!__offlineTest.errors.length||__offlineTest.errors));
 await page.evaluate(()=>{stopGameTimers();state.running=false;__offlineTest.cleanup();});
 await page.cdp('Page.removeScriptToEvaluateOnNewDocument',{identifier:init});

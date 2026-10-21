@@ -82,22 +82,21 @@ await page.cdp('Network.setCacheDisabled', {cacheDisabled:true});
 await page.cdp('Emulation.setDeviceMetricsOverride', {width:1330, height:900, deviceScaleFactor:1, mobile:false});
 await open();
 let base=await sample(1);
-await check('same-condition samples accumulate across runtime restarts instead of replacing history',()=>page.evaluate(()=>{
-    const first=structuredClone(player.offlineHunt.profile);
+await check('v3.9.18 sampling replaces the previous window after a fresh runtime qualifies',()=>page.evaluate(()=>{
     offlineResetRateSample();
     for(let i=0;i<3;i++) {if(i)__offlineTest.advance(8000);const m={...DB.mobs.orc,uid:uid(),curHp:0,st:newMobStatus()};mapState.mobs[0]=m;killMob(0);}
     saveGame();const next=player.offlineHunt.profile;
-    return next.sampleMs===first.sampleMs+16000 && next.sampleKills===first.sampleKills+3 || {first,next};
+    return next.sampleMs===16000 && next.sampleKills===3 || {first,next};
 }));
 await check('saving the same sample twice does not increase its weight',()=>page.evaluate(()=>{const first=JSON.stringify(player.offlineHunt.profile);saveGame();return JSON.stringify(player.offlineHunt.profile)===first;}));
-await check('weighted history is bounded to five minutes and only new deltas are merged',()=>page.evaluate(()=>{
+await check('v3.9.18 sampling measures the current runtime without five-minute weighted merging',()=>page.evaluate(()=>{
     offlineResetRateSample();
-    for(let i=0;i<35;i++) {if(i)__offlineTest.advance(10000);mapState.mobs[0]={...DB.mobs.orc,uid:uid(),curHp:0,st:newMobStatus()};killMob(0);}
+    for(let i=0;i<35;i++){if(i)__offlineTest.advance(10000);mapState.mobs[0]={...DB.mobs.orc,uid:uid(),curHp:0,st:newMobStatus()};killMob(0);}
     saveGame();const p=player.offlineHunt.profile;
-    if(p.sampleMs!==300000)return p;
-    const before=structuredClone(p);__offlineTest.advance(10000);mapState.mobs[0]={...DB.mobs.orc,uid:uid(),curHp:0,st:newMobStatus()};killMob(0);saveGame();
-    const next=player.offlineHunt.profile,expected=(before.expPerMin*290000+30*10000)/300000;
-    return next.sampleMs===300000&&Math.abs(next.expPerMin-expected)<.001||{expected,next};
+    if(p.sampleMs!==340000||p.sampleKills!==35)return p;
+    __offlineTest.advance(10000);mapState.mobs[0]={...DB.mobs.orc,uid:uid(),curHp:0,st:newMobStatus()};killMob(0);saveGame();
+    const next=player.offlineHunt.profile;
+    return next.sampleMs===350000&&next.sampleKills===36&&Math.abs(next.killsPerMin-36*60000/350000)<.001||next;
 }));
 await check('HP MP gold loot counts and item UID do not invalidate combat history',()=>page.evaluate(()=>{
     const before=player.offlineHunt.profile.condition;
@@ -105,17 +104,17 @@ await check('HP MP gold loot counts and item UID do not invalidate combat histor
     for(const item of Object.values(player.eq))if(item)item.uid='same-gear-new-uid';saveGame();
     return player.offlineHunt.eligible&&player.offlineHunt.profile?.condition===before;
 }));
-await check('automation changes require a fresh sample',()=>page.evaluate(()=>{document.getElementById('set-haste').checked=!document.getElementById('set-haste').checked;saveGame();return !player.offlineHunt.eligible;}));
+await check('v3.9.18 automation changes keep the existing map sample',()=>page.evaluate(()=>{document.getElementById('set-haste').checked=!document.getElementById('set-haste').checked;saveGame();return player.offlineHunt.eligible;}));
 base=await sample(3);
 await reopen(0,3);
 await page.evaluate(()=>{setMapSelectors('training');changeMap(true);state.running=true;offlineResetRateSample();for(let i=0;i<3;i++){if(i)__offlineTest.advance(8000);mapState.mobs[0]={...DB.mobs.orc,uid:uid(),curHp:0,st:newMobStatus()};killMob(0);}saveGame();});
-await check('native reload preserves same-condition accumulated history',()=>page.evaluate(()=>player.offlineHunt.profile?.sampleMs===32000||{sampleMs:player.offlineHunt.profile?.sampleMs}));
-await check('fast-forward kills cannot train a new rate',()=>page.evaluate(()=>{
-    const before=JSON.stringify(player.offlineHunt.profile);state.ff=true;
+await check('native reload can build a fresh v3.9.18 window',()=>page.evaluate(()=>player.offlineHunt.profile?.sampleMs===16000||{sampleMs:player.offlineHunt.profile?.sampleMs}));
+await check('fast-forward kills do not enter the real-time kill count',()=>page.evaluate(()=>{
+    const before=player.offlineHunt.profile.sampleKills;state.ff=true;
     __offlineTest.advance(20000);mapState.mobs[0]={...DB.mobs.orc,uid:uid(),curHp:0,st:newMobStatus()};killMob(0);saveGame();state.ff=false;
-    return JSON.stringify(player.offlineHunt.profile)===before;
+    return player.offlineHunt.profile.sampleKills===before;
 }));
-await check('changing active team invalidates its previous combat profile',()=>page.evaluate(()=>{player.allies=[{cls:'mage',lv:30,skills:[],eq:{},config:{},_slot:'2',enSeed:'new-team',mhp:500,curHp:500}];saveGame();return !player.offlineHunt.eligible;}));
+await check('v3.9.18 active team changes do not discard the map sample',()=>page.evaluate(()=>{player.allies=[{cls:'mage',lv:30,skills:[],eq:{},config:{},_slot:'2',enSeed:'new-team',mhp:500,curHp:500}];saveGame();return player.offlineHunt.eligible;}));
 await page.evaluate(()=>{player.allies=[];});
 for(const explicit of [null,false,true])await check('legacy Harmony migration respects explicit buff '+explicit,()=>page.evaluate(explicit=>{
     const a={cls:'illusion',skills:['sk_illu_cube_harmony'],_convertSkill:'sk_illu_cube_harmony',_autoBuff:explicit===null?{}:{sk_illu_cube_harmony:explicit},config:{autoBuffSkills:{}},curHp:1000,mhp:1000,mmp:100,mp:0,d:{magicDmg:0},enSeed:'harmony-'+explicit};
@@ -159,7 +158,7 @@ await check('minion ability inspector updates live haste and keeps its equipment
     document.getElementById('party-inspector-close').click();return first!==second&&!document.querySelector('#party-inspector [data-ability-field="str"]')&&!/onclick="(?:equip|sell)/.test(document.getElementById('party-details').innerHTML)&&equipment.length>0||{first,second,equipment};
 }));
 
-await check('equipment changes invalidate the old profile immediately',()=>page.evaluate(()=>{player.eq.wpn={id:'wpn_katana',en:7,cnt:1,uid:'new-gear',bless:false,anc:false,attr:false,seteff:false};calcStats();saveGame();return player.offlineHunt.eligible===false;}));
+await check('v3.9.18 equipment changes leave the established sample available',()=>page.evaluate(()=>{player.eq.wpn={id:'wpn_katana',en:7,cnt:1,uid:'new-gear',bless:false,anc:false,attr:false,seteff:false};calcStats();saveGame();return player.offlineHunt.eligible===true;}));
 await check('Harmony appears with ally buff checkboxes and is absent from convert options',()=>page.evaluate(()=>{const a={skills:['sk_illu_cube_harmony'],cls:'illusion',_slot:'2',config:{autoBuffSkills:{}}};return allyAutoCastableSkills(a).some(s=>s.sid==='sk_illu_cube_harmony')&&!_allySkillOptions(a,'convert','').includes('sk_illu_cube_harmony');}));
 await check('summon ability view has real compact combat fields without player attributes',()=>page.evaluate(()=>{
     const form=SUMMON_TIERS[0].mobs[0].n,actor={form,n:form,lv:30,mhp:500,hp:500,buffs:{},statuses:{}};
@@ -201,10 +200,10 @@ await page.evaluate(()=>{
     __offlineTest.reopenAfter(120000);
 });
 await page.goto('about:blank');await open();await page.evaluate(()=>{currentSlot=5;loadGame();stopGameTimers();});await page.evaluate(()=>new Promise(r=>setTimeout(r,0)));
-await check('legacy pending snapshots settle once before future samples require the new condition',()=>page.evaluate(base=>{
+await check('legacy unsigned pending snapshots still settle with v3.9.18 sampling',()=>page.evaluate(base=>{
     const settled=player.gold===base.gold+Math.floor(base.profile.goldPerMin*2*.7+1e-7);
     setMapSelectors('training');changeMap(true);saveGame();
-    return settled&&!player.offlineHunt.eligible&&document.getElementById('sys-log').textContent.includes('離線掛機完成');
+    return settled&&document.getElementById('sys-log').textContent.includes('離線掛機完成');
 },base));
 base=await sample(6);
 await page.evaluate(()=>{
