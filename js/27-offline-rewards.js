@@ -13,6 +13,7 @@
     const OFFLINE_EFFICIENCY = 0.70;
     const OFFLINE_SAMPLE_MIN_MS = 15 * 1000;
     const OFFLINE_SAMPLE_MIN_KILLS = 3;
+    const OFFLINE_SAMPLE_MAX_MS = 5 * 60 * 1000;
     const OFFLINE_MAX_SAVED_PROFILES = 5;
     const OFFLINE_RECENT_KILL_MS = 5 * 60 * 1000;
     const OFFLINE_HEARTBEAT_MS = 30 * 1000;
@@ -154,7 +155,7 @@
 
     function _offlineMobProfile(raw) {
         if (!raw || typeof raw !== 'object' || !raw.n) return null;
-        let count = Math.max(0, Math.floor(_offlineFinite(raw.count, 0)));
+        let count = Math.max(0, _offlineFinite(raw.count, 0));
         if (!count) return null;
         return {
             n: String(raw.n).slice(0, 100),
@@ -249,6 +250,8 @@
         if (!raw || typeof raw !== 'object' || !raw.map) return null;
         return {
             map: String(raw.map),
+            condition: typeof raw.condition === 'string' ? raw.condition : '',
+            lastKillAt: Math.max(0, _offlineFinite(raw.lastKillAt, 0)),
             mapName: String(raw.mapName || _offlineMapName(raw.map)),
             bossRoom: raw.bossRoom === true,
             bossCycleMs: Math.max(0, Math.floor(_offlineFinite(raw.bossCycleMs, 0))),
@@ -261,7 +264,7 @@
             sampleMs: Math.max(0, Math.floor(_offlineFinite(raw.sampleMs, 0))),
             mobs: _offlineMobProfiles(raw.mobs),
             bosses: _offlineBossProfiles(raw.bosses),
-            sampleKills: Math.max(0, Math.floor(_offlineFinite(raw.sampleKills, 0))),
+            sampleKills: Math.max(0, _offlineFinite(raw.sampleKills, 0)),
             updatedAt: Math.max(0, Math.floor(_offlineFinite(raw.updatedAt, 0)))
         };
     }
@@ -326,9 +329,33 @@
         return player.offlineHunt;
     }
 
+    function _offlineCondition(map) {
+        const equipment = actor => Object.keys(actor.eq || {}).filter(slot => actor.eq[slot]).sort().map(slot => [slot, itemSig(actor.eq[slot])]);
+        const config = actor => {
+            const keys = ['setPot','setHpPot','setAutoBuyPot','selAtkSkill','setMpAtk','selHealSkill','setMpHeal','selConvertSkill','setHpConvert','setHpSkill','setHaste','setBrave','setBlue','setCautious','setElfcookie','setPoly','setMagicbarrier','setTeleport','setAutoBuyArrow'];
+            const values = keys.map(key => actor.config && actor.config[key]);
+            if (actor === player && _uiConfigReady) {
+                keys.forEach((key, i) => {
+                    const id = key.replace(/[A-Z]/g, c => '-' + c.toLowerCase());
+                    const input = document.getElementById(id);
+                    if (input) values[i] = input.type === 'checkbox' ? input.checked : input.value;
+                });
+            }
+            const buffs = (actor.skills || []).slice().sort().map(sid => [sid, actor === player && _uiConfigReady && document.getElementById('auto-sk-' + sid) ? document.getElementById('auto-sk-' + sid).checked : _mercAutoOn(actor, sid)]);
+            return [values, buffs];
+        };
+        const summon = s => s && [s.form,s.lv,s.skId,s._v2count];
+        const actor = a => [a.enSeed || a._slot || '',a.cls,a.lv,a.base,a.alloc,a.panacea,a.mastery,a.elfEle,equipment(a),(a.skills || []).slice().sort(),config(a),a._atkSkill,a._healSkill,a._convertSkill,a._hpSkillPct,a._potHpPct,summon(a.summon)];
+        return JSON.stringify([map,actor(player),(player.allies || []).filter(a => a && !a._downed).map(actor),
+            petsOutList().filter(p => p && !p._downed).map(p => [p.form,p.lv,p.potPct,equipment(p)]),player.summonChoice,player._summonV2On,
+            (player.summonsV2 || []).filter(s => s && !s._downed).map(summon),(player.guardsV2 || []).filter(s => s && !s._downed).map(summon)]);
+    }
+
     function _offlineResetRuntime(map) {
         _offlineRuntime = {
             map: String(map || ''),
+            condition: _offlineCondition(map),
+            committed: {ms:0,kills:0,exp:0,gold:0,petExp:0,allyExp:0,mobs:{}},
             firstKillAt: 0,
             lastKillAt: 0,
             kills: 0,
@@ -390,8 +417,8 @@
         if (player.siege && player.siege.active) return _offlineBlocked('離開時正在攻城。');
         if (state.prideClimb || state.riftRun) return _offlineBlocked('離開時正在進行特殊挑戰。');
         if (!profile || profile.map !== String(mapState.current) || profile.killsPerMin <= 0) return _offlineBlocked('尚未在此地圖建立擊殺樣本（同一地圖狩獵至少 15 秒、擊殺 3 隻以上）。');
-        if (_offlineRuntime && _offlineRuntime.map === String(mapState.current) && _offlineRuntime.lastKillAt > 0 &&
-            now - _offlineRuntime.lastKillAt > OFFLINE_RECENT_KILL_MS) return _offlineBlocked('離開前超過 5 分鐘沒有擊殺。');
+        const lastKillAt = (_offlineRuntime && _offlineRuntime.lastKillAt) || profile.lastKillAt || 0;
+        if (now - lastKillAt > OFFLINE_RECENT_KILL_MS) return _offlineBlocked('離開前超過 5 分鐘沒有擊殺。');
         return true;
     }
 
@@ -489,7 +516,7 @@
     }
 
     function _offlineRecordKill(mob, map, expGain, goldGain, petExpGain, allyExpGain, now) {
-        if (!_offlineRuntime || _offlineRuntime.map !== String(map)) _offlineResetRuntime(map);
+        if (!_offlineRuntime || _offlineRuntime.map !== String(map) || _offlineRuntime.condition !== _offlineCondition(map) || (_offlineRuntime.lastKillAt && now - _offlineRuntime.lastKillAt > OFFLINE_RECENT_KILL_MS)) _offlineResetRuntime(map);
         let rt = _offlineRuntime;
         if (!rt.firstKillAt) rt.firstKillAt = now;
         rt.lastKillAt = now;
@@ -519,7 +546,9 @@
         let st = _offlineEnsureState();
         if (!st || !mob) return;
         let wasLocked = st.bossUnlocked === false;
-        let previous = _offlineProfileForMap(st, map) || {
+        let previous = _offlineProfileForMap(st, map);
+        if (previous && previous.condition !== _offlineCondition(map)) previous = null;
+        previous = previous || {
             map: String(map), mapName: _offlineMapName(map), expPerMin: 0, goldPerMin: 0,
             killsPerMin: 0, petExpPerMin: 0, allyExpPerMin: 0, sampleMs: 0,
             mobs: [], bosses: [], sampleKills: 0, updatedAt: 0
@@ -553,6 +582,7 @@
         bosses = bosses.filter(row => row.n !== mob.n);
         if (next) bosses.unshift(next);
         let remembered = _offlineRememberProfile(st, Object.assign({}, previous, {
+            condition: _offlineCondition(map), lastKillAt: now,
             bosses: bosses.slice(0, OFFLINE_MAX_BOSS_PROFILES),
             updatedAt: now
         }));
@@ -574,34 +604,43 @@
         if (!st) return null;
         let currentMap = String(mapState && mapState.current || '');
         let previous = _offlineProfileForMap(st, currentMap);
-        if (currentSpeed > 1) return previous;
+        if (currentSpeed > 1 || state.ff || _offlineSettling) return previous;
+        const condition = _offlineCondition(currentMap);
+        if (previous && previous.condition !== condition) previous = null;
+        if (!_offlineRuntime || _offlineRuntime.map !== currentMap || _offlineRuntime.condition !== condition) _offlineResetRuntime(currentMap);
         if (previous) {
             previous = _offlineAttachSurvival(previous, currentMap, now, false) || previous;
-            previous = _offlineRememberProfile(st, Object.assign({}, previous, { updatedAt: now }));
+            previous = _offlineRememberProfile(st, previous);
         }
         st.profile = previous;
-        if (!_offlineRuntime || !_offlineRuntime.firstKillAt) return previous;
-        let rt = _offlineRuntime;
-        let elapsed = Math.max(0, now - rt.firstKillAt);
-        if (rt.map !== currentMap || elapsed < OFFLINE_SAMPLE_MIN_MS || rt.kills < OFFLINE_SAMPLE_MIN_KILLS) {
-            return previous;
+        const rt = _offlineRuntime;
+        if (!rt.firstKillAt) return previous;
+        const elapsed = Math.max(0, rt.lastKillAt - rt.firstKillAt);
+        if (!previous && (elapsed < OFFLINE_SAMPLE_MIN_MS || rt.kills < OFFLINE_SAMPLE_MIN_KILLS)) return null;
+        const deltaMs = elapsed - rt.committed.ms;
+        if (deltaMs <= 0) return previous;
+        const newMs = Math.min(deltaMs, OFFLINE_SAMPLE_MAX_MS);
+        const oldMs = previous ? Math.min(previous.sampleMs, OFFLINE_SAMPLE_MAX_MS - newMs) : 0;
+        const sampleMs = oldMs + newMs;
+        const rates = {};
+        for (const field of ['exp','gold','kills','petExp','allyExp']) {
+            const rate = (rt[field] - rt.committed[field]) * 60000 / deltaMs;
+            rates[field + 'PerMin'] = ((previous ? previous[field + 'PerMin'] : 0) * oldMs + rate * newMs) / sampleMs;
         }
-        let mins = elapsed / 60000;
-        return _offlineRememberProfile(st, {
-            map: rt.map,
-            mapName: _offlineMapName(rt.map),
-            expPerMin: rt.exp / mins,
-            goldPerMin: rt.gold / mins,
-            killsPerMin: rt.kills / mins,
-            petExpPerMin: rt.petExp / mins,
-            allyExpPerMin: rt.allyExp / mins,
-            sampleMs: elapsed,
-            mobs: Object.keys(rt.mobKills).map(k => rt.mobKills[k]),
-            bosses: previous ? previous.bosses : [],
+        const mobs = new Map();
+        for (const mob of previous ? previous.mobs : []) mobs.set(_offlineMobKey(mob), {...mob,count:mob.count * oldMs / Math.max(1, previous.sampleMs)});
+        for (const [key, mob] of Object.entries(rt.mobKills)) {
+            const count = (mob.count - (rt.committed.mobs[key] || 0)) * newMs / deltaMs;
+            if (count > 0) mobs.set(key, {...mob,count:(mobs.get(key)?.count || 0) + count});
+        }
+        rt.committed = {ms:elapsed,kills:rt.kills,exp:rt.exp,gold:rt.gold,petExp:rt.petExp,allyExp:rt.allyExp,
+            mobs:Object.fromEntries(Object.entries(rt.mobKills).map(([key,mob]) => [key,mob.count]))};
+        return _offlineRememberProfile(st, Object.assign(rates, {
+            map: rt.map, condition: condition, lastKillAt: rt.lastKillAt, mapName: _offlineMapName(rt.map), sampleMs: sampleMs,
+            mobs: [...mobs.values()], bosses: previous ? previous.bosses : [],
             survival: _offlineSurvivalSnapshot(rt.map, previous && previous.survival, now, false),
-            sampleKills: rt.kills,
-            updatedAt: now
-        });
+            sampleKills: rates.killsPerMin * sampleMs / 60000, updatedAt: now
+        }));
     }
 
     function _offlinePrepareSnapshot(now, closingPage) {
@@ -1373,8 +1412,13 @@
             _offlineFormatDuration(result.requestedElapsedMs || result.elapsedMs) + (result.capped ? '（已達 12 小時上限）' : '') + '。');
         let duration = result.requestedElapsedMs || result.elapsedMs;
         if (duration >= 600000) {
-            logSys('每 10 分鐘效益：經驗 ' + Math.round(result.exp * 600000 / duration).toLocaleString() +
+            logSys('每 10 分鐘效益（整段離線平均）：經驗 ' + Math.round(result.exp * 600000 / duration).toLocaleString() +
                 '、金幣 ' + Math.round(result.gold * 600000 / duration).toLocaleString() + '。');
+        }
+        if (result.died && duration >= 600000 && result.elapsedMs > 0) {
+            logSys('死亡前狩獵效率（每 10 分鐘）：經驗 ' + Math.round(result.exp * 600000 / result.elapsedMs).toLocaleString() +
+                '、金幣 ' + Math.round(result.gold * 600000 / result.elapsedMs).toLocaleString() +
+                '；實際狩獵 ' + _offlineFormatDuration(result.elapsedMs) + '。');
         }
         if (result.potionUsed > 0) {
             const name = DB.items[result.potionId]?.n || result.potionId;
@@ -1589,7 +1633,7 @@
         if (typeof logSys === 'function' && options.catchupFormat) {
             logSys('<span class="' + (survivalPlan.died ? 'text-red-400' : 'text-cyan-300') + ' font-bold">⏩ 掛機補跑完成：</span>已補上 ' +
                 _offlineFormatCatchupDuration(elapsed) + ' 的進度' + (gold > 0 ? ('，金幣 +' + gold.toLocaleString()) : '') +
-                (survivalPlan.died ? '，角色在戰鬥中死亡，後續時間不再計算收益。' : '。'));
+                (survivalPlan.died ? '，角色在戰鬥中死亡，後續時間不再計算收益；不列入死亡經驗買回。' : '。'));
             let gains = _offlineCatchupGainRows(loot);
             if (gains.length) logSys('<span class="sys-item-gain">掛機期間獲得：' + gains.join('、') + '</span>');
         } else if (typeof logSys === 'function') {
@@ -1599,7 +1643,7 @@
                 '、掉落物 ' + loot.itemCount.toLocaleString() + '、卡片 ' + loot.cardCount.toLocaleString() + '。');
             if (survivalPlan.died) {
                 logSys('<span class="text-red-400 font-bold">角色在離線戰鬥 ' + _offlineFormatDuration(elapsed) +
-                    ' 後死亡，後續收益已停止；離線頭目戰需再次擊敗頭目才能解鎖，普通狩獵復活後仍可掛機。</span>');
+                    ' 後死亡，後續收益已停止；不列入死亡經驗買回。離線頭目戰需再次擊敗頭目才能解鎖，普通狩獵復活後仍可掛機。</span>');
             }
         }
         if (survivalPlan.died) _offlineApplySettledDeath();
@@ -1802,7 +1846,8 @@
             let map = typeof mapState !== 'undefined' && mapState ? String(mapState.current || '') : '';
             let mob = mapState && mapState.mobs ? mapState.mobs[idx] : null;
             // 真實補跑（state.ff）會逐 tick 正常給獎，但不能拿壓縮執行的牆鐘時間建立離線速率或 BOSS 擊殺時間證明。
-            let foreground = currentSpeed === 1 && !(typeof state !== 'undefined' && state && state.ff);
+            let foreground = currentSpeed === 1 && !document.hidden && !(typeof state !== 'undefined' && state && state.ff);
+            if (!foreground && _offlineRuntime && _offlineRuntime.kills) _offlineResetRuntime(map);
             let validMob = foreground && _offlineValidMob(mob, map);
             let validBoss = foreground && _offlineValidBoss(mob, map);
             let tracked = validMob || validBoss;

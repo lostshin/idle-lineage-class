@@ -82,11 +82,19 @@
 - 空角色格單擊只選取，必須左鍵雙擊才進創角；原創角按鈕、鍵盤與已存角色雙擊載入保留。取消不寫檔、不留下草稿。
 - 離線收益名稱用 `getItemColor`，不只讀基底色；系統日誌不可用後代萬用選擇器蓋掉傳說、遺物、祝福、詛咒及萬能藥的原生色。
 
-### 離線結算與返回日誌（2026-10-19）
+### 離線結算與返回日誌（2026-10-21）
 
 - 地名解析先查 `HIDDEN_AREA_NAMES`，再查一般地圖；結算結果重新解析來源地圖，涵蓋舊樣本／快照的英文代碼，摘要與歷史共用中文結果。
 - 普通地圖離線頭目戰讀 `set-teleport` 與 `AFK_BOSSAVOID.picked(map)`：空清單全部迴避，指定清單只略過對象；原 ID 解析到最終變身名稱。保留完整遭遇池及原本其他頭目機率，純頭目房維持線上不迴避例外，不修改 vendor。
+- 同條件的普通狩獵樣本增量合併，只提交上次提交後的新擊殺／獎勵，以首末有效擊殺間的實戰時間加權，總權重最多 5 分鐘；重複存檔不增權、重載不忘記，維持首次 ≥15 秒／3 隻、最後擊殺 5 分鐘內及最多 5 張地圖。背景／補跑／加速不訓練新速率。
+- `profile.condition` 比對地圖、角色成長／裝備、出戰隊伍、技能及自動化；空裝備欄、物品 uid、HP／MP、倒數、金幣與一般戰利品數量不入簽章。條件改變須重新觀察；舊檔缺簽章先結算原待領快照，再建立未來樣本，不能先清掉待領收益。
+- 離線 ≥10 分鐘時顯示「整段離線平均」；若死亡且實際狩獵時間 >0，再顯示「死亡前狩獵效率」與存活時間，兩者用同一份實得經驗／金幣，只換分母；0 時間不除、仍採 12 小時可結算上限。離線與批次補跑死亡均寫「不列入死亡經驗買回」，不新增扣經驗或買回紀錄。
 - 加掛選項共 19 個、預設全關。`keepview`「返回時保留日誌分頁」啟用後才停止返回時自動切 `sys`；涵蓋 focus／visibility／BFCache。新建／載入及真正離線摘要仍走原系統日誌流程；沿用既有草稿、取消、保存與重載，不另存偏好鍵。
+
+### 和諧與夥伴能力（2026-10-21）
+
+- 主角與傭兵「立方：和諧」均在增益勾選列，傭兵轉換下拉只列 `type:convert`。舊 `_convertSkill` 遷移到 `_autoBuff` 後清掉舊選項；明確 true／false 優先，未選者不自動啟用。沿用傭兵偏好保存／刷新，HP 消耗週期、自訂停止門檻、至少 25% 安全線及村莊停用不變。
+- 召喚物、傭兵召喚、死靈骷髏、城堡護衛沿用寵物精簡能力清單，只列實際支援的骰值、加值、命中、間隔、倍率、防禦與技能；不用主角六屬性、爆擊或「—」填滿。V2／舊式傭兵／屬性精靈依各自原生攻擊路徑顯示，間隔 ticks ÷10；不套寵物魅力／裝備公式，保留唯讀裝備、增益／異常及來源 tooltip，預覽只算副本。
 
 ### 同怪掉落與分類列（2026-10-19）
 
@@ -96,6 +104,7 @@
 ### 冒險者大廳（2026-10-21）
 
 - 黑市旁獨立「冒險者大廳」按鈕，同頁開啟／再按返回，維護 `aria-pressed`；「肝膽相照」是場景標題，移除舊地圖分類／子選單入口。黑市／瞬移／回城與兩個真實地圖選單保留；場景仍為 `min(800px,100%)`／16:9，無永久資訊面板或上下捲軸。
+- `#social-lobby` 用 `isolation:isolate` 限制角色、營火、輪播及控制列的內部圖層；物品資訊／比較窗須蓋住整個大廳。不要全面提高浮窗 z-index 或改姿勢比例；同時驗實際重疊、命中與預覽。
 - 大廳是社交視圖：保留 `mapState.current`、狩獵設定及兩個選單的真實地圖值；底部提示自己的冒險團所在地，不因此公開位置。戰鬥繼續，隱藏場景停止特效；只有實際換圖／換角色才退出，不因選單同步或被暈眩擋住的回城取消。
 - 點角色才開場景內的非 modal `<dialog>` 名片；編輯／預覽／收藏／留言在同一彈窗，不另佔場景。Escape／外點只關彈窗、保留大廳並恢復角色焦點；自訂地圖選單不被誤判為外點。編輯／預覽維持分頁，留言例外見下條，均驗窄欄。
 - 大廳用 `/v1/players?view=recent` 顯示正式站近 24 小時旅人，不必發布名片。最後正式站回報 10 分鐘內標在線，其後離線但角色保留，滿 24 小時才移出；不刪名片／留言／收藏。心跳僅目前角色 `name/cls/avatar/pose` 與同意分享的地圖；職業／性別與姿勢由後端驗證。5 分鐘回報，創角／換角色／恢復連線立即回報。
@@ -137,7 +146,7 @@
 - 測試報告預設寫入 `tmp/test-runs/`（不進 git）；要更新受追蹤的 `tests/artifacts/` 才加 `--record`（runner 與 `*.integration.js` 相同）；runner 可用 `--artifacts <目錄>` 指定其他輸出位置，與 `--record` 互斥。
 - 成功後只呼叫一次 `finish({keep:[]})` 並等待完成；耗時時用背景程序讀回結果，不用短 timeout 中止再反覆重送。有 `finished <id>` 與成功結束碼後，不再操作該空間。
 - 必跑 `rwd`、`ui-scale`、`gameplay`、`account-gameplay`、`companion-commands` 的 HTTP／file：`--space <id> --suite required --protocol both --desktop-only`。
-- 相關 E2E 見 `tests/run-rwd.py` 的 `SUITES`；背包用 `backpack-a`／`main-backpack`／`backpack-feedback`，強化與搜尋用 `ken-market`／`gear-accelerator`，大廳用 `social-lobby`／`lobby-camp`／`lobby-fit`／`lobby-live-actors`／`lobby-actions`／`lobby-adventure`；同樣帶 `--desktop-only`，其他既有專項依實際改動選用。
+- 相關 E2E 見 `tests/run-rwd.py` 的 `SUITES`；背包用 `backpack-a`／`main-backpack`／`backpack-feedback`，強化與搜尋用 `ken-market`／`gear-accelerator`，大廳用 `social-lobby`／`lobby-camp`／`lobby-fit`／`lobby-live-actors`／`lobby-actions`／`lobby-adventure`；本輪綜合修正用 `feedback-reliability`；同樣帶 `--desktop-only`，其他既有專項依實際改動選用。
 - 創角／載入會自動連線大廳；合成回歸先用同一 p1 的 `Page.addScriptToEvaluateOnNewDocument` 隔離預設公共 API，保留明確指定的合成 API／本機 workerd 連線。不可讓核心測試大量建立公共訪客，也不可改正式碼來停用測試中的功能；報告標明隔離方式。在線名冊可含自己，點指定訪客用其 ID，不假設第一筆就是別人。
 - TaskSpace 消失不能自行重建；使用者暫緩重建時，先完成本地工作並記錄待跑的瀏覽器檢查，後續不得把 Node VM／幾何替身說成瀏覽器 E2E 通過。
 - 所有 `visual-*` 必須緊接同一 space 的對應行為 fixture，例如 `account-gameplay visual-account-gameplay`；中間不可插入其他 suite，各 fixture 的全域儲存不可互換。runner 會拒絕順序錯誤的組合。
@@ -148,6 +157,7 @@
 - 原生選擇器點擊若因自動捲動被 sticky 欄或分類箭頭擋住，先觀察命中元素，再聚焦、捲到可視中央並等畫格穩定、核對 `elementFromPoint`、用原生滑鼠點擊；不盲目重試或強制穿透。
 - 懸浮測試先等 resize／scroll 與版面穩定；選不被其他 sprite 遮住、離透明邊緣足夠遠的像素，避免取點到送入滑鼠事件間角色已移動。可短暫固定合成場景的原生畫格，完成後還原；不冒充完整戰鬥驗證。
 - 不直接改寵物記憶體陣列充當已儲存名冊；用原生 dirty／save 流程，避免下一次查詢把測試寵物清掉。
+- `page.evaluate` 單次有 15 秒限制；原生 rAF 被節流時，將同一組逐格斷言拆成短批次，保留原總格數，先核對可見性／實際畫格進度，不改正式碼、不刪斷言或反覆原樣重跑。
 - 擷取圖片不可用／`Page.captureScreenshot` 逾時時，從失敗 suite 接續 `--skip-screenshots`，不重跑已通過的；用 Ego screen-media PDF 轉 PNG。PDF 放 `tmp/pdfs/`、驗收後刪除；標示協定、轉圖工具與實際 dpi（依實際工具記錄，如 pypdfium2 96dpi；舊 sips 預覽為 72dpi），不宣稱直接截圖。
 - 實際檢查桌機 1330／1920px、60／75／80／100% 與 220／300／460px 側欄；倒地傭兵及寵物的所有控制項、標籤文字均須在邊界內，不能只量卡片高度。
 - 倉庫另跑 `warehouse-list` 與 `village-clan-warehouse`（HTTP／file）。驗證預設尺寸要清除測試調整並以 100% 量測；預設圖與已拖曳縮放圖分開命名。命中區留在外框內，實測縮放時 border 取整，不能假設 CSS 宣告值等於實際邊界。
@@ -187,9 +197,9 @@
 
 ## 最新進度與驗證基準（2026-10-21）
 
-- 本次發布版本 **v3.9.18**（原版 `v3.8.34` 不變）：獨立大廳入口、原版站姿／生成坐跪姿、穩定散布與自選姿勢、獨立動作按鈕、冒險團地名與全隊 5% 線上／離線經驗加成。是否已部署以 `tmp/test-runs/lobby-session-release/completion.json` 的實際 commit／Worker／Pages／公開 SHA 結果為準；文件本身不代表已上線。
-- 核心功能最初完整驗收在 `tmp/test-runs/lobby-adventure/completion.json`：862/862，含 HTTP／file、隔離 workerd／D1、原生分頁切換；本地 13/13、鏡像 SHA 69/69、後端 9/9。後續只改姿勢比例與動作控制，報告分別為 `lobby-feedback` 744/744、`lobby-seat-proportion` 655/655、最終 `lobby-kneeling` 564/564（皆同一 `tmp/test-runs/<名稱>/completion.json`）；數字含重複案例，不可相加宣稱獨立測試數，也不把早期素材預覽當最終版。
-- 最終跪坐來源及報告已核對一致，本地 13/13、鏡像 69/69；`lobby-kneeling/preview/preview-http.png` 為九位合成旅人的本機 HTTP＋隔離 Worker/D1 實景，Ego screen-media PDF 以 pypdfium2 96dpi 轉圖，非直接截圖。對照／頭部輪廓量測見 `lobby-seat-proportion/`；後端來源未再變，沿用 9/9 報告。發布只需補版本驗收，不因文件／版本再重跑整套。
-- 本 Session 各功能測試空間均已 finish、臨時伺服器已停，公共玩家與真實存檔未用於測試；Safari、實體手機、安裝版及長期 5% 平衡未驗。公開 HTTPS SHA 僅為資源驗證，不能稱為線上瀏覽器 E2E。
-- 使用者已撤回統一 v3.9.10，版本接續 v3.9.17 遞增，不改寫既有 commit／tag。歷史驗收留在 `lobby-v3910`、`lobby-recent`、`lobby-live-actors`、`import-lobby`、`ken-market`、`loot-nav` 及各 release 目錄；歷史「先發名片才在線／地圖子選單入口／隨機姿勢」均已被現行規則取代。
-- `tmp/` 只在本機存在；接手先核對方法、來源 SHA 與實際結果，未變的功能沿用報告。其他歷史見 [docs/agent-progress.md](docs/agent-progress.md)。
+- 本次發布版本 **v3.9.19**（原版 `v3.8.34` 不變）：大廳圖層、離線增量取樣／雙效率摘要／死亡提示、和諧統一設定、召喚物／護衛精簡能力。是否已部署以 `tmp/test-runs/feedback-reliability-release/completion.json` 的實際 commit／Pages／公開 SHA 為準；後端未改，不重複部署 Worker。
+- 本輪功能驗收 `tmp/test-runs/feedback-reliability/completion.json`：20 份 HTTP／file 報告、822/822（含重複情境），新增專項各 36 項、原程式 36 項中 29 項預期失敗；本地 13/13、鏡像 SHA 69/69。HTTP `effect-details` 在最後「舊式傭兵召喚」專用顯示分支前測得；最終 file 與兩協定專項已涵蓋該分支。保留 runner 原始 SHA，不把升版／文件後的雜湊冒充早期實測；升版後另跑 `comfort-release` HTTP／file 各 41/41、本地 13/13；不冒充 822 項在升版後重跑。
+- 杜賓狗／高等杜賓狗的左右行走、停止、攻擊及載入過程共 24/24，未重現不朝右，因此未改方向邏輯；需種類、動作與當時畫面才能追加修正，不預先鏡射素材。
+- 代表預覽為同目錄 `feedback-lobby-modal.png`、`feedback-minion-ability.png`：本機 HTTP＋隔離合成角色，Ego screen-media PDF→pypdfium2 96dpi，非直接截圖。功能 TaskSpace 已單次 finish、臨時伺服器已停；公共大廳 API 已隔離，不碰真實存檔。Safari、實體手機、安裝版未驗。
+- v3.9.18 大廳入口、姿勢、全隊 5% 加成的歷史驗收在 `lobby-adventure`、`lobby-feedback`、`lobby-seat-proportion`、`lobby-kneeling` 與 `lobby-session-release`；現用跪姿來源及比例保留，後端沿用既有 9/9。不要拿舊預覽當本輪結果，或把各階段案例相加成獨立覆蓋。
+- 使用者已撤回統一 v3.9.10，接續版號遞增，不改寫既有 commit／tag；歷史「先發布名片才在線／地圖子選單入口／隨機姿勢」均已被現行規則取代。`tmp/` 僅在本機，接手先核對來源／方法與報告，未變的功能沿用證據；更早歷史見 [docs/agent-progress.md](docs/agent-progress.md)。

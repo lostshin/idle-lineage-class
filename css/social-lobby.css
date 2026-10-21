@@ -1,7 +1,7 @@
 #social-lobby[hidden], #social-lobby [hidden] { display: none !important; }
 #map-view-panel.social-lobby-open > #battle-view,
 #map-view-panel.social-lobby-open > #town-view { display: none !important; }
-#social-lobby { position: relative; width: min(800px, 100%); aspect-ratio: 16 / 9; flex: 0 0 auto; align-self: center; margin-inline: auto; padding: 0; overflow: hidden; color: #d6c9a8; font-family: inherit; }
+#social-lobby { position: relative; isolation: isolate; width: min(800px, 100%); aspect-ratio: 16 / 9; flex: 0 0 auto; align-self: center; margin-inline: auto; padding: 0; overflow: hidden; color: #d6c9a8; font-family: inherit; }
 #lobby-common, #lobby-scene { position: absolute; inset: 0; }
 #lobby-scene { background: #24271d url('../assets/ui/lobby-camp-v1.webp') center / cover; overflow: hidden; container-type: inline-size; }
 #social-lobby button { color: #d8c58c; border: 1px solid #776d52; background: #24241e; padding: 4px 8px; cursor: pointer; font: inherit; }

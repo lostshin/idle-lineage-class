@@ -696,6 +696,7 @@ function snapshotMercPrefs(ally) {
     try {
         if (!ally || !ally.enSeed) return;   // 無 enSeed（極舊快照）→ 無法可靠識別同一角色·不記憶
         if (!player.mercPrefs || typeof player.mercPrefs !== 'object') player.mercPrefs = {};
+        migrateAllyHarmony(ally);
         let pref = {};
         MERC_PREF_FIELDS.forEach(f => { if (ally[f] !== undefined && ally[f] !== null) pref[f] = ally[f]; });
         pref._autoBuff = (ally._autoBuff && typeof ally._autoBuff === 'object') ? JSON.parse(JSON.stringify(ally._autoBuff)) : {};   // 逐兵「自動維持」勾選
@@ -807,6 +808,7 @@ function buildAlly(slotN) {
     ally.mp = ally.mmp;   // 召喚時滿魔
     { let _w = (ally.eq && ally.eq.wpn) ? DB.items[ally.eq.wpn.id] : null; ally._rapidfire = (_w && _w.isBow && _w.rapidfire) ? _w.rapidfire : 0; }   // 妖精弓：記錄連射發動機率
     applyMercPrefs(ally);   // 🤝 v3.4.23 同一角色（enSeed）先前的喝水＋技能設定記憶→套回（首次招募無記憶則沿用來源快照預設）
+    migrateAllyHarmony(ally);
     return ally;
 }
 // 參戰且未倒地的傭兵共享隊長本次性向事件；記錄各自實際套用的差額，於來源角色載入或回村時領取。
@@ -2409,9 +2411,8 @@ function allyCubeTick(ally) {
     ally.skills.forEach(sid => {
         let sk = DB.skills[sid];
         if (!sk || !sk.cube) return;   // 🔮 立方＝常駐光環
-        if (sid !== 'sk_illu_cube_harmony' && !_mercAutoOn(ally, sid)) return;   // 🔮 v2.7.96 燃燒/地裂/衝擊立方吃「來源有勾自動施放」閘（比照玩家 autoActions js/07:806·免 MP 但沒開→不展開；和諧另由轉換技能欄控制）
-        if (sid === 'sk_illu_cube_harmony') {   // 🔮 v2.6.4：立方和諧改由「轉換技能」欄位選取才展開＋受「停耗HP技」門檻影響（有 hpCost）
-            if (ally._convertSkill !== 'sk_illu_cube_harmony') return;   // 未在轉換技能欄選取→不展開
+        if (!_mercAutoOn(ally, sid)) return;   // 🔮 v2.7.96 燃燒/地裂/衝擊立方吃「來源有勾自動施放」閘（比照玩家 autoActions js/07:806·免 MP 但沒開→不展開；所有立方共用自動維持設定）
+        if (sid === 'sk_illu_cube_harmony') {   // 🔮 v2.6.4：立方和諧由自動維持勾選才展開＋受「停耗HP技」門檻影響（有 hpCost）
             let _cHpc = sk.hpCost || 0;
             if (_cHpc > 0) {   // 🩸 v3.5.45 立方和諧有 hpCost：比照玩家「每次施放(dur 週期)付一次 HP」→常駐光環改成每 sk.dur 秒扣一次 hpCost·取 max(停耗HP技門檻,25%) 安全門檻，HP 低於此→本秒暫停光環讓 HP 回復(不自殺)
                 let _sp = Math.max(allyHpSkillPct(ally) || 0, 25);
@@ -2774,7 +2775,19 @@ function allyCastConvert(ally, sk) {
 //   透過重算 ally.d 讓 buff 的衍生值(extraDmg/extraHit/ac/str/攻速/覺醒 HP·MR·免疫/屬性抗性…)生效。排除：召喚(#2未做)/淨化(#6)/立方·颶風·團隊HoT(各自 ally 常駐路徑)/幻覺·大地祝福·鋼鐵防護(隊長團隊增益·避免與 team aura 疊加或浪費 MP)/暗隱術(受擊迴避層#5另處理)。
 // 👑 v2.7.95 傭兵自動施放「開啟閘」：只有「來源角色有勾選自動施放(auto-sk-<id>)」的技能才自動施放（快照存於 config.autoBuffSkills·buildAlly 深拷貝帶入·js/13:713）。
 //   用於所有「會耗 MP 的自動維持行為」：自我 buff(1680)／召喚／團隊 HoT／團隊淨化——比照玩家 autoActions 勾選框(js/07:810-824)，玩家沒開＝傭兵不耗 MP。攻擊/治癒/轉換由隊伍面板下拉單選(＝玩家已指定)故不受此閘。
+function migrateAllyHarmony(ally) {
+    const sid = 'sk_illu_cube_harmony';
+    if (!ally || ally._convertSkill !== sid) return;
+    if (!ally._autoBuff) ally._autoBuff = {};
+    if (!Object.prototype.hasOwnProperty.call(ally._autoBuff, sid)) {
+        const source = ally.config && ally.config.autoBuffSkills;
+        ally._autoBuff[sid] = source && Object.prototype.hasOwnProperty.call(source, sid) ? !!source[sid] : true;
+    }
+    ally._convertSkill = '';
+    if (ally.config && ally.config.selConvertSkill === sid) ally.config.selConvertSkill = '';
+}
 function _mercAutoOn(ally, sid) {
+    migrateAllyHarmony(ally);
     if (ally && ally._autoBuff && Object.prototype.hasOwnProperty.call(ally._autoBuff, sid)) return !!ally._autoBuff[sid];   // 🆕 v3.0.97 隊伍面板「逐兵自動維持」覆寫優先（setAllyAutoBuff·存 ally._autoBuff·隨存檔）
     return !!(ally && ally.config && ally.config.autoBuffSkills && ally.config.autoBuffSkills[sid]);   // 否則沿用來源角色存檔的自動施放勾選快照
 }
@@ -2828,7 +2841,7 @@ function _isMercSelfBuff(sk, sid) {
 }
 // 🆕 v3.0.97 傭兵「自動維持」可切換技能清單：列出受 _mercAutoOn 閘控制、可於隊伍面板逐兵開關的已學技能
 //   （自我增益 buff／召喚術／團隊 HoT／淨化／火牢·冰雪颶風／立方）。回傳 [{sid,n,cat}]（cat 供分組/tooltip）。
-//   ⚠️不含：完全免疫類（被 _isMercSelfBuff 排除·刻意不給傭兵）、立方和諧（由轉換技能欄控制）。
+//   ⚠️不含：完全免疫類（被 _isMercSelfBuff 排除·刻意不給傭兵）。
 //   🔮 v3.2.2：幻覺（歐吉/巫妖/鑽石高崙）已納入（cat '幻覺'）——勾選＝傭兵自動維持該 buff＝提供全隊光環＋（有 i_illusion 精通時）召出對應幻象攻擊。
 function allyAutoCastableSkills(ally) {
     if (!ally || !ally.skills) return [];
@@ -2841,7 +2854,7 @@ function allyAutoCastableSkills(ally) {
         if (sid === 'sk_antidote' || sid === 'sk_holy_light' || sid === 'sk_cancel') cat = '淨化';
         else if (sk.type === 'heal' && sk.hot && sk.autoBuff) cat = '團隊回復';
         else if (typeof STORM_BUFF_SKILLS !== 'undefined' && STORM_BUFF_SKILLS.includes && STORM_BUFF_SKILLS.includes(sid)) cat = '持續傷害';
-        else if (sk.cube && sid !== 'sk_illu_cube_harmony') cat = '立方';
+        else if (sk.cube) cat = '立方';
         else if (sk.type === 'buff' && sk.summon) cat = '召喚';
         else if (typeof TEAM_AURA_SKILLS !== 'undefined' && TEAM_AURA_SKILLS.includes(sid)) cat = '團隊光環';   // 🌟 真正全隊光環（含大地祝福；鋼鐵防護已改列自我增益）
         else if (sk.illuSummon && _isMercSelfBuff(sk, sid)) cat = '幻覺';   // 🔮 v3.2.2 幻覺（歐吉/巫妖/鑽石高崙）：勾選＝維持 buff→全隊光環＋幻象召喚（需 i_illusion 精通）

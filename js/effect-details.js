@@ -172,6 +172,33 @@ function effectPreview(actor,kind,owner=player,stage=7,omit=null,clan=clanBuffSn
             player=leader;
             d=kind==='pet'?petDerive(copy):kind==='guard'?guardDerive(copy):_sumDeriveAny(copy,effectPreviewActor(owner));
             d={...d,mhp:_supMhp(copy),mmp:(copy.mmp||0)+(d?.mmpBonus||0)};
+            if(kind!=='pet'){
+                const aura=teamIlluAura(copy,true),gear=kind==='guard'?{dmg:0,hit:0}:summonGearBonus(owner);
+                d.summonGearDmg=gear.dmg;d.summonGearHit=gear.hit;
+                d.minionAuraDmg=(aura?.ed||0)+(aura?.mel||0);d.minionAuraHit=aura?.eh||0;
+                if(copy.skId==='sk_elf_summon'||copy.skId==='sk_elf_summon2'){
+                    const spec=_spiritSpec(copy.skId,copy.ele,!!copy._king),cha=owner.d?.cha||0;
+                    const sm={skId:copy.skId,hitLvOff:spec.hitLvOff||0,dmgMult:spec.dmgMult||1};
+                    d.magicFlat=Math.floor(cha*(owner.lv||1)/(spec.scale||20))+gear.dmg+(aura?.royalEd||0)+(aura?.mel||0);
+                    d.hit=(owner.lv||1)+(spec.hitLvOff||0)+Math.floor((owner.lv||1)*.75+cha*.35)+(isMageSummonMastered(sm,owner)?5:0);
+                    d.magicMult=summonDamageMult(sm,owner,true,owner!==root&&!(owner.buffs?.sk_illu_lich>0)?teamIlluAura(owner,true)?.md||0:0);
+                    d.mrPen=(spec.mrPenBase||0)+Math.floor(cha/10);
+                    d.minionAuraDmg=0;
+                }
+                if(kind!=='guard' && typeof d.dmgMult==='number'){
+                    const baseMd=Math.min(12,Math.max(0,owner.d?.magicDmg||0));
+                    const otherAura=owner!==root&&!(owner.buffs?.sk_illu_lich>0)?teamIlluAura(owner,true):null;
+                    d.dmgMult *= (1+Math.min(12,Math.max(0,baseMd+(otherAura?.md||0)))/80)/(1+baseMd/80);
+                }
+                if(kind==='merc-summon')d.aspd=copy.interval/companionHasteMult(copy);
+                if(kind==='merc-summon'&&!copy._v2form&&copy.kind==='melee'&&Array.isArray(copy.dmgDice)){
+                    const cha=owner.d?.cha||0;
+                    d.diceCount=copy.dmgDice[0];d.dice=copy.dmgDice[1];
+                    d.flat=Math.floor(cha/(copy.dmgDiv||5)*(copy.dmgLvDiv?1+owner.lv/copy.dmgLvDiv:1))+(aura?.ed||0);
+                    d.hit=(owner.lv||1)+(copy.hitLvOff||0)+Math.floor((owner.lv||1)*.75+cha*.35)+(isMageSummonMastered(copy,owner)?5:0);
+                    d.dmgMult=summonDamageMult(copy,owner,false);d.minionAuraDmg=0;
+                }
+            }
             if(typeof d.er==='number'){d.rawEr=d.er;d.er=effResistPct(d.er);}
             if(kind==='pet'){
                 const gear=petGearBonus(copy),charm=petCharmCombatBonus(),aura=teamIlluAura(copy,true),statuses=_supStatuses(copy)||{};
@@ -422,8 +449,27 @@ function partyPetBonusHtml(snapshot,actor) {
     const skills=magic.length?'<h3>魔法技能</h3><dl class="party-stats pet-ability-stats">'+row('mgdmg','技能傷害加值')+'<dt>技能間隔</dt><dd>'+effectNumber(d.castItv/10)+'s</dd></dl><p>'+magic.map(skill=>partyEscape(skill.n)+'：'+skill.d[0]+'D'+skill.d[1]).join('、')+'（魔法必中）</p>':'';
     return '<section id="party-bonus-window" data-pet-ability><h3>寵物能力</h3><dl class="party-stats pet-ability-stats"><dt>普攻骰值</dt><dd>1D'+effectNumber(d.dice)+'</dd>'+row('mdmg','物理傷害加值')+row('mhit','命中加值')+row('spd','攻擊間隔','s')+'<dt>普攻傷害倍率</dt><dd>×'+effectNumber((d.damageMult||1)*(d.attackMult||1))+'</dd>'+row('mr','魔防 MR')+row('dr','固定減傷')+row('er','迴避 ER','%')+'</dl>'+skills+abilityBonusNotesHtml(snapshot)+'<p>普攻命中依等級差與目標 AC 計算；實際傷害另計目標減免與技能效果。</p></section>';
 }
+function partyMinionBonusHtml(snapshot,actor) {
+    const d=snapshot.total,guard=snapshot.kind==='guard';
+    const fields={mdmg:['flat','summonGearDmg'],mhit:['hit','summonGearHit','minionAuraHit'],spd:['aspd'],ac:['ac'],dr:['dr'],mr:['mr'],er:['er'],mhp:['mhp'],mmp:['mmp'],mgdmg:['magicFlat'],reduction:['damageReductionPct']};
+    const row=(key,label,suffix='')=>fields[key].some(k=>typeof d[k]==='number')?'<dt>'+label+'</dt><dd data-ability-field="'+key+'" data-ability-keys="'+fields[key].join(',')+'" data-ability-label="'+label+'" tabindex="0" role="button">'+partyAbilityValue(snapshot,fields[key],suffix,key==='spd')+'</dd>':'';
+    const text=(label,value)=>'<dt>'+label+'</dt><dd>'+value+'</dd>';
+    let attack='';
+    if(typeof d.dice==='number') attack=text('普攻骰值',(d.diceCount||1)+'D'+effectNumber(d.dice))+row('mdmg','物理傷害加值')+row('mhit','命中加值')+text('傷害倍率','×'+effectNumber(d.dmgMult??1));
+    if(d.minionAuraDmg) attack+=text('光環額外傷害',effectNumber(d.minionAuraDmg));
+    const tier=!guard&&!actor._necroSkeleton?_sumTierOf(actor.form):null;
+    const skills=(tier?.mob.proc||[]).map(p=>partyEscape(p.name)+'：'+effectNumber(p.p*100)+'% '+(/poison/.test(p.kind)?'中毒':'屬性魔法')+(p.kind.endsWith('All')?'（全體）':''));
+    if(actor.proc)skills.push(partyEscape(actor.proc.name)+'：每 '+effectNumber(actor.proc.cd/10)+' 秒判定，'+effectNumber(actor.proc.p*100)+'% 發動');
+    if(actor.skId==='sk_elf_summon'||actor.skId==='sk_elf_summon2'){
+        const spec=_spiritSpec(actor.skId,actor.ele,!!actor._king);
+        attack=text('屬性攻擊骰值',spec.dice[0]+'D'+spec.dice[1])+row('mgdmg','屬性傷害加值')+row('mhit','命中加值')+text('屬性傷害倍率','×'+effectNumber(d.magicMult))+text('MR 穿透',effectNumber(d.mrPen));
+        if(spec.aoe)skills.push('精靈王全體技能：'+effectNumber(spec.aoe.p*100)+'%');
+    }
+    return '<section id="party-bonus-window" data-minion-ability><h3>'+(guard?'城堡護衛':'召喚物')+'能力</h3><dl class="party-stats pet-ability-stats">'+attack+row('spd','攻擊間隔','s')+row('ac','防禦 AC')+row('dr','固定減傷')+row('reduction','百分比減傷','%')+row('mr','魔防 MR')+row('er','迴避 ER','%')+row('mhp','HP 上限')+(d.mmp>0?row('mmp','MP 上限'):'')+'</dl>'+(skills.length?'<h3>技能</h3><p>'+skills.join('<br>')+'</p>':'')+effectStatusHtml(snapshot)+'<p>數值取自身與主人目前能力；實際傷害另計目標減免'+(actor._v2count>1?'；每隻數值，合計 '+actor._v2count+' 隻':'')+'。</p></section>';
+}
 function partyBonusHtml(snapshot,actor=null) {
     if(snapshot.kind==='pet')return partyPetBonusHtml(snapshot,actor);
+    if(snapshot.kind!=='player'&&snapshot.kind!=='ally')return partyMinionBonusHtml(snapshot,actor);
     const shell = document.querySelector('#tab-stats .ability-window-shell').cloneNode(true);
     shell.querySelectorAll('button,.ability-respec-overlay,.ability-hidden-values').forEach(e=>e.remove());
     const fields = {...ABILITY_STAT_FIELDS,spd:snapshot.kind==='pet'?['atkItv']:['aspd']};

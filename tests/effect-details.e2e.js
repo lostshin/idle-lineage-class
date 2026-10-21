@@ -14,7 +14,11 @@ await page.waitForFunction(()=>!document.getElementById('effect-tooltip').hidden
 await page.hover('#effect-tooltip');
 await check('buff explanation stays readable when another buff enters or expires',async()=>{
     await page.evaluate(()=>{window.__effectBarNode=document.querySelector('#status-icon-bar [data-effect-id="sk_str_up"]');window.__buffFrames=[];});
-    for(const active of [true,false])await page.evaluate(async active=>{if(active)player.buffs.sk_holy_wpn=30;else delete player.buffs.sk_holy_wpn;renderStatusEffects();for(let i=0;i<24;i++){await new Promise(r=>requestAnimationFrame(r));__buffFrames.push({hidden:document.getElementById('effect-tooltip').hidden,same:__effectBarNode===document.querySelector('#status-icon-bar [data-effect-id="sk_str_up"]')});}},active);
+    for(const active of [true,false]){
+        await page.evaluate(active=>{if(active)player.buffs.sk_holy_wpn=30;else delete player.buffs.sk_holy_wpn;renderStatusEffects();},active);
+        // Keep all 24 native frames, but stay below the bridge timeout when Chromium throttles rendering.
+        for(let batch=0;batch<6;batch++)await page.evaluate(async()=>{for(let i=0;i<4;i++){await new Promise(r=>requestAnimationFrame(r));__buffFrames.push({hidden:document.getElementById('effect-tooltip').hidden,same:__effectBarNode===document.querySelector('#status-icon-bar [data-effect-id="sk_str_up"]')});}});
+    }
     return page.evaluate(()=>__buffFrames.every(f=>!f.hidden));
 });
 await page.mouse.move(0,0);await page.waitForFunction(()=>document.getElementById('effect-tooltip').hidden);

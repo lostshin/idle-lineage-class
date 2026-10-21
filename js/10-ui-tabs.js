@@ -2720,7 +2720,7 @@ function _allySkillOptions(ally, kind, cur) {
         let match = (kind === 'atk')
             ? (sk.type === 'atk' && !sk.healSlot)
             : (kind === 'convert')
-            ? (sk.type === 'convert' || sid === 'sk_illu_cube_harmony')   // 🔄 轉換技能欄：type:'convert'（魂體/心靈/魔力奪取）＋ 立方和諧
+            ? (sk.type === 'convert')   // Conversion skills only; Harmony uses the buff checkboxes.
             : ((sk.type === 'heal' && !sk.autoBuff && !['sk_antidote', 'sk_holy_light', 'sk_cancel'].includes(sid)) || (sk.type === 'atk' && sk.healSlot));
         if (!match) return;
         opts += `<option value="${sid}"${cur === sid ? ' selected' : ''}>${sk.n}</option>`;
