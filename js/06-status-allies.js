@@ -808,7 +808,9 @@ function buildAlly(slotN) {
     ally.mp = ally.mmp;   // 召喚時滿魔
     { let _w = (ally.eq && ally.eq.wpn) ? DB.items[ally.eq.wpn.id] : null; ally._rapidfire = (_w && _w.isBow && _w.rapidfire) ? _w.rapidfire : 0; }   // 妖精弓：記錄連射發動機率
     applyMercPrefs(ally);   // 🤝 v3.4.23 同一角色（enSeed）先前的喝水＋技能設定記憶→套回（首次招募無記憶則沿用來源快照預設）
+    if (!ally._mercPolyAuto) { ally.poly = null; ally.buffs.poly = 0; }
     migrateAllyHarmony(ally);
+    normalizeAllyMageSummons(ally);
     return ally;
 }
 // 參戰且未倒地的傭兵共享隊長本次性向事件；記錄各自實際套用的差額，於來源角色載入或回村時領取。
@@ -2786,8 +2788,18 @@ function migrateAllyHarmony(ally) {
     ally._convertSkill = '';
     if (ally.config && ally.config.selConvertSkill === sid) ally.config.selConvertSkill = '';
 }
+function normalizeAllyMageSummons(ally) {
+    if (!ally || ally.cls !== 'mage') return;
+    const enabled = sid => Object.prototype.hasOwnProperty.call(ally._autoBuff || {}, sid)
+        ? !!ally._autoBuff[sid] : !!ally.config?.autoBuffSkills?.[sid];
+    if (!enabled('sk_summon') || !enabled('sk_zombie')) return;
+    if (!ally._autoBuff) ally._autoBuff = {};
+    const keep = ally.summon?.skId === 'sk_zombie' && (ally.buffs?.sk_zombie || 0) > 0 ? 'sk_zombie' : 'sk_summon';
+    ally._autoBuff[keep === 'sk_summon' ? 'sk_zombie' : 'sk_summon'] = false;
+}
 function _mercAutoOn(ally, sid) {
     migrateAllyHarmony(ally);
+    if (sid === 'sk_summon' || sid === 'sk_zombie') normalizeAllyMageSummons(ally);
     if (ally && ally._autoBuff && Object.prototype.hasOwnProperty.call(ally._autoBuff, sid)) return !!ally._autoBuff[sid];   // 🆕 v3.0.97 隊伍面板「逐兵自動維持」覆寫優先（setAllyAutoBuff·存 ally._autoBuff·隨存檔）
     return !!(ally && ally.config && ally.config.autoBuffSkills && ally.config.autoBuffSkills[sid]);   // 否則沿用來源角色存檔的自動施放勾選快照
 }
@@ -2870,7 +2882,7 @@ const _MERC_ILLU_ATK_AURA = ['sk_illu_avatar', 'sk_illu_ogre', 'sk_illu_lich', '
 // 傭兵若在來源存檔中處於卷軸變身，該變身成為受雇期間的維持目標。
 // 到期時直接替該傭兵購買並消耗一張卷軸；不挪用主玩家背包中的卷軸，費用仍套用攻城商店折扣。
 function allyMaintainPoly(ally) {
-    if (!ally || !ally._mercPolyAuto || !ally.poly || !ally.poly.n) return false;
+    if (!ally || !ally._mercPolyAuto) return false;
     if (!ally.buffs) ally.buffs = {};
     if ((ally.buffs.poly || 0) > 0) { ally._mercPolyNoGoldWarned = false; return false; }
     let def = DB.items && DB.items.scroll_poly;
@@ -2884,6 +2896,7 @@ function allyMaintainPoly(ally) {
         return false;
     }
     player.gold -= price;
+    if (!ally.poly || !ally.poly.n) ally.poly = _withAllyEquipmentContext(ally, () => getPolyState());
     ally.buffs.poly = Math.max(1, Math.floor(def.dur || 1800));
     ally._mercPolyNoGoldWarned = false;
     logSys(`<span class="text-emerald-300">自動花費 ${price.toLocaleString()} 金幣購買變形卷軸，協力·${ally._allyName || allyName(ally)} 繼續維持 <span class="${ally.poly.c || 'text-gray-300'}">${ally.poly.n}</span>。</span>`);

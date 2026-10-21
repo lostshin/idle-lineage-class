@@ -106,9 +106,10 @@ await page.evaluate(()=>{socialLobby.close();const d=JSON.parse(saveStateJson())
 await check('ally has an individual polymorph toggle in skill settings',()=>page.evaluate(()=>!!document.querySelector('[data-ally-poly="4"]')));
 if(!options.baseline){
  await page.click('[data-ally-poly="4"]');
- await check('disabled polymorph does not renew or spend gold, retaining current timed effect',()=>page.evaluate(()=>{const a=player.allies[0],before=player.gold;const held=a.buffs.poly===50;a.buffs.poly=0;allyMaintainPoly(a);return held&&!a._mercPolyAuto&&a.buffs.poly===0&&player.gold===before;}));
+ await check('disabled polymorph immediately clears its timed effect without renewal or cost',()=>page.evaluate(()=>{const a=player.allies[0],before=player.gold;allyMaintainPoly(a);return !a._mercPolyAuto&&!a.poly&&a.buffs.poly===0&&player.gold===before;}));
+ await page.evaluate(()=>{window.__restPolyGold=player.gold;});
  await page.click('[data-ally-poly="4"]');
- await check('enabled polymorph renews the existing form using native cost',()=>page.evaluate(()=>{const a=player.allies[0],before=player.gold,price=shopPrice(DB.items.scroll_poly.p);allyMaintainPoly(a);return a.buffs.poly>0&&player.gold===before-price;}));
+ await check('enabled polymorph transforms immediately using native cost and then retains its form',()=>page.evaluate(()=>{const a=player.allies[0],form=a.poly?.n,before=player.gold,price=shopPrice(DB.items.scroll_poly.p);allyMaintainPoly(a);return !!form&&a.poly.n===form&&a.buffs.poly>0&&before===__restPolyGold-price&&player.gold===before;}));
  await page.click('[data-ally-poly="4"]');
  await check('explicit disabled preference survives rebuilding the same ally',()=>page.evaluate(()=>{snapshotMercPrefs(player.allies[0]);const a=buildAlly('4');return a._mercPolyAuto===false;}));
 }

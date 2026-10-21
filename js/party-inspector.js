@@ -169,7 +169,7 @@ function partyEquipmentHtml(actor,kind,id,page=0) {
             }
             for(const node of draft.querySelectorAll('[data-ability-field]')) {
                 const old=details.querySelector('[data-ability-field="'+node.dataset.abilityField+'"]');
-                if(old){for(const a of node.attributes)old.setAttribute(a.name,a.value);old.innerHTML=node.innerHTML;node.replaceWith(old);}
+                if(old && old.tagName === node.tagName){for(const a of node.attributes)old.setAttribute(a.name,a.value);old.innerHTML=node.innerHTML;node.replaceWith(old);}
             }
             details.replaceChildren(...draft.childNodes); details.scrollTop = scroll;
             const nextArtwork=details.querySelector('.party-art-scroll');if(nextArtwork){nextArtwork.scrollLeft=artScroll.x;nextArtwork.scrollTop=artScroll.y;}

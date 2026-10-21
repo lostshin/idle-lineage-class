@@ -1406,6 +1406,8 @@ function renderPlayerEquipmentComparison(item, chosenSlot) {
 }
 
 function openModal(item, isEq, slot) {
+    document.getElementById('item-modal').removeAttribute('data-guild-item-modal');
+    sameBatchEnhance = null;
     let d = DB.items[item.id];
     if(!d) return;
     if (!isEq && item.id === 'candle') { startRespec(); return; }   // 🕯️ 回憶蠟燭：點擊物品直接進入配點重置（不開物品視窗、不顯示使用按鈕）
@@ -1467,6 +1469,7 @@ function openModal(item, isEq, slot) {
     // 👇 修改：為武器、防具、飾品加入專屬的「強化」按鈕 (加入 !d.isArrow 防呆，箭矢不顯示強化按鈕)
     if (((d.type === 'wpn' && !d.isArrow) || d.type === 'arm' || d.type === 'acc') && !isMaxEnhanced(item) && !d.noEnhance) {   // 🔧 已達淬鍊（強化上限）：隱藏強化按鈕；🏛️ 無法強化的裝備（古老系列）不顯示強化鈕
         act += `<button class="col-span-2 w-full btn border-purple-700 bg-purple-900 hover:bg-purple-800 text-purple-200 py-3 text-lg font-bold mt-2" onclick="showEnhanceOptions('${item.uid}', ${isEq})">強化</button>`;
+        if (d.type === 'acc' && !isRelic(d)) act += `<button id="same-batch-open" data-enhance-batch class="col-span-2 w-full btn same-batch-direct" onclick="showSameBatchEnhance('${item.uid}', ${isEq})">同款批次強化</button>`;
     }
 
     // 廢品勾選（所有背包道具：武器/防具/飾品/藥水/卷軸/魔法書/技能書/材料/試煉道具等）：
@@ -1523,6 +1526,7 @@ function showEnhanceOptions(uid, isEq) {
 
 // Repaint only; never execute enhancement while refreshing its result.
 function renderEnhanceOptions(item, isEq, result = '', goal = null) {
+    sameBatchEnhance = null;
     let d = DB.items[item.id];
     let live = isEq ? Object.values(player.eq).some(e => e && e.uid === item.uid) : player.inv.some(i => i.uid === item.uid);
     let canEnhance = live && !d.noEnhance && !isRelic(d) && (Number(item.en) || 0) < enhanceCap(d);
@@ -1584,6 +1588,9 @@ function renderEnhanceOptions(item, isEq, result = '', goal = null) {
             + `</div>`;
     }
     
+    if (!d.noEnhance && !d.isArrow && !isRelic(d) && ['wpn','arm','acc'].includes(d.type)) {
+        act += `<button id="same-batch-open" data-enhance-batch ${live ? '' : 'disabled'} class="col-span-2 w-full btn py-3 font-bold" onclick="showSameBatchEnhance('${item.uid}', ${isEq})">同款批次強化</button>`;
+    }
     if (live) act += `<button class="col-span-2 w-full btn py-3 bg-slate-700 text-lg font-bold mt-2" onclick="returnToItemModal('${item.uid}', ${isEq})">返回</button>`;
     
     document.getElementById('modal-actions').innerHTML = act;
@@ -1716,6 +1723,217 @@ function executeCurseDeEnhance(targetUid, isEq, scrollId) {
     saveGame();
 }
 
+let sameBatchEnhance = null;
+
+function showSameBatchEnhance(targetUid, isEq) {
+    const item = isEq ? Object.values(player.eq).find(i => i && i.uid === targetUid) : player.inv.find(i => i.uid === targetUid);
+    if (!item) return;
+    const d = DB.items[item.id];
+    if (!d || d.noEnhance || d.isArrow || isRelic(d) || !['wpn','arm','acc'].includes(d.type)) return;
+    sameBatchEnhance = {owner:player, item:{...item}, isEq, en:null, quantity:0, mode:'once', goal:0,
+        scrollId:d.type === 'wpn' ? 'scroll_weapon' : d.type === 'arm' ? 'scroll_armor' : 'scroll_acc', confirmation:null, result:null, busy:false};
+    renderSameBatchEnhance('', 'same-batch-inventory-heading');
+}
+
+function sameBatchInventory(st) {
+    const d = DB.items[st.item.id];
+    const entries = player.inv.filter(i => !i.lock && (i.cnt ?? 1) > 0 && !d.noEnhance && !d.isArrow && !isRelic(d)
+        && (Number(i.en) || 0) < enhanceCap(d)
+        && !Object.values(player.eq).some(e => e && (e === i || e.uid === i.uid))
+        && sameItemSig({...i, en:0}, {...st.item, en:0}));
+    const scrolls = player.inv.filter(i => i.id === st.scrollId && i.cnt > 0);
+    return {entries, scrolls, stock:scrolls.reduce((n,i) => n + i.cnt, 0)};
+}
+
+function sameBatchValid(st, inventory) {
+    const count = inventory.entries.filter(i => (Number(i.en) || 0) === st.en).reduce((n,i) => n + (i.cnt || 1), 0);
+    return st.en !== null && Number.isSafeInteger(st.quantity) && st.quantity >= 1 && st.quantity <= count
+        && (st.mode === 'once' || (Number.isInteger(st.goal) && st.goal > st.en && st.goal <= enhanceCap(DB.items[st.item.id])));
+}
+
+function updateSameBatchEnhance(field, value) {
+    const st = sameBatchEnhance;
+    if (!st || st.busy || st.owner !== player) return;
+    st.confirmation = null;
+    if (field === 'en') {
+        st.en = Number(value);
+        st.quantity = sameBatchInventory(st).entries.filter(i => (Number(i.en) || 0) === st.en).reduce((n,i) => n + (i.cnt || 1), 0);
+        st.goal = Math.min(enhanceCap(DB.items[st.item.id]), Math.max(st.en + 1, DB.items[st.item.id].safe || 0));
+    } else if (field === 'quantity') {
+        st.quantity = Number(value);
+        updateSameBatchFeedback();
+        return;
+    } else if (field === 'all') {
+        st.quantity = sameBatchInventory(st).entries.filter(i => (Number(i.en) || 0) === st.en).reduce((n,i) => n + (i.cnt || 1), 0);
+    } else if (field === 'scrollId' || field === 'mode') st[field] = value;
+    else if (field === 'goal') st.goal = Number(value);
+    renderSameBatchEnhance('', document.activeElement.id);
+}
+
+function updateSameBatchFeedback() {
+    const st = sameBatchEnhance, inventory = sameBatchInventory(st);
+    const count = inventory.entries.filter(i => (Number(i.en) || 0) === st.en).reduce((n,i) => n + (i.cnt || 1), 0);
+    const valid = sameBatchValid(st, inventory);
+    const error = st.en !== null && !valid ? count ? `請輸入 1～${count} 的整數。` : '這批裝備已不可用，請重新選批。' : '';
+    const quantity = document.getElementById('same-batch-quantity');
+    quantity.setAttribute('aria-invalid', String(!!error));
+    document.getElementById('same-batch-quantity-error').textContent = error;
+    document.getElementById('same-batch-preview').disabled = !valid;
+    document.getElementById('same-batch-feedback').textContent = st.en === null ? st.result ? '請選下一批；不會自動繼續強化。' : '請先選擇背包中的起始強化值。'
+        : error ? '' : !inventory.stock ? '卷軸不足，請補充目前選擇的卷軸，或自行切換卷軸種類。'
+        : st.mode === 'once' ? `可處理 ${Math.min(st.quantity,inventory.stock)} 件，未處理 ${Math.max(0,st.quantity-inventory.stock)} 件；每件只用一張。`
+        : '逐件衝到目標、爆裝或缺卷；耗卷量不確定，可能中途停止。';
+}
+
+function renderSameBatchEnhance(message = '', focusId = '') {
+    const st = sameBatchEnhance;
+    if (!st || st.owner !== player) return;
+    const body = document.querySelector('#modal-item-window .item-modal-body'), scrollTop = body.scrollTop;
+    const d = DB.items[st.item.id], inventory = sameBatchInventory(st), groups = new Map();
+    for (const i of inventory.entries) {
+        const en = Number(i.en) || 0;
+        groups.set(en, (groups.get(en) || 0) + (i.cnt || 1));
+    }
+    const label = en => en < 0 ? String(en) : '+' + en;
+    document.getElementById('modal-item-name').innerHTML = `同款批次強化 ${getItemFullName({...st.item, en:0, cnt:1})}`;
+    document.getElementById('modal-item-desc').textContent = '僅列同款、同詞綴且未鎖定的背包裝備。';
+    document.getElementById('modal-compare').classList.add('hidden');
+    let html = `<section id="same-batch-panel" class="col-span-2" aria-label="同款批次強化">`;
+    if (st.confirmation) {
+        const risk = st.mode === 'once' ? st.en >= (d.safe || 0) : st.goal > (d.safe || 0);
+        html += `<section id="same-batch-confirmation" tabindex="-1" aria-labelledby="same-batch-confirmation-heading"><h3 id="same-batch-confirmation-heading">確認本輪強化</h3>`
+            + (message ? `<p role="alert">${message}</p>` : '')
+            + `<dl class="same-batch-summary"><dt>起始裝備</dt><dd>${label(st.en)} · ${getItemFullName({...st.item,en:0,cnt:1})}</dd><dt>數量</dt><dd>${st.quantity} 件</dd><dt>卷軸</dt><dd>${DB.items[st.scrollId].n}（庫存 ${inventory.stock}）</dd><dt>操作</dt><dd>${st.mode === 'once' ? '每件各用一張' : '衝到 '+label(st.goal)}</dd></dl>`
+            + `<p id="same-batch-risk" class="${risk ? 'same-batch-danger' : ''}">${risk ? '有爆裝風險，失敗裝備會消失。' : '本輪在安定範圍內，不會爆裝。'}</p>`
+            + `<p>${!inventory.stock ? '卷軸不足，無法執行。' : st.mode === 'once' ? `可處理 ${Math.min(st.quantity,inventory.stock)} 件，未處理 ${Math.max(0,st.quantity-inventory.stock)} 件。無變化也算一次，不追衝新產生的裝備。` : '逐件執行，耗卷量不確定，可能中途停止；不保證完成件數。祝福卷可能跳過目標值。'}</p>`
+            + `<div class="same-batch-confirm-actions"><button id="same-batch-cancel" onclick="editSameBatchEnhance()">返回修改／取消</button>`
+            + `<button id="same-batch-confirm" ${DB.items[st.scrollId].isB ? 'data-enhance-blessed' : 'data-enhance-batch'} ${inventory.stock > 0 && sameBatchValid(st, inventory) ? '' : 'disabled'} onclick="confirmSameBatchEnhance(event)">確認強化 ${st.quantity} 件</button></div></section>`;
+    } else {
+        if (st.result) {
+            const r = st.result;
+            html += `<section id="same-batch-result" role="status" tabindex="-1" aria-labelledby="same-batch-result-heading"><h3 id="same-batch-result-heading">本輪結果</h3><div class="same-batch-outcomes">`;
+            for (const [en,count] of r.levels) html += `<span data-same-batch-result-en="${en}">${label(en)} ×${count}</span>`;
+            html += `${r.levels.length ? '' : '<span>無存活裝備</span>'}</div><dl class="same-batch-summary"><dt>爆裝 </dt><dd class="${r.destroyed ? 'same-batch-danger' : ''}">${r.destroyed} 件</dd><dt>無變化 </dt><dd>${r.unchanged} 件</dd><dt>未處理 </dt><dd>${r.unprocessed} 件</dd><dt>實際耗卷</dt><dd>${r.used} 張 ${r.scrollName}</dd></dl></section>`;
+        }
+        html += `<h3 id="same-batch-inventory-heading" tabindex="-1">背包可選批次${st.en === null ? st.result ? '・請選下一批' : '・請選起始強化值' : ''}</h3><div class="same-batch-groups" role="group" aria-labelledby="same-batch-inventory-heading">`;
+        for (const [en, count] of [...groups].sort((a,b) => a[0]-b[0])) html += `<button id="same-batch-group-${en}" data-same-batch-en="${en}" aria-pressed="${st.en === en}" onclick="updateSameBatchEnhance('en', ${en})">${getItemFullName({...st.item,en,cnt:1})} ×${count}</button>`;
+        html += `</div>${groups.size ? '' : '<p>沒有可操作的同款裝備；已裝備、鎖定與達上限者不列入。</p>'}`;
+        const count = groups.get(st.en) || 0;
+        html += `<div class="same-batch-fields"><label>數量<input id="same-batch-quantity" type="number" min="1" max="${count}" step="1" value="${st.en === null ? '' : st.quantity}" ${count ? '' : 'disabled'} aria-describedby="same-batch-quantity-error same-batch-feedback" oninput="updateSameBatchEnhance('quantity', this.value)"></label>`
+            + `<button id="same-batch-all" ${count ? '' : 'disabled'} onclick="updateSameBatchEnhance('all')">全部</button></div><p id="same-batch-quantity-error" role="alert"></p>`;
+        const normalId = d.type === 'wpn' ? 'scroll_weapon' : d.type === 'arm' ? 'scroll_armor' : 'scroll_acc';
+        const scrollIds = [normalId];
+        if (d.type !== 'acc' && DB.items[normalId + '_b']) scrollIds.push(normalId + '_b');
+        html += `<fieldset class="same-batch-choices"><legend>卷軸</legend>`;
+        for (const id of scrollIds) {
+            const stock = player.inv.filter(i => i.id === id && i.cnt > 0).reduce((n,i) => n + i.cnt, 0), blessed = !!DB.items[id].isB;
+            html += `<label class="btn ${blessed ? 'same-batch-blessed' : ''}"><input type="radio" id="same-batch-scroll-${blessed ? 'blessed' : 'normal'}" name="same-batch-scroll" value="${id}" aria-label="${DB.items[id].n}，庫存 ${stock}" ${st.scrollId === id ? 'checked' : ''} onchange="updateSameBatchEnhance('scrollId', this.value)">${blessed ? '祝福卷' : '普通卷'}（${stock}）</label>`;
+        }
+        html += `</fieldset><fieldset class="same-batch-choices"><legend>操作模式</legend>`;
+        for (const [mode,name] of [['once','每件各用一張'],['target','衝到指定值']]) html += `<label class="btn"><input type="radio" id="same-batch-mode-${mode}" name="same-batch-mode" value="${mode}" ${st.mode === mode ? 'checked' : ''} onchange="updateSameBatchEnhance('mode', this.value)">${name}</label>`;
+        html += `</fieldset>`;
+        if (st.mode === 'target' && count) {
+            html += `<label>目標強化值<select id="same-batch-goal" onchange="updateSameBatchEnhance('goal', this.value)">`;
+            for (let goal = st.en + 1; goal <= enhanceCap(d); goal++) html += `<option value="${goal}" ${goal === st.goal ? 'selected' : ''}>${label(goal)}</option>`;
+            html += `</select></label>`;
+        }
+        html += `<p id="same-batch-feedback" role="status"></p>${message ? `<p role="alert">${message}</p>` : ''}<button id="same-batch-preview" data-enhance-batch onclick="previewSameBatchEnhance()">預覽本輪強化</button>`;
+    }
+    html += `<button id="same-batch-return" onclick="returnSameBatchEnhance()">返回單件強化</button></section>`;
+    document.getElementById('modal-actions').innerHTML = html;
+    document.getElementById('item-modal').classList.remove('hidden');
+    if (!st.confirmation) updateSameBatchFeedback();
+    if (focusId) {
+        document.getElementById(focusId)?.focus({preventScroll:true});
+        body.scrollTop = ['same-batch-confirmation','same-batch-result','same-batch-inventory-heading'].includes(focusId) ? 0 : scrollTop;
+    }
+}
+
+function editSameBatchEnhance() {
+    if (!sameBatchEnhance || sameBatchEnhance.busy || sameBatchEnhance.owner !== player) return;
+    sameBatchEnhance.confirmation = null;
+    renderSameBatchEnhance('', 'same-batch-preview');
+    document.querySelector('#modal-item-window .item-modal-body').scrollTop = sameBatchEnhance.editScrollTop || 0;
+    document.getElementById('same-batch-preview').scrollIntoView({block:'nearest', inline:'nearest'});
+}
+
+function previewSameBatchEnhance(message = '') {
+    const st = sameBatchEnhance;
+    if (!st || st.busy || st.owner !== player || !document.getElementById('same-batch-panel') || document.getElementById('item-modal').classList.contains('hidden')) return;
+    const inventory = sameBatchInventory(st);
+    if (!sameBatchValid(st, inventory)) { st.confirmation = null; renderSameBatchEnhance('可用數量已改變，請重新選擇群組與數量。', 'same-batch-inventory-heading'); return; }
+    if (!st.confirmation) st.editScrollTop = document.querySelector('#modal-item-window .item-modal-body').scrollTop;
+    st.confirmation = JSON.stringify([inventory.entries, inventory.scrolls]);
+    renderSameBatchEnhance(message, 'same-batch-confirmation');
+}
+
+function confirmSameBatchEnhance(event) {
+    if (event && event.detail > 1) return; // A preview double-click must not confirm the newly painted action.
+    const st = sameBatchEnhance;
+    if (!st || st.busy || !st.confirmation || st.owner !== player || !document.getElementById('same-batch-confirm') || document.getElementById('item-modal').classList.contains('hidden')) return;
+    const inventory = sameBatchInventory(st);
+    if (st.confirmation !== JSON.stringify([inventory.entries,inventory.scrolls]) || !sameBatchValid(st, inventory)) {
+        previewSameBatchEnhance('資料已變更，請核對最新預覽後再次確認。'); return;
+    }
+    if (!inventory.stock) return;
+    st.busy = true; st.confirmation = null;
+    document.querySelectorAll('#same-batch-panel button, #same-batch-panel input, #same-batch-panel select').forEach(e => e.disabled = true);
+    const d = DB.items[st.item.id], pool = {[st.scrollId]:{cnt:inventory.stock}};
+    let left = st.quantity, processed = 0, destroyed = 0, unchanged = 0, used = 0;
+    const survivors = [], results = new Map();
+    // Freeze the starting entries; newly produced stacks must never enter this round.
+    for (const entry of inventory.entries.filter(i => (Number(i.en) || 0) === st.en)) {
+        let taken = 0;
+        const count = Math.min(left, entry.cnt || 1);
+        for (let n = 0; n < count && pool[st.scrollId].cnt > 0; n++) {
+            const outcome = _quickEnhanceUnit(d, st.en, st.mode === 'target' ? st.goal : enhanceCap(d), pool,
+                !!DB.items[st.scrollId].isB, st.mode === 'once' ? 1 : Infinity);
+            taken++; processed++; used += outcome.used;
+            if (outcome.destroyed) destroyed++;
+            else {
+                if (outcome.en === st.en) unchanged++;
+                results.set(outcome.en, (results.get(outcome.en) || 0) + 1);
+                survivors.push({...entry, cnt:1, uid:uid(), en:outcome.en});
+            }
+        }
+        left -= taken;
+        if (taken) {
+            entry.cnt = (entry.cnt || 1) - taken;
+            if (!entry.cnt) player.inv = player.inv.filter(i => i !== entry);
+        }
+        if (!left || !pool[st.scrollId].cnt) break;
+    }
+    let scrollUsed = used;
+    for (const scroll of inventory.scrolls) {
+        const take = Math.min(scrollUsed, scroll.cnt);
+        scroll.cnt -= take; scrollUsed -= take;
+        if (!scroll.cnt) player.inv = player.inv.filter(i => i !== scroll);
+    }
+    // Native signatures omit metadata; retain separate stacks when other fields differ.
+    const metadata = i => JSON.stringify(Object.keys(i).filter(k => k !== 'uid' && k !== 'cnt').sort().map(k => [k,i[k]]));
+    for (const survivor of survivors) {
+        const existing = !survivor.gw && player.inv.find(i => !i.gw && !i.lock && sameItemSig(i,survivor) && metadata(i) === metadata(survivor));
+        if (existing) existing.cnt = (existing.cnt || 1) + 1;
+        else player.inv.push(survivor);
+    }
+    const levels = [...results].sort((a,b) => a[0]-b[0]).map(([en,count]) => `${en < 0 ? en : '+'+en} ×${count}`);
+    const message = `同款批次強化：${getItemFullName({...st.item,en:st.en,cnt:1})} ×${st.quantity}（${st.mode === 'once' ? '每件各用一張' : '目標 +'+st.goal}）；${levels.join('、') || '無存活裝備'}；爆裝 ${destroyed} 件、無變化 ${unchanged} 件、未處理 ${st.quantity-processed} 件；實際消耗 ${used} 張 ${DB.items[st.scrollId].n}。`;
+    st.result = {levels:[...results].sort((a,b) => a[0]-b[0]), destroyed, unchanged, unprocessed:st.quantity-processed, used, scrollName:DB.items[st.scrollId].n};
+    logSys(message);
+    st.en = null; st.quantity = 0;
+    calcStats(); renderTabs(); saveGame();
+    st.busy = false;
+    renderSameBatchEnhance('', 'same-batch-result');
+}
+
+function returnSameBatchEnhance() {
+    const st = sameBatchEnhance;
+    if (!st || st.busy || st.owner !== player) return;
+    const item = st.isEq ? Object.values(player.eq).find(i => i && i.uid === st.item.uid)
+        : player.inv.find(i => i.uid === st.item.uid) || player.inv.find(i => sameItemSig({...i,en:0}, {...st.item,en:0}));
+    renderEnhanceOptions(item || st.item, st.isEq);
+}
+
 // ========== ⚡ 快速強化（批次強化）==========
 // 強化成敗一律走 enhanceRollOutcome（js/01·天堂經典衝裝規則·與 doEnhance/executeAutoSafeEnhance 同一套機率）
 
@@ -1733,7 +1951,7 @@ function _qeEligibleItems(type) {
 
 // 模擬單一件裝備從 startEn 強化到 goal：每階消耗對應卷軸，安定值前必成功、安定值起依機率，失敗即爆裝。
 // scrollStacks 為 {scrollId:{cnt}} 的可變計數器（多件共用同一池），回傳 {en, destroyed, used}
-function _quickEnhanceUnit(d, startEn, goal, scrollStacks, useBless) {
+function _quickEnhanceUnit(d, startEn, goal, scrollStacks, useBless, maxAttempts = Infinity) {
     let en = startEn, used = 0, destroyed = false;
     let safe = d.safe || 0;
     let cap = enhanceCap(d);
@@ -1742,7 +1960,7 @@ function _quickEnhanceUnit(d, startEn, goal, scrollStacks, useBless) {
     let blessId = d.type === 'wpn' ? 'scroll_weapon_b' : (d.type === 'arm' ? 'scroll_armor_b' : null);   // 🌟 飾品無祝福卷（scroll_acc_b 不存在）
     let bless = !!(useBless && blessId && DB.items[blessId]);   // 此類型有祝福卷才套用；飾品恆走一般卷
     let scrollId = bless ? blessId : normalId;
-    while (en < goal) {
+    while (en < goal && used < maxAttempts) {
         let st = scrollStacks[scrollId];
         if (!st || st.cnt <= 0) break;   // 卷軸用盡：停在目前等級（不爆裝）
         st.cnt -= 1; used += 1;
@@ -2367,7 +2585,7 @@ function sellItem(uid, count, unitPrice) {
     if(_wasGrant) { calcStats(); renderSkillSelects(); }   // 失去授予技能頭盔：立即更新
 }
 
-function closeModal() { document.getElementById('modal-compare').classList.add('hidden'); document.getElementById('item-modal').classList.add('hidden'); }
+function closeModal() { sameBatchEnhance = null; document.getElementById('modal-compare').classList.add('hidden'); document.getElementById('item-modal').classList.add('hidden'); }
 function _pvpTabEsc(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({
         '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
@@ -2746,7 +2964,7 @@ function _allyAutoBuffChips(a) {
         let on = (typeof _mercAutoOn === 'function') ? _mercAutoOn(a, it.sid) : false;
         const locked = awakenOn && DB.skills[it.sid]?.awaken && !on;
         let name = (it.sid === 'sk_zombie' && a.eq && a.eq.shield && a.eq.shield.id === 'relic_necro_book') ? '骷髏復生' : it.n;
-        const title = locked ? '同時只能使用一種覺醒（需「覺醒精通」才能三種並用）' : `自動維持 ${partyEscape(name)}（${it.cat}）`;
+        const title = locked ? '同時只能使用一種覺醒（需「覺醒精通」才能三種並用）' : `自動維持 ${partyEscape(name)}（${it.cat}）${a.cls === 'mage' && ['sk_summon','sk_zombie'].includes(it.sid) ? '；召喚術與造屍術只能擇一，勾選會切換' : ''}`;
         return `<label class="ally-auto-chip${on ? ' is-on' : ''}${locked ? ' opacity-50' : ''}" title="${title}"><input type="checkbox" ${on ? 'checked' : ''} ${locked ? 'disabled' : ''} onchange="setAllyAutoBuff('${s}','${it.sid}',this.checked)"><span>${partyEscape(name)}</span></label>`;
     }).join('');
     let minChars = Math.max(6, ...list.map(it => it.n.length));
@@ -2828,7 +3046,7 @@ function renderSquadPanel() {
                     <div class="ally-skill-row ally-skill-heal"><span class="ally-skill-label">治癒魔法</span><select aria-label="${partyEscape(a._allyName)}：治癒魔法" onchange="setAllyHealSkill('${s}', this.value)">${_allySkillOptions(a, 'heal', a._healSkill || '')}</select><span class="ally-skill-gate" title="HP％ 低於此值才施放治癒。">HP&lt;<input aria-label="治癒魔法 HP 門檻" type="number" min="0" max="100" value="${hpPct}" onchange="setAllyHealHp('${s}', this.value)">%</span></div>
                     <div class="ally-skill-row ally-skill-convert"><span class="ally-skill-label">轉換技能</span><select aria-label="${partyEscape(a._allyName)}：轉換技能" onchange="setAllyConvertSkill('${s}', this.value)">${_allySkillOptions(a, 'convert', a._convertSkill || '')}</select><span class="ally-skill-gate ally-skill-stop" title="HP 低於或等於此％時，停止轉換技能及其他消耗 HP 的技能。0 = 關閉自訂門檻；龍騎士耗 HP 技、耗 HP 增益與立方和諧仍有 25% 安全限制。">HP≤<input aria-label="停止耗 HP 技能門檻" type="number" min="0" max="100" value="${skillPct}" onchange="setAllyHpSkill('${s}', this.value)">%</span></div>
                 </div><div class="ally-potion-condition"><span class="ally-potion-label">喝水條件</span><span class="ally-skill-gate" title="低於此％時，喝隊長設定的藥水回血。0 = 關閉。">HP&lt;<input aria-label="喝水 HP 門檻" type="number" min="0" max="100" value="${potPct}" onchange="setAllyPotHp('${s}', this.value)">%</span></div></div>
-                <label class="ally-auto-chip" title="${a.poly?.n ? '到期後自動購買變形卷軸，維持 ' + partyEscape(a.poly.n) + '；關閉後現有效果保留至到期。' : '請先讓該角色使用變形卷軸選好變身，再重新招募。'}"><input type="checkbox" data-ally-poly="${s}" ${a._mercPolyAuto ? 'checked' : ''} ${a.poly?.n ? '' : 'disabled'} onchange="setAllyPoly('${s}',this.checked)"><span>使用變形卷軸</span></label>
+                <label class="ally-auto-chip" title="勾選立即購買變形卷軸並隨機變身；保持勾選會續用目前變身。取消立即解除，再勾選會重新抽取。"><input type="checkbox" data-ally-poly="${s}" ${a._mercPolyAuto ? 'checked' : ''} onchange="setAllyPoly('${s}',this.checked)"><span>使用變形卷軸</span></label>
                 ${_allyAutoBuffChips(a)}
             </div>`;
         }).join('') + _pets.map(p => `<div class="ally-skill-card" data-pet-skill="${partyEscape(p.uid)}">
@@ -2902,9 +3120,14 @@ function switchSquadTab(t) {
 function _findAlly(slot) { return (player.allies || []).find(a => a && String(a._slot) === String(slot)); }
 function setAllyPoly(slot, on) {
     const a = _findAlly(slot); if (!a) return;
+    if (!a.buffs) a.buffs = {};
+    if (!on || !a._mercPolyAuto) { a.poly = null; a.buffs.poly = 0; }
     a._mercPolyAuto = !!on;
     a._mercPolyNoGoldWarned = false;
+    if (on) allyMaintainPoly(a);
+    _allyLevelRecompute(a);
     snapshotMercPrefs(a); saveGame();
+    _squadSigSkill = ''; renderSquadPanel(); updateUI();
 }
 function setAllyAtkSkill(slot, val) { let a = _findAlly(slot); if (a) { a._atkSkill = val || ''; saveGame(); } }   // _atkSkill 即時生效（傭兵攻擊路徑直接讀 ally._atkSkill）
 function setAllyHealSkill(slot, val) { let a = _findAlly(slot); if (a) { a._healSkill = val || ''; saveGame(); } }   // _healSkill 儲存待 Phase 3 傭兵自動補血讀取
@@ -2917,6 +3140,9 @@ function setAllyCastMp(slot, val) { let a = _findAlly(slot); if (a) { a._castMpP
 function setAllyAutoBuff(slot, sid, on) {
     let a = _findAlly(slot); if (!a || !sid) return;
     if (!a._autoBuff) a._autoBuff = {};
+    if (on && a.cls === 'mage' && (sid === 'sk_summon' || sid === 'sk_zombie')) {
+        a._autoBuff[sid === 'sk_summon' ? 'sk_zombie' : 'sk_summon'] = false;
+    }
     if (on && DB.skills[sid]?.awaken && a.mastery !== 'k_awaken') {
         _MERC_AWAKENS.forEach(id => { if (id !== sid) a._autoBuff[id] = false; });
     }

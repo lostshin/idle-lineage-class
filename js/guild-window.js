@@ -56,8 +56,15 @@ function renderEquipmentComparison(panel, actor, kind, source, item, chosenSlot)
     const frame = win.firstElementChild, content = document.getElementById('interaction-content');
     const home = content.parentElement, next = content.nextSibling;
     let selectedRole = '', equipmentRole = '', page = 0, slot = '', category = 'all', search = '', candidate = '', scroll = 0, view = 'roster';
+    let itemInfo = null, itemTimer = null;
+    function cancelItemInfo() {
+        clearTimeout(itemTimer); itemTimer = null;
+        if (document.getElementById('item-modal').hasAttribute('data-guild-item-modal')) closeModal();
+        itemInfo = null;
+    }
     const isOpen = () => !win.classList.contains('hidden');
     function close() {
+        cancelItemInfo();
         win.classList.add('hidden'); win.setAttribute('aria-hidden', 'true');
         content.classList.remove('guild-content','guild-equipment-content');
         home.insertBefore(content, next);
@@ -72,6 +79,7 @@ function renderEquipmentComparison(panel, actor, kind, source, item, chosenSlot)
         fit();
     }
     function setView(nextView) {
+        if (nextView !== view) cancelItemInfo();
         view = nextView;
         frame.classList.toggle('guild-equipment-view', view === 'equipment');
         const back = document.getElementById('guild-window-close');
@@ -131,6 +139,7 @@ function renderEquipmentComparison(panel, actor, kind, source, item, chosenSlot)
     }
     function renderEquipment(ctx) {
         mount();
+        if (equipmentRole !== ctx.slotN) cancelItemInfo();
         if (equipmentRole !== ctx.slotN) { page = 0; slot = ''; category = 'all'; search = ''; candidate = ''; scroll = 0; }
         selectedRole = equipmentRole = ctx.slotN; setView('equipment'); content.classList.add('guild-equipment-content');
         const actor = ctx.source;
@@ -154,21 +163,21 @@ function renderEquipmentComparison(panel, actor, kind, source, item, chosenSlot)
             button.title = slotName(key)+' · '+(button.disabled ? '尚未解鎖' : item ? plainName(item) : '尚未裝備');
             button.setAttribute('aria-label', button.title);
             if (item) { button.dataset.tipSrc = 'party'; button.dataset.tipUid = item.uid; button.dataset.tipPartyKind = 'ally'; button.dataset.tipPartyId = ctx.ally._slot; }
-            button.onclick = () => { slot = key; category = 'all'; candidate = ''; scroll = 0; document.getElementById('guild-category').value = category; drawCandidates(ctx); };
-            button.ondblclick = event => { event.preventDefault(); if (item) allyUnequipItem(ctx.slotN,key); };
-            button.onkeydown = event => { if (event.key === 'Enter') { event.preventDefault(); if (item && !button.disabled) allyUnequipItem(ctx.slotN,key); } };
+            button.onclick = () => { slot = key; category = 'all'; candidate = ''; scroll = 0; document.getElementById('guild-category').value = category; drawCandidates(ctx); if (item) scheduleItem(ctx.slotN,item.uid,key); };
+            button.ondblclick = event => { event.preventDefault(); cancelItemInfo(); if (item) allyUnequipItem(ctx.slotN,key); };
+            button.onkeydown = event => { if (event.key === 'Enter') { event.preventDefault(); cancelItemInfo(); if (item && !button.disabled) allyUnequipItem(ctx.slotN,key); } };
             slots.appendChild(button);
         }
         for (const button of content.querySelectorAll('[data-guild-page]')) {
             button.setAttribute('aria-pressed', String(Number(button.dataset.guildPage) === page));
-            button.onclick = () => { page = Number(button.dataset.guildPage); slot = ''; candidate = ''; scroll = 0; renderEquipment(ctx); };
+            button.onclick = () => { cancelItemInfo(); page = Number(button.dataset.guildPage); slot = ''; candidate = ''; scroll = 0; renderEquipment(ctx); };
         }
         document.getElementById('guild-search').value = search;
-        document.getElementById('guild-search').addEventListener('input', event => { search = event.target.value; if (!event.isComposing) { scroll = 0; drawCandidates(ctx); } });
+        document.getElementById('guild-search').addEventListener('input', event => { cancelItemInfo(); search = event.target.value; if (!event.isComposing) { scroll = 0; drawCandidates(ctx); } });
         document.getElementById('guild-search').addEventListener('compositionend', event => { search = event.target.value; scroll = 0; drawCandidates(ctx); });
         document.getElementById('guild-category').value = category;
-        document.getElementById('guild-category').onchange = event => { category = event.target.value; scroll = 0; drawCandidates(ctx); };
-        document.getElementById('guild-all-slots').onclick = () => { slot = ''; scroll = 0; drawCandidates(ctx); };
+        document.getElementById('guild-category').onchange = event => { cancelItemInfo(); category = event.target.value; scroll = 0; drawCandidates(ctx); };
+        document.getElementById('guild-all-slots').onclick = () => { cancelItemInfo(); slot = ''; scroll = 0; drawCandidates(ctx); };
         drawCandidates(ctx); fitEquipment();
     }
     function plainName(item) { return getItemFullName(item).replace(/<[^>]*>/g,''); }
@@ -184,8 +193,8 @@ function renderEquipmentComparison(panel, actor, kind, source, item, chosenSlot)
             button.setAttribute('aria-pressed',String(candidate === item.uid)); button.setAttribute('aria-label',plainName(item));
             const icon = document.createElement('span'); icon.className = 'guild-item-icon'; icon.innerHTML = '<img src="'+partyEscape(getIconUrl(DB.items[item.id]))+'" alt="">'+inventoryIconBadges(item,DB.items[item.id]);
             const label = document.createElement('span'); label.className = 'guild-item-name'; label.textContent = plainName(item); label.title = label.textContent;
-            button.append(icon,label); button.onclick = () => { candidate = item.uid; for (const b of list.children) b.setAttribute('aria-pressed',String(b === button)); updateActions(ctx); };
-            button.ondblclick = event => { event.preventDefault(); equipCandidate(ctx,item); };
+            button.append(icon,label); button.onclick = () => { candidate = item.uid; for (const b of list.children) b.setAttribute('aria-pressed',String(b === button)); updateActions(ctx); scheduleItem(ctx.slotN,item.uid); };
+            button.ondblclick = event => { event.preventDefault(); cancelItemInfo(); equipCandidate(ctx,item); };
             button.onkeydown = event => { if (event.key === 'Enter') { event.preventDefault(); equipCandidate(ctx,item); } };
             list.appendChild(button);
         }
@@ -196,6 +205,7 @@ function renderEquipmentComparison(panel, actor, kind, source, item, chosenSlot)
         updateActions(ctx);
     }
     function equipCandidate(ctx,item) {
+        cancelItemInfo();
         const def = DB.items[item.id], chosen = slot && slotMatches(def,slot) ? slot : undefined;
         allyEquipItem(ctx.slotN,encodeURIComponent(item.uid),chosen);
     }
@@ -211,6 +221,107 @@ function renderEquipmentComparison(panel, actor, kind, source, item, chosenSlot)
         if (!item) { panel.textContent = '選擇裝備，預覽隊員能力變化'; return; }
         renderEquipmentComparison(panel,ctx.ally,'ally',ctx.source,item,slot && slotMatches(DB.items[item.id],slot) ? slot : undefined);
     }
+    function scheduleItem(role, itemUid, equippedSlot = '') {
+        clearTimeout(itemTimer);
+        // Let the native double-click finish its existing equip/unequip action.
+        itemTimer = setTimeout(() => openItem(role,itemUid,equippedSlot), 300);
+    }
+    function itemContext() {
+        if (!itemInfo || itemInfo.owner !== player || !isOpen() || view !== 'equipment' || selectedRole !== itemInfo.role) return null;
+        return _allyManagerSource(itemInfo.role,true);
+    }
+    function openItem(role, itemUid, equippedSlot = '') {
+        itemInfo = {role:String(role), uid:itemUid, slot:equippedSlot, owner:player};
+        showItem();
+    }
+    function showItem() {
+        const ctx = itemContext(); if (!ctx) return;
+        const item = itemInfo.slot ? ctx.source.eq[itemInfo.slot] : player.inv.find(i => i.uid === itemInfo.uid);
+        if (!item) { cancelItemInfo(); return; }
+        if (itemInfo.slot) _withAllyEquipmentContext(ctx.source, () => openModal(item,true,itemInfo.slot));
+        else openModal(item,false);
+        document.getElementById('modal-compare').classList.add('hidden');
+        document.getElementById('modal-actions').innerHTML = `<button class="col-span-2 w-full btn" onclick="guildWindow.equipItem()">${itemInfo.slot ? '卸下至隊長背包' : '裝備給 '+partyEscape(ctx.ally._allyName || ctx.source.name)}</button>`
+            + (!isMaxEnhanced(item) && !DB.items[item.id].noEnhance && !DB.items[item.id].isArrow && !isRelic(DB.items[item.id]) ? '<button data-guild-enhance data-enhance-batch class="col-span-2 w-full btn" onclick="guildWindow.showItemEnhance()">強化</button>' : '');
+        markItemOwner(ctx);
+    }
+    function markItemOwner(ctx) {
+        document.getElementById('item-modal').setAttribute('data-guild-item-modal',itemInfo.role);
+        const owner = document.createElement('p'); owner.dataset.guildItemOwner = '';
+        owner.textContent = itemInfo.slot ? '裝備所屬：'+(ctx.ally._allyName || ctx.source.name)+'；強化使用隊長背包卷軸。' : '隊長背包；可強化後交給隊員。';
+        document.getElementById('modal-item-desc').prepend(owner);
+    }
+    function showItemEnhance(item, result = '', goal = null) {
+        const ctx = itemContext(); if (!ctx) return;
+        item = itemInfo.slot ? ctx.source.eq[itemInfo.slot] || item : player.inv.find(i => i.uid === itemInfo.uid) || item;
+        if (!item) return;
+        itemInfo.uid = item.uid;
+        if (itemInfo.slot) {
+            const originalInv = ctx.source.inv; ctx.source.inv = player.inv;
+            try { _withAllyEquipmentContext(ctx.source, () => renderEnhanceOptions(item,true,result,goal)); }
+            finally { ctx.source.inv = originalInv; }
+        } else renderEnhanceOptions(item,false,result,goal);
+        document.getElementById('same-batch-open')?.remove();
+        for (const button of document.querySelectorAll('#modal-actions button')) {
+            const action = button.getAttribute('onclick') || '', arg = action.match(/\('([^']+)'/);
+            if (action.startsWith('executeEnhance(')) {
+                button.setAttribute('onclick',`guildWindow.enhanceItem('single','${arg[1]}')`);
+                if (!button.hasAttribute('data-enhance-blessed')) button.dataset.enhanceBatch = '';
+            } else if (action.startsWith('executeAutoSafeEnhance(')) { button.setAttribute('onclick',`guildWindow.enhanceItem('auto')`); button.dataset.enhanceBatch = ''; }
+            else if (action.startsWith('executeCurseDeEnhance(')) { button.setAttribute('onclick',`guildWindow.enhanceItem('curse')`); button.dataset.guildCurse = ''; }
+            else if (action.startsWith('returnToItemModal(')) button.setAttribute('onclick','guildWindow.showItem()');
+        }
+        markItemOwner(ctx);
+    }
+    function enhanceItem(mode, scrollUid) {
+        if (document.getElementById('item-modal').classList.contains('hidden') || !document.getElementById('item-modal').hasAttribute('data-guild-item-modal')) return;
+        const ctx = itemContext(); if (!ctx) return;
+        const equipped = !!itemInfo.slot, target = equipped ? ctx.source.eq[itemInfo.slot] : player.inv.find(i => i.uid === itemInfo.uid);
+        if (!target) return;
+        const def = DB.items[target.id], normalId = def.type === 'wpn' ? 'scroll_weapon' : def.type === 'arm' ? 'scroll_armor' : 'scroll_acc';
+        const goal = Number(document.getElementById('auto-enh-target')?.value);
+        const scroll = player.inv.find(i => mode === 'single' ? i.uid === scrollUid : i.id === normalId + (mode === 'curse' ? '_c' : ''));
+        if (!scroll || scroll.cnt <= 0 || ![normalId,normalId+'_b',normalId+'_c'].includes(scroll.id)) { showItemEnhance(target,'卷軸不足，請重新選擇。'); return; }
+        const leader = player, invBefore = _allyCloneInventory(leader.inv), allyEqBefore = structuredClone(ctx.ally.eq);
+        const sourceKey = 'lineage_idle_save_'+ctx.slotN, sourceBefore = _lzGet(sourceKey);
+        const nativeRender = renderEnhanceOptions, nativeSave = saveGame;
+        let outcome = {item:target,result:'',goal};
+        const run = () => {
+            renderEnhanceOptions = (item,isEq,result,goal) => { outcome = {item,result,goal}; };
+            try {
+                if (mode === 'single') executeEnhance(scroll.uid,target.uid,equipped);
+                else if (mode === 'auto') executeAutoSafeEnhance(target.uid,equipped,normalId,goal);
+                else executeCurseDeEnhance(target.uid,equipped,normalId+'_c');
+            } finally { renderEnhanceOptions = nativeRender; }
+        };
+        if (!equipped) run();
+        else {
+            const originalInv = ctx.source.inv;
+            try {
+                ctx.source.inv = leader.inv;
+                saveGame = () => true;
+                try { _withAllyEquipmentContext(ctx.source,run); leader.inv = ctx.source.inv; }
+                finally { ctx.source.inv = originalInv; saveGame = nativeSave; }
+                if (!_lzSet(sourceKey,_saveWrap(JSON.stringify(ctx.doc)))) throw Error('source write failed');
+                ctx.ally.eq = structuredClone(ctx.source.eq); _allyLevelRecompute(ctx.ally);
+                if (!saveGame()) throw Error('leader write failed');
+            } catch (error) {
+                leader.inv = invBefore; ctx.ally.eq = allyEqBefore; _allyLevelRecompute(ctx.ally);
+                const restored = _lzGet(sourceKey) === sourceBefore || _lzSet(sourceKey,sourceBefore);
+                outcome = {item:target,result:restored ? '強化儲存失敗，已還原裝備與隊長卷軸。' : '強化儲存失敗，隊員來源存檔未能還原，請先匯出帳號備份。',goal};
+                logSys(outcome.result);
+            }
+        }
+        const refreshed = _allyManagerSource(ctx.slotN,false);
+        if (refreshed) renderEquipment(refreshed);
+        renderTabs(); updateUI(); showItemEnhance(outcome.item,outcome.result,outcome.goal);
+    }
+    function equipItemFromModal() {
+        const ctx = itemContext(); if (!ctx) return;
+        const selected = {...itemInfo}; cancelItemInfo();
+        if (selected.slot) allyUnequipItem(selected.role,selected.slot);
+        else { const item = player.inv.find(i => i.uid === selected.uid); if (item) equipCandidate(ctx,item); }
+    }
     function fitEquipment() {
         if (!isOpen() || view !== 'equipment') return;
         const area = document.getElementById('guild-body-scroll'), paperdoll = document.getElementById('guild-paperdoll'); if (!area || !paperdoll) return;
@@ -223,5 +334,5 @@ function renderEquipmentComparison(panel, actor, kind, source, item, chosenSlot)
         paperdoll.style.setProperty('--party-equipment-canvas-width',width+'px');
     }
     new ResizeObserver(fitEquipment).observe(frame);
-    window.guildWindow = {isOpen,close,roster,quests,renderEquipment,open() { mount(); renderAllyNPC(content); }};
+    window.guildWindow = {isOpen,close,roster,quests,renderEquipment,openItem,showItem,showItemEnhance,enhanceItem,equipItem:equipItemFromModal,open() { mount(); renderAllyNPC(content); }};
 })();
