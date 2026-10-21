@@ -302,7 +302,7 @@ test('presence pose is shared, backwards compatible and strictly validated', asy
     const a = (await request('/auth/guest', { deviceKey: 'a'.repeat(64) })).data;
     const b = (await request('/auth/guest', { deviceKey: 'b'.repeat(64) })).data;
     const actor = { name: '合成姿勢角色', cls: 'knight', avatar: '女騎士' };
-    for (const pose of ['standing', 'seated', 'kneeling']) {
+    for (const pose of ['standing', 'seated', 'kneeling', 'prone']) {
         assert.equal((await request('/presence', { actor: { ...actor, pose } }, a.token)).status, 200);
         assert.equal(JSON.parse(env.DB.sqlite.prepare('SELECT presence_actor FROM users WHERE id=?').get(a.user.id).presence_actor).pose, pose);
         const online = (await request('/players', undefined, b.token)).data.players;

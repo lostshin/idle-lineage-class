@@ -20,7 +20,7 @@ const socialLobby = (() => {
     const live = () => active && !document.hidden && !$('game-screen').classList.contains('hidden');
     const playing = () => player.cls && !$('game-screen').classList.contains('hidden');
     const currentMap = () => HIDDEN_AREA_NAMES[mapState.current] || mapEntryOf(mapState.current)?.t || '';
-    const poseOf = actor => ['standing','seated','kneeling'].includes(actor.pose) ? actor.pose : 'standing';
+    const poseOf = actor => ['standing','seated','kneeling','prone'].includes(actor.pose) ? actor.pose : 'standing';
     const currentActor = () => ({name:String(player.name || '冒險者').slice(0,12),cls:player.cls,avatar:player.avatar || defaultAvatar[player.cls],pose:poseOf({pose:player.lobbyPose})});
     const expMultiplier = () => active && bonusActor === player && bonusMap === mapState.current && !player.dead ? 1.05 : 1;
     const campNow = () => (campServerTime || selfSeen) + Math.max(0,performance.now()-(campServerTime ? campReceivedAt : selfReceivedAt));
@@ -109,7 +109,7 @@ const socialLobby = (() => {
         root.innerHTML = `
             <section id="lobby-common" aria-label="肝膽相照">
                 <div id="lobby-scene">
-                    <span id="lobby-room-title">肝膽相照</span>
+                    <span id="lobby-room-title"></span>
                     <p id="lobby-hunt-status"></p>
                     <div class="lobby-fire-glow" aria-hidden="true"></div>
                     <div class="lobby-campfire" role="img" aria-label="中央燃燒的營火">
@@ -133,7 +133,7 @@ const socialLobby = (() => {
                         </section>
                         <section id="lobby-card-detail" class="lobby-paper" aria-label="冒險者名片" hidden>
                             <div class="lobby-section-heading"><h3>冒險者名片</h3><button id="lobby-detail-close" type="button" aria-label="關閉名片">×</button></div>
-                            <div id="lobby-detail-body"></div><label id="lobby-pose-controls" hidden>我的姿勢<select id="lobby-pose"><option value="standing">站立</option><option value="seated">坐下</option><option value="kneeling">跪坐</option></select></label><div class="lobby-actions"><button id="lobby-edit" type="button" hidden>編輯名片</button><button id="lobby-favorite" type="button">收藏</button><button id="lobby-open-comments" type="button">留言</button><button id="lobby-suspend" type="button" hidden>停權</button></div>
+                            <div id="lobby-detail-body"></div><label id="lobby-pose-controls" hidden>我的姿勢<select id="lobby-pose"><option value="standing">站立</option><option value="seated">坐下</option><option value="kneeling">跪坐</option><option value="prone">大字型趴地</option></select></label><div class="lobby-actions"><button id="lobby-edit" type="button" hidden>編輯名片</button><button id="lobby-favorite" type="button">收藏</button><button id="lobby-open-comments" type="button">留言</button><button id="lobby-suspend" type="button" hidden>停權</button></div>
                         </section>
                         <section id="lobby-comment-panel" class="lobby-paper" aria-label="名片留言" hidden>
                             <div class="lobby-section-heading"><h3>旅人留言</h3><button id="lobby-comment-close" type="button">返回名片</button></div>
@@ -293,7 +293,7 @@ const socialLobby = (() => {
                 image.src = frames[spriteFrame % frames.length].src;
             } else {
                 // Compensate the transparent padding and align the visible feet with standing characters.
-                image.style.cssText = pose === 'seated' ? 'width:130%;height:130%;left:-15%;top:-24%;' : 'width:90%;height:90%;left:5%;top:9%;';
+                image.style.cssText = pose === 'seated' ? 'width:130%;height:130%;left:-15%;top:-24%;' : pose === 'prone' ? 'width:100%;height:100%;left:0;top:0;' : 'width:90%;height:90%;left:5%;top:9%;';
                 image.src = 'assets/ui/lobby-poses-v2/' + encodeURIComponent(avatar) + '-' + pose + '.webp';
             }
             seat.style.left = seat.dataset.x+'%'; seat.style.top = seat.dataset.y+'%'; seat.style.zIndex = Math.round(Number(seat.dataset.y));
@@ -449,7 +449,8 @@ const socialLobby = (() => {
         bonusActor = player; viewMap = mapState.current;
         bonusMap = !mapState.current.startsWith('town_') && DB.maps[mapState.current] && !player.dead ? mapState.current : '';
         $('btn-social-lobby').setAttribute('aria-pressed','true');
-        $('lobby-hunt-status').textContent = bonusMap ? '冒險團正在「'+currentMap()+'」冒險｜經驗 +5%' : '目前位於「'+currentMap()+'」｜經驗加成未啟用';
+        $('lobby-room-title').textContent = bonusMap ? '經驗 +5%' : '經驗加成未啟用';
+        $('lobby-hunt-status').textContent = '冒險團所在地：'+currentMap();
         _vfxClearAll(); showSection('common'); updateAuth();
         renderCamp(); saveGame();
         for (const id of ['lobby-greet','lobby-nod','lobby-cheer','lobby-roster']) $(id).disabled = !onlinePresence.canConnect();

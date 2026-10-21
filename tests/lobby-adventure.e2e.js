@@ -80,7 +80,7 @@ await page.evaluate(()=>{state.running=false;window.__adventureErrors=__offlineT
 await check('dedicated full-name button replaces the map-category entry',()=>page.evaluate(()=>{const b=document.getElementById('btn-social-lobby');return !!b&&b.textContent==='冒險者大廳'&&b.previousElementSibling?.id==='btn-pandora-shortcut'&&!document.querySelector('#map-category option[value="social_lobby"]');}));
 async function enter(){if(options.baseline)await page.evaluate(()=>socialLobby.open());else await page.click('#btn-social-lobby');}
 await enter();
-await check('entry leaves both selectors on the hunting map and displays the room title and local bonus',()=>page.evaluate(()=>document.getElementById('map-select').value===mapState.current&&document.getElementById('map-category').value===mapRegionOf(mapState.current)&&document.getElementById('lobby-room-title')?.textContent==='肝膽相照'&&document.getElementById('lobby-hunt-status')?.textContent.includes('5%')));
+await check('entry leaves both selectors on the hunting map and displays the room title and local bonus',()=>page.evaluate(()=>document.getElementById('map-select').value===mapState.current&&document.getElementById('map-category').value===mapRegionOf(mapState.current)&&document.getElementById('lobby-room-title')?.textContent==='經驗 +5%'&&document.getElementById('lobby-hunt-status')?.textContent.includes('冒險團所在地')));
 await check('default standing character uses original sprite instead of generated standing art',()=>page.evaluate(()=>document.querySelector('[data-self] .lobby-camper-sprite img')?.src.includes('/assets/classanim/')));
 await page.evaluate(()=>{
  const d=JSON.parse(saveStateJson());d.p.name='合成加成隊友';d.p.enSeed='lobby-ally';d.p._roleEpoch='lobby-ally';d.p.allies=[];_lzSet('lineage_idle_save_2',_saveWrap(JSON.stringify(d)));player.allies=[buildAlly('2')];
@@ -101,7 +101,7 @@ if(!options.baseline){
  await enter();await check('pose preference survives reentry',()=>page.evaluate(()=>document.querySelector('[data-self] .lobby-camper-sprite').dataset.pose==='seated'));
  await page.evaluate(()=>{player.statuses.stun=5;returnToTown();});await check('blocked return without map change preserves bonus',()=>page.evaluate(()=>socialLobby.isOpen()&&adventureLobbyExpMult()===1.05));
  await page.evaluate(()=>{player.statuses.stun=0;returnToTown();});await check('returning to town cancels bonus',()=>page.evaluate(()=>!socialLobby.isOpen()&&adventureLobbyExpMult()===1));
- await enter();await check('town entry cannot preclaim the next hunting bonus',()=>page.evaluate(()=>adventureLobbyExpMult()===1&&document.getElementById('lobby-hunt-status').textContent.includes('未啟用')));
+ await enter();await check('town entry cannot preclaim the next hunting bonus',()=>page.evaluate(()=>adventureLobbyExpMult()===1&&document.getElementById('lobby-room-title').textContent.includes('未啟用')));
  await page.evaluate(()=>{setMapSelectors('training');changeMap(true);});await check('departing requires another lobby entry',()=>page.evaluate(()=>!socialLobby.isOpen()&&adventureLobbyExpMult()===1));
  await enter();await page.evaluate(()=>{setMapSelectors('talking_island');changeMap(true);});await check('switching hunting maps cancels lobby and bonus',()=>page.evaluate(()=>!socialLobby.isOpen()&&adventureLobbyExpMult()===1));
 }

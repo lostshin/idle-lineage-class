@@ -1,0 +1,10 @@
+Use case: stylized-concept
+Asset type: transparent sprite sheet for an isometric classic fantasy browser game.
+Primary request: produce ONE 4 by 4 sheet of 16 separate small game-character sprites, matching the 16 identities and row-major order of the reference image. Every character is lying FACE DOWN on the ground with both arms and legs spread in a wide X / starfish shape (大字型趴地). This is relaxed resting, not injured, no gore.
+Input image: reference for exact character costume, hair, gender, proportions and pixel-art style; change posture only.
+Row 1: red royal prince, blue royal princess, silver male knight, golden female knight.
+Row 2: blond male elf in navy, blond female elf in pink, male mage in white/gold robe, black-haired female mage in purple robe.
+Row 3: male dark elf in dark red cape, female dark elf in black/red, male dragon knight in bronze, pale-haired female dragon knight in bronze.
+Row 4: purple-haired male illusionist, purple-haired female illusionist, muscular male warrior in brown/teal, female warrior in brown/teal.
+Style: detailed low-resolution 1990s isometric RPG pixel sprites, realistic slender human proportions, NOT chibi, no outline cartoon. All face diagonally toward lower-right, viewed from a fixed isometric overhead camera. Show the back of heads and backs, face against ground; chest and hips horizontal on ground, arms and legs spread. Preserve small proportional heads and consistent human scale.
+Composition: EXACTLY 4 equal columns by 4 equal rows; each sprite completely inside its own cell with generous transparent margin separating it from others. No labels, no numbers, no weapons, no background, no floor, no frames. True transparent alpha background.

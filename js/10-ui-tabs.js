@@ -2828,6 +2828,7 @@ function renderSquadPanel() {
                     <div class="ally-skill-row ally-skill-heal"><span class="ally-skill-label">治癒魔法</span><select aria-label="${partyEscape(a._allyName)}：治癒魔法" onchange="setAllyHealSkill('${s}', this.value)">${_allySkillOptions(a, 'heal', a._healSkill || '')}</select><span class="ally-skill-gate" title="HP％ 低於此值才施放治癒。">HP&lt;<input aria-label="治癒魔法 HP 門檻" type="number" min="0" max="100" value="${hpPct}" onchange="setAllyHealHp('${s}', this.value)">%</span></div>
                     <div class="ally-skill-row ally-skill-convert"><span class="ally-skill-label">轉換技能</span><select aria-label="${partyEscape(a._allyName)}：轉換技能" onchange="setAllyConvertSkill('${s}', this.value)">${_allySkillOptions(a, 'convert', a._convertSkill || '')}</select><span class="ally-skill-gate ally-skill-stop" title="HP 低於或等於此％時，停止轉換技能及其他消耗 HP 的技能。0 = 關閉自訂門檻；龍騎士耗 HP 技、耗 HP 增益與立方和諧仍有 25% 安全限制。">HP≤<input aria-label="停止耗 HP 技能門檻" type="number" min="0" max="100" value="${skillPct}" onchange="setAllyHpSkill('${s}', this.value)">%</span></div>
                 </div><div class="ally-potion-condition"><span class="ally-potion-label">喝水條件</span><span class="ally-skill-gate" title="低於此％時，喝隊長設定的藥水回血。0 = 關閉。">HP&lt;<input aria-label="喝水 HP 門檻" type="number" min="0" max="100" value="${potPct}" onchange="setAllyPotHp('${s}', this.value)">%</span></div></div>
+                <label class="ally-auto-chip" title="${a.poly?.n ? '到期後自動購買變形卷軸，維持 ' + partyEscape(a.poly.n) + '；關閉後現有效果保留至到期。' : '請先讓該角色使用變形卷軸選好變身，再重新招募。'}"><input type="checkbox" data-ally-poly="${s}" ${a._mercPolyAuto ? 'checked' : ''} ${a.poly?.n ? '' : 'disabled'} onchange="setAllyPoly('${s}',this.checked)"><span>使用變形卷軸</span></label>
                 ${_allyAutoBuffChips(a)}
             </div>`;
         }).join('') + _pets.map(p => `<div class="ally-skill-card" data-pet-skill="${partyEscape(p.uid)}">
@@ -2899,6 +2900,12 @@ function switchSquadTab(t) {
 }
 
 function _findAlly(slot) { return (player.allies || []).find(a => a && String(a._slot) === String(slot)); }
+function setAllyPoly(slot, on) {
+    const a = _findAlly(slot); if (!a) return;
+    a._mercPolyAuto = !!on;
+    a._mercPolyNoGoldWarned = false;
+    snapshotMercPrefs(a); saveGame();
+}
 function setAllyAtkSkill(slot, val) { let a = _findAlly(slot); if (a) { a._atkSkill = val || ''; saveGame(); } }   // _atkSkill 即時生效（傭兵攻擊路徑直接讀 ally._atkSkill）
 function setAllyHealSkill(slot, val) { let a = _findAlly(slot); if (a) { a._healSkill = val || ''; saveGame(); } }   // _healSkill 儲存待 Phase 3 傭兵自動補血讀取
 function setAllyConvertSkill(slot, val) { let a = _findAlly(slot); if (a) { a._convertSkill = val || ''; saveGame(); } }   // 🔄 v2.6.4 轉換技能（type:'convert'／立方和諧）：即時生效（allyCubeTick/轉換施放路徑直接讀 ally._convertSkill）

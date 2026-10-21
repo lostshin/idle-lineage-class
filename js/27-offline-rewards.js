@@ -345,10 +345,32 @@
             return [values, buffs];
         };
         const summon = s => s && [s.form,s.lv,s.skId,s._v2count];
-        const actor = a => [a.enSeed || a._slot || '',a.cls,a.lv,a.base,a.alloc,a.panacea,a.mastery,a.elfEle,equipment(a),(a.skills || []).slice().sort(),config(a),a._atkSkill,a._healSkill,a._convertSkill,a._hpSkillPct,a._potHpPct,summon(a.summon)];
+        const actor = a => [a.enSeed || a._slot || '',a.cls,a.lv,a.base,a.alloc,a.panacea,a.mastery,a.elfEle,equipment(a),(a.skills || []).slice().sort(),config(a),a._atkSkill,a._healSkill,a._convertSkill,a._hpSkillPct,a._potHpPct,summon(a.summon),a._mercPolyAuto];
         return JSON.stringify([map,actor(player),(player.allies || []).filter(a => a && !a._downed).map(actor),
             petsOutList().filter(p => p && !p._downed).map(p => [p.form,p.lv,p.potPct,equipment(p)]),player.summonChoice,player._summonV2On,
             (player.summonsV2 || []).filter(s => s && !s._downed).map(summon),(player.guardsV2 || []).filter(s => s && !s._downed).map(summon)]);
+    }
+
+    function _offlineConditionsMatch(before, after) {
+        if (before === after) return true;
+        try {
+            const old = JSON.parse(before), next = JSON.parse(after);
+            const level = (a, b, index) => {
+                if (a[index] !== b[index] && !(Number.isInteger(a[index]) && Number.isInteger(b[index]) && b[index] > a[index])) return false;
+                b[index] = a[index];
+                return true;
+            };
+            const actor = (a, b) => level(a, b, 2) && (!a[16] || !b[16] || level(a[16], b[16], 1));
+            // Natural level gains continue the measured hunt; loadout or automation changes still reset it.
+            if (!actor(old[1], next[1])) return false;
+            for (const group of [2,3,6,7]) {
+                if (old[group].length !== next[group].length) return false;
+                for (let i = 0; i < old[group].length; i++) {
+                    if (!(group === 2 ? actor(old[group][i], next[group][i]) : level(old[group][i], next[group][i], 1))) return false;
+                }
+            }
+            return JSON.stringify(old) === JSON.stringify(next);
+        } catch (_) { return false; }
     }
 
     function _offlineResetRuntime(map) {
@@ -516,8 +538,10 @@
     }
 
     function _offlineRecordKill(mob, map, expGain, goldGain, petExpGain, allyExpGain, now) {
-        if (!_offlineRuntime || _offlineRuntime.map !== String(map) || _offlineRuntime.condition !== _offlineCondition(map) || (_offlineRuntime.lastKillAt && now - _offlineRuntime.lastKillAt > OFFLINE_RECENT_KILL_MS)) _offlineResetRuntime(map);
+        const condition = _offlineCondition(map);
+        if (!_offlineRuntime || _offlineRuntime.map !== String(map) || !_offlineConditionsMatch(_offlineRuntime.condition, condition) || (_offlineRuntime.lastKillAt && now - _offlineRuntime.lastKillAt > OFFLINE_RECENT_KILL_MS)) _offlineResetRuntime(map);
         let rt = _offlineRuntime;
+        rt.condition = condition;
         if (!rt.firstKillAt) rt.firstKillAt = now;
         rt.lastKillAt = now;
         rt.kills++;
@@ -547,7 +571,7 @@
         if (!st || !mob) return;
         let wasLocked = st.bossUnlocked === false;
         let previous = _offlineProfileForMap(st, map);
-        if (previous && previous.condition !== _offlineCondition(map)) previous = null;
+        if (previous && !_offlineConditionsMatch(previous.condition, _offlineCondition(map))) previous = null;
         previous = previous || {
             map: String(map), mapName: _offlineMapName(map), expPerMin: 0, goldPerMin: 0,
             killsPerMin: 0, petExpPerMin: 0, allyExpPerMin: 0, sampleMs: 0,
@@ -606,9 +630,11 @@
         let previous = _offlineProfileForMap(st, currentMap);
         if (currentSpeed > 1 || state.ff || _offlineSettling) return previous;
         const condition = _offlineCondition(currentMap);
-        if (previous && previous.condition !== condition) previous = null;
-        if (!_offlineRuntime || _offlineRuntime.map !== currentMap || _offlineRuntime.condition !== condition) _offlineResetRuntime(currentMap);
+        if (previous && !_offlineConditionsMatch(previous.condition, condition)) previous = null;
+        if (!_offlineRuntime || _offlineRuntime.map !== currentMap || !_offlineConditionsMatch(_offlineRuntime.condition, condition)) _offlineResetRuntime(currentMap);
+        _offlineRuntime.condition = condition;
         if (previous) {
+            previous.condition = condition;
             previous = _offlineAttachSurvival(previous, currentMap, now, false) || previous;
             previous = _offlineRememberProfile(st, previous);
         }

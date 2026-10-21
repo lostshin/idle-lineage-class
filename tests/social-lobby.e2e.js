@@ -13,7 +13,7 @@ if (options.lobbyApi) {
     await worker('/me/card', 'PUT', { card: { name: '合成旅人', intro: '<img src=x onerror=alert(1)>', cls: 'knight', avatar: '男騎士', level: 65 }, version: 0 }, visitor.token);
     await worker('/presence', 'POST', {actor:{name:'合成旅人',cls:'knight',avatar:'男騎士'},page:'/idle-lineage-class/'}, visitor.token);
     basicVisitor = await worker('/auth/guest','POST',{deviceKey:crypto.randomBytes(32).toString('hex')});
-    await worker('/presence','POST',{actor:{name:'未發名片旅人',cls:'mage',avatar:'女法師'},page:'/idle-lineage-class/'},basicVisitor.token);
+    await worker('/presence','POST',{actor:{name:'未發名片旅人',cls:'mage',avatar:'女法師',pose:'prone'},page:'/idle-lineage-class/'},basicVisitor.token);
 }
 console.log({ spaceId: task.spaceId });
 for (const file of ['index.html', 'js/social-lobby.js', 'js/11-world-map.js', 'js/09-vfx-render.js', 'css/social-lobby.css', 'tests/social-lobby.e2e.js', ...(options.lobbyApi ? ['backend/lobby/src/worker.mjs', 'backend/lobby/migrations/0001_lobby.sql'] : [])]) {
@@ -96,6 +96,7 @@ if(options.lobbyApi)await check('actual D1 peer remains visible and shares the b
     const result=await worker('/players','GET',undefined,visitor.token);
     return page.evaluate(({id,count})=>!!document.querySelector('[data-camp-id="'+id+'"]')&&document.getElementById('world-online-count').textContent==='（近 30 分鐘活躍 '+count+' 人）',{id:visitor.user.id,count:result.siteRecentCount});
 });
+if(options.lobbyApi)await check('real D1 prone pose reaches the matching remote avatar sprite',()=>page.evaluate(id=>{const sprite=document.querySelector('[data-camp-id="'+id+'"] .lobby-camper-sprite');return sprite?.dataset.pose==='prone'&&decodeURIComponent(sprite.firstChild.src).includes('女法師-prone.webp');},basicVisitor.user.id));
 await page.evaluate(selector => { window.__lobbyVisitorNode=document.querySelector(selector); },visitorSelector);
 await click('#lobby-refresh');
 await check('an unchanged list refresh preserves the original visitor node', () => page.evaluate(selector => document.querySelector(selector) === __lobbyVisitorNode,visitorSelector));

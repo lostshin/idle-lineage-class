@@ -87,13 +87,14 @@
 - 地名解析先查 `HIDDEN_AREA_NAMES`，再查一般地圖；結算結果重新解析來源地圖，涵蓋舊樣本／快照的英文代碼，摘要與歷史共用中文結果。
 - 普通地圖離線頭目戰讀 `set-teleport` 與 `AFK_BOSSAVOID.picked(map)`：空清單全部迴避，指定清單只略過對象；原 ID 解析到最終變身名稱。保留完整遭遇池及原本其他頭目機率，純頭目房維持線上不迴避例外，不修改 vendor。
 - 同條件的普通狩獵樣本增量合併，只提交上次提交後的新擊殺／獎勵，以首末有效擊殺間的實戰時間加權，總權重最多 5 分鐘；重複存檔不增權、重載不忘記，維持首次 ≥15 秒／3 隻、最後擊殺 5 分鐘內及最多 5 張地圖。背景／補跑／加速不訓練新速率。
-- `profile.condition` 比對地圖、角色成長／裝備、出戰隊伍、技能及自動化；空裝備欄、物品 uid、HP／MP、倒數、金幣與一般戰利品數量不入簽章。條件改變須重新觀察；舊檔缺簽章先結算原待領快照，再建立未來樣本，不能先清掉待領收益。
+- `profile.condition` 比對地圖、角色／裝備、出戰隊伍、技能及自動化（含傭兵 `_mercPolyAuto`）；空槽、uid、HP／MP、倒數、金幣與一般掉落量不入簽章。自然升級由 `_offlineConditionsMatch` 延續實戰取樣並更新簽章，不清掉已合格樣本；降級、換裝、換隊伍或改設定仍重新觀察。必驗主角／傭兵／寵物升級，以及戰鬥畫面／大廳的原生關頁重開；舊無簽章快照先結算，不清待領收益，不能靠降低 15 秒／3 隻門檻修正。
 - 離線 ≥10 分鐘時顯示「整段離線平均」；若死亡且實際狩獵時間 >0，再顯示「死亡前狩獵效率」與存活時間，兩者用同一份實得經驗／金幣，只換分母；0 時間不除、仍採 12 小時可結算上限。離線與批次補跑死亡均寫「不列入死亡經驗買回」，不新增扣經驗或買回紀錄。
 - 加掛選項共 19 個、預設全關。`keepview`「返回時保留日誌分頁」啟用後才停止返回時自動切 `sys`；涵蓋 focus／visibility／BFCache。新建／載入及真正離線摘要仍走原系統日誌流程；沿用既有草稿、取消、保存與重載，不另存偏好鍵。
 
-### 和諧與夥伴能力（2026-10-21）
+### 傭兵設定與夥伴能力（2026-10-21）
 
 - 主角與傭兵「立方：和諧」均在增益勾選列，傭兵轉換下拉只列 `type:convert`。舊 `_convertSkill` 遷移到 `_autoBuff` 後清掉舊選項；明確 true／false 優先，未選者不自動啟用。沿用傭兵偏好保存／刷新，HP 消耗週期、自訂停止門檻、至少 25% 安全線及村莊停用不變。
+- 隊伍技能頁各傭兵有「使用變形卷軸」勾選，沿用 `_mercPolyAuto`／`allyMaintainPoly` 的目標與購買成本；關閉只停止續用，現有效果自然到期。無目標時停用並提示先讓來源角色選變身再招募；不改成隨機變身。欄位納入 `MERC_PREF_FIELDS`，核對保存、同角色重建／再招募及明確 false；不另造偏好格式。
 - 召喚物、傭兵召喚、死靈骷髏、城堡護衛沿用寵物精簡能力清單，只列實際支援的骰值、加值、命中、間隔、倍率、防禦與技能；不用主角六屬性、爆擊或「—」填滿。V2／舊式傭兵／屬性精靈依各自原生攻擊路徑顯示，間隔 ticks ÷10；不套寵物魅力／裝備公式，保留唯讀裝備、增益／異常及來源 tooltip，預覽只算副本。
 
 ### 同怪掉落與分類列（2026-10-19）
@@ -103,7 +104,7 @@
 
 ### 冒險者大廳（2026-10-21）
 
-- 黑市旁獨立「冒險者大廳」按鈕，同頁開啟／再按返回，維護 `aria-pressed`；「肝膽相照」是場景標題，移除舊地圖分類／子選單入口。黑市／瞬移／回城與兩個真實地圖選單保留；場景仍為 `min(800px,100%)`／16:9，無永久資訊面板或上下捲軸。
+- 黑市旁獨立「冒險者大廳」按鈕，同頁開啟／再按返回，維護 `aria-pressed`；左上角以「經驗 +5%／經驗加成未啟用」取代原「肝膽相照」可見標題，底部只留本機隊伍所在地；不恢復地圖分類／子選單入口。黑市／瞬移／回城與兩個真實地圖選單保留；場景仍為 `min(800px,100%)`／16:9，無永久資訊面板或上下捲軸。
 - `#social-lobby` 用 `isolation:isolate` 限制角色、營火、輪播及控制列的內部圖層；物品資訊／比較窗須蓋住整個大廳。不要全面提高浮窗 z-index 或改姿勢比例；同時驗實際重疊、命中與預覽。
 - 大廳是社交視圖：保留 `mapState.current`、狩獵設定及兩個選單的真實地圖值；底部提示自己的冒險團所在地，不因此公開位置。戰鬥繼續，隱藏場景停止特效；只有實際換圖／換角色才退出，不因選單同步或被暈眩擋住的回城取消。
 - 點角色才開場景內的非 modal `<dialog>` 名片；編輯／預覽／收藏／留言在同一彈窗，不另佔場景。Escape／外點只關彈窗、保留大廳並恢復角色焦點；自訂地圖選單不被誤判為外點。編輯／預覽維持分頁，留言例外見下條，均驗窄欄。
@@ -111,10 +112,10 @@
 - 旅人與公開名片分開：未發布名片也有基本資料與留言板，收藏仍限公開名片；不自動建立／發布名片。留言收件者為使用者，`0006_comments_users.sql` 保留原留言 ID／去重／流水號，刪卡不刪留言、刪帳號才級聯清除。換角色用目前外觀，不用舊名片快照覆蓋。
 - 名片 `shareMap` 預設不公開，須在「展示」勾選目前地圖、預覽後發布。心跳送目前實際狩獵地名（隱藏區先查 `HIDDEN_AREA_NAMES`，一般圖用 `mapEntryOf().t`），不送整份角色；後端也核對公開與同意狀態，取消分享不回傳位置；30 分鐘內回報的共享位置標「最近回報地圖」與時間，不把它或攻略快照當即時地圖。
 - 留言依時間向下排列、最新在底部，一次呈現多則；只有 `#lobby-comments` 可上下捲動，外層場景／dialog 不捲。載入較早留言接到上方並維持閱讀位置，保留刪除權限／重試去重／安全文字；不要恢復「上一則／下一則」的單則分頁。
-- 站姿／待機使用原版 `assets/classanim`，依目前八職業男女選外觀；坐姿／跪坐是以原版為參考的透明生成素材 `assets/ui/lobby-poses-v2/`。來源、prompts、裁切與 SHA 留在 `output/design-source/imagegen/lobby-original-poses-20261021/`；不再使用舊隨機姿勢 atlas，勿誤刪原生成來源。
-- 玩家點自己名片可選站立／坐下／跪坐，`player.lobbyPose` 隨角色儲存；不需發布名片，本機也能編輯。`actor.pose` 僅允許 `standing/seated/kneeling`，缺值預設站立；沿用 `presence_actor` JSON，無新 migration。心跳共享姿勢，切換後立即回報，其他人下次更新看到，不加輪詢。
+- 站姿／待機使用原版 `assets/classanim`，依目前八職業男女選外觀；坐姿／跪坐／大字型趴地是以原版為參考的透明生成素材 `assets/ui/lobby-poses-v2/`。坐／跪來源、prompts、裁切與 SHA 留在 `output/design-source/imagegen/lobby-original-poses-20261021/`，16 張趴姿在 `lobby-prone-20261021/`（同層）；不再使用舊隨機姿勢 atlas，勿誤刪原生成來源。
+- 玩家點自己名片可選站立／坐下／跪坐／大字型趴地，`player.lobbyPose` 隨角色儲存；不需發布名片，本機也能編輯。`actor.pose` 僅允許 `standing/seated/kneeling/prone`，缺值預設站立；沿用 `presence_actor` JSON，無新 migration。心跳共享姿勢，切換後立即回報，其他人下次更新看到，不加輪詢。
 - 人物按訪客 ID 穩定取樣散布，保留座位、避開營火與控制列及碰撞，不圍圈、不耗遊戲 RNG。只載入可見角色動畫，關閉／背景／名片開啟時停止裝飾動畫；營火只換火焰格，石圈／木柴固定。
-- 姿勢比例先比同角色的頭部輪廓、肩寬、軀幹與視角，再驗接地及裁切；不能用「坐姿總高接近站姿」當標準，否則會放大成大頭／寬身。現行站姿本體 82%；坐姿 tile 130%、left -15%、top -24%；跪坐 tile 90%、left 5%、top 9%。這些是有透明留白的圖片縮放，不是人物總高；微調單一姿勢，不連帶改其他姿勢／點擊區。像素量測只能輔助，仍須檢查實際營地預覽。
+- 姿勢比例先比同角色的頭部輪廓、肩寬、軀幹與視角，再驗接地及裁切；不能用「坐姿總高接近站姿」當標準，否則會放大成大頭／寬身。現行站姿本體 82%；坐姿 tile 130%、left -15%、top -24%；跪坐 tile 90%、left 5%、top 9%。這些是有透明留白的圖片縮放，不是人物總高；微調單一姿勢，不連帶改其他姿勢／點擊區。趴姿為 128px tile、底線 115px、本體上限 112×80px、CSS 100%；裁切邊界用 alpha≥16 排除微透明雜點，保留原 alpha 與長寬比。像素量測只能輔助，仍須檢查實際營地預覽。
 - 打招呼／點頭／歡呼各為獨立按鈕，窄畫面可換行，無動作下拉選單；沿用 `perform/doAction`、斷線 disabled、失敗重試 request ID 去重與未讀補播。動作結束恢復所選姿勢；營火文字純文字、字形由下往上燒毀，總下移 30 個螢幕像素、在火焰前方。
 - 出發狩獵後進大廳，全隊（主角／傭兵／寵物）經驗 ×1.05，不要求公共 API 成功；村莊內不預領。組隊／娃娃乘算、倒地／滿等規則保留，金幣／掉落不加成。手動返回、回村或實際換圖（含換層）取消，重進才恢復；開名片／切瀏覽分頁不取消。
 - 關頁不等於手動離開：大廳關頁快照的 `offlineHunt.lobbyExpMap` 僅對原圖該次合資格離線區間生效，舊檔缺值為無加成；載入先結算再沿用回村，不把加成帶到下次出征。取樣／頭目證明存未加成基準，結算只乘一次；主角、寵物、傭兵、統計與普通怪／純頭目房都須涵蓋。保留 70%／12 小時、存檔失敗與去重；切換加成前先等補跑完成，避免追溯加成。
@@ -146,8 +147,8 @@
 - 測試報告預設寫入 `tmp/test-runs/`（不進 git）；要更新受追蹤的 `tests/artifacts/` 才加 `--record`（runner 與 `*.integration.js` 相同）；runner 可用 `--artifacts <目錄>` 指定其他輸出位置，與 `--record` 互斥。
 - 成功後只呼叫一次 `finish({keep:[]})` 並等待完成；耗時時用背景程序讀回結果，不用短 timeout 中止再反覆重送。有 `finished <id>` 與成功結束碼後，不再操作該空間。
 - 必跑 `rwd`、`ui-scale`、`gameplay`、`account-gameplay`、`companion-commands` 的 HTTP／file：`--space <id> --suite required --protocol both --desktop-only`。
-- 相關 E2E 見 `tests/run-rwd.py` 的 `SUITES`；背包用 `backpack-a`／`main-backpack`／`backpack-feedback`，強化與搜尋用 `ken-market`／`gear-accelerator`，大廳用 `social-lobby`／`lobby-camp`／`lobby-fit`／`lobby-live-actors`／`lobby-actions`／`lobby-adventure`；本輪綜合修正用 `feedback-reliability`；同樣帶 `--desktop-only`，其他既有專項依實際改動選用。
-- 創角／載入會自動連線大廳；合成回歸先用同一 p1 的 `Page.addScriptToEvaluateOnNewDocument` 隔離預設公共 API，保留明確指定的合成 API／本機 workerd 連線。不可讓核心測試大量建立公共訪客，也不可改正式碼來停用測試中的功能；報告標明隔離方式。在線名冊可含自己，點指定訪客用其 ID，不假設第一筆就是別人。
+- 相關 E2E 見 `tests/run-rwd.py` 的 `SUITES`；背包用 `backpack-a`／`main-backpack`／`backpack-feedback`，強化與搜尋用 `ken-market`／`gear-accelerator`，大廳用 `social-lobby`／`lobby-camp`／`lobby-fit`／`lobby-live-actors`／`lobby-actions`／`lobby-adventure`／`lobby-rest`；離線／和諧／夥伴能力綜合驗證用 `feedback-reliability`；同樣帶 `--desktop-only`，其他既有專項依實際改動選用。
+- 創角／載入會自動連線大廳；合成回歸及預覽每次導覽前均用同一 p1 的 `Page.addScriptToEvaluateOnNewDocument` 注入隔離儲存並隔離預設公共 API；創角前核對掛鉤，不能依賴前一 suite 已移除的 fixture，保留明確指定的合成 API／本機 workerd 連線。不可讓核心測試大量建立公共訪客，也不可改正式碼來停用測試中的功能；報告標明隔離方式。在線名冊可含自己，點指定訪客用其 ID，不假設第一筆就是別人。
 - TaskSpace 消失不能自行重建；使用者暫緩重建時，先完成本地工作並記錄待跑的瀏覽器檢查，後續不得把 Node VM／幾何替身說成瀏覽器 E2E 通過。
 - 所有 `visual-*` 必須緊接同一 space 的對應行為 fixture，例如 `account-gameplay visual-account-gameplay`；中間不可插入其他 suite，各 fixture 的全域儲存不可互換。runner 會拒絕順序錯誤的組合。
 - 狀態節點／控制項測試依 `data-*`／欄位語意定位，不假設職業為名稱的 `nextElementSibling`。創角 fixture 須明填合成 ID；舊未命名存檔另建 fixture，不繞過必填限制。需求已變就改舊斷言，不恢復已移除功能；找長單行斷言用 `rg --no-ignore -o '.{60}舊字串.{60}' tests`，不用 `grep -n | cut`。相同物品（同 id／強化）簽章不含 uid，互換位置不會重建；強化也可能換 uid；斷言比可見內容與實際物品欄位，不比 uid。
@@ -163,7 +164,7 @@
 - 倉庫另跑 `warehouse-list` 與 `village-clan-warehouse`（HTTP／file）。驗證預設尺寸要清除測試調整並以 100% 量測；預設圖與已拖曳縮放圖分開命名。命中區留在外框內，實測縮放時 border 取整，不能假設 CSS 宣告值等於實際邊界。
 - 本地檢查一律跑 `python3 scripts/check-local.py`：JS 語法、`git diff --check`、`?v=` 資源 SHA、69 個鏡像檔 SHA 與全部 `tests/*.integration.js`。integration 只驗原生流程／幾何邊界，不等於瀏覽器 E2E；原生新增全域依賴時更新合成 fixture，不為缺少的測試替身增加正式環境 fallback。
 - 保留可重跑的 JSON 報告、來源雜湊及代表性預覽；完整驗證須對應實際程式 commit 與報告。交接要區分「本輪實跑」與「核對前人報告」；事後擷取的來源 SHA 不得冒充 runner 當時記錄的 SHA。
-- 報告檔名依 runner 實際輸出；引用前核對存在、方法、版本與結果，不用歷史報告／早期預覽充作後續驗證。HTTP／file 共用圖檔會被覆寫，須標明最終圖的協定與方法，不能當兩次獨立擷取。
+- 報告檔名含自己的 suite／協定，複製測試時同步改名，避免覆寫其他套件；依 runner 實際輸出引用，引用前核對存在、方法、版本與結果，不用歷史報告／早期預覽充作後續驗證。HTTP／file 共用圖檔會被覆寫，須標明最終圖的協定與方法，不能當兩次獨立擷取。
 - 桌面橋接替身與 file 協定不等於安裝版實測；本機 iCloud 複製／雜湊相符不等於遠端同步完成。
 - 測試保持精簡：先選可重現需求的最小專項，完成後只跑必要核心；通過即停，不因增加信心而追加套件、長測或重複預覽。接手先核對來源 SHA 與報告；未變就沿用，失敗僅接續受影響套件，測試前置錯誤先修 fixture。僅改本檔不重跑遊戲 E2E；使用者縮短時長就依其指示收尾。
 - 背景 E2E 執行中不改程式；要改就先停 runner，改完 `update-cache.py` 後重跑，避免同一份報告混到兩版程式。使用者要求「做完再測」時，所有修改完成後只跑一次。等待長 runner 用背景程序與完成通知，不輪詢；期間只在 `tmp/` 準備素材或腳本。
@@ -197,9 +198,9 @@
 
 ## 最新進度與驗證基準（2026-10-21）
 
-- 本次發布版本 **v3.9.19**（原版 `v3.8.34` 不變）：大廳圖層、離線增量取樣／雙效率摘要／死亡提示、和諧統一設定、召喚物／護衛精簡能力。是否已部署以 `tmp/test-runs/feedback-reliability-release/completion.json` 的實際 commit／Pages／公開 SHA 為準；後端未改，不重複部署 Worker。
-- 本輪功能驗收 `tmp/test-runs/feedback-reliability/completion.json`：20 份 HTTP／file 報告、822/822（含重複情境），新增專項各 36 項、原程式 36 項中 29 項預期失敗；本地 13/13、鏡像 SHA 69/69。HTTP `effect-details` 在最後「舊式傭兵召喚」專用顯示分支前測得；最終 file 與兩協定專項已涵蓋該分支。保留 runner 原始 SHA，不把升版／文件後的雜湊冒充早期實測；升版後另跑 `comfort-release` HTTP／file 各 41/41、本地 13/13；不冒充 822 項在升版後重跑。
-- 杜賓狗／高等杜賓狗的左右行走、停止、攻擊及載入過程共 24/24，未重現不朝右，因此未改方向邏輯；需種類、動作與當時畫面才能追加修正，不預先鏡射素材。
-- 代表預覽為同目錄 `feedback-lobby-modal.png`、`feedback-minion-ability.png`：本機 HTTP＋隔離合成角色，Ego screen-media PDF→pypdfium2 96dpi，非直接截圖。功能 TaskSpace 已單次 finish、臨時伺服器已停；公共大廳 API 已隔離，不碰真實存檔。Safari、實體手機、安裝版未驗。
-- v3.9.18 大廳入口、姿勢、全隊 5% 加成的歷史驗收在 `lobby-adventure`、`lobby-feedback`、`lobby-seat-proportion`、`lobby-kneeling` 與 `lobby-session-release`；現用跪姿來源及比例保留，後端沿用既有 9/9。不要拿舊預覽當本輪結果，或把各階段案例相加成獨立覆蓋。
-- 使用者已撤回統一 v3.9.10，接續版號遞增，不改寫既有 commit／tag；歷史「先發布名片才在線／地圖子選單入口／隨機姿勢」均已被現行規則取代。`tmp/` 僅在本機，接手先核對來源／方法與報告，未變的功能沿用證據；更早歷史見 [docs/agent-progress.md](docs/agent-progress.md)。
+- 本次發布 **v3.9.20**（原版 `v3.8.34` 不變）：大廳左上經驗提示、自然升級延續離線樣本、16 種職業／性別趴姿、個別傭兵變形卷軸開關。部署狀態以 `tmp/test-runs/lobby-rest-release/completion.json` 的 commit、Worker 版本、Pages 與公開 SHA 為準；本輪 Worker 新增 `prone`，須先部署再推前端，不跑 migration。
+- 功能驗收在 `tmp/test-runs/lobby-rest/completion.json`：22 份報告、800/800（含 HTTP／file 重複情境），本地 13/13、鏡像 SHA 69/69、後端 9/9、本機 workerd／D1 串接 23/23。原程式 8 項中 7 項預期失敗，含升級後在戰鬥／大廳關頁重開的相同缺樣本訊息；無既有樣本的歷史收益無法補算。
+- 發布輪先核對上述來源及報告 SHA；功能未改就沿用，文件／版號另跑發布檢查。區分本輪實跑與沿用結果，不把 800 項宣稱為升版後重跑；`sources-final.json` 是事後讀回，runner 當時雜湊仍以各報告為準。新專項為 `lobby-rest`，早期複製的輸出名稱已修正，完成報告只選有效結果。
+- 預覽 `tmp/test-runs/lobby-rest/lobby-preview.png`、`skill-preview.png` 為本機 HTTP＋合成角色，Ego screen-media PDF→pypdfium2 96dpi，非直接截圖；最終預覽使用虛擬儲存，較早誤用原生儲存建立的合成角色已按身分清除，未全面清站存檔。功能驗收空間已單次 finish，不再使用；發布另建空間。Safari、實體手機、安裝版未驗。
+- v3.9.19 大廳圖層／離線平滑與雙效率／和諧／夥伴能力證據在 `tmp/test-runs/feedback-reliability/completion.json`，發布在 `feedback-reliability-release/completion.json`；杜賓狗左右走停／攻擊 24/24，未重現故未改方向。v3.9.18 入口／姿勢／5% 加成歷史見 `lobby-session-release`；更早進度見 [docs/agent-progress.md](docs/agent-progress.md)，不拿舊預覽當本輪結果。
+- 使用者已撤回統一 v3.9.10，接續版號遞增，不改寫既有 commit／tag；歷史「先發布名片才在線／地圖子選單入口／隨機姿勢」已被現行規則取代。`tmp/` 僅在本機，接手先核對來源、方法與報告。

@@ -1,0 +1,308 @@
+{
+  "tool": "built-in image_gen",
+  "reference": "../lobby-original-poses-20261021/original-16-reference.png",
+  "source": "prone-source.png",
+  "normalization": {
+    "tile": [
+      128,
+      128
+    ],
+    "baseline": 115,
+    "maxBody": [
+      112,
+      80
+    ],
+    "preserveAspectRatio": true,
+    "alphaThresholdForBounds": 16
+  },
+  "assets": [
+    {
+      "avatar": "王子",
+      "pose": "prone",
+      "cell": [
+        0,
+        0,
+        314,
+        314
+      ],
+      "alphaBounds": [
+        15,
+        93,
+        303,
+        275
+      ],
+      "path": "assets/ui/lobby-poses-v2/王子-prone.webp",
+      "sha256": "50a720fdb554e2c3200a83a354e60164c37ec200da281d868ad964f524eaabbf"
+    },
+    {
+      "avatar": "公主",
+      "pose": "prone",
+      "cell": [
+        314,
+        0,
+        627,
+        314
+      ],
+      "alphaBounds": [
+        28,
+        102,
+        304,
+        279
+      ],
+      "path": "assets/ui/lobby-poses-v2/公主-prone.webp",
+      "sha256": "9fc67a8ad69c41ed636bfa5f238f91ae11e5331905922a97ad452661bd41a402"
+    },
+    {
+      "avatar": "男騎士",
+      "pose": "prone",
+      "cell": [
+        627,
+        0,
+        940,
+        314
+      ],
+      "alphaBounds": [
+        32,
+        88,
+        313,
+        283
+      ],
+      "path": "assets/ui/lobby-poses-v2/男騎士-prone.webp",
+      "sha256": "211ecf0d3d5d4b011ecb29cb293eba7566804156f2910a9f5752e195872c6cc2"
+    },
+    {
+      "avatar": "女騎士",
+      "pose": "prone",
+      "cell": [
+        940,
+        0,
+        1254,
+        314
+      ],
+      "alphaBounds": [
+        0,
+        97,
+        305,
+        282
+      ],
+      "path": "assets/ui/lobby-poses-v2/女騎士-prone.webp",
+      "sha256": "722a7043aadf21e4d8e413d7d68e5b8435166c8b984a47088d091bd4e5aa42db"
+    },
+    {
+      "avatar": "男妖精",
+      "pose": "prone",
+      "cell": [
+        0,
+        314,
+        314,
+        627
+      ],
+      "alphaBounds": [
+        20,
+        68,
+        314,
+        264
+      ],
+      "path": "assets/ui/lobby-poses-v2/男妖精-prone.webp",
+      "sha256": "74eb95d7035fbc3a9e32f51fd08dc49da07b11e9796422f0f0b47e48af64390b"
+    },
+    {
+      "avatar": "女妖精",
+      "pose": "prone",
+      "cell": [
+        314,
+        314,
+        627,
+        627
+      ],
+      "alphaBounds": [
+        0,
+        80,
+        307,
+        267
+      ],
+      "path": "assets/ui/lobby-poses-v2/女妖精-prone.webp",
+      "sha256": "eb5411ed0abbee21256eef837ca7bc5d08c4b9135b6dad0ed871fe6a65a9d76f"
+    },
+    {
+      "avatar": "男法師",
+      "pose": "prone",
+      "cell": [
+        627,
+        314,
+        940,
+        627
+      ],
+      "alphaBounds": [
+        24,
+        69,
+        313,
+        261
+      ],
+      "path": "assets/ui/lobby-poses-v2/男法師-prone.webp",
+      "sha256": "29a7611e7e87e0fd43ce5d9e18af845984778a31d8fffb7229151b21fc55e4bc"
+    },
+    {
+      "avatar": "女法師",
+      "pose": "prone",
+      "cell": [
+        940,
+        314,
+        1254,
+        627
+      ],
+      "alphaBounds": [
+        0,
+        80,
+        312,
+        259
+      ],
+      "path": "assets/ui/lobby-poses-v2/女法師-prone.webp",
+      "sha256": "38e18eacdf026964dfe62bcd60b8b8b30a16e2f4db7aa2034af0567e5632b91e"
+    },
+    {
+      "avatar": "男黑暗妖精",
+      "pose": "prone",
+      "cell": [
+        0,
+        627,
+        314,
+        940
+      ],
+      "alphaBounds": [
+        26,
+        64,
+        314,
+        253
+      ],
+      "path": "assets/ui/lobby-poses-v2/男黑暗妖精-prone.webp",
+      "sha256": "48705a36e7b13ecdfefa95fec5e383fd4c9c5e7b13fb7fd3e1fc4944722efe83"
+    },
+    {
+      "avatar": "女黑暗妖精",
+      "pose": "prone",
+      "cell": [
+        314,
+        627,
+        627,
+        940
+      ],
+      "alphaBounds": [
+        0,
+        72,
+        308,
+        260
+      ],
+      "path": "assets/ui/lobby-poses-v2/女黑暗妖精-prone.webp",
+      "sha256": "ac70130570afef33a5a13498b46ddd7ecbfc9dd7f153675554384bddcc4336fe"
+    },
+    {
+      "avatar": "男龍騎士",
+      "pose": "prone",
+      "cell": [
+        627,
+        627,
+        940,
+        940
+      ],
+      "alphaBounds": [
+        25,
+        67,
+        313,
+        266
+      ],
+      "path": "assets/ui/lobby-poses-v2/男龍騎士-prone.webp",
+      "sha256": "1f41e01def9090a749a9d57e67c4c372aa7ccc62fea0861bc47895e76a3942ad"
+    },
+    {
+      "avatar": "女龍騎士",
+      "pose": "prone",
+      "cell": [
+        940,
+        627,
+        1254,
+        940
+      ],
+      "alphaBounds": [
+        0,
+        83,
+        304,
+        267
+      ],
+      "path": "assets/ui/lobby-poses-v2/女龍騎士-prone.webp",
+      "sha256": "4827738517ab5d36b58e4ad589eae88615d8ffd27571298a4611b19ef754afef"
+    },
+    {
+      "avatar": "男幻術士",
+      "pose": "prone",
+      "cell": [
+        0,
+        940,
+        314,
+        1254
+      ],
+      "alphaBounds": [
+        22,
+        57,
+        314,
+        252
+      ],
+      "path": "assets/ui/lobby-poses-v2/男幻術士-prone.webp",
+      "sha256": "edd073598c537ac1b46dde88e3e3ac6e0aa3d84d2e693831746b435be869d43f"
+    },
+    {
+      "avatar": "女幻術士",
+      "pose": "prone",
+      "cell": [
+        314,
+        940,
+        627,
+        1254
+      ],
+      "alphaBounds": [
+        40,
+        77,
+        307,
+        256
+      ],
+      "path": "assets/ui/lobby-poses-v2/女幻術士-prone.webp",
+      "sha256": "628eae89ed43bd95a4d6d114f8041594ea37a68987c2d5b69befbda31abcbe03"
+    },
+    {
+      "avatar": "男戰士",
+      "pose": "prone",
+      "cell": [
+        627,
+        940,
+        940,
+        1254
+      ],
+      "alphaBounds": [
+        12,
+        41,
+        313,
+        267
+      ],
+      "path": "assets/ui/lobby-poses-v2/男戰士-prone.webp",
+      "sha256": "954e16e44786d3d7b2a09ae6b5240f58c2f77903af2655d8dd1779c926e5de70"
+    },
+    {
+      "avatar": "女戰士",
+      "pose": "prone",
+      "cell": [
+        940,
+        940,
+        1254,
+        1254
+      ],
+      "alphaBounds": [
+        0,
+        60,
+        306,
+        265
+      ],
+      "path": "assets/ui/lobby-poses-v2/女戰士-prone.webp",
+      "sha256": "e46732076e67d108e370241a53bf64f7d4efbd1e12b2806215749869599a4c95"
+    }
+  ]
+}
