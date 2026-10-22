@@ -131,8 +131,16 @@ function _dpsAddPet(source, amount) {
 }
 function _dpsSnap() {   // Keep numeric HP entries for consumers, paired with the original target objects.
     if (typeof mapState === 'undefined' || !mapState || !mapState.mobs) return null;
-    let snap = mapState.mobs.map(m => (m && !m._dead) ? (m.curHp || 0) : null);
-    Object.defineProperty(snap, 'targets', { value: mapState.mobs.slice() });
+    let mobs = mapState.mobs, snap = null;
+    for (let i = 0; i < mobs.length; i++) {
+        let m = mobs[i];
+        if (!m || m._dead) continue;
+        if (!snap) {
+            snap = new Array(mobs.length).fill(null);
+            snap.targets = mobs.slice();
+        }
+        snap[i] = m.curHp || 0;
+    }
     return snap;
 }
 function _dpsDealt(snap) {   // 與快照比對：加總掉血量（補血/再生→負值忽略；新生怪 snap=null 忽略；溢殺以 0 計）

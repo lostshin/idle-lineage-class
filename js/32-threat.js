@@ -126,15 +126,18 @@ function ironGuardTauntWeakensAttack(m) { return !!_ironGuardTauntState(m); }
 function threatCommitDiff(snap, ent) {
     if (!THREAT_ENABLED || !snap || !ent) return;
     if (typeof mapState === 'undefined' || !mapState || !mapState.mobs) return;
-    let mult = computeThreatMult(ent);
-    if (!(mult > 0)) return;   // 隱身斗篷等：不累積
-    let key = threatKey(ent), mobs = mapState.mobs, now = _threatNow();
+    let mult = null, key, now, mobs = mapState.mobs;
     for (let i = 0; i < snap.length; i++) {
         if (snap[i] == null) continue;
         let m = mobs[i];
         if (!m || m._dead || m !== snap.targets[i]) continue;
         let lost = snap[i] - Math.max(0, m.curHp || 0);
         if (lost <= 0) continue;
+        if (mult === null) {
+            mult = computeThreatMult(ent);
+            if (!(mult > 0)) return;
+            key = threatKey(ent); now = _threatNow();
+        }
         let amt = lost * mult;
         if (m.boss) amt *= 0.5;   // 🐲 BOSS：threatMult 全體減半（更偏隨機·免一坦鎖死全場）
         _threatAdd(m, key, amt, now);

@@ -37,7 +37,7 @@ SUITES += ['site-presence','lobby-recent','lobby-actions','lobby-adventure']
 SUITES += ['same-batch-enhance']
 SUITES += ['same-batch-ux']
 SUITES += ['feedback-1022']
-SUITES += ['guild-poly','catchup-progress']
+SUITES += ['guild-poly','catchup-progress','catchup-equivalence']
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--desktop-only', action='store_true', help='Skip mobile and tablet viewport checks')

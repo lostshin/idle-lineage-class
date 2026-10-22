@@ -1465,24 +1465,29 @@ function avatarSelfDmgReduceMult(ent) { if (ent && ent.buffs && (ent.buffs.sk_il
 // 🔮 幻覺攻擊光環在 v3.4.45 改為只有寵物/召喚(forMinion=true)走光環；玩家/傭兵靠各自持有 buff。
 // 👑 灼熱武器維持真正全隊光環：玩家/傭兵由既有注入點取得其他來源加成，寵物/召喚由 forMinion 路徑取得；受益者自己已持有時不再注入，避免同技能重複疊加。royalEd 供魔法型精靈的一般攻擊辨識灼熱武器固定傷害。
 function teamIlluAura(forWho, forMinion) {
-    let ed = 0, eh = 0, md = 0, royalEd = 0;
-    if (forMinion) {
-        if (_teamAuraHas('sk_illu_ogre', forWho))   { let o = (DB.skills.sk_illu_ogre   && DB.skills.sk_illu_ogre.d)   || {}; ed += o.extraDmg || 0; eh += o.extraHit || 0; }   // 歐吉：額外傷害+4·額外命中+4
-        if (_teamAuraHas('sk_illu_avatar', forWho)) { let a = (DB.skills.sk_illu_avatar && DB.skills.sk_illu_avatar.d) || {}; ed += a.extraDmg || 0; }                            // 化身：額外傷害+10
-        if (_teamAuraHas('sk_illu_lich', forWho))   { let l = (DB.skills.sk_illu_lich   && DB.skills.sk_illu_lich.d)   || {}; md += l.magicDmg || 0; }                            // 巫妖：魔法傷害+2
+    const own = forWho && forWho.buffs;
+    const needBurn = !(own && own.sk_royal_burnweapon > 0), needDance = !(own && own.sk_elf_dancefire > 0);
+    if (!forMinion && !needBurn && !needDance) return null;
+    let ogre = false, avatar = false, lich = false, burn = false, dance = false;
+    const allies = player && player.allies || [];
+    for (let i = -1; i < allies.length; i++) {
+        const actor = i < 0 ? player : allies[i];
+        if (!actor || actor === forWho || (i >= 0 && actor._downed) || !actor.buffs) continue;
+        const buffs = actor.buffs;
+        if (forMinion) {
+            ogre = ogre || buffs.sk_illu_ogre > 0;
+            avatar = avatar || buffs.sk_illu_avatar > 0;
+            lich = lich || buffs.sk_illu_lich > 0;
+        }
+        if (needBurn) burn = burn || buffs.sk_royal_burnweapon > 0;
+        if (needDance) dance = dance || buffs.sk_elf_dancefire > 0;
     }
-    if (!(forWho && forWho.buffs && (forWho.buffs.sk_royal_burnweapon || 0) > 0) && _teamAuraHas('sk_royal_burnweapon', forWho)) {
-        let r = (DB.skills.sk_royal_burnweapon && DB.skills.sk_royal_burnweapon.d) || {};
-        royalEd = r.extraDmg || 0; ed += royalEd; eh += r.extraHit || 0;
-    }
-    // 🔥 v3.8.3 舞躍之火（團隊光環）：任一隊員維持 → 全隊「近距離傷害 +3」＝玩家／傭兵／寵物／召喚物／城堡護衛。
-    //    受益者自身持有時其 meleeDmg 已由 recomputeStats 的 buff 迴圈算進自身 d → 此處不補（避免雙算），比照上方灼熱武器。
-    //    寵物/召喚/護衛沒有 .buffs 也沒有 d.meleeDmg → 一律取得光環，由各自傷害式直接加 mel。
-    let mel = 0;
-    if (!(forWho && forWho.buffs && (forWho.buffs.sk_elf_dancefire || 0) > 0) && _teamAuraHas('sk_elf_dancefire', forWho)) {
-        let f = (DB.skills.sk_elf_dancefire && DB.skills.sk_elf_dancefire.d) || {};
-        mel = f.meleeDmg || 0;
-    }
+    let ed = 0, eh = 0, md = 0, mel = 0, royalEd = 0;
+    if (ogre) { const d = DB.skills.sk_illu_ogre?.d || {}; ed += d.extraDmg || 0; eh += d.extraHit || 0; }
+    if (avatar) ed += DB.skills.sk_illu_avatar?.d?.extraDmg || 0;
+    if (lich) md += DB.skills.sk_illu_lich?.d?.magicDmg || 0;
+    if (burn) { const d = DB.skills.sk_royal_burnweapon?.d || {}; royalEd = d.extraDmg || 0; ed += royalEd; eh += d.extraHit || 0; }
+    if (dance) mel = DB.skills.sk_elf_dancefire?.d?.meleeDmg || 0;
     if (ed === 0 && eh === 0 && md === 0 && mel === 0) return null;
     return { ed: ed, eh: eh, md: md, mel: mel, royalEd: royalEd };
 }

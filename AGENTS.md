@@ -106,6 +106,11 @@
 - `js/03-combat-core.js` 的剩餘量是 `_tickDebt` 模擬毫秒，不是實際等待 ETA；畫面寫「尚待處理的遊戲時間」，說明本機運算、電腦負載、背景節流及高倍速累積。百分比依已跑／待跑 tick；不加假進度、固定倒數或未量測 ETA，短同步工作不強制顯示進度。
 - 64 倍速每 10 秒產生 640 秒遊戲進度；若尚未處理，切回 1 倍仍須跑完 6,400 tick；改顯示不得丟棄債務、改收益或離線取樣。效能先分清模擬時間／牆鐘／排程等待，短測記錄原生完成時間，不能把 `waitForFunction` 輪詢延遲算成運算成本。村莊合成短測／CPU 限速只證明負載影響，不代表實戰 ETA 或已重現玩家五小時卡住；未重現須明說。
 
+- 補跑最佳化保留逐 tick、原 RNG 順序、64 倍速、80ms／8ms 排程、掉落／消耗／離線及存檔格式。`_dpsSnap` 沒有敵人時可不配置；有敵人時仍保留原物件身分，不能只比 UID／目前槽位，須驗換怪、重排、移除、溢殺與新生怪不誤記。
+- 隊友本體無可行動時只省 DPS／暫態光環準備，仍處理異常、冷卻、回血回魔與召喚。判斷須涵蓋治癒、轉換、立方、持續傷害、副手及非有限冷卻值；不能以「普攻未到」跳過整個回合。無實際傷害可略過仇恨倍率／重複掃描，不清除既有仇恨或改選敵公式。
+- `teamIlluAura` 每次查詢一輪掃齊來源，不跨 tick 快取；保留受益者自己排除、倒地、同技能不重複加成與 Buff 到期／加入的即時效果，玩家、傭兵、寵物、召喚物、護衛及 readonly 預覽均須一致。
+- 效能改善以同情境暖機、交錯配對多次的原生補跑吞吐中位數為準，包含收益整理／儲存／重繪；純迴圈、跨輪60秒profile與單次最快成績分列。速度提升46.1%約等於耗時少31.5%，不能寫成耗時少46.1%或已達50%；多種函式的inclusive成本不可直接相加。無穩定收益的改寫撤回，不為達門檻改玩法或增加阻塞。
+
 ### 傭兵設定與夥伴能力（2026-10-22）
 
 - 主角與傭兵「立方：和諧」均在增益勾選列，傭兵轉換下拉只列 `type:convert`。舊 `_convertSkill` 遷移到 `_autoBuff` 後清掉舊選項；明確 true／false 優先，未選者不自動啟用。沿用傭兵偏好保存／刷新，HP 消耗週期、自訂停止門檻、至少 25% 安全線及村莊停用不變。
@@ -165,7 +170,7 @@
 - 測試報告預設寫入 `tmp/test-runs/`（不進 git）；要更新受追蹤的 `tests/artifacts/` 才加 `--record`（runner 與 `*.integration.js` 相同）；runner 可用 `--artifacts <目錄>` 指定其他輸出位置，與 `--record` 互斥。
 - 成功後只呼叫一次 `finish({keep:[]})` 並等待完成；耗時時用背景程序讀回結果，不用短 timeout 中止再反覆重送。有 `finished <id>` 與成功結束碼後，不再操作該空間。
 - 必跑 `rwd`、`ui-scale`、`gameplay`、`account-gameplay`、`companion-commands` 的 HTTP／file：`--space <id> --suite required --protocol both --desktop-only`。
-- 專項見 `tests/run-rwd.py`：批次用 `same-batch-enhance`／`same-batch-ux`，夥伴對齊／法師互斥用 `feedback-1022`，公會強化／變身用 `guild-poly`，補跑文案／時間債務用 `catchup-progress`；背包用 `backpack-a`／`main-backpack`／`backpack-feedback`，強化搜尋用 `ken-market`／`gear-accelerator`，大廳用 `social-lobby`／`lobby-*`，離線／和諧／夥伴能力用 `feedback-reliability`；同樣帶 `--desktop-only`，只選相關專項加必要核心。
+- 專項見 `tests/run-rwd.py`：批次用 `same-batch-enhance`／`same-batch-ux`，夥伴對齊／法師互斥用 `feedback-1022`，公會強化／變身用 `guild-poly`，補跑文案／時間債務用 `catchup-progress`，運算等價對照用 `catchup-equivalence`；背包用 `backpack-a`／`main-backpack`／`backpack-feedback`，強化搜尋用 `ken-market`／`gear-accelerator`，大廳用 `social-lobby`／`lobby-*`，離線／和諧／夥伴能力用 `feedback-reliability`；同樣帶 `--desktop-only`，只選相關專項加必要核心。
 - 創角／載入會自動連線大廳；合成回歸及預覽每次導覽前均用同一 p1 的 `Page.addScriptToEvaluateOnNewDocument` 注入隔離儲存並隔離預設公共 API；創角前核對掛鉤，不能依賴前一 suite 已移除的 fixture，保留明確指定的合成 API／本機 workerd 連線。不可讓核心測試大量建立公共訪客，也不可改正式碼來停用測試中的功能；報告標明隔離方式。在線名冊可含自己，點指定訪客用其 ID，不假設第一筆就是別人。
 - TaskSpace 消失不能自行重建；使用者暫緩重建時，先完成本地工作並記錄待跑的瀏覽器檢查，後續不得把 Node VM／幾何替身說成瀏覽器 E2E 通過。
 - 所有 `visual-*` 必須緊接同一 space 的對應行為 fixture，例如 `account-gameplay visual-account-gameplay`；中間不可插入其他 suite，各 fixture 的全域儲存不可互換。runner 會拒絕順序錯誤的組合。
@@ -188,7 +193,7 @@
 - 測試保持精簡：先選可重現需求的最小專項，完成後只跑必要核心；通過即停，不因增加信心而追加套件、長測或重複預覽。接手先核對來源 SHA 與報告；未變就沿用，失敗僅接續受影響套件，測試前置錯誤先修 fixture。僅改本檔不重跑遊戲 E2E；使用者縮短時長就依其指示收尾。
 - 背景 E2E 執行中不改程式；要改就先停 runner，改完 `update-cache.py` 後重跑，避免同一份報告混到兩版程式。使用者要求「做完再測」時，所有修改完成後只跑一次。等待長 runner 用背景程序與完成通知，不輪詢；期間只在 `tmp/` 準備素材或腳本。
 - 自寫量測腳本與報告放 `tmp/test-runs/<任務>/`，需要伺服器時自起 `python3 -m http.server <port> --bind 127.0.0.1`，結束後關閉；先定門檻與改善前基準，改善後以同腳本、同情境放 `after/` 比較。
-- 合成物品帶原生預設值（`bless/anc/attr/seteff/lock/junk:false` 等），避免讀檔補欄位被誤判資料變更；`?.` 擋不住 `false`，先判真值再呼叫方法。控制 RNG 時隔離 UID 產生，避免 uid() 吃掉擲骰序列或固定亂數製造重複 UID；不為假資料改正式公式。
+- 合成物品帶原生預設值（`bless/anc/attr/seteff/lock/junk:false` 等），避免讀檔補欄位被誤判資料變更；`?.` 擋不住 `false`，先判真值再呼叫方法。控制 RNG 時隔離 UID 產生，避免 uid() 吃掉擲骰序列或固定亂數製造重複 UID；不為假資料改正式公式。等價對照的 setup 完成即停止遊戲計時器，在執行同步 tick 的同一次 evaluate 重設 RNG；不能在兩次 evaluate 之間留 running=true，讓背景工作先消耗亂數。
 - 找回未提交的舊版本：從 `~/.codex/sessions/<日期>/rollout-*.jsonl` 取出寫檔指令，在 `git worktree` 重放（瀏覽器／runner 指令改為 stub），再以該輪 `sources-under-test.json` 的 SHA256 逐檔驗證；不可手改內容湊雜湊。
 
 ## 存檔、隱私與提交
@@ -217,10 +222,10 @@
 
 ## 最新進度與驗證基準（2026-10-22）
 
-- 本次版本 **v3.9.23**（原版 `v3.8.34` 不變）：公會獨立強化入口、候選拆分後連續強化目標、傭兵變戒原版指定清單、補跑模擬時間說明。發布 commit／Pages／公開 SHA 結果以 `tmp/test-runs/session-release-3923/completion.json` 為準；後端未改，不部署 Worker／migration。
-- 本輪功能報告：`tmp/test-runs/guild-controls/completion.json` 20 份 HTTP／file、916 項（6 份明列沿用未受影響證據）、48 組版面；`catchup-progress/completion.json` 14 份、622 項，兩輪本地各 13/13、鏡像 69/69。不要跨輪加總成獨立案例；接手核對來源 SHA，版號／文件補驗及沿用範圍另列發布報告。
-- 補跑本輪僅修正時間說明，未最佳化排程／戰鬥效能；未重現玩家五小時補跑，不能聲稱已修復。兩協定正常／4 倍 CPU 限速各三次村莊短測保留原生完成時間，不當作玩家實戰資料。
-- 本輪功能空間均已單次 finish；發布另用唯一空間。預覽為 screen-media PDF→pypdfium2 96dpi，不是直接截圖；Safari、實體手機、安裝版及真實玩家存檔未驗。`tmp/` 報告僅在本機，不能拿歷史預覽當本輪結果。
-- v3.9.22 同款批次、夥伴能力對齊與法師召喚互斥已發布，證據在 `session-release/completion.json`；更早功能見 `same-batch-enhance`、`same-batch-ux`、`feedback-1022`、`guild-poly`（皆在 `tmp/test-runs/`）。舊「公會單擊自動開窗」與「傭兵無目標停用／取消自然到期」已被本檔新決策取代。
-- v3.9.21 保留 v3.9.18 離線取樣：`offline-team/completion.json`、`rollback-scope.json` 716/716，發布在 `offline-team-release/completion.json`。單純更新七人未重現失敗，原生召喚到期才揭露樣本差異；不改結算／刷新順序，不聲稱補回玩家歷史收益。更早發布見 `lobby-rest-release`／`feedback-reliability-release` 及 [docs/agent-progress.md](docs/agent-progress.md)。
-- 使用者已撤回統一 v3.9.10，版號持續遞增；單一機制回復不降整體版號，不改既有 commit／tag。歷史「先發布名片才在線／地圖子選單入口／隨機姿勢」已被取代。
+- 本次版本 **v3.9.24**（原版 `v3.8.34` 不變）：傷害快照、隊友無動作回合、無傷害仇恨及單次光環來源掃描最佳化。發布 commit／Pages／公開 SHA 結果以 `tmp/test-runs/session-release-3924/completion.json` 為準；後端未改，不部署 Worker／migration。
+- 本輪功能證據在 `tmp/test-runs/catchup-optimize/completion.json`／`report.md`：22份 HTTP／file、776項、本地13/13、鏡像69/69；各六種情境的角色／怪物／收益／DPS／仇恨／冷卻與 RNG 狀態一致，且確實觸發副手、治癒、立方及寵物／護衛傷害。原版以固定 `c633073b2` 函式作對照；來源 SHA 改變後只沿用未受影響證據，發布補驗另列。
+- 七人＋兩召喚、1,000筆物品、象牙塔6樓，在 M2 Pro／16GB 的原生補跑30萬初始tick新舊各五次配對：吞吐中位61,287→89,522 tick/s，速度+46.1%、同工作量耗時−31.5%，50%目標未穩定達成，不外推玩家ETA。另有60秒64倍原生profile，不能用跨輪較大差距宣稱達標；`ui-performance --soak-minutes 0`只算短測。
+- 64倍工具、切換、自動回村／復活與既有離線規則保留；本次未調倍率、清債務或改近似結算。瀏覽器長時間不被喚醒仍可能積欠，未重現玩家五小時個案；Safari、實體手機、安裝版及真實玩家存檔未驗。功能空間已單次finish，發布另用唯一空間，`tmp/`報告僅在本機。
+- v3.9.23公會入口／連續強化／變戒選單與補跑時間說明已發布，見 `session-release-3923/completion.json`；前功能輪 `guild-controls` 916項（6份明列沿用）、48組版面，`catchup-progress` 622項。v3.9.22批次／能力對齊／法師召喚互斥見 `session-release/completion.json` 及 `same-batch-*`／`feedback-1022`／`guild-poly`；不跨輪加總成獨立案例。舊公會單擊自動開窗及傭兵取消自然到期已被新決策取代。
+- v3.9.21保留v3.9.18離線取樣：`offline-team/completion.json`、`rollback-scope.json` 716/716，發布在 `offline-team-release/completion.json`。單純更新七人未重現失敗，原生召喚到期才揭露樣本差異；不改結算／刷新順序，不聲稱補回歷史收益。更早發布見 [docs/agent-progress.md](docs/agent-progress.md)；既有預覽為screen-media PDF→pypdfium2 96dpi，不是新版本直接截圖。
+- 使用者已撤回統一v3.9.10，版號持續遞增；單一機制回復不降整體版號、不改既有commit／tag。歷史「先發布名片才在線／地圖子選單入口／隨機姿勢」已被取代。
