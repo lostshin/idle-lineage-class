@@ -6,6 +6,33 @@ const CLASSIC_GRID_ROWS = 6;
 const CLASSIC_PAGE_CELLS = CLASSIC_GRID_COLUMNS * CLASSIC_GRID_ROWS;
 let inventoryCategories = {wpn:'all',arm:'all',item:'all'};
 let inventoryCategoryScroll = {wpn:0,arm:0,item:0};
+let _inventoryGlowObserver = null, _inventoryGlowViewport = null, _inventoryGlowMotion = null;
+function syncInventoryGlow() {
+    const tab = document.querySelector('.player-backpack-tab:not(.hidden)');
+    const viewport = !document.hidden && document.hasFocus() && !_inventoryGlowMotion?.matches &&
+        !document.getElementById('game-screen').classList.contains('hidden') ? tab?.querySelector('.classic-inventory-viewport') : null;
+    if (viewport === _inventoryGlowViewport) return;
+    _inventoryGlowObserver?.disconnect();
+    _inventoryGlowViewport?.querySelectorAll('.inventory-glow-visible').forEach(row => row.classList.remove('inventory-glow-visible'));
+    _inventoryGlowViewport = viewport;
+    _inventoryGlowObserver = null;
+    if (!viewport) return;
+    const visible = new Set();
+    _inventoryGlowObserver = new IntersectionObserver(entries => {
+        if (_inventoryGlowViewport !== viewport) return;
+        for (const entry of entries) {
+            if (entry.isIntersecting && entry.intersectionRatio >= .2) visible.add(entry.target);
+            else {
+                visible.delete(entry.target);
+                entry.target.classList.remove('inventory-glow-visible');
+            }
+        }
+        // Bound composited layers even when the visible backpack contains only rare items.
+        let count = 0;
+        for (const row of visible) row.classList.toggle('inventory-glow-visible', count++ < 8);
+    }, {threshold:.2});
+    viewport.querySelectorAll('[data-item-glow]').forEach(row => _inventoryGlowObserver.observe(row));
+}
 const INVENTORY_WEAPON_GROUPS = {
     dagger:'blade',sword1:'blade',sword2:'blade',katana:'blade',dual:'blade',chainsword:'blade',
     blunt1:'blunt',blunt2:'blunt',spear:'blunt',bow:'bow',xbow:'bow',wand:'magic',qigu:'magic',claw:'claw'
@@ -43,6 +70,11 @@ function _initTabGuard() {
     let panel = document.getElementById('tab-content-panel');
     if (!panel || panel._tabGuardInit) return;
     panel._tabGuardInit = true;
+    _inventoryGlowMotion = matchMedia('(prefers-reduced-motion: reduce)');
+    _inventoryGlowMotion.addEventListener('change', syncInventoryGlow);
+    document.addEventListener('visibilitychange', syncInventoryGlow);
+    window.addEventListener('focus', syncInventoryGlow);
+    window.addEventListener('blur', syncInventoryGlow);
     panel.addEventListener('pointerdown', function(){ _tabPointerDown = true; });
     // 狩獵掉落、箭矢消耗會要求重建背包。滾輪操作期間若直接替換 DOM，
     // 瀏覽器會中斷慣性捲動，物品越多時越容易看起來像整頁卡住。
@@ -380,6 +412,7 @@ player.inv.forEach(i => {
     // 判斷如果背包裡的物品是祝福的，套用螢光特效
     let imgUrl = getIconUrl(d);
     let glowClass = getGlowClass(i, d);
+    if (glowClass) el.dataset.itemGlow = glowClass;
     let _dimStyle = dimIcon ? ' style="opacity:0.3;filter:grayscale(0.6);"' : '';   // 🔅 無法裝備→圖示黯淡＋去彩度
     let imgHtml = `<img src="${imgUrl}" onerror="this.style.opacity='0';" class="w-6 h-6 object-contain pointer-events-none ${glowClass}"${_dimStyle}>`;
     let _invCornerValue = inventoryIconBadges(i, d);
@@ -438,6 +471,7 @@ player.inv.forEach(i => {
     if (changed.skill) renderClassicSkillBook(sDiv);
     // 還原各分頁捲動位置
     ['tab-items','tab-weapons','tab-armors','tab-equip','tab-skill'].forEach(id => { let el = document.getElementById(id); if(el && _scroll[id] != null) { let sc=el.querySelector('.classic-inventory-viewport,.classic-skill-grid-scroll'); if(sc)sc.scrollTop=_scroll[id]; else el.scrollTop=_scroll[id]; restoreInventoryCategoryScroll(el); } });   // 🎨 v3.0.40 1.8皮膚：捲動位置還原到內層 viewport（技能頁為 .classic-skill-grid-scroll）
+    syncInventoryGlow();
     updateSummonLock();
     if (changed.equip && typeof refreshEquipmentWindow === 'function') refreshEquipmentWindow();
 }
@@ -2916,6 +2950,7 @@ function switchTab(t, btn) {
     if(t === 'clan' && typeof renderClanTab === 'function') renderClanTab();
     if(t === 'automation' && typeof syncNpcLanguageSetting === 'function') syncNpcLanguageSetting();
     restoreInventoryCategoryScroll(document.getElementById('tab-'+t));
+    syncInventoryGlow();
 }
 
 // ===== 🤝 協力傭兵隊伍面板（Phase 1：顯示血/魔/經驗條＋每傭兵攻擊技能/治癒魔法設定）=====

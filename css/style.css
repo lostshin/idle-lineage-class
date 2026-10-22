@@ -445,7 +445,7 @@
               特異性高於 class；平時靠「動畫關鍵影格的 filter 凌駕一般宣告」才蓋得過，動畫一關掉靜態 filter 就會輸給它。 */
         @media (prefers-reduced-motion: reduce) {
             .rem-slot-lit::after, .set-slot-lit::after { animation: none; transform: none; opacity: .18; width: 100%; }
-            .rem-slot-dim .sherine-glow-icon { animation: none; filter: drop-shadow(0 0 1.5px rgba(74,222,128,0.26)) !important; }
+            .rem-slot-dim .sherine-glow-icon { animation: none; filter: none !important; }
         }
         /* 區域背景：背景圖由 JS 依地圖/分類設為 inline 樣式（特殊地圖逐張不同）；卡片較不透明，使背景不過於顯眼 */
         #battle-view.has-bg { background-size: cover; background-position: center; background-repeat: no-repeat; background-color: #0b1220; border-radius: 0.5rem; }   /* no-repeat：條狀背景(沙漠)用 contain 時留白處不平鋪；background-color：留白填深色(像電影黑邊)。16:9 圖維持 cover 滿版、看不到底色 */
@@ -825,6 +825,40 @@
             75%      { filter: drop-shadow(0 0 11px rgba(245, 158, 11, 1)) drop-shadow(0 0 28px rgba(245, 158, 11, 0.85)) drop-shadow(0 0 52px rgba(245, 158, 11, 0.55)) brightness(1.75) saturate(2.2); }
         }
         .tri-glow { animation: triGlow 2.4s infinite linear; }
+
+        /* Item identity uses native colors and badges without continuously repainting decoration. */
+        .legend-glow, .mana-glow, .relic-glow, .bless-glow, .curse-glow, .ancient-glow,
+        .anc-bless-glow, .ancient-glow-strong, .bless-glow-strong, .tri-glow,
+        .sherine-glow-icon, .rem-slot-dim .sherine-glow-icon, [class*="attr-glow-"] {
+            animation: none !important; filter: none;
+        }
+        .c-legend, .c-relic, .c-sherine, .c-cursed, .c-eternal, .c-immortal, .c-primordial, .c-attr-glow,
+        #sys-log .sys-item-gain .sys-drop-rare, #sys-log .sys-item-gain .c-legend, #sys-log .sys-item-gain .c-relic {
+            animation: none !important; text-shadow: none !important;
+        }
+        .classic-icon-box:has(.relic-glow)::before, .classic-icon-box:has(.relic-glow)::after,
+        .equipment-visual-slot:has(.relic-glow)::before, .equipment-visual-slot:has(.relic-glow)::after,
+        .relic-glow-wrap::before, .relic-glow-wrap::after,
+        .rem-slot-lit::after, .set-slot-lit::after { content: none; animation: none !important; }
+
+        .player-backpack-tab [data-item-glow] { --inventory-glow: 245,196,88; }
+        .player-backpack-tab [data-item-glow="relic-glow"], .player-backpack-tab [data-item-glow="mana-glow"],
+        .player-backpack-tab [data-item-glow^="attr-glow-wa"] { --inventory-glow: 96,190,255; }
+        .player-backpack-tab [data-item-glow="sherine-glow-icon"],
+        .player-backpack-tab [data-item-glow^="attr-glow-wi"] { --inventory-glow: 74,222,128; }
+        .player-backpack-tab [data-item-glow="curse-glow"],
+        .player-backpack-tab [data-item-glow^="attr-glow-fr"] { --inventory-glow: 248,113,113; }
+        .player-backpack-tab [data-item-glow^="anc"], .player-backpack-tab [data-item-glow="tri-glow"] { --inventory-glow: 192,148,255; }
+        .player-backpack-tab [data-item-glow^="attr-glow-ea"] { --inventory-glow: 193,149,99; }
+        .player-backpack-tab [data-item-glow] .classic-icon-box > img { position: relative; z-index: 1; }
+        @keyframes inventoryBreathe { 0%,100% { opacity: .18; } 50% { opacity: .65; } }
+        @media (prefers-reduced-motion: no-preference) {
+            .player-backpack-tab:not(.hidden) .inventory-glow-visible .classic-icon-box::after {
+                content: ''; position: absolute; inset: 3%; z-index: 0; pointer-events: none;
+                background: radial-gradient(ellipse,rgba(var(--inventory-glow),.6),rgba(var(--inventory-glow),.2) 45%,transparent 72%);
+                animation: inventoryBreathe 6s cubic-bezier(.77,0,.175,1) infinite !important;
+            }
+        }
 
         /* ===== ✨ 戰鬥特效層 VFX（純視覺，不影響任何遊戲數值/邏輯） ===== */
         #vfx-layer { position: fixed; inset: 0; pointer-events: none; z-index: 35; overflow: hidden; }   /* 🎚️ v3.0.73 掛在 #app-stage 內(見 js/09 _vfxLayer)：z-index 35＝高於戰鬥內容(怪/站位/狀態列 z≤30)、低於所有開啟式 UI(收集冊45/收藏46/物品modal50/浮動裝備70/浮動倉庫72)→死亡殘影等狩獵動畫不再蓋到這些介面·無 UI 時仍正常疊在背景/怪之上 */
