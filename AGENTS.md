@@ -54,7 +54,7 @@
 | DPS 與日誌 | DPS 快照與圖表、寵物 DPS、戰鬥／系統日誌與篩選 |
 | 戰鬥、經驗與村莊增益 | 寵物／召喚物加速、隊友 EXP、村莊 buff |
 | 離線掛機 | 離線結算條件、補跑呈現、歷史紀錄 |
-| 傭兵公會 | `js/guild-window.js` 單擊資訊／強化、雙擊換裝、隊員比較、固定捲軸 |
+| 傭兵公會 | `js/guild-window.js` 單擊比較、獨立強化入口、雙擊換裝、固定捲軸 |
 | 倉庫 | 倉庫外框、尺寸、雙欄捲動、數量交易 |
 | 強化與金額記憶 | 單件／同款批次強化、`modalguard`、捐獻／倉庫金額 |
 | 效能與線上人數 | 虛擬化、`renderTabs` 失效與 tick 內重建、能力預覽、`online-presence`、量測門檻與 CPU profile、延後載入、DOM 寫入、登入動畫 |
@@ -89,8 +89,8 @@
 - 同窗採選批設定→精簡確認→本輪結果；確認頁集中裝備／數量／卷軸庫存／風險，缺卷不承諾完成件數，零卷禁確認。確認時重驗資格及庫存，變更須再次確認；取消、預覽連點／Enter 不得執行強化。
 - 結果按強化值、爆裝、無變化、未處理與耗卷分列，與含原庫存的「背包可選批次」分區；只留最近一輪，完整摘要寫日誌。每輪清選取、保留卷軸／模式，不自動連衝；全爆仍留結果，存檔失敗不重跑擲骰。
 - 重繪保留群組／radio／欄位焦點，預覽聚焦摘要、完成聚焦結果，勿自動聚焦執行鈕。返回恢復編輯捲動，再以 `nearest` 最小捲動讓焦點完整可見；驗短畫面風險及確認鈕同時可見，不只測外框無溢出。
-- 公會原分類／比較／雙擊及 Enter 換裝卸下保留；單擊稍延後開原物品資訊／強化窗，雙擊須取消待開窗。切角色／頁面／分類／搜尋／關閉公會清理待開窗與脈絡；公會窗用 `data-guild-item-modal` 限定圖層，勿混用候選列 `data-guild-item`。
-- 公會資訊標示裝備所有人：候選是隊長背包；已裝備是該隊員來源存檔。強化均扣隊長卷軸，單次／祝福／一鍵／詛咒沿用原生規則及藍／金／暗紅，操作後更新來源與 live 隊員，不改隊長裝備或扣隊員背包卷軸。來源／隊長寫入失敗要還原，保留未知欄位與原安全區／來源角色驗證；浮窗須蓋公會並實測命中。
+- 公會單擊只選取／比較，不自動開資訊窗；目前／候選摘要右側只有一個「強化」按鈕，優先操作選定候選，否則操作目前選取部位裝備，title／aria 標明目標。按下才進原強化頁，返回關閉強化窗回公會；原分類、比較、雙擊／Enter 穿戴卸下保留。切角色／頁面／分類／搜尋／關閉清理脈絡；公會浮窗用 `data-guild-item-modal` 限定圖層。
+- 公會強化窗標示裝備所有人：候選是隊長背包；已裝備是該隊員來源存檔。強化均扣隊長卷軸，單次／祝福／一鍵／詛咒沿用原生規則及藍／金／暗紅，操作後更新來源與 live 隊員，不改隊長裝備或扣隊員背包卷軸。來源／隊長寫入失敗要還原，保留未知欄位與原安全區／來源角色驗證；浮窗須蓋公會並實測命中。候選拆分／合併後追蹤原生結果 UID，不能回指原堆疊；驗三件 +0 連按兩次只產生一件 +2、另兩件仍 +0。
 
 ### 離線結算與返回日誌（2026-10-22）
 
@@ -101,10 +101,16 @@
 - 離線 ≥10 分鐘時顯示「整段離線平均」；若死亡且實際狩獵時間 >0，再顯示「死亡前狩獵效率」與存活時間，兩者用同一份實得經驗／金幣，只換分母；0 時間不除、仍採 12 小時可結算上限。離線與批次補跑死亡均寫「不列入死亡經驗買回」，不新增扣經驗或買回紀錄。
 - 加掛選項共 19 個、預設全關。`keepview`「返回時保留日誌分頁」啟用後才停止返回時自動切 `sys`；涵蓋 focus／visibility／BFCache。新建／載入及真正離線摘要仍走原系統日誌流程；沿用既有草稿、取消、保存與重載，不另存偏好鍵。
 
+### 補跑進度與加速器（2026-10-22）
+
+- `js/03-combat-core.js` 的剩餘量是 `_tickDebt` 模擬毫秒，不是實際等待 ETA；畫面寫「尚待處理的遊戲時間」，說明本機運算、電腦負載、背景節流及高倍速累積。百分比依已跑／待跑 tick；不加假進度、固定倒數或未量測 ETA，短同步工作不強制顯示進度。
+- 64 倍速每 10 秒產生 640 秒遊戲進度；若尚未處理，切回 1 倍仍須跑完 6,400 tick；改顯示不得丟棄債務、改收益或離線取樣。效能先分清模擬時間／牆鐘／排程等待，短測記錄原生完成時間，不能把 `waitForFunction` 輪詢延遲算成運算成本。村莊合成短測／CPU 限速只證明負載影響，不代表實戰 ETA 或已重現玩家五小時卡住；未重現須明說。
+
 ### 傭兵設定與夥伴能力（2026-10-22）
 
 - 主角與傭兵「立方：和諧」均在增益勾選列，傭兵轉換下拉只列 `type:convert`。舊 `_convertSkill` 遷移到 `_autoBuff` 後清掉舊選項；明確 true／false 優先，未選者不自動啟用。沿用傭兵偏好保存／刷新，HP 消耗週期、自訂停止門檻、至少 25% 安全線及村莊停用不變。
-- 每位傭兵均可獨立勾「使用變形卷軸」，無既有目標也可用。關→開立即依該傭兵等級／武器的原生隨機池付費變身；維持勾選到期只續用原形態；取消立即清 `poly`／倒數並停止續用，再勾重新抽（仍可能抽到同形態）。沿用 `_mercPolyAuto`／`allyMaintainPoly`／`MERC_PREF_FIELDS` 與原價格，金幣不足不免費變身；核對重算、保存、重建及明確 false，不能被來源舊變身復活。此條取代舊文件「無目標停用／取消等到期」。
+- 每位傭兵獨立勾「使用變形卷軸」：無控制資格時開啟立即依自身等級／武器隨機付費變身；持續勾選到期續用原形態，取消立即清 `poly`／倒數，再勾重新抽（可能同形態）。沿用 `_mercPolyAuto`／`allyMaintainPoly`／`MERC_PREF_FIELDS`，費用扣隊長金幣，金幣不足不免費變身；保存／重建與明確 false 不被來源舊效果覆蓋。
+- 控制資格依傭兵自己的 `hasPolyRing()`：裝備／背包中的變戒或已裝備浣熊葉，不共用隊長戒指。有資格時勾選先開原版清單，另有「選擇變身」按鈕供改選；沿用 `renderPolySelect` 的等級／武器／特殊形態與說明，選定才依原價購買，取消不扣款。非同步回呼重新核對 owner、傭兵實體、戒指、等級、武器與金幣，不能依賴已還原的 `_withAllyEquipmentContext`。原生換武器會重抽不相容形態，存讀 fixture 須用同一份原生來源裝備，不把該行為誤判存檔遺失。
 - 法師傭兵召喚術／造屍術最多勾一種，可全關；勾另一種清掉原偏好，保留其他技能。舊雙勾保留現行有效造屍召喚，否則保留召喚術；明確 false 優先，保存／重建／實際維持施法都須一致，不強制刪除現有召喚。
 - 召喚物、傭兵召喚、死靈骷髏、城堡護衛沿用寵物精簡能力清單，只列實際支援的骰值、加值、命中、間隔、倍率、防禦與技能；不用主角六屬性、爆擊或「—」填滿。V2／舊式傭兵／屬性精靈依各自原生攻擊路徑顯示，間隔 ticks ÷10；不套寵物魅力／裝備公式，保留唯讀裝備、增益／異常及來源 tooltip，預覽只算副本。
 - 夥伴能力總值與括號加成同列靠右；`party-inspector` 重用節點須核對 `tagName`，不能把傭兵 artwork 的 span／strong 搬入寵物／護衛 dd 清單。驗「先看傭兵→再切每種夥伴」與效果刷新，量可見文字右緣；只測首次開窗或 dd 外框會漏掉置中問題。
@@ -159,7 +165,7 @@
 - 測試報告預設寫入 `tmp/test-runs/`（不進 git）；要更新受追蹤的 `tests/artifacts/` 才加 `--record`（runner 與 `*.integration.js` 相同）；runner 可用 `--artifacts <目錄>` 指定其他輸出位置，與 `--record` 互斥。
 - 成功後只呼叫一次 `finish({keep:[]})` 並等待完成；耗時時用背景程序讀回結果，不用短 timeout 中止再反覆重送。有 `finished <id>` 與成功結束碼後，不再操作該空間。
 - 必跑 `rwd`、`ui-scale`、`gameplay`、`account-gameplay`、`companion-commands` 的 HTTP／file：`--space <id> --suite required --protocol both --desktop-only`。
-- 專項見 `tests/run-rwd.py`：批次用 `same-batch-enhance`／`same-batch-ux`，夥伴對齊／法師互斥用 `feedback-1022`，公會強化／變身用 `guild-poly`；背包用 `backpack-a`／`main-backpack`／`backpack-feedback`，強化搜尋用 `ken-market`／`gear-accelerator`，大廳用 `social-lobby`／`lobby-*`，離線／和諧／夥伴能力用 `feedback-reliability`；同樣帶 `--desktop-only`，只選相關專項加必要核心。
+- 專項見 `tests/run-rwd.py`：批次用 `same-batch-enhance`／`same-batch-ux`，夥伴對齊／法師互斥用 `feedback-1022`，公會強化／變身用 `guild-poly`，補跑文案／時間債務用 `catchup-progress`；背包用 `backpack-a`／`main-backpack`／`backpack-feedback`，強化搜尋用 `ken-market`／`gear-accelerator`，大廳用 `social-lobby`／`lobby-*`，離線／和諧／夥伴能力用 `feedback-reliability`；同樣帶 `--desktop-only`，只選相關專項加必要核心。
 - 創角／載入會自動連線大廳；合成回歸及預覽每次導覽前均用同一 p1 的 `Page.addScriptToEvaluateOnNewDocument` 注入隔離儲存並隔離預設公共 API；創角前核對掛鉤，不能依賴前一 suite 已移除的 fixture，保留明確指定的合成 API／本機 workerd 連線。不可讓核心測試大量建立公共訪客，也不可改正式碼來停用測試中的功能；報告標明隔離方式。在線名冊可含自己，點指定訪客用其 ID，不假設第一筆就是別人。
 - TaskSpace 消失不能自行重建；使用者暫緩重建時，先完成本地工作並記錄待跑的瀏覽器檢查，後續不得把 Node VM／幾何替身說成瀏覽器 E2E 通過。
 - 所有 `visual-*` 必須緊接同一 space 的對應行為 fixture，例如 `account-gameplay visual-account-gameplay`；中間不可插入其他 suite，各 fixture 的全域儲存不可互換。runner 會拒絕順序錯誤的組合。
@@ -168,7 +174,7 @@
 - 縮放／切尺寸後等版面穩定；原生滾輪每輪先以目前目標 rect 的中心執行 `page.mouse.move()`，再 `wheel()`；不能假設 `hover()` 已把游標留在捲動區。scrollTop／scrollLeft 連續畫格穩定後再比對，避免把慣性誤判為兩側連動。
 - 原生命中須選目前可視控制項，不能固定取已捲出視窗的第一格；比例／不重疊仍檢查全體。橫向分類的邊界量 nav／箭頭及文字自身溢出，不把正常捲出可視範圍的按鈕當版面越界。
 - 原生點擊若被 sticky 欄／分類箭頭擋住，先看命中元素；橫向分類用可見左右箭頭移動、等 `scrollLeft` 連續畫格穩定，再核對 `elementFromPoint` 點擊。不要用全頁 `scrollIntoView` 或直接塞 scrollLeft 抵抗觸控慣性／位置還原；不強制穿透。
-- 開窗後 `modalguard` 以 `Date.now()` 保護 450ms；正常測試等該時鐘達標，凍結時鐘 fixture 須推進合成時間，等實際秒數無效。新增單擊浮窗後，舊「單擊比較→雙擊換裝」測試先等保護結束按原生 X 並確認關閉；不能把攔截當雙擊 handler 壞掉。
+- 開窗後 `modalguard` 以 `Date.now()` 保護 450ms；正常測試等該時鐘達標，凍結時鐘 fixture 須推進合成時間，等實際秒數無效。先確認該入口是否應開窗；公會單擊比較不開窗，不再等待或關閉不存在的資訊窗。
 - 懸浮測試先等 resize／scroll 與版面穩定；選不被其他 sprite 遮住、離透明邊緣足夠遠的像素，避免取點到送入滑鼠事件間角色已移動。可短暫固定合成場景的原生畫格，完成後還原；不冒充完整戰鬥驗證。
 - 不直接改寵物記憶體陣列充當已儲存名冊；用原生 dirty／save 流程，避免下一次查詢把測試寵物清掉。
 - `page.evaluate` 單次有 15 秒限制；原生 rAF 被節流時，將同一組逐格斷言拆成短批次，保留原總格數，先核對可見性／實際畫格進度，不改正式碼、不刪斷言或反覆原樣重跑。
@@ -211,8 +217,10 @@
 
 ## 最新進度與驗證基準（2026-10-22）
 
-- 本次版本 **v3.9.22**（原版 `v3.8.34` 不變）：同款批次強化與 UX、公會資訊／強化、夥伴切頁能力對齊、法師召喚互斥、多傭兵即時隨機變身。發布結果以 `tmp/test-runs/session-release/completion.json` 的 commit、Pages 與公開 SHA 為準；後端未改，不重複部署 Worker／migration。
-- 本 Session 功能報告：`same-batch-enhance/completion.json` 640 項、`same-batch-ux/completion.json` 706 項、`feedback-1022/completion.json` 800 項、`guild-poly/completion.json` 864 項（皆在 `tmp/test-runs/`、含兩協定重複與核心，不跨輪加總成獨立案例）。最後公會輪 20 份 HTTP／file、864/864，本地 13/13、鏡像 69/69；來源 SHA 變更後只沿用未受影響證據。
-- 發布輪核對最後功能來源／報告 SHA；本輪只變版號／文件的核心沿用，批次與夥伴專項在最終來源補驗，方法／結果在發布報告分列。所有功能空間已單次 finish；發布另建唯一空間。預覽部分為 screen-media PDF→pypdfium2 96dpi，不是直接截圖；Safari、實體手機、安裝版及真實玩家存檔未驗。
-- v3.9.21 保留 v3.9.18 離線取樣：`offline-team/completion.json`、`rollback-scope.json` 716/716，發布在 `offline-team-release/completion.json`。單純更新七人未重現失敗，原生召喚到期才揭露舊新版樣本差異；別改結算／刷新順序或聲稱補回玩家歷史收益。更早發布見 `lobby-rest-release`／`feedback-reliability-release` 及 [docs/agent-progress.md](docs/agent-progress.md)。
-- 使用者已撤回統一 v3.9.10，接續版號遞增；回復單一機制不把整體版號降回 v3.9.18，也不改既有 commit／tag。歷史「先發布名片才在線／地圖子選單入口／隨機姿勢」已被取代；`tmp/` 僅在本機，接手先核對來源、方法與報告，不拿舊預覽當本輪結果。
+- 本次版本 **v3.9.23**（原版 `v3.8.34` 不變）：公會獨立強化入口、候選拆分後連續強化目標、傭兵變戒原版指定清單、補跑模擬時間說明。發布 commit／Pages／公開 SHA 結果以 `tmp/test-runs/session-release-3923/completion.json` 為準；後端未改，不部署 Worker／migration。
+- 本輪功能報告：`tmp/test-runs/guild-controls/completion.json` 20 份 HTTP／file、916 項（6 份明列沿用未受影響證據）、48 組版面；`catchup-progress/completion.json` 14 份、622 項，兩輪本地各 13/13、鏡像 69/69。不要跨輪加總成獨立案例；接手核對來源 SHA，版號／文件補驗及沿用範圍另列發布報告。
+- 補跑本輪僅修正時間說明，未最佳化排程／戰鬥效能；未重現玩家五小時補跑，不能聲稱已修復。兩協定正常／4 倍 CPU 限速各三次村莊短測保留原生完成時間，不當作玩家實戰資料。
+- 本輪功能空間均已單次 finish；發布另用唯一空間。預覽為 screen-media PDF→pypdfium2 96dpi，不是直接截圖；Safari、實體手機、安裝版及真實玩家存檔未驗。`tmp/` 報告僅在本機，不能拿歷史預覽當本輪結果。
+- v3.9.22 同款批次、夥伴能力對齊與法師召喚互斥已發布，證據在 `session-release/completion.json`；更早功能見 `same-batch-enhance`、`same-batch-ux`、`feedback-1022`、`guild-poly`（皆在 `tmp/test-runs/`）。舊「公會單擊自動開窗」與「傭兵無目標停用／取消自然到期」已被本檔新決策取代。
+- v3.9.21 保留 v3.9.18 離線取樣：`offline-team/completion.json`、`rollback-scope.json` 716/716，發布在 `offline-team-release/completion.json`。單純更新七人未重現失敗，原生召喚到期才揭露樣本差異；不改結算／刷新順序，不聲稱補回玩家歷史收益。更早發布見 `lobby-rest-release`／`feedback-reliability-release` 及 [docs/agent-progress.md](docs/agent-progress.md)。
+- 使用者已撤回統一 v3.9.10，版號持續遞增；單一機制回復不降整體版號，不改既有 commit／tag。歷史「先發布名片才在線／地圖子選單入口／隨機姿勢」已被取代。

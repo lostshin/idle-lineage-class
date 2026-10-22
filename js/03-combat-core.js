@@ -384,6 +384,9 @@ function _ffProgressEnsure() {
             #ff-progress-indicator .ff-progress-spinner { width:16px; height:16px; flex:0 0 16px; border:2px solid rgba(245,231,189,.28); border-top-color:#e5bd63; border-radius:50%; animation:ffProgressSpin .75s linear infinite; }
             #ff-progress-indicator .ff-progress-title { flex:1 1 auto; min-width:0; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; font-weight:700; }
             #ff-progress-indicator .ff-progress-percent { flex:0 0 auto; color:#f8d477; font-variant-numeric:tabular-nums; font-weight:700; }
+            #ff-progress-indicator :is(.ff-progress-detail,.ff-progress-hint) { width:min(420px,70vw); margin:0; overflow-wrap:anywhere; line-height:1.6; }
+            #ff-progress-indicator .ff-progress-detail { color:#e2e8f0; }
+            #ff-progress-indicator .ff-progress-hint { color:#a8a29e; font-size:13px; }
             #ff-progress-indicator .ff-progress-track { width:min(420px,70vw); height:14px; margin-top:0; overflow:hidden; border-radius:3px; background:#34303a; }
             #ff-progress-indicator .ff-progress-fill { height:100%; width:0; border-radius:inherit; background:linear-gradient(90deg,#22c55e,#86efac); }
             @media (prefers-reduced-motion: reduce) { #ff-progress-indicator, #ff-progress-indicator .ff-progress-fill { transition:none; } #ff-progress-indicator .ff-progress-spinner { animation:none; } }
@@ -395,7 +398,7 @@ function _ffProgressEnsure() {
     el.setAttribute('role', 'status');
     el.setAttribute('aria-live', 'polite');
     el.setAttribute('aria-atomic', 'true');
-    el.innerHTML = '<div class="ff-progress-head"><span class="ff-progress-spinner" aria-hidden="true"></span><span class="ff-progress-title">補跑中</span><span class="ff-progress-percent">0%</span></div><div class="ff-progress-track"><div class="ff-progress-fill"></div></div>';
+    el.innerHTML = '<div class="ff-progress-head"><span class="ff-progress-spinner" aria-hidden="true"></span><span class="ff-progress-title">補跑中</span><span class="ff-progress-percent">0%</span></div><div class="ff-progress-track"><div class="ff-progress-fill"></div></div><p class="ff-progress-detail"></p><p class="ff-progress-hint">這是尚未處理的遊戲進度，不是預估等待時間。補跑使用本機運算，速度受電腦負載與瀏覽器背景限制影響；較高倍速會累積更多進度。</p>';
     document.body.appendChild(el);
     _ffProgressEl = el;
     return el;
@@ -420,7 +423,9 @@ function _ffProgressUpdate(acc, remainingMs) {
     let title = el.querySelector('.ff-progress-title');
     let pct = el.querySelector('.ff-progress-percent');
     let fill = el.querySelector('.ff-progress-fill');
-    if (title) title.textContent = remainMs >= TICK_MS ? '補跑中，剩餘 ' + _ffProgressDuration(remainMs) : '補跑完成，正在整理收益';
+    if (title) title.textContent = remainMs >= TICK_MS ? '補跑中' : '補跑完成，正在整理收益';
+    const detail = el.querySelector('.ff-progress-detail');
+    if (detail) detail.textContent = remainMs >= TICK_MS ? '尚待處理的遊戲時間：' + _ffProgressDuration(remainMs) : '';
     if (pct) pct.textContent = percent + '%';
     if (fill) fill.style.width = percent + '%';
     el.classList.add('is-visible');

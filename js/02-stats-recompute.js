@@ -1145,6 +1145,9 @@ function polyFormDesc(f) {
 
 // 變形控制戒指：手動使用時開啟「指定變身」選單
 function openPolySelect(uid) {
+    renderPolySelect(name => confirmPolySelect(uid,name));
+}
+function renderPolySelect(onSelect) {
     let modal = document.getElementById('poly-modal');
     if (!modal) {
         modal = document.createElement('div');
@@ -1170,11 +1173,15 @@ function openPolySelect(uid) {
     }
     avail.sort((a, b) => (b.f.lv - a.f.lv) || ((a.f.atk || 0) - (b.f.atk || 0)) || a.f.n.localeCompare(b.f.n, 'zh-Hant'));
     listEl.innerHTML = avail.map(({ f, color }) =>
-        '<button class="btn text-left !py-2 !px-3" onclick="confirmPolySelect(\'' + uid + '\',\'' + f.n + '\')">' +
+        '<button class="btn text-left !py-2 !px-3">' +
             '<span class="' + color + ' font-bold"><span class="text-slate-400 text-xs mr-1">Lv' + f.lv + '</span>' + f.n + '</span>' +
             '<span class="text-slate-400 text-xs block mt-0.5">' + polyFormDesc(f) + '</span>' +
         '</button>'
     ).join('');
+    listEl.querySelectorAll('button').forEach((button,index) => {
+        const name = avail[index].f.n; button.dataset.polyForm = name;
+        button.onclick = () => onSelect(name);
+    });
     modal.classList.remove('hidden');
 }
 function closePolyModal() {

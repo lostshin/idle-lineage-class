@@ -56,9 +56,8 @@ function renderEquipmentComparison(panel, actor, kind, source, item, chosenSlot)
     const frame = win.firstElementChild, content = document.getElementById('interaction-content');
     const home = content.parentElement, next = content.nextSibling;
     let selectedRole = '', equipmentRole = '', page = 0, slot = '', category = 'all', search = '', candidate = '', scroll = 0, view = 'roster';
-    let itemInfo = null, itemTimer = null;
+    let itemInfo = null;
     function cancelItemInfo() {
-        clearTimeout(itemTimer); itemTimer = null;
         if (document.getElementById('item-modal').hasAttribute('data-guild-item-modal')) closeModal();
         itemInfo = null;
     }
@@ -144,7 +143,7 @@ function renderEquipmentComparison(panel, actor, kind, source, item, chosenSlot)
         selectedRole = equipmentRole = ctx.slotN; setView('equipment'); content.classList.add('guild-equipment-content');
         const actor = ctx.source;
         const accessoryOpen = _withAllyEquipmentContext(actor, () => [...accessorySlots('ring'), ...accessorySlots('ear')]);
-        content.innerHTML = '<div class="guild-equipment"><section class="guild-body"><h3>'+partyEscape(actor.name || '未命名')+' · '+partyEscape(CLAN_CLASS_NAMES[actor.cls] || '')+'</h3><div id="guild-body-scroll"><div id="guild-paperdoll" class="party-equipment-frame"></div></div><div class="guild-pages"><button class="btn" data-guild-page="0">裝備 1</button><button class="btn" data-guild-page="1">裝備 2</button></div></section><section class="guild-inventory"><h3>隊長背包 · 可穿戴裝備</h3><div class="guild-filters"><select id="guild-category" aria-label="裝備分類"><option value="all">全部</option><option value="wpn">武器</option><option value="arm">防具</option><option value="acc">飾品</option></select><input id="guild-search" type="search" placeholder="搜尋裝備" aria-label="搜尋裝備"><button class="btn" id="guild-all-slots">全部部位</button></div><div id="guild-slot-hint"></div><div id="guild-candidates"></div><div class="guild-actions"><div id="guild-current"></div><div id="guild-candidate"></div><div id="guild-comparison" role="status" aria-live="polite"></div><p id="guild-actions-hint">雙擊背包穿戴；雙擊部位卸下。Enter 亦可操作。</p></div></section></div><p class="guild-footer">裝備由隊長背包提供；卸下或替換後退回背包。變更會立即儲存。</p>';
+        content.innerHTML = '<div class="guild-equipment"><section class="guild-body"><h3>'+partyEscape(actor.name || '未命名')+' · '+partyEscape(CLAN_CLASS_NAMES[actor.cls] || '')+'</h3><div id="guild-body-scroll"><div id="guild-paperdoll" class="party-equipment-frame"></div></div><div class="guild-pages"><button class="btn" data-guild-page="0">裝備 1</button><button class="btn" data-guild-page="1">裝備 2</button></div></section><section class="guild-inventory"><h3>隊長背包 · 可穿戴裝備</h3><div class="guild-filters"><select id="guild-category" aria-label="裝備分類"><option value="all">全部</option><option value="wpn">武器</option><option value="arm">防具</option><option value="acc">飾品</option></select><input id="guild-search" type="search" placeholder="搜尋裝備" aria-label="搜尋裝備"><button class="btn" id="guild-all-slots">全部部位</button></div><div id="guild-slot-hint"></div><div id="guild-candidates"></div><div class="guild-actions"><div id="guild-current"></div><div id="guild-candidate"></div><button class="btn" id="guild-enhance" type="button" disabled>強化</button><div id="guild-comparison" role="status" aria-live="polite"></div><p id="guild-actions-hint">雙擊背包穿戴；雙擊部位卸下。Enter 亦可操作。</p></div></section></div><p class="guild-footer">裝備由隊長背包提供；卸下或替換後退回背包。變更會立即儲存。</p>';
         const paperdoll = document.getElementById('guild-paperdoll'), slots = document.createElement('div'); slots.className = 'equipment-window-slots'; paperdoll.appendChild(slots);
         slots.appendChild(content.querySelector('.guild-pages'));
         const backdrop = document.createElement('img'); backdrop.className = 'party-equipment-backdrop'; backdrop.src = equipmentView.backdropUrl; backdrop.alt = ''; slots.appendChild(backdrop);
@@ -163,7 +162,7 @@ function renderEquipmentComparison(panel, actor, kind, source, item, chosenSlot)
             button.title = slotName(key)+' · '+(button.disabled ? '尚未解鎖' : item ? plainName(item) : '尚未裝備');
             button.setAttribute('aria-label', button.title);
             if (item) { button.dataset.tipSrc = 'party'; button.dataset.tipUid = item.uid; button.dataset.tipPartyKind = 'ally'; button.dataset.tipPartyId = ctx.ally._slot; }
-            button.onclick = () => { slot = key; category = 'all'; candidate = ''; scroll = 0; document.getElementById('guild-category').value = category; drawCandidates(ctx); if (item) scheduleItem(ctx.slotN,item.uid,key); };
+            button.onclick = () => { slot = key; category = 'all'; candidate = ''; scroll = 0; document.getElementById('guild-category').value = category; drawCandidates(ctx); };
             button.ondblclick = event => { event.preventDefault(); cancelItemInfo(); if (item) allyUnequipItem(ctx.slotN,key); };
             button.onkeydown = event => { if (event.key === 'Enter') { event.preventDefault(); cancelItemInfo(); if (item && !button.disabled) allyUnequipItem(ctx.slotN,key); } };
             slots.appendChild(button);
@@ -193,7 +192,7 @@ function renderEquipmentComparison(panel, actor, kind, source, item, chosenSlot)
             button.setAttribute('aria-pressed',String(candidate === item.uid)); button.setAttribute('aria-label',plainName(item));
             const icon = document.createElement('span'); icon.className = 'guild-item-icon'; icon.innerHTML = '<img src="'+partyEscape(getIconUrl(DB.items[item.id]))+'" alt="">'+inventoryIconBadges(item,DB.items[item.id]);
             const label = document.createElement('span'); label.className = 'guild-item-name'; label.textContent = plainName(item); label.title = label.textContent;
-            button.append(icon,label); button.onclick = () => { candidate = item.uid; for (const b of list.children) b.setAttribute('aria-pressed',String(b === button)); updateActions(ctx); scheduleItem(ctx.slotN,item.uid); };
+            button.append(icon,label); button.onclick = () => { candidate = item.uid; for (const b of list.children) b.setAttribute('aria-pressed',String(b === button)); updateActions(ctx); };
             button.ondblclick = event => { event.preventDefault(); cancelItemInfo(); equipCandidate(ctx,item); };
             button.onkeydown = event => { if (event.key === 'Enter') { event.preventDefault(); equipCandidate(ctx,item); } };
             list.appendChild(button);
@@ -213,6 +212,11 @@ function renderEquipmentComparison(panel, actor, kind, source, item, chosenSlot)
         const equipped = slot && ctx.source.eq[slot], item = player.inv.find(i => i.uid === candidate);
         document.getElementById('guild-current').textContent = slot ? '目前 '+slotName(slot)+'：'+(equipped ? plainName(equipped) : '尚未裝備') : '請點選部位或候選裝備';
         document.getElementById('guild-candidate').textContent = '候選：'+(item ? plainName(item) : '尚未選擇');
+        const target = item || equipped, def = target && DB.items[target.id], button = document.getElementById('guild-enhance');
+        button.disabled = !def || def.noEnhance || def.isArrow || isRelic(def);
+        button.title = target ? '強化：'+plainName(target)+(item ? '（隊長背包）' : '（目前裝備）') : '請先選擇裝備';
+        button.setAttribute('aria-label',button.title);
+        button.onclick = () => { if (!button.disabled) openItem(ctx.slotN,target.uid,item ? '' : slot); };
         renderComparison(ctx,item);
     }
     function renderComparison(ctx, item) {
@@ -221,29 +225,21 @@ function renderEquipmentComparison(panel, actor, kind, source, item, chosenSlot)
         if (!item) { panel.textContent = '選擇裝備，預覽隊員能力變化'; return; }
         renderEquipmentComparison(panel,ctx.ally,'ally',ctx.source,item,slot && slotMatches(DB.items[item.id],slot) ? slot : undefined);
     }
-    function scheduleItem(role, itemUid, equippedSlot = '') {
-        clearTimeout(itemTimer);
-        // Let the native double-click finish its existing equip/unequip action.
-        itemTimer = setTimeout(() => openItem(role,itemUid,equippedSlot), 300);
-    }
     function itemContext() {
         if (!itemInfo || itemInfo.owner !== player || !isOpen() || view !== 'equipment' || selectedRole !== itemInfo.role) return null;
         return _allyManagerSource(itemInfo.role,true);
     }
     function openItem(role, itemUid, equippedSlot = '') {
         itemInfo = {role:String(role), uid:itemUid, slot:equippedSlot, owner:player};
-        showItem();
-    }
-    function showItem() {
         const ctx = itemContext(); if (!ctx) return;
-        const item = itemInfo.slot ? ctx.source.eq[itemInfo.slot] : player.inv.find(i => i.uid === itemInfo.uid);
-        if (!item) { cancelItemInfo(); return; }
-        if (itemInfo.slot) _withAllyEquipmentContext(ctx.source, () => openModal(item,true,itemInfo.slot));
-        else openModal(item,false);
+        const target = equippedSlot ? ctx.source.eq[equippedSlot] : player.inv.find(i => i.uid === itemUid);
+        if (!target || target.uid !== itemUid) return;
+        const def = DB.items[target.id];
+        if (!def || def.noEnhance || def.isArrow || isRelic(def)) return;
+        if (equippedSlot) _withAllyEquipmentContext(ctx.source, () => openModal(target,true,equippedSlot));
+        else openModal(target,false);
         document.getElementById('modal-compare').classList.add('hidden');
-        document.getElementById('modal-actions').innerHTML = `<button class="col-span-2 w-full btn" onclick="guildWindow.equipItem()">${itemInfo.slot ? '卸下至隊長背包' : '裝備給 '+partyEscape(ctx.ally._allyName || ctx.source.name)}</button>`
-            + (!isMaxEnhanced(item) && !DB.items[item.id].noEnhance && !DB.items[item.id].isArrow && !isRelic(DB.items[item.id]) ? '<button data-guild-enhance data-enhance-batch class="col-span-2 w-full btn" onclick="guildWindow.showItemEnhance()">強化</button>' : '');
-        markItemOwner(ctx);
+        showItemEnhance(target);
     }
     function markItemOwner(ctx) {
         document.getElementById('item-modal').setAttribute('data-guild-item-modal',itemInfo.role);
@@ -253,7 +249,7 @@ function renderEquipmentComparison(panel, actor, kind, source, item, chosenSlot)
     }
     function showItemEnhance(item, result = '', goal = null) {
         const ctx = itemContext(); if (!ctx) return;
-        item = itemInfo.slot ? ctx.source.eq[itemInfo.slot] || item : player.inv.find(i => i.uid === itemInfo.uid) || item;
+        item = itemInfo.slot ? ctx.source.eq[itemInfo.slot] || item : player.inv.find(i => i.uid === (item ? item.uid : itemInfo.uid)) || item;
         if (!item) return;
         itemInfo.uid = item.uid;
         if (itemInfo.slot) {
@@ -269,7 +265,7 @@ function renderEquipmentComparison(panel, actor, kind, source, item, chosenSlot)
                 if (!button.hasAttribute('data-enhance-blessed')) button.dataset.enhanceBatch = '';
             } else if (action.startsWith('executeAutoSafeEnhance(')) { button.setAttribute('onclick',`guildWindow.enhanceItem('auto')`); button.dataset.enhanceBatch = ''; }
             else if (action.startsWith('executeCurseDeEnhance(')) { button.setAttribute('onclick',`guildWindow.enhanceItem('curse')`); button.dataset.guildCurse = ''; }
-            else if (action.startsWith('returnToItemModal(')) button.setAttribute('onclick','guildWindow.showItem()');
+            else if (action.startsWith('returnToItemModal(')) button.setAttribute('onclick','guildWindow.closeItem()');
         }
         markItemOwner(ctx);
     }
@@ -316,12 +312,6 @@ function renderEquipmentComparison(panel, actor, kind, source, item, chosenSlot)
         if (refreshed) renderEquipment(refreshed);
         renderTabs(); updateUI(); showItemEnhance(outcome.item,outcome.result,outcome.goal);
     }
-    function equipItemFromModal() {
-        const ctx = itemContext(); if (!ctx) return;
-        const selected = {...itemInfo}; cancelItemInfo();
-        if (selected.slot) allyUnequipItem(selected.role,selected.slot);
-        else { const item = player.inv.find(i => i.uid === selected.uid); if (item) equipCandidate(ctx,item); }
-    }
     function fitEquipment() {
         if (!isOpen() || view !== 'equipment') return;
         const area = document.getElementById('guild-body-scroll'), paperdoll = document.getElementById('guild-paperdoll'); if (!area || !paperdoll) return;
@@ -334,5 +324,5 @@ function renderEquipmentComparison(panel, actor, kind, source, item, chosenSlot)
         paperdoll.style.setProperty('--party-equipment-canvas-width',width+'px');
     }
     new ResizeObserver(fitEquipment).observe(frame);
-    window.guildWindow = {isOpen,close,roster,quests,renderEquipment,openItem,showItem,showItemEnhance,enhanceItem,equipItem:equipItemFromModal,open() { mount(); renderAllyNPC(content); }};
+    window.guildWindow = {isOpen,close,roster,quests,renderEquipment,openItem,closeItem:cancelItemInfo,showItemEnhance,enhanceItem,open() { mount(); renderAllyNPC(content); }};
 })();

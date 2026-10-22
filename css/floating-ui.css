@@ -280,11 +280,12 @@
 .guild-item-icon .classic-icon-values { right:3px; bottom:1px; }
 .guild-item-name { display:block; flex:none; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:13px; }
 .guild-empty { grid-column:1/-1; padding:15px 4px; font-size:13px; color:#a69a84; }
-.guild-actions { flex:none; display:grid; grid-template-columns:minmax(0,1fr); gap:5px 8px; padding:8px; border-top:1px solid #77603e; background:#171511; }
+.guild-actions { flex:none; display:grid; grid-template-columns:minmax(0,1fr) auto; gap:5px 8px; padding:8px; border-top:1px solid #77603e; background:#171511; }
 .guild-actions > div { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:13px; align-self:center; }
 #guild-current { grid-column:1; grid-row:1; color:#beb39b; }
 #guild-candidate { grid-column:1; grid-row:2; color:#e4c581; }
-#guild-actions-hint { grid-column:1; grid-row:4; margin:0; color:#ad9d7c; font-size:11px; line-height:1.5; }
+#guild-enhance { grid-column:2; grid-row:1 / 3; padding:5px 10px; color:#a9d4ff; background:#15304e; border-color:#567b9d; }
+#guild-actions-hint { grid-column:1 / -1; grid-row:4; margin:0; color:#ad9d7c; font-size:11px; line-height:1.5; }
 .guild-repeat-trials { padding:10px; border:1px solid #736045; background:#14120f; }
 .guild-repeat-trials h3 { color:#e0c58c; font-size:16px; margin:0 0 8px; }
 .guild-repeat-trials > div { padding:8px 0; border-top:1px solid #55452e; }

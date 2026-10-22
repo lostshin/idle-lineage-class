@@ -2994,7 +2994,7 @@ function renderSquadPanel() {
         + '||P:' + _pets.map(p => p.uid + ':' + p.lv + ':' + (p._downed ? 'D' : '') + ':' + Math.round(p.hp / Math.max(1, p.mhp) * 20) + ':' + Math.round(p.mp / Math.max(1, p.mmp) * 20) + ':' + Math.round((p.exp || 0) / Math.max(1, petExpReq(p.lv)) * 20) + ':' + (p.potPct || 0) + ':' + Math.ceil((p._reviveCd || 0) / 10)).join('|')
         + '||S:' + ((typeof summonTeamSignature === 'function') ? summonTeamSignature() : '')   // team 分頁：名單/倒地/等級＋寵物/召喚血量(5%階)變動才重建
         + '||G:' + ((typeof guardTeamSignature === 'function') ? guardTeamSignature() : '');   // 🏰 城堡護衛血量/倒地/復活倒數變動才重建
-    let sigSkill = _sigAllies + '||P:' + _pets.map(p => p.uid + ':' + petDisplayName(p)).join('|') + '||E:' + allies.map(a => (a.elfEle || '')+':'+(a.mastery || '')+':'+(a.skills||[]).join(',')+':'+Object.values(a.eq||{}).filter(Boolean).map(itemSig).join(',')).join('|');   // 🩹 v3.2.74 skill 分頁只看傭兵名單/等級→戰鬥中寵物/召喚掉血不重建·開啟的技能下拉不被關
+    let sigSkill = _sigAllies + '||P:' + _pets.map(p => p.uid + ':' + petDisplayName(p)).join('|') + '||E:' + allies.map(a => (a.elfEle || '')+':'+(a.mastery || '')+':'+(a.skills||[]).join(',')+':'+Object.values(a.eq||{}).filter(Boolean).map(itemSig).join(',')+':'+_withAllyEquipmentContext(a,hasPolyRing)).join('|');   // 🩹 v3.2.74 skill 分頁只看傭兵名單/等級→戰鬥中寵物/召喚掉血不重建·開啟的技能下拉不被關
     // 🧝 v3.8.5 追加 elfEle：來源妖精換屬性後 refreshAllyOnce 重建快照時名字/等級都沒變 → 簽章不動 → 技能下拉與自動維持勾選會停在舊屬性的清單（該隱藏的沒隱藏）
     let _squadRebuilt = false;
     if (sigTeam !== _squadSigTeam) {
@@ -3046,7 +3046,8 @@ function renderSquadPanel() {
                     <div class="ally-skill-row ally-skill-heal"><span class="ally-skill-label">治癒魔法</span><select aria-label="${partyEscape(a._allyName)}：治癒魔法" onchange="setAllyHealSkill('${s}', this.value)">${_allySkillOptions(a, 'heal', a._healSkill || '')}</select><span class="ally-skill-gate" title="HP％ 低於此值才施放治癒。">HP&lt;<input aria-label="治癒魔法 HP 門檻" type="number" min="0" max="100" value="${hpPct}" onchange="setAllyHealHp('${s}', this.value)">%</span></div>
                     <div class="ally-skill-row ally-skill-convert"><span class="ally-skill-label">轉換技能</span><select aria-label="${partyEscape(a._allyName)}：轉換技能" onchange="setAllyConvertSkill('${s}', this.value)">${_allySkillOptions(a, 'convert', a._convertSkill || '')}</select><span class="ally-skill-gate ally-skill-stop" title="HP 低於或等於此％時，停止轉換技能及其他消耗 HP 的技能。0 = 關閉自訂門檻；龍騎士耗 HP 技、耗 HP 增益與立方和諧仍有 25% 安全限制。">HP≤<input aria-label="停止耗 HP 技能門檻" type="number" min="0" max="100" value="${skillPct}" onchange="setAllyHpSkill('${s}', this.value)">%</span></div>
                 </div><div class="ally-potion-condition"><span class="ally-potion-label">喝水條件</span><span class="ally-skill-gate" title="低於此％時，喝隊長設定的藥水回血。0 = 關閉。">HP&lt;<input aria-label="喝水 HP 門檻" type="number" min="0" max="100" value="${potPct}" onchange="setAllyPotHp('${s}', this.value)">%</span></div></div>
-                <label class="ally-auto-chip" title="勾選立即購買變形卷軸並隨機變身；保持勾選會續用目前變身。取消立即解除，再勾選會重新抽取。"><input type="checkbox" data-ally-poly="${s}" ${a._mercPolyAuto ? 'checked' : ''} onchange="setAllyPoly('${s}',this.checked)"><span>使用變形卷軸</span></label>
+                <label class="ally-auto-chip" title="勾選購買變形卷軸；有變戒先選目標，否則隨機。保持勾選續用原形態；取消立即解除，再勾重新選擇或抽取。"><input type="checkbox" data-ally-poly="${s}" ${a._mercPolyAuto ? 'checked' : ''} onchange="setAllyPoly('${s}',this.checked)"><span>使用變形卷軸</span></label>
+                ${_withAllyEquipmentContext(a,hasPolyRing) ? `<button class="btn ally-auto-chip" data-ally-poly-select="${s}" onclick="openAllyPolySelect('${s}')">選擇變身</button>` : ''}
                 ${_allyAutoBuffChips(a)}
             </div>`;
         }).join('') + _pets.map(p => `<div class="ally-skill-card" data-pet-skill="${partyEscape(p.uid)}">
@@ -3120,6 +3121,10 @@ function switchSquadTab(t) {
 function _findAlly(slot) { return (player.allies || []).find(a => a && String(a._slot) === String(slot)); }
 function setAllyPoly(slot, on) {
     const a = _findAlly(slot); if (!a) return;
+    if (on && !a._mercPolyAuto && _withAllyEquipmentContext(a,hasPolyRing)) {
+        _squadSigSkill = ''; renderSquadPanel();
+        openAllyPolySelect(slot); return;
+    }
     if (!a.buffs) a.buffs = {};
     if (!on || !a._mercPolyAuto) { a.poly = null; a.buffs.poly = 0; }
     a._mercPolyAuto = !!on;
@@ -3128,6 +3133,24 @@ function setAllyPoly(slot, on) {
     _allyLevelRecompute(a);
     snapshotMercPrefs(a); saveGame();
     _squadSigSkill = ''; renderSquadPanel(); updateUI();
+}
+function openAllyPolySelect(slot) {
+    const a = _findAlly(slot), owner = player;
+    if (!a || !_withAllyEquipmentContext(a,hasPolyRing)) return;
+    _withAllyEquipmentContext(a, () => renderPolySelect(name => {
+        const current = _findAlly(slot), found = findPolyForm(name);
+        if (player !== owner || current !== a) { closePolyModal(); return; }
+        const valid = found && _withAllyEquipmentContext(a, () => hasPolyRing() && a.lv >= found.form.lv && polyFormMatchesEquippedWeapon(found.form));
+        if (!valid) { closePolyModal(); logSys('變身條件已變更，請重新選擇。'); return; }
+        const price = shopPrice(DB.items.scroll_poly.p);
+        if (player.gold < price) { closePolyModal(); logSys('金幣不足，無法購買變形卷軸。'); return; }
+        a.poly = getPolyStateByName(name);
+        a.buffs.poly = 0; a._mercPolyAuto = true;
+        allyMaintainPoly(a);
+        _allyLevelRecompute(a);
+        snapshotMercPrefs(a); saveGame(); closePolyModal();
+        _squadSigSkill = ''; renderSquadPanel(); updateUI();
+    }));
 }
 function setAllyAtkSkill(slot, val) { let a = _findAlly(slot); if (a) { a._atkSkill = val || ''; saveGame(); } }   // _atkSkill 即時生效（傭兵攻擊路徑直接讀 ally._atkSkill）
 function setAllyHealSkill(slot, val) { let a = _findAlly(slot); if (a) { a._healSkill = val || ''; saveGame(); } }   // _healSkill 儲存待 Phase 3 傭兵自動補血讀取
