@@ -172,6 +172,18 @@ function renderElionUI(div) {
     div.innerHTML = `<div class="p-4">${header}<div class="grid grid-cols-2 md:grid-cols-4 gap-3">${btns}</div></div>`;
 }
 
+function clearInvalidElfBuffs() {
+    if (player.cls !== 'elf') return false;
+    let changed = false;
+    for (const sid of Object.keys(player.buffs || {})) {
+        if (DB.skills[sid]?.type === 'buff' && !allySkillElementOk(player, sid)) {
+            delete player.buffs[sid];
+            changed = true;
+        }
+    }
+    return changed;
+}
+
 function chooseElfElement(ele) {
     if(player.cls !== 'elf' || player.lv < 30 || !ELF_ELE[ele]) return;
     if(player.elfEle === ele) return;
@@ -184,6 +196,7 @@ function chooseElfElement(ele) {
         logSys(`你選擇了 <span class="${ELF_ELE[ele].cls}">${ELF_ELE[ele].name}屬性</span>。`);
     }
     player.elfEle = ele;
+    clearInvalidElfBuffs();
     // 🧝 v3.2.42 稽核修：換屬性時在場屬性精靈立即收回（保留自動重施開關→下個 tick 以新屬性重新現身；原本舊屬性精靈會一直打到死/到期）
     if ((player._summonV2Sk === 'sk_elf_summon' || player._summonV2Sk === 'sk_elf_summon2')
         && typeof summonV2List === 'function' && summonV2List().length && typeof summonV2DismissAll === 'function') {
@@ -1703,6 +1716,7 @@ function loadGame() {
         });
         syncShahaArrow();   // 🏝️ 沙哈之弓：載入時校正無限箭狀態
         calcStats();
+        if (clearInvalidElfBuffs()) calcStats();
         try { if (typeof _petEnforceCarry === 'function') { _petEnforceCarry(); if (_petRosterDirty) petRosterSave(); } } catch (e) { console.warn('pet carry enforcement', e); }
         applySherineTheme();   // 🔮 還原席琳的世界視覺主題
         changeMap(true);

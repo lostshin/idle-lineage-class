@@ -459,6 +459,10 @@
 :is(#party-bonus-window,#tab-stats) .ability-detail-column [data-ability-field] { align-items:center;font-size:2.2cqw;background:#080908;padding:0 3%;height:80%; }
 :is(#party-bonus-window,#tab-stats) :is([data-ability-total],[data-ability-buff]) { flex:none;padding:0;min-width:0; }
 
+/* List mode reserves natural value widths instead of shrinking each number. */
+#tab-stats.afk-sl .ability-window-shell .ability-detail-column > div { grid-template-columns:minmax(0,1fr) auto; }
+#tab-stats.afk-sl .ability-detail-column [data-ability-field] { font-size:14px;padding:0;height:auto; }
+
 /* Ability artwork follows the user-resized sidebar without changing its ratio. */
 #tab-stats .ability-window-shell { max-width:none; }
 .party-tabs { display:flex;flex:none;gap:6px;padding:6px 10px;border-bottom:1px solid #655139; }

@@ -2144,7 +2144,7 @@ function buildQuickHeader(type) {
         let cb = hdr.querySelector('label input'); if (cb) { cb.indeterminate = someSel && !allSel; cb.dataset.qjSelectAll = type; }
         if (hasEnh) {
             const limit = jnk.maxEnhance == null ? 'all' : String(jnk.maxEnhance);
-            const levels = Array.from({ length: 21 }, (_, n) => `<option value="${n}" ${limit === String(n) ? 'selected' : ''}>+${n} 以下</option>`).join('');
+            const levels = Array.from({ length: enhanceCap({type}) + 1 }, (_, n) => `<option value="${n}" ${limit === String(n) ? 'selected' : ''}>+${n} 以下</option>`).join('');
             const filter = document.createElement('label'); filter.className = 'quick-junk-filter';
             filter.innerHTML = `強化上限 <select id="quick-junk-max-${type}" onchange="setQuickJunkMax('${type}', this.value)"><option value="all" ${limit === 'all' ? 'selected' : ''}>全部</option>${levels}</select>`;
             hdr.appendChild(filter);
@@ -2176,7 +2176,7 @@ function setQuickJunkMax(type, value) {
     const st = quickJunk[type];
     if (!st) return;
     st.groups = {};
-    st.maxEnhance = value === 'all' ? 'all' : Math.max(0, Math.min(20, parseInt(value, 10) || 0));
+    st.maxEnhance = value === 'all' ? 'all' : Math.max(0, Math.min(enhanceCap({type}), parseInt(value, 10) || 0));
     st.sel = {}; st.known = {};
     _qjSync(type); renderTabs(true);
 }

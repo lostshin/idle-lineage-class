@@ -4,7 +4,7 @@
 // Native presentation helpers with a synthetic DOM/stat snapshot boundary.
 const fs=require('node:fs'),vm=require('node:vm'),path=require('node:path'),root=path.resolve(__dirname,'..'),reports=[];
 function node(text=''){
-    const n={innerText:text,textContent:text,clientWidth:100,style:{},dataset:{},attributes:{},classList:{contains:()=>false},parentElement:{querySelector:()=>({textContent:'合成能力'})},getBoundingClientRect:()=>({width:100}),setAttribute(k,v){this.attributes[k]=v;},insertAdjacentHTML(pos,html){this.html=(this.html||'')+html;}};
+    const n={innerText:text,textContent:text,clientWidth:100,style:{},dataset:{},attributes:{},classList:{contains:()=>false},matches:()=>false,parentElement:{querySelector:()=>({textContent:'合成能力'})},getBoundingClientRect:()=>({width:100}),setAttribute(k,v){this.attributes[k]=v;},insertAdjacentHTML(pos,html){this.html=(this.html||'')+html;}};
     Object.defineProperty(n,'innerHTML',{get(){return this.html||'';},set(html){this.html=html;this.total={textContent:html.match(/data-ability-total>([^<]*)/)?.[1]||'',attributes:{},hasAttribute(k){return k in this.attributes;},toggleAttribute(k,on){if(on)this.attributes[k]='';else delete this.attributes[k];},getBoundingClientRect:()=>({width:25})};this.buff={hidden:/data-ability-buff hidden/.test(html),textContent:html.match(/data-ability-buff[^>]*>([^<]*)/)?.[1]||'',getBoundingClientRect:()=>({width:25})};}});
     n.querySelector=s=>s==='[data-ability-total]'?n.total:s==='[data-ability-buff]'?n.buff:null;return n;
 }

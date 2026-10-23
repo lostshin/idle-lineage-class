@@ -751,6 +751,7 @@ function enterPrideFloor(n) {
     if (typeof auditReset === 'function') auditReset();
     try { if (typeof closeWarehouseWindow === 'function') closeWarehouseWindow(); } catch (e) {}   // 🏦 v3.5.94 本函式複製 changeMap 的戰鬥進場流程但不經過 changeMap→浮動倉庫視窗(position:fixed·z-index 72·不隨 town-view 隱藏)會殘留到狩獵區並遮住 battle-view，故比照 js/11 changeMap「離開安全區」分支一併關閉
     if (!state.ff) {
+        closeNpcInteraction();
         let mapPanel = document.getElementById('town-view').parentElement;
         document.getElementById('battle-view').classList.remove('hidden');
         document.getElementById('combat-log-panel').classList.remove('hidden');

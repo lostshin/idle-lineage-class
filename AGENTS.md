@@ -39,25 +39,14 @@
 - 開發產物：已採用美術與 prompts 在 `output/design-source/imagegen/`，`output/imagegen` 為舊引用連結；歷史驗收在 `tests/artifacts/archive/2026-10-17/`，`tmp/` 全部忽略。清除前看 metadata 的選擇、最終報告引用與現用腳本輸入；不要只按日期、檔名第一字或尺寸判斷過時。保留必要來源，刪除記錄舊路徑／SHA／原因；只歸檔不等於已清理。
 - 舊浮動開關面板已移除；`js/addon-switches.js` 明列固定基底與可選 catalog，不讀舊 `afk_toggle_*`；未知 ID 預設關閉。`statpts` 與主角點數來源面板維持移除。
 
-## 已確認的產品決策（更新至 2026-10-23）
+## 已確認的產品決策（更新至 2026-10-24）
 
 本檔下方為本次最新決策；其他細節見 [docs/agent-decisions.md](docs/agent-decisions.md)。**修改對應功能、樣式、素材或測試前，先讀該小節**（`rg -n '^### ' docs/agent-decisions.md` 取行號後只讀那段）。最新使用者指示優先，不恢復已否決／已移除的方案。
 
-| 小節 | 涉及範圍 |
-|---|---|
-| 版面與隊伍 | 三欄寬度、隊伍名牌／技能卡／隊友裝備版型、倉庫系銀框、異常狀態、倒地／復活、整理背包 |
-| 加掛選項與角色分頁 | 加掛開關與偏好套用、行動裝置版、存檔格數、角色分頁美術、背包角標、創角角色 ID |
-| 裝置縮放 | UI 縮放 60～100%、遷移、座標換算 |
-| 能力提示、隊友浮窗與技能條件 | 能力來源 tooltip、寵物能力、隊友浮窗、裝備提示、技能卡／喝水條件、`_hpSkillPct` |
-| 召喚物圖片與地圖名稱 | `companionSpriteForm`、召喚物名稱、地圖懸浮、`AREA_1920`、hit mask |
-| 裝備美術、負重與狀態圖示 | 裝備背景／槽位比例、主角背包 A 與單列分類、負重、狀態圖示、UI 素材 WebP 與換檔名 |
-| DPS 與日誌 | DPS 快照與圖表、寵物 DPS、戰鬥／系統日誌與篩選 |
-| 戰鬥、經驗與村莊增益 | 寵物／召喚物加速、隊友 EXP、村莊 buff |
-| 離線掛機 | 離線結算條件、補跑呈現、歷史紀錄 |
-| 傭兵公會 | `js/guild-window.js` 單擊比較、獨立強化入口、雙擊換裝、固定捲軸 |
-| 倉庫 | 倉庫外框、尺寸、雙欄捲動、數量交易 |
-| 強化與金額記憶 | 單件／同款批次強化、`modalguard`、捐獻／倉庫金額 |
-| 效能與線上人數 | 虛擬化、`renderTabs` 失效與 tick 內重建、能力預覽、`online-presence`、量測門檻與 CPU profile、延後載入、DOM 寫入、登入動畫 |
+- 版面／隊伍、加掛／角色分頁、裝置縮放：三欄與技能卡／裝備版型、開關／存檔格數／創角、60～100% 與座標換算。
+- 能力提示／隊友浮窗／技能條件、召喚物圖片／地圖名稱、裝備美術／負重／狀態圖示：來源 tooltip／寵物能力、`companionSpriteForm`／hit mask、槽位／背包 A／素材。
+- DPS／日誌、戰鬥／經驗／村莊增益、離線掛機：快照／篩選、寵物召喚加速／隊友 EXP、結算／補跑／歷史。
+- 傭兵公會、倉庫、強化／金額記憶、效能／線上人數：比較／強化／雙擊、外框／雙欄／交易、單件批次／modalguard、虛擬化／renderTabs／能力預覽／量測與登入動畫。
 
 ## 介面修正的範圍與驗收
 
@@ -67,6 +56,14 @@
 - 武器／防具／道具格以**螢幕實際至少 55×55px**為基準，正方形、每列均分填滿；沿用 `auto-fill/minmax` 與 `--ui-scale-inverse`。不可只看未縮放的 CSS 55px；驗證縮放後的 rect、相鄰間距與右側留白，不改回固定三欄。
 - 分類須與搜尋、快速強化／廢品共用篩選；批次操作時鎖住分類，避免操作隱藏物品。各頁獨立保存分類與橫向位置，重繪／切頁仍保留，換角色才重設。防具新增部位沿用原生 `slot`（內衣 `tshirt`、脛甲 `shin`、寵物裝備 `petarm`），不另造裝備種類。
 - 公會捲軸與比較區須對照無選取／已選取／搜尋無結果三態；預留固定軌道，核對畫布與清單寬度不跳動。幾何量測取扣除捲軸的 `clientWidth` 再換算 UI 縮放，不拿外框寬度當內容寬度。
+
+### 玩家回報與能力條列（2026-10-24）
+
+- 傲慢之塔一般／排名共用 `enterPrideFloor`；成功進入才在 `!state.ff` 內呼叫 `closeNpcInteraction`，受限時保留 NPC 窗，不讓補跑升樓新增 DOM 工作。
+- 只對 `#tab-stats.afk-sl .ability-detail-column` 統一總值 14 CSS px、括號較小；`fitPartyAbilityValues` 跳過這區的逐欄縮字，改留自然數值寬。保留六屬性、原版圖面與側欄寬；驗開關、300px、1330／1920px 及 60／75／80／100%。
+- 妖精成功換屬性／載入舊檔用 `clearInvalidElfBuffs`，沿用 `allySkillElementOk` 與裝備授技例外，只清失效自身 Buff；讀檔先重算授技再清理。保留學習、勾選、其他隊員與精靈收回／重召；取消／缺金幣不清。
+- 寵物實戰統御之戒 +10 原已生效，勿因預覽漏列而重加公式；`effectPreview` 用同一主人副本供階段移除／來源比較，主人與未倒地傭兵裝備由裝備階段計入並列名稱，遵守 `petGearBonus` 掃描範圍。驗多件加總、倒地、裝卸與 live 不變。
+- 快速廢品選單／輸入共用 `enhanceCap({type})`（武器／防具 +15）；保留全部、+14／+15 邊界、分類鎖定、lock／noJunk，不另寫上限。
 
 ### 物品雙窗與角色選擇（2026-10-19 最終決策）
 
@@ -189,7 +186,7 @@
 - 測試報告預設寫入 `tmp/test-runs/`（不進 git）；要更新受追蹤的 `tests/artifacts/` 才加 `--record`（runner 與 `*.integration.js` 相同）；runner 可用 `--artifacts <目錄>` 指定其他輸出位置，與 `--record` 互斥。
 - 成功後只呼叫一次 `finish({keep:[]})` 並等待完成；耗時時用背景程序讀回結果，不用短 timeout 中止再反覆重送。有 `finished <id>` 與成功結束碼後，不再操作該空間；輸出遺失時用 `listTaskSpaces()` 唯讀確認，不重送 finish。
 - 必跑 `rwd`、`ui-scale`、`gameplay`、`account-gameplay`、`companion-commands` 的 HTTP／file：`--space <id> --suite required --protocol both --desktop-only`。
-- 專項見 `tests/run-rwd.py`：批次用 `same-batch-enhance`／`same-batch-ux`，夥伴對齊／法師互斥用 `feedback-1022`，公會強化／變身用 `guild-poly`，補跑文案／時間債務用 `catchup-progress`，運算等價對照用 `catchup-equivalence`，物品效果用 `item-effects`／`item-breathing`，固定光暈／點空白關閉用 `feedback-1023`，主角變身續用用 `player-poly`；背包用 `backpack-a`／`main-backpack`／`backpack-feedback`，強化搜尋用 `ken-market`／`gear-accelerator`，大廳用 `social-lobby`／`lobby-*`，離線／和諧／夥伴能力用 `feedback-reliability`；同樣帶 `--desktop-only`，只選相關專項加必要核心。
+- 專項見 `tests/run-rwd.py`：批次用 `same-batch-enhance`／`same-batch-ux`，夥伴對齊／法師互斥用 `feedback-1022`，公會強化／變身用 `guild-poly`，補跑文案／時間債務用 `catchup-progress`，運算等價對照用 `catchup-equivalence`，物品效果用 `item-effects`／`item-breathing`，固定光暈／點空白關閉用 `feedback-1023`，主角變身續用用 `player-poly`，上述五項玩家回報用 `player-reports-1023`；背包用 `backpack-a`／`main-backpack`／`backpack-feedback`，強化搜尋用 `ken-market`／`gear-accelerator`，大廳用 `social-lobby`／`lobby-*`，離線／和諧／夥伴能力用 `feedback-reliability`；同樣帶 `--desktop-only`，只選相關專項加必要核心。
 - 創角／載入會自動連線大廳；合成回歸及預覽每次導覽前均用同一 p1 的 `Page.addScriptToEvaluateOnNewDocument` 注入隔離儲存並隔離預設公共 API；創角前核對掛鉤，不能依賴前一 suite 已移除的 fixture，保留明確指定的合成 API／本機 workerd 連線。不可讓核心測試大量建立公共訪客，也不可改正式碼來停用測試中的功能；報告標明隔離方式。在線名冊可含自己，點指定訪客用其 ID，不假設第一筆就是別人。
 - TaskSpace 消失不能自行重建；使用者暫緩重建時，先完成本地工作並記錄待跑的瀏覽器檢查，後續不得把 Node VM／幾何替身說成瀏覽器 E2E 通過。
 - 所有 `visual-*` 必須緊接同一 space 的對應行為 fixture，例如 `account-gameplay visual-account-gameplay`；中間不可插入其他 suite，各 fixture 的全域儲存不可互換。runner 會拒絕順序錯誤的組合。
@@ -200,7 +197,8 @@
 - 原生點擊若被 sticky 欄／分類箭頭擋住，先看命中元素；橫向分類用可見左右箭頭移動、等 `scrollLeft` 連續畫格穩定，再核對 `elementFromPoint` 點擊。不要用全頁 `scrollIntoView` 或直接塞 scrollLeft 抵抗觸控慣性／位置還原；不強制穿透。
 - 主角裝備單擊有230ms延遲，先等真正開窗，再等 `modalguard` 的 `Date.now()` 450ms保護達標；凍結時鐘 fixture 須推進合成時間，等牆鐘無效。先確認該入口是否應開窗；公會單擊比較不開窗，不等待或關閉不存在的資訊窗。
 - 懸浮測試先等 resize／scroll 與版面穩定；選不被其他 sprite 遮住、離透明邊緣足夠遠的像素，避免取點到送入滑鼠事件間角色已移動。可短暫固定合成場景的原生畫格，完成後還原；不冒充完整戰鬥驗證。
-- 不直接改寵物記憶體陣列充當已儲存名冊；用原生 dirty／save 流程，避免下一次查詢把測試寵物清掉。
+- 不直接改寵物記憶體陣列充當已儲存名冊；用原生 dirty／save 流程，避免下一次查詢把測試寵物清掉。合成傭兵須用獨立 `enSeed`，不能複製隊長身分後被預覽去重。
+- 自動 Buff fixture 先 `renderSkillSelects`、同步原生 checkbox 再 `saveGame` 取偏好基準；只改 `config.autoBuffSkills` 會被 DOM 保存流程覆寫。滑鼠模式以 `hover` 驗 tooltip；程式化 focus 可能被 `:focus-visible` 規則略過，不把它判成來源漏列。
 - `page.evaluate` 單次有 15 秒限制；原生 rAF 被節流時，將同一組逐格斷言拆成短批次，保留原總格數，先核對可見性／實際畫格進度，不改正式碼、不刪斷言或反覆原樣重跑。
 - 擷取圖片不可用／`Page.captureScreenshot` 逾時時，從失敗 suite 接續 `--skip-screenshots`，不重跑已通過的；用 Ego screen-media PDF 轉 PNG（`printToPDF` 前設 `setEmulatedMedia` 的 `media:'screen'`）。PDF 放 `tmp/pdfs/`、檔名加任務前綴、驗收後刪除；pypdfium2 `render(scale=1)` 是 72dpi，CSS 像素要 `scale=96/72`。標示協定、轉圖工具與實際 dpi，不宣稱直接截圖。
 - 實際檢查桌機 1330／1920px、60／75／80／100% 與 220／300／460px 側欄；倒地傭兵及寵物的所有控制項、標籤文字均須在邊界內，不能只量卡片高度。
@@ -239,9 +237,10 @@
 - push 成功不代表已上線；追蹤這次 HEAD 的 `pages build and deployment`，等 build／deploy 成功。長操作用背景程序並定期回報，不因正常等待重新推送或重建。
 - 發布後以公開 HTTPS 比對線上 `index.html`、本次改動的 JS／CSS／素材與本機已提交內容 SHA256；保存 commit、run URL、結果與時間。這是資源驗證，不等於線上瀏覽器 E2E，也不讀寫玩家儲存。
 
-## 最新進度與驗證基準（2026-10-23）
+## 最新進度與驗證基準（2026-10-24）
 
-- 本次 **v3.9.26**（原版 `v3.8.34` 不變）：指定物品介面加固定光暈（圖示背景漸層，零額外節點／動畫），資訊窗可外點關閉，主角無變戒自動續用原形態。發布commit／Pages／公開SHA見 `tmp/test-runs/session-release-3926/completion.json`；後端未改，不部署Worker／migration。
+- 本次 **v3.9.27**：爬塔關窗、條列字體、妖精舊 Buff、寵物來源與快速廢品上限。`tmp/test-runs/player-reports-1023/report.md`／`completion.json`：同份最終測試對原來源 23/42 預期失敗；7 suites×HTTP／file 14 次、714 項全通過，本地13/13；TaskSpace 7 已結束，HTTP 預覽為 screen-media PDF→pypdfium2 96dpi，未實測 Safari／手機／安裝版／真實存檔。發布補驗、commit／Pages／公開 SHA 見 `tmp/test-runs/session-release-3927/completion.json`；後端未改。
+- v3.9.26（原版 `v3.8.34` 不變）：指定物品介面加固定光暈（圖示背景漸層，零額外節點／動畫），資訊窗可外點關閉，主角無變戒自動續用原形態。發布commit／Pages／公開SHA見 `tmp/test-runs/session-release-3926/completion.json`；後端未改，不部署Worker／migration。
 - v3.9.26功能證據在 `tmp/test-runs/feedback-1023/report.md`：HEAD worktree baseline 12/24 預期失敗；13 suites×HTTP／file 26 次全通過（`final/`，提示框修正前來源）；提示框修正先重現 2 項失敗再修，`feedback-1023` HTTP／file 24/24（`final2/`）；本地13/13，空間27／28已結束。本機 Ego 截圖逾時，自 `party-equipment` 起 `--skip-screenshots`；預覽為 file 協定 screen-media PDF→pypdfium2 96dpi。主角變身 baseline 13/14、修正與發布補驗見 `session-release-3926/completion.json`。光暈未做效能量測；Safari、實體手機、安裝版、真實存檔未驗。
 - v3.9.25 物品頁少量呼吸光：證據 `item-breathing/completion.json`（18份、618項），發布 `session-release-3925/completion.json`；同一240件背包常駐288個動畫→開頁8個→離頁0個，短時主執行緒數據有雜訊，不當速度／耗電保證，OS背景與GPU耗電未驗。
 - v3.9.24 補跑重複工作最佳化：證據 `catchup-optimize/completion.json`（22份、776項，與 `c633073b2` 的狀態／RNG 一致），發布 `session-release-3924/completion.json`；配對吞吐中位61,287→89,522 tick/s（速度+46.1%、耗時−31.5%），未重現玩家五小時個案，未改倍率／債務／結算。

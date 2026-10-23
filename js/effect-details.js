@@ -135,9 +135,11 @@ function effectSignature(actor,kind,owner=player) {
 }
 function effectPreview(actor,kind,owner=player,stage=7,omit=null,clan=clanBuffSnapshot(actor)) {
     const root=player,flag=_recomputingAlly,minion=kind!=='ally'&&kind!=='player';
-    const copy=effectPreviewActor(actor),leader=minion?effectPreviewActor(root):null;
+    const copy=effectPreviewActor(actor);
     const others=[root,...(root.allies||[])].filter(a=>a&&a!==actor).map(a=>effectPreviewActor(a));
+    const leader=minion?(kind==='pet'?others[0]:effectPreviewActor(root)):null;
     for(const a of [copy,...others]) {
+        if(kind==='pet'&&stage<2)a.eq={};
         for(const [id,sourceStage]of Object.keys(a.buffs||{}).map(id=>[id,effectBuffStage(id,a)]))if(stage<sourceStage)delete a.buffs[id];
         if(stage<7){a.statuses={};a._statuses={};a.hots={};for(const k of Object.keys(a))if(/Until$/.test(k))a[k]=0;a._crushFuryTicks=0;a._fangFuryTicks=0;a._darkEvadeStack=0;}
     }
@@ -432,6 +434,7 @@ function partyAbilityValue(snapshot, keys, suffix = '', seconds = false) {
 function fitPartyAbilityValues() {
     for (const field of document.querySelectorAll('#party-inspector [data-ability-field],#tab-stats [data-ability-field]')) {
         field.style.fontSize = '';
+        if (field.matches('#tab-stats.afk-sl .ability-detail-column [data-ability-field]')) continue;
         const total = field.querySelector('[data-ability-total]'), buff = field.querySelector('[data-ability-buff]');
         if (!total || !buff) continue;
         const width = total.getBoundingClientRect().width + (buff.hidden ? 0 : buff.getBoundingClientRect().width);
@@ -529,6 +532,13 @@ function abilitySourceDetails(actor,kind,owner=player) {
         for(const id of actor.skills||[])if(DB.skills[id]?.type==='passive')add(1,DB.skills[id].n,copy=>{copy.skills=copy.skills.filter(s=>s!==id);});
     }
     for(const [slot,item]of Object.entries(actor.eq||{}))if(item)add(2,getItemFullName({...item,en:0}).replace(/<[^>]+>/g,''),copy=>{delete copy.eq[slot];});
+    if(kind==='pet')for(const [index,source]of [player,...(player.allies||[])].filter(Boolean).entries()){
+        if(index&&source._downed)continue;
+        for(const [slot,item]of Object.entries(source.eq||{}))if(item){
+            const name=(index?source._allyName||source.name||'傭兵':'主人')+'：'+getItemFullName({...item,en:0}).replace(/<[^>]+>/g,'');
+            add(2,name,(copy,others)=>{delete others[index].eq[slot];});
+        }
+    }
     for(const e of snapshot.entries){
         if(e.id.startsWith('set:'))add(3,e.name,copy=>{copy._effectOmitSet=e.id.slice(4);});
         else if(e.id.startsWith('remains:')||e.id.startsWith('combo:'))add(3,e.name);
