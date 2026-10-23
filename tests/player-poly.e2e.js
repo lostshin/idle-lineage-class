@@ -1,10 +1,10 @@
 // Failure cases: automatic renewal rerolls a ringless form, charges despite remaining stock,
-// grants free renewal, ignores opt-out, loses form on load, or breaks manual selection/weapon rules.
+// grants free renewal, retains a cancelled form, loses form on load, or breaks manual selection/weapon rules.
 const fs = await import('node:fs/promises'), crypto = await import('node:crypto');
 const task = await taskSpace(options.space || '主角變身延續與發布驗證'), page = task.page('p1');
 console.log({spaceId:task.spaceId});
 const reports = [], sources = {};
-for (const name of ['index.html','js/08-items-equip.js','js/07-skills-cast.js','js/03-combat-core.js','js/02-stats-recompute.js','tests/player-poly.e2e.js']) {
+for (const name of ['index.html','js/10-ui-tabs.js','js/08-items-equip.js','js/07-skills-cast.js','js/03-combat-core.js','js/02-stats-recompute.js','tests/player-poly.e2e.js']) {
     sources[name] = crypto.createHash('sha256').update(await fs.readFile(options.root+'/'+name)).digest('hex');
 }
 const output = options.artifacts+'/player-poly-'+(options.baseline?'baseline-':'')+options.protocol+'.json';
@@ -57,7 +57,7 @@ await page.evaluate(()=>{player.inv=player.inv.filter(i=>i.id!=='scroll_poly');w
 await check('out-of-stock expiry buys exactly one native-price scroll and retains the form',()=>page.evaluate(()=>JSON.stringify(player.poly)===__ppForm&&player.buffs.poly===DB.items.scroll_poly.dur&&__ppScrolls()===0&&player.gold===__ppGold-shopPrice(DB.items.scroll_poly.p)));
 await page.evaluate(()=>{window.__ppGold=player.gold;__ppTick();});
 await check('active duration does not consume another scroll or charge again',()=>page.evaluate(()=>player.buffs.poly===DB.items.scroll_poly.dur-1&&player.gold===__ppGold&&__ppScrolls()===0));
-await page.evaluate(()=>{player.gold=0;__ppExpire();});
+await page.evaluate(()=>{player.gold=0;__ppExpire();window.__ppForm=player.poly.n;});
 await check('insufficient gold leaves the expired effect inactive without a free scroll',()=>page.evaluate(()=>player.gold===0&&player.buffs.poly===0&&__ppScrolls()===0));
 await page.click('#set-poly');
 await page.evaluate(()=>{player.gold=1000000;window.__ppGold=player.gold;__ppTick();});
@@ -65,8 +65,7 @@ await check('unchecked automation does not renew or spend gold',()=>page.evaluat
 await page.evaluate(()=>{player.inv.push(__ppItem('scroll_poly','pp-manual',3));renderTabs(true);});
 await page.click('[onclick="switchTab(\'items\', this)"]');
 await page.evaluate(()=>{
-    window.__ppForm=player.poly.n;
-    const pool=polyRandomCandidates(),index=pool.findIndex(f=>f.n===player.poly.n);
+    const pool=polyRandomCandidates(),index=pool.findIndex(f=>f.n===__ppForm);
     window.__ppManualRandom=Math.random; Math.random=()=>index===pool.length-1?0:.999;
 });
 try { await page.dblclick('[data-inventory-uid="pp-manual"]'); }
@@ -91,6 +90,25 @@ await page.evaluate(()=>{stopGameTimers();state.running=false;});
 await check('native save/load preserves automation, form and weapon',()=>page.evaluate(()=>document.getElementById('set-poly').checked&&JSON.stringify(player.poly)===__ppForm&&player.eq.wpn.id==='wpn_shortbow'));
 await page.evaluate(()=>{window.__ppForm=JSON.stringify(player.poly);window.__ppGold=player.gold;__ppExpire();});
 await check('loaded ringless form renews unchanged through the native tick',()=>page.evaluate(()=>JSON.stringify(player.poly)===__ppForm&&player.buffs.poly===DB.items.scroll_poly.dur&&player.gold===__ppGold-shopPrice(DB.items.scroll_poly.p)));
+await page.click('#btn-automation');
+for (const [lv,weapon,expired] of [[30,'wpn_katana',false],[80,'wpn_shortbow',true],[80,'wpn_katana',false]]) {
+    await page.evaluate(({lv,weapon,expired})=>{
+        player.lv=lv; player.eq.wpn=__ppItem(weapon,'pp-toggle-weapon'); player.gold=1000000;
+        player.inv=[__ppItem('scroll_poly','pp-toggle-stock',3)]; player.buffs.poly=0; player.poly=null;
+        __ppTick(0); window.__ppForm=player.poly.n; window.__ppGold=player.gold;
+        if(expired) player.buffs.poly=0;
+    },{lv,weapon,expired});
+    await page.click('#set-poly');
+    await check(`uncheck clears ${expired?'expired':'active'} form without spending (${lv}, ${weapon})`,()=>page.evaluate(()=>!document.getElementById('set-poly').checked&&player.poly===null&&player.buffs.poly===0&&__ppScrolls()===2&&player.gold===__ppGold));
+    await page.click('#set-poly');
+    await page.evaluate(()=>__ppTick(.999));
+    await check(`recheck rerolls from native level/weapon pool (${lv}, ${weapon})`,()=>page.evaluate(()=>{
+        const pool=polyRandomCandidates();
+        return !hasPolyRing()&&pool.length>1&&player.poly?.n===pool[pool.length-1].n&&player.poly.n!==__ppForm&&player.buffs.poly===DB.items.scroll_poly.dur&&__ppScrolls()===1&&player.gold===__ppGold;
+    }));
+    await page.evaluate(()=>{window.__ppForm=JSON.stringify(player.poly);__ppExpire();});
+    await check(`rerolled form renews unchanged (${lv}, ${weapon})`,()=>page.evaluate(()=>JSON.stringify(player.poly)===__ppForm&&player.buffs.poly===DB.items.scroll_poly.dur&&__ppScrolls()===0&&player.gold===__ppGold));
+}
 await check('no browser runtime errors',()=>page.evaluate(()=>!__ppErrors.length||__ppErrors));
 await page.evaluate(()=>{uid=__ppOriginalUid;});
 await page.cdp('Page.removeScriptToEvaluateOnNewDocument',{identifier:init}); await page.goto('about:blank');

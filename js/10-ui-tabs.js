@@ -645,8 +645,9 @@ function wireBuffEnders() {
         if (el && !el._buffEnderWired) {
             el._buffEnderWired = true;
             el.addEventListener('change', function(){
-                if (!el.checked && player.buffs && (player.buffs[pair[1]] || 0) > 0) {
+                if (!el.checked && player.buffs && ((player.buffs[pair[1]] || 0) > 0 || (pair[1] === 'poly' && player.poly))) {
                     player.buffs[pair[1]] = 0;   // 🔧 取消打勾：加速/勇敢/慎重/精靈餅乾/變身/魔法護盾立即失效（變身會在 calcStats 還原原形）
+                    if (pair[1] === 'poly') player.poly = null;
                     if (typeof calcStats === 'function') calcStats();
                     if (typeof renderStatusEffects === 'function') renderStatusEffects();
                     if (typeof updateUI === 'function') updateUI();
