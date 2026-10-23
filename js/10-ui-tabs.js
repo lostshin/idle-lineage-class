@@ -1530,6 +1530,7 @@ function openModal(item, isEq, slot) {
         }
     }
 
+    document.getElementById('item-modal').setAttribute('data-item-info','');
     document.getElementById('item-modal').classList.remove('hidden');
 }
 // 👇 新增功能：返回裝備視窗
@@ -1628,6 +1629,7 @@ function renderEnhanceOptions(item, isEq, result = '', goal = null) {
     if (live) act += `<button class="col-span-2 w-full btn py-3 bg-slate-700 text-lg font-bold mt-2" onclick="returnToItemModal('${item.uid}', ${isEq})">返回</button>`;
     
     document.getElementById('modal-actions').innerHTML = act;
+    document.getElementById('item-modal').removeAttribute('data-item-info');
     document.getElementById('item-modal').classList.remove('hidden');
 }
 
@@ -1875,6 +1877,7 @@ function renderSameBatchEnhance(message = '', focusId = '') {
     }
     html += `<button id="same-batch-return" onclick="returnSameBatchEnhance()">返回單件強化</button></section>`;
     document.getElementById('modal-actions').innerHTML = html;
+    document.getElementById('item-modal').removeAttribute('data-item-info');
     document.getElementById('item-modal').classList.remove('hidden');
     if (!st.confirmation) updateSameBatchFeedback();
     if (focusId) {
@@ -2620,6 +2623,16 @@ function sellItem(uid, count, unitPrice) {
 }
 
 function closeModal() { sameBatchEnhance = null; document.getElementById('modal-compare').classList.add('hidden'); document.getElementById('item-modal').classList.add('hidden'); }
+// Close read-only item information like a native popover: pressed and released outside both windows.
+// Enhancement, batch and confirmation views keep their explicit return/close controls.
+let _itemInfoPressedOutside = false;
+function itemInfoOutside(target) {
+    const modal = document.getElementById('item-modal');
+    return modal.hasAttribute('data-item-info') && !modal.classList.contains('hidden') && !target.closest('#modal-item-window,#modal-compare,#afk-confirm-modal,#afk-alert-modal');
+}
+document.addEventListener('pointerdown', event => { _itemInfoPressedOutside = event.button === 0 && itemInfoOutside(event.target); }, true);
+// Capture closes before the clicked item or equipment slot opens its own window.
+document.addEventListener('click', event => { if (_itemInfoPressedOutside && itemInfoOutside(event.target)) closeModal(); _itemInfoPressedOutside = false; }, true);
 function _pvpTabEsc(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({
         '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'

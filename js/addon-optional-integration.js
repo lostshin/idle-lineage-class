@@ -10,6 +10,13 @@
             return result;
         };
     });
+    // Weaken goals are batch settings, so a blank click must not discard them like plain item information.
+    const openCurseBatch = AFK_CURSEBATCH.open;
+    AFK_CURSEBATCH.open = function () {
+        const result = openCurseBatch.apply(this,arguments);
+        document.getElementById('item-modal').removeAttribute('data-item-info');
+        return result;
+    };
     // The mirrored repeat tool predates owner-based party quest drops and the guild quest UI.
     const trialActive = window.trialItemActiveFor;
     window.trialItemActiveFor = function (owner,id,pending,assignedOnly) {

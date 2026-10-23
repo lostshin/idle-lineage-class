@@ -841,15 +841,21 @@
         .relic-glow-wrap::before, .relic-glow-wrap::after,
         .rem-slot-lit::after, .set-slot-lit::after { content: none; animation: none !important; }
 
+        /* Fixed halo painted as the icon's own background: no extra box, layer, filter or animation. */
+        :where(.player-backpack-tab,#tab-equip,.equipment-visual-slot,#modal-item-name,#modal-compare-body) img:is(.legend-glow,.mana-glow,.relic-glow,.bless-glow,.curse-glow,.ancient-glow,.anc-bless-glow,.ancient-glow-strong,.bless-glow-strong,.tri-glow,.sherine-glow-icon,[class*="attr-glow-"]) {
+            --inventory-glow: 245,196,88;
+            background: radial-gradient(ellipse,rgba(var(--inventory-glow),.45),rgba(var(--inventory-glow),.15) 45%,transparent 72%);
+        }
         .player-backpack-tab [data-item-glow] { --inventory-glow: 245,196,88; }
         .player-backpack-tab [data-item-glow="relic-glow"], .player-backpack-tab [data-item-glow="mana-glow"],
-        .player-backpack-tab [data-item-glow^="attr-glow-wa"] { --inventory-glow: 96,190,255; }
+        .player-backpack-tab [data-item-glow^="attr-glow-wa"], img:is(.relic-glow,.mana-glow,[class*="attr-glow-wa"]) { --inventory-glow: 96,190,255; }
         .player-backpack-tab [data-item-glow="sherine-glow-icon"],
-        .player-backpack-tab [data-item-glow^="attr-glow-wi"] { --inventory-glow: 74,222,128; }
+        .player-backpack-tab [data-item-glow^="attr-glow-wi"], img:is(.sherine-glow-icon,[class*="attr-glow-wi"]) { --inventory-glow: 74,222,128; }
         .player-backpack-tab [data-item-glow="curse-glow"],
-        .player-backpack-tab [data-item-glow^="attr-glow-fr"] { --inventory-glow: 248,113,113; }
-        .player-backpack-tab [data-item-glow^="anc"], .player-backpack-tab [data-item-glow="tri-glow"] { --inventory-glow: 192,148,255; }
-        .player-backpack-tab [data-item-glow^="attr-glow-ea"] { --inventory-glow: 193,149,99; }
+        .player-backpack-tab [data-item-glow^="attr-glow-fr"], img:is(.curse-glow,[class*="attr-glow-fr"]) { --inventory-glow: 248,113,113; }
+        .player-backpack-tab [data-item-glow^="anc"], .player-backpack-tab [data-item-glow="tri-glow"],
+        img:is(.ancient-glow,.anc-bless-glow,.ancient-glow-strong,.tri-glow) { --inventory-glow: 192,148,255; }
+        .player-backpack-tab [data-item-glow^="attr-glow-ea"], img[class*="attr-glow-ea"] { --inventory-glow: 193,149,99; }
         .player-backpack-tab [data-item-glow] .classic-icon-box > img { position: relative; z-index: 1; }
         @keyframes inventoryBreathe { 0%,100% { opacity: .18; } 50% { opacity: .65; } }
         @media (prefers-reduced-motion: no-preference) {

@@ -651,11 +651,10 @@ function useItem(u, silent = false, keepModal = false) {   // 🔌 加掛版補�
                 openPolySelect(item.uid);
                 return;
             }
-            if (silent && ringOn && player.poly && polyFormMatchesEquippedWeapon(player.poly)) {
-                // 自動使用 + 持有變形控制戒指：維持上次的變身狀態（不重抽、不跳選單）
-                // 保留 player.poly 不變，僅於下方重置持續時間。
+            if (silent && player.poly && polyFormMatchesEquippedWeapon(player.poly)) {
+                // Automatic renewal retains the current form, matching mercenaries without requiring a control ring.
             } else {
-                // 其餘情況（手動且無戒指／尚無紀錄／換成不同攻擊類型武器）：依等級與武器類型隨機抽取。
+                // Manual use without a ring, missing history or incompatible weapons use the native random pool.
                 player.poly = getPolyState();
             }
             player.buffs.poly = d.dur;

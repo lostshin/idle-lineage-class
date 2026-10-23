@@ -204,11 +204,12 @@ function partyEquipmentHtml(actor,kind,id,page=0) {
         const portrait=frame.querySelector('.party-paperdoll-figure .party-roster-portrait');
         if(portrait)portrait.style.transform='scale('+Math.min(canvasWidth*.88/96,canvasHeight*.83/144)+')';
     }
-    function close() {
+    function close(restoreFocus = true) {
         panel.dispatchEvent(new MouseEvent('mousemove',{bubbles:true}));
         const currentButton = selected && Array.from(document.querySelectorAll('button[data-party-kind]')).find(b => b.dataset.partyKind === selected.kind && b.dataset.partyId === selected.id);
         panel.hidden = true; selected = null; owner = null; signature = '';
         clearInterval(timer); timer = null;
+        if (!restoreFocus) return;
         if (returnFocus?.isConnected && returnFocus.getClientRects().length) returnFocus.focus();
         else if (currentButton?.getClientRects().length) currentButton.focus();
         else document.getElementById('st-class').focus();
@@ -262,6 +263,11 @@ function partyEquipmentHtml(actor,kind,id,page=0) {
     window.positionPartyInspector=positionPanel;
     document.getElementById('party-inspector-close').addEventListener('click', close);
     document.addEventListener('keydown', event => { if (event.key === 'Escape' && !event.defaultPrevented && !panel.hidden) close(); });
+    // Native popover-style light dismiss; capture runs before a member button reopens it, and focus stays where the user clicked.
+    let pressedOutside = false;
+    const outside = target => !panel.hidden && !panel.contains(target) && !target.closest('#afk-confirm-modal,#afk-alert-modal');
+    document.addEventListener('pointerdown', event => { pressedOutside = event.button === 0 && outside(event.target); }, true);
+    document.addEventListener('click', event => { if (pressedOutside && outside(event.target)) close(false); pressedOutside = false; }, true);
     window.refreshPartyInspector = refresh;
     window.openPartyInspector = function (kind, id, button = document.activeElement) {
         currentTab='ability';equipmentPage=0;returnFocus = button; selected = {kind, id:String(id)}; owner = player; signature = ''; moved = false;
