@@ -17,11 +17,11 @@ function node(){
 const ids=Object.fromEntries(['equipment-window','equipment-window-frame','equipment-window-slots','equipment-window-prev','equipment-window-next','equipment-window-weight','tab-content-panel'].map(id=>[id,node()]));
 const bg=node();bg.className='equipment-window-bg';ids['equipment-window-frame'].appendChild(bg);
 const ready=[],actor={cls:'mage',avatar:'法師',eq:{wpn:{id:'test_staff',uid:'weapon',en:7,cnt:1},rem_eye:{id:'rem_eye',uid:'remains',cnt:1}},d:{weightPct:82,loadTier:2}},actions=[];
-const ctx=vm.createContext({console,window:null,document:{readyState:'loading',createElement:node,getElementById:id=>ids[id],addEventListener:(name,fn)=>ready.push(fn)},player:actor,
+const ctx=vm.createContext({console,window:null,document:{readyState:'loading',body:node(),createElement:node,getElementById:id=>ids[id],addEventListener:(name,fn)=>ready.push(fn)},player:actor,
     DB:{items:{test_staff:{type:'wpn',n:'合成法杖'},rem_eye:{type:'acc',n:'之眼'},acc_earth_dragon_eye:{type:'acc',n:'地龍之魔眼'}}},
     getIconUrl:d=>'icons/'+d.n+'.png',capEn:value=>value,getUiScale:()=>.8,innerWidth:1920,matchMedia:()=>({matches:false}),
     loadStartKeyFromSummary:a=>a.avatar.startsWith('女')?'f_mage':'m_mage',loadFirstFrame:()=>0,loadFrameSrc:key=>'assets/start/'+key+'/0.png',
-    openModal:(...args)=>actions.push(['modal',...args]),unequipItem:key=>actions.push(['unequip',key]),requestAnimationFrame:fn=>fn(),addEventListener(){}});ctx.window=ctx;
+    openModal:(...args)=>actions.push(['modal',...args]),unequipItem:key=>actions.push(['unequip',key]),clearTimeout(){},requestAnimationFrame:fn=>fn(),addEventListener(){}});ctx.window=ctx;
 vm.runInContext(fs.readFileSync(path.join(root,'js/19-equipment-window.js'),'utf8'),ctx);
 const party=fs.readFileSync(path.join(root,'js/party-inspector.js'),'utf8');
 vm.runInContext(party.slice(party.indexOf('function partyEquipmentDefault('),party.indexOf('function partyEquipmentHtml(')),ctx);

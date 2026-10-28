@@ -27,9 +27,16 @@ async function check(name, fn) {
 }
 async function open(){await page.goto(options.url+'?optional-addons-test');await page.waitForFunction(()=>document.readyState==='complete'&&typeof startGame==='function');await page.evaluate(()=>{_bgHeartbeatWorker?.terminate();_bgHeartbeatWorker=null;_getLzWorker=()=>null;});}
 async function nativeClick(selector) {
+    if (selector === '[data-addon-id="mobile"]') {
+        await page.press(selector,'Space');
+        await page.waitForFunction(()=>!document.querySelector('[data-addon-id="mobile"]').disabled);
+        await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));
+        return;
+    }
+    await page.evaluate(selector => document.querySelector(selector)?.scrollIntoView({block:'center'}),selector);
+    await page.evaluate(()=>new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r))));
     const hit = await page.evaluate(selector => {
         const el = document.querySelector(selector); if (!el) return false;
-        el.scrollIntoView({block:'center'});
         const r = el.getBoundingClientRect(), target = document.elementFromPoint(r.x+r.width/2,r.y+r.height/2);
         return target === el || el.contains(target);
     },selector);
@@ -37,6 +44,7 @@ async function nativeClick(selector) {
     await page.click(selector);
 }
 async function settings(){
+    if(await page.evaluate(()=>!!document.getElementById('m-nav'))) await nativeClick('#m-nav [data-view="right"]');
     if(await page.evaluate(()=>document.getElementById('gear-toggle-btn')?.getAttribute('aria-expanded')==='true')) await nativeClick('#gear-toggle-btn');
     await nativeClick('#btn-automation');await nativeClick('#settings-tab-addons');
 }
@@ -126,7 +134,7 @@ await page.evaluate(()=>{setUiScale(80);closeWarehouseWindow();});
 if(!options.skipScreenshots)await page.screenshot({path:options.artifacts+'/optional-addons-mobile-'+options.protocol+'.png'});
 for(const [w,h] of [[844,390],[768,1024],[1024,768],[1920,1080]]){
     await viewport(w,h,w<=1024);await page.evaluate(()=>window.dispatchEvent(new Event('resize')));
-    await check(w+'x'+h+' mobile shell preserves navigation and restores desktop',()=>page.evaluate(w=>w>1024?!document.body.classList.contains('m-mobile'):document.getElementById('m-nav').getClientRects().length>0,w));
+    await check(w+'x'+h+' checked mobile mode keeps its navigation at every width',()=>page.evaluate(()=>document.body.classList.contains('m-mobile')&&document.getElementById('m-nav').getClientRects().length>0));
 }
 await settings();
 for (const item of await page.evaluate(()=>optionalAddons.catalog.map(x=>({id:x.id,on:document.querySelector('[data-addon-id="'+x.id+'"]').checked})))) if(!item.on) await nativeClick('[data-addon-id="'+item.id+'"]');
@@ -141,6 +149,7 @@ await check('town list uses the native visible NPCs',()=>page.evaluate(()=>{setM
 await check('repeated relics gain independent affixes after a plain first collection',()=>page.evaluate(()=>{const id=Object.keys(DB.items).find(id=>DB.items[id].relic&&DB.items[id].type==='wpn'&&!relicDexHas(id));const original=lootRng;lootRng=()=>0;try{gainItem(id,1,true,false);const first=player.inv.find(it=>it.id===id);const plain=!first.bless&&!first.anc&&!first.attr;gainItem(id,1,true,false);return plain&&player.inv.some(it=>it.id===id&&it.bless&&it.anc&&it.attr);}finally{lootRng=original;}}));
 await check('gold-card monster drops receive ancient affixes through the native gain path',()=>page.evaluate(()=>{const original=lootRng,context=_lootMobInfo;_cardRegister('妖魔',3,1);lootRng=()=>0;_lootMobInfo={n:'妖魔',boss:false};try{gainItem('wpn_katana',1,true,false);return player.inv.some(it=>it.id==='wpn_katana'&&it.anc);}finally{lootRng=original;_lootMobInfo=context;}}));
 await check('completed class trials expose repeat exchange without resetting quest state',()=>page.evaluate(()=>{const [key,c]=Object.entries(TRIAL_Q).find(([key,c])=>c.cls===player.cls);player.trialQ||={};player.trialQ[key]=2;return c.reqs.every(([id])=>trialItemActive(id))&&trialQHTML(key,'').includes('外掛批次兌換')&&player.trialQ[key]===2;}));
+if(await page.evaluate(()=>document.body.classList.contains('mlog-open'))) await nativeClick('#m-log-close');
 await page.evaluate(()=>{setMapSelectors(getHomeTown());changeMap(true);gainItem('wpn_5',3,true,true);openWarehouseWindow();});
 await nativeClick('#afk-whb-toggle');
 const batchId=await page.evaluate(()=>document.querySelector('#wh-inv-list [data-wh-transfer]')?.dataset.tipUid);

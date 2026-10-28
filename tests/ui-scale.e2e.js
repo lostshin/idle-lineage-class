@@ -1,7 +1,7 @@
 (async () => {
 // UI scale is tested with isolated storage, including a desktop storage bridge.
 const fs=await import('node:fs/promises');
-const task=await taskSpace(options.space || '整體 UI 縮放驗證');
+const task=await taskSpace(options.space ?? '整體 UI 縮放驗證');
 console.log({spaceId:task.spaceId});
 const page=task.page(options.page || 'p1');
 await page.cdp('Network.setCacheDisabled',{cacheDisabled:true});

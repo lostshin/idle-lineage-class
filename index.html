@@ -19,9 +19,10 @@
     <link rel="stylesheet" href="css/style.css?v=cb1dea3cf6">
     <link rel="stylesheet" href="css/floating-ui.css?v=3cf7238ef1">
     <link rel="stylesheet" href="css/tailwind-built.css?v=932535789f"><!-- 🔧 預編譯 Tailwind（取代執行期 JIT tailwind.js）：只含實際用到的 class，省 407KB runtime + 移除持續掃描 DOM 的成本。置於 style.css 之後以保留原 cascade（utility 平手時勝過自訂 class，與舊 JIT 注入順序一致） -->
-    <link rel="stylesheet" href="css/responsive.css?v=2d18693bb8">
+    <link rel="stylesheet" href="css/responsive.css?v=39511ce689">
     <link rel="stylesheet" href="css/addons.css?v=420511a7ea">
     <link rel="stylesheet" href="css/social-lobby.css?v=35f4e6de47">
+    <link rel="stylesheet" href="css/mobile-mode.css?v=f254f15631">
 </head>
 <body class="h-screen w-screen overflow-hidden">
 
@@ -648,8 +649,8 @@
 <script src="js/16-equip-book.js?v=06993d3f55"></script>
 <script src="js/18-misc-book.js?v=9a4bbc3677"></script>
 <script src="js/17-audio.js?v=8b26455c32"></script>
-<script src="js/19-equipment-window.js?v=44e1f3cb6a"></script>
-<script src="js/20-warehouse-window.js?v=e6c02170f9"></script>
+<script src="js/19-equipment-window.js?v=0b7a9d1679"></script>
+<script src="js/20-warehouse-window.js?v=1d66bd1ed9"></script>
 <script src="js/guild-window.js?v=bd44a717df"></script>
 <script src="js/21-relic-book.js?v=40aef7ae9b"></script>
     <script src="js/23-summons.js?v=6a3e978023"></script>
@@ -666,21 +667,28 @@
 <script src="js/32-threat.js?v=f9db556504"></script>
     <script src="js/account-transfer.js?v=996c397e74"></script>
     <!-- Add-on modules are byte-for-byte mirrors of the published pp771007 build. -->
-    <script src="js/addon-switches.js?v=0735f12b58"></script>
+    <script src="js/addon-switches.js?v=e165159c7c"></script>
     <script src="js/vendor/afk/afk-lzcache.js?v=97c5052e4d"></script>
     <script src="js/vendor/afk/afk-synccompress.js?v=9b74579d94"></script>
     <script src="js/vendor/afk/afk-clanroster.js?v=57ca5de903"></script>
     <script src="js/vendor/afk/afk-allyslim.js?v=c4899c933b"></script>
     <script src="js/vendor/afk/afk-ui.js?v=9307c7dda9"></script>
     <script src="js/vendor/afk/afk-extradata.js?v=fe68db6e9e"></script>
-    <script src="js/addon-mobile-bridge.js?v=65623f3361"></script>
-    <script src="js/vendor/afk/afk-mobile.js?v=e3a5444e65"></script>
-    <script src="js/vendor/afk/afk-backnav.js?v=44bd32c799"></script>
-    <script src="js/vendor/afk/afk-battlehud.js?v=ba0bc3e100"></script>
-    <script src="js/vendor/afk/afk-mapbar.js?v=35c2504cb4"></script>
-    <script src="js/vendor/afk/afk-nozoom.js?v=c1586fe7c7"></script>
-    <script src="js/vendor/afk/afk-statusicon.js?v=9d68288411"></script>
-    <script src="js/vendor/afk/afk-petui.js?v=4ceb829d4c"></script>
+    <script src="js/addon-mobile-bridge.js?v=98786c7d0d"></script>
+    <link rel="preload" as="script" href="js/vendor/afk/afk-mobile.js?v=e3a5444e65">
+    <script type="text/plain" data-mobile-addon="mobile" src="js/vendor/afk/afk-mobile.js?v=e3a5444e65"></script>
+    <link rel="preload" as="script" href="js/vendor/afk/afk-backnav.js?v=44bd32c799">
+    <script type="text/plain" data-mobile-addon="backnav" src="js/vendor/afk/afk-backnav.js?v=44bd32c799"></script>
+    <link rel="preload" as="script" href="js/vendor/afk/afk-battlehud.js?v=ba0bc3e100">
+    <script type="text/plain" data-mobile-addon="battlehud" src="js/vendor/afk/afk-battlehud.js?v=ba0bc3e100"></script>
+    <link rel="preload" as="script" href="js/vendor/afk/afk-mapbar.js?v=35c2504cb4">
+    <script type="text/plain" data-mobile-addon="mapbar" src="js/vendor/afk/afk-mapbar.js?v=35c2504cb4"></script>
+    <link rel="preload" as="script" href="js/vendor/afk/afk-nozoom.js?v=c1586fe7c7">
+    <script type="text/plain" data-mobile-addon="nozoom" src="js/vendor/afk/afk-nozoom.js?v=c1586fe7c7"></script>
+    <link rel="preload" as="script" href="js/vendor/afk/afk-statusicon.js?v=9d68288411">
+    <script type="text/plain" data-mobile-addon="statusicon" src="js/vendor/afk/afk-statusicon.js?v=9d68288411"></script>
+    <link rel="preload" as="script" href="js/vendor/afk/afk-petui.js?v=4ceb829d4c">
+    <script type="text/plain" data-mobile-addon="petui" src="js/vendor/afk/afk-petui.js?v=4ceb829d4c"></script>
     <script src="js/vendor/afk/afk-dex.js?v=51229046e4"></script>
     <script src="js/vendor/afk/afk-wiki.js?v=9d90fdc7c7"></script>
     <script src="js/vendor/afk/afk-storage.js?v=db58fa6793"></script>
@@ -715,10 +723,14 @@
     <script src="js/vendor/afk/afk-attrbatch.js?v=499133ae01"></script>
     <script src="js/vendor/afk/afk-cursebatch.js?v=5ededab1ee"></script>
     <script src="js/vendor/afk/afk-sellguard.js?v=9646b6b466"></script>
-    <script src="js/vendor/afk/afk-battlebuffs.js?v=90233dcfe7"></script>
-    <script src="js/vendor/afk/afk-skillbar.js?v=6217154fbd"></script>
-    <script src="js/vendor/afk/afk-toast.js?v=376018250b"></script>
-    <script src="js/vendor/afk/afk-touchtip.js?v=cde210c5f1"></script>
+    <link rel="preload" as="script" href="js/vendor/afk/afk-battlebuffs.js?v=90233dcfe7">
+    <script type="text/plain" data-mobile-addon="battlebuffs" src="js/vendor/afk/afk-battlebuffs.js?v=90233dcfe7"></script>
+    <link rel="preload" as="script" href="js/vendor/afk/afk-skillbar.js?v=6217154fbd">
+    <script type="text/plain" data-mobile-addon="skillbar" src="js/vendor/afk/afk-skillbar.js?v=6217154fbd"></script>
+    <link rel="preload" as="script" href="js/vendor/afk/afk-toast.js?v=376018250b">
+    <script type="text/plain" data-mobile-addon="toast" src="js/vendor/afk/afk-toast.js?v=376018250b"></script>
+    <link rel="preload" as="script" href="js/vendor/afk/afk-touchtip.js?v=cde210c5f1">
+    <script type="text/plain" data-mobile-addon="touchtip" src="js/vendor/afk/afk-touchtip.js?v=cde210c5f1"></script>
     <script src="js/vendor/afk/afk-anyclass.js?v=ddc7976232"></script>
     <script src="js/vendor/afk/afk-locksafe.js?v=e7a6ebf51c"></script>
     <script src="js/vendor/afk/afk-buyercompat.js?v=e1d9381953"></script>
@@ -729,9 +741,9 @@
     <script src="js/vendor/afk/afk-pwa.js?v=b6674413dc"></script>
     <script src="js/vendor/afk/afk-sw.js?v=6a1669d3ff"></script>
     <script src="js/addon-integration.js?v=5284ac1a93"></script>
-    <script src="js/addon-optional-integration.js?v=9cc979ce73"></script>
+    <script src="js/addon-optional-integration.js?v=b919fa1720"></script>
     <script src="js/gear-accelerator.js?v=5d4cccf5d3"></script>
-    <script src="js/addon-settings.js?v=60043ce12f"></script>
+    <script src="js/addon-settings.js?v=adedbfafd7"></script>
     <script src="js/online-presence.js?v=9bb1b15138"></script>
     <script src="js/social-lobby.js?v=4bed625a11"></script>
 </body>

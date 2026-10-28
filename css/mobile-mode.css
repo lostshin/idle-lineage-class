@@ -1,0 +1,54 @@
+/* Explicit mobile mode; removing m-mobile restores the original styles. */
+body.m-mobile {
+    --mobile-frame-width:min(calc(600px * var(--ui-scale-inverse,1)),var(--ui-width,100vw));
+    --mobile-frame-left:calc((var(--ui-width,100vw) - var(--mobile-frame-width)) / 2);
+}
+body.m-mobile #game-screen:not(.hidden) {
+    position:fixed; inset:0 auto 0 var(--mobile-frame-left); display:flex !important;
+    flex-direction:column; align-items:stretch; gap:8px !important;
+    width:var(--mobile-frame-width); height:var(--ui-height,100dvh); padding:8px;
+    overflow-x:hidden; overflow-y:auto; overscroll-behavior:contain;
+}
+body.m-mobile :is(#col-left,#col-center,#col-right) {
+    flex:0 0 auto !important; width:100% !important; min-width:0; max-width:none;
+    height:auto; min-height:0; gap:8px !important;
+}
+body.m-mobile :is(#m-nav,#m-log-sheet) {
+    left:var(--mobile-frame-left) !important; right:auto !important; width:var(--mobile-frame-width) !important;
+}
+body.m-mobile :is(#map-view-panel,#squad-panel,#status-panel) { flex:none; }
+body.m-mobile #town-view { flex:none; }
+body.m-mobile #col-right > .tab-bar { position:sticky; top:0; z-index:65; }
+body.m-mobile #tab-content-panel:not(.equipment-panel-host) { flex:none; height:auto !important; min-height:0; overflow:visible; }
+body.m-mobile #tab-content-panel:not(.equipment-panel-host) > [id^="tab-"] { height:auto !important; max-height:none; }
+body.m-mobile #tab-content-panel .player-backpack-tab .classic-inventory-viewport {
+    position:relative; inset:auto; width:100%; height:auto; overflow:visible; overscroll-behavior:auto;
+}
+body.m-mobile #item-modal:not(.hidden) {
+    left:calc(var(--mobile-frame-left) + 8px) !important;
+    width:calc(var(--mobile-frame-width) - 16px) !important;
+    height:calc(var(--addon-mobile-height,var(--ui-height,100dvh)) - var(--addon-nav-height,55px) - 16px) !important;
+    display:flex !important; flex-direction:column !important; align-items:stretch !important; gap:8px;
+}
+body.m-mobile #item-modal > div:is(#modal-compare,#modal-item-window) { width:100% !important; }
+body.m-mobile #item-modal > #modal-compare:not(.hidden) { flex:0 1 38%; max-height:38% !important; }
+body.m-mobile #warehouse-window #warehouse-window-frame {
+    left:calc(var(--mobile-frame-left) + 8px) !important;
+    width:calc(var(--mobile-frame-width) - 16px) !important;
+    min-width:0; max-width:none;
+}
+body.m-mobile #town-interaction-container:not(.hidden) {
+    left:calc(var(--mobile-frame-left) + 8px) !important; top:8px !important; transform:none !important;
+    width:calc(var(--mobile-frame-width) - 16px) !important;
+    height:calc(var(--addon-mobile-height,var(--ui-height,100dvh)) - var(--addon-nav-height,55px) - 16px) !important;
+}
+body.m-mobile #m-log-body #log-row { min-height:0; }
+body.m-mobile #m-log-body :is(#combat-log-panel,#syslog-panel) { min-height:0; }
+@media (max-height:520px) {
+    body.m-mobile { --mobile-frame-width:var(--ui-width,100vw); }
+}
+@media (min-width:640px) and (max-height:520px) {
+    body.m-mobile #item-modal:not(.hidden) { flex-direction:row !important; }
+    body.m-mobile #item-modal > div:is(#modal-compare,#modal-item-window) { width:0 !important; flex:1 1 0; }
+    body.m-mobile #item-modal > #modal-compare:not(.hidden) { flex:1 1 0; max-height:100% !important; }
+}

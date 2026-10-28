@@ -65,8 +65,39 @@
         frame.style.transform = 'none';
     }
 
+    window.bindClassicWindowDrag = function (frame, handle) {
+        let drag = null;
+        function move(x, y) {
+            const r = frame.getBoundingClientRect();
+            frame.style.left = screenToUiPx(Math.max(8, Math.min(document.documentElement.clientWidth - r.width - 8, x)));
+            frame.style.top = screenToUiPx(Math.max(8, Math.min(document.documentElement.clientHeight - r.height - 8, y)));
+            frame.style.transform = 'none';
+        }
+        handle.addEventListener('pointerdown', function (event) {
+            if (event.button !== 0 || event.target.closest('button, input, select')) return;
+            frame.dataset.windowMoved = 'true';
+            const rect = frame.getBoundingClientRect();
+            drag = { id: event.pointerId, dx: event.clientX - rect.left, dy: event.clientY - rect.top };
+            handle.setPointerCapture(event.pointerId);
+            event.preventDefault();
+        });
+        handle.addEventListener('pointermove', function (event) {
+            if (drag?.id === event.pointerId) move(event.clientX - drag.dx, event.clientY - drag.dy);
+        });
+        for (const type of ['pointerup','pointercancel','lostpointercapture']) handle.addEventListener(type, function (event) {
+            if (drag?.id === event.pointerId) drag = null;
+        });
+        function fitMoved() {
+            if (frame.dataset.windowMoved !== 'true' || !frame.checkVisibility()) return;
+            const r = frame.getBoundingClientRect();
+            move(r.left, r.top);
+        }
+        addEventListener('resize', fitMoved);
+        addEventListener('ui-scale-change', fitMoved);
+    };
+
     window.bindClassicWindow = function (frame, handle, close, isOpen, onClose, kind) {
-        let drag = null, sizing = null;
+        let sizing = null;
         function fitWindow() { if (isOpen()) fitClassicWindow(frame, 760, 480); }
         close.onclick = onClose;
 
@@ -81,7 +112,7 @@
             frame.appendChild(edge);
             edge.addEventListener('pointerdown', function (event) {
                 if (event.button !== 0) return;
-                fitWindow(); drag = null;
+                fitWindow();
                 sizing = { id: event.pointerId, side, x: event.clientX, y: event.clientY, r: frame.getBoundingClientRect() };
                 edge.setPointerCapture(event.pointerId);
                 event.preventDefault();
@@ -101,29 +132,7 @@
             });
         }
 
-        handle.addEventListener('pointerdown', function (event) {
-            if (event.target.closest('button, input, select')) return;
-            frame.dataset.windowMoved = 'true';
-            const rect = frame.getBoundingClientRect();
-            drag = { id: event.pointerId, dx: event.clientX - rect.left, dy: event.clientY - rect.top };
-            handle.setPointerCapture(event.pointerId);
-            // 🗑️ 移除 classList.add('is-dragging')：三份樣式表(style/floating-ui/tailwind-built)皆無此選擇器、亦無任何 JS 讀取 → 純無效果的狀態標記。
-            event.preventDefault();
-        });
-        handle.addEventListener('pointermove', function (event) {
-            if (!drag || drag.id !== event.pointerId) return;
-            const maxX = Math.max(0, document.documentElement.clientWidth - frame.getBoundingClientRect().width);
-            const maxY = Math.max(0, document.documentElement.clientHeight - frame.getBoundingClientRect().height);
-            frame.style.left = screenToUiPx(Math.max(8, Math.min(maxX - 8, event.clientX - drag.dx)));
-            frame.style.top = screenToUiPx(Math.max(8, Math.min(maxY - 8, event.clientY - drag.dy)));
-            frame.style.transform = 'none';
-        });
-        function stop(event) {
-            if (!drag || drag.id !== event.pointerId) return;
-            drag = null;   // 🗑️ 同上：原 classList.remove('is-dragging') 一併移除
-        }
-        handle.addEventListener('pointerup', stop);
-        handle.addEventListener('pointercancel', stop);
+        bindClassicWindowDrag(frame, handle);
         addEventListener('resize', fitWindow);
         addEventListener('ui-scale-change', fitWindow);
         return fitWindow;
@@ -132,6 +141,7 @@
     function init() {
         const frame = el('warehouse-window-frame');
         if (frame) bindClassicWindow(frame, el('warehouse-window-drag'), el('warehouse-window-close'), warehouseWindowIsOpen, closeWarehouseWindow, 'warehouse');
+        bindClassicWindowDrag(el('town-interaction-container'), el('town-interaction-header'));
     }
 
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);

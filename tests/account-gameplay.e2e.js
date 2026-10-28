@@ -1,5 +1,5 @@
 (async()=>{
-const fs=await import('node:fs/promises');const task=await taskSpace(options.space||'帳號與戰鬥功能驗證');console.log({spaceId:task.spaceId});const page=task.page(options.page||'p1');await page.cdp('Network.setCacheDisabled',{cacheDisabled:true});
+const fs=await import('node:fs/promises');const task=await taskSpace(options.space ??'帳號與戰鬥功能驗證');console.log({spaceId:task.spaceId});const page=task.page(options.page||'p1');await page.cdp('Network.setCacheDisabled',{cacheDisabled:true});
 let initId;const reports=[];const out=options.artifacts+'/account-gameplay-'+(options.baseline?'baseline':options.protocol)+'.json';
 async function check(name,fn){try{const result=await fn();if(result!==true)throw Error(JSON.stringify(result));reports.push({name,status:'PASS'});}catch(e){reports.push({name,status:'FAIL',error:String(e)});console.log({failed:name,error:String(e)});}await fs.writeFile(out,JSON.stringify({date:new Date().toISOString(),reports},null,2));}
 async function boot(seed={},desktop=false){

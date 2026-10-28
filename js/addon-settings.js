@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const nav = document.createElement('div'); nav.className = 'settings-tabs'; nav.setAttribute('role','tablist'); nav.setAttribute('aria-label','設定分類');
     nav.innerHTML = '<button type="button" class="btn" id="settings-tab-general" role="tab" aria-controls="settings-general" aria-selected="true">一般設定</button><button type="button" class="btn" id="settings-tab-addons" role="tab" aria-controls="settings-addons" aria-selected="false" tabindex="-1">加掛版功能</button>';
     const panel = document.createElement('section'); panel.id = 'settings-addons'; panel.className = 'hidden'; panel.setAttribute('role','tabpanel'); panel.setAttribute('aria-labelledby','settings-tab-addons');
-    panel.innerHTML = '<p class="addon-intro">目前已內建的功能維持開啟。以下額外功能預設關閉，這台裝置的角色共用選擇；儲存並重新載入後生效。</p><div id="addons-options"></div><details class="addon-info"><summary>已內建的功能</summary><p>木人場、賽狗、自動補貨、找王／避王、查詢與小百科、倉庫擴充、能力來源、隊伍介面、離線結算及帳號搬移，皆是本版固定基底。</p></details><details class="addon-info"><summary>未提供的來源功能</summary><p>來源離線引擎、舊點數來源與整包清空還原已由本版取代。身分重發、第三方搬家、作者統計及重複首頁工具不列入可選功能。</p></details><section id="addon-history" hidden></section><div class="addon-actions"><button type="button" class="btn" id="addons-apply">儲存並重新載入</button><button type="button" class="btn" id="addons-cancel">取消變更</button><button type="button" class="btn" id="addons-off">全部關閉</button><p id="addons-status" role="status" aria-live="polite"></p></div>';
+    panel.innerHTML = '<p class="addon-intro">目前已內建的功能維持開啟。額外功能預設關閉，這台裝置的角色共用選擇；「行動裝置版」勾選或取消立即儲存並生效，其餘功能儲存並重新載入後生效。</p><div id="addons-options"></div><details class="addon-info"><summary>已內建的功能</summary><p>木人場、賽狗、自動補貨、找王／避王、查詢與小百科、倉庫擴充、能力來源、隊伍介面、離線結算及帳號搬移，皆是本版固定基底。</p></details><details class="addon-info"><summary>未提供的來源功能</summary><p>來源離線引擎、舊點數來源與整包清空還原已由本版取代。身分重發、第三方搬家、作者統計及重複首頁工具不列入可選功能。</p></details><section id="addon-history" hidden></section><div class="addon-actions"><button type="button" class="btn" id="addons-apply">儲存其他變更並重新載入</button><button type="button" class="btn" id="addons-cancel">取消變更</button><button type="button" class="btn" id="addons-off">全部關閉</button><p id="addons-status" role="status" aria-live="polite"></p></div>';
     host.append(nav,general,panel);
     const list = panel.querySelector('#addons-options');
     let group = '';
@@ -29,10 +29,42 @@ document.addEventListener('DOMContentLoaded', () => {
         const button = document.getElementById('settings-tab-'+id); button.onclick = () => select(id);
         button.onkeydown = event => { if (!['ArrowLeft','ArrowRight','Home','End'].includes(event.key)) return; event.preventDefault(); const next = event.key === 'Home' ? 'general' : event.key === 'End' ? 'addons' : id === 'general' ? 'addons' : 'general'; select(next); document.getElementById('settings-tab-'+next).focus(); };
     }
-    list.addEventListener('change',() => status('尚未套用，儲存並重新載入後生效。'));
+    async function applyMobile(input) {
+        const previous = optionalAddons.selection().mobile;
+        if (input.checked === previous) return true;
+        input.disabled = true;
+        try {
+            optionalAddons.setMobile(input.checked);
+            await mobileUi.sync(true);
+            status('行動裝置版已'+(optionalAddons.selection().mobile ? '啟用' : '關閉')+'，不需重新載入。');
+            return true;
+        } catch (error) {
+            let message = error.message;
+            if (optionalAddons.selection().mobile !== previous) {
+                try { optionalAddons.setMobile(previous); }
+                catch (rollback) { message += ' 設定未能還原，請重試。'; }
+            }
+            if (optionalAddons.selection().mobile === previous) await mobileUi.sync(true);
+            input.checked = optionalAddons.selection().mobile;
+            status(message);
+            return false;
+        } finally {
+            input.disabled = false;
+            input.closest('.addon-option').scrollIntoView({block:'center',inline:'nearest'});
+        }
+    }
+    list.addEventListener('change',event => {
+        if (event.target.dataset.addonId === 'mobile') applyMobile(event.target);
+        else status('其他變更尚未套用，儲存並重新載入後生效。');
+    });
     document.getElementById('addons-cancel').onclick = () => { const active = optionalAddons.selection(); for (const input of list.querySelectorAll('input')) input.checked = active[input.dataset.addonId]; status('已取消變更。'); };
-    document.getElementById('addons-off').onclick = () => { for (const input of list.querySelectorAll('input')) input.checked = false; status('已選擇全部關閉，尚未套用。'); };
+    document.getElementById('addons-off').onclick = async () => {
+        for (const input of list.querySelectorAll('input')) input.checked = false;
+        if (await applyMobile(list.querySelector('[data-addon-id="mobile"]'))) status('行動裝置版已關閉；其他關閉選擇尚未套用。');
+    };
     document.getElementById('addons-apply').onclick = () => {
+        const next = selection(), current = optionalAddons.selection();
+        if (optionalAddons.catalog.every(item => next[item.id] === current[item.id])) { status('目前設定已套用，不需重新載入。'); return; }
         try {
             accountIdleRequired();
             if (state.ff || typeof catchupActive === 'function' && catchupActive()) throw Error('正在結算，請完成後再套用。');

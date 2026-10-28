@@ -38,7 +38,7 @@ SUITES += ['same-batch-enhance']
 SUITES += ['same-batch-ux']
 SUITES += ['feedback-1022']
 SUITES += ['guild-poly','catchup-progress','catchup-equivalence','item-effects','item-breathing']
-SUITES += ['feedback-1023','player-poly','player-reports-1023']
+SUITES += ['feedback-1023','player-poly','player-reports-1023','player-ui','player-ui-desktop','player-ui-touch','mobile-live','mobile-manual']
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--desktop-only', action='store_true', help='Skip mobile and tablet viewport checks')
@@ -59,10 +59,10 @@ if not 0 <= args.soak_minutes <= 1440:
 suites = [s for name in args.suite for s in (REQUIRED if name == 'required' else [name])]
 protocols = ['http','file'] if args.protocol == 'both' else [args.protocol]
 runs = [(protocol, suite) for protocol in protocols for suite in suites]
-if len(runs) > 1 and not args.space:
+if len(runs) > 1 and args.space is None:
     parser.error('running several suites or protocols requires --space so every run shares one task space')
 for i, (protocol, suite) in enumerate(runs):
-    if suite.startswith('visual-') and not args.space:
+    if suite.startswith('visual-') and args.space is None:
         parser.error(suite + ' requires --space from a ' + suite[len('visual-'):] + ' --keep-space run')
     if suite.startswith('visual-') and i > 0 and runs[i - 1] != (protocol, suite[len('visual-'):]):
         parser.error(suite + ' must directly follow ' + suite[len('visual-'):] + ' in the same protocol')

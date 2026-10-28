@@ -1,7 +1,7 @@
 // Native warehouse interactions in synthetic storage; no player saves are accessed.
 (async()=>{
 const fs=await import('node:fs/promises'),crypto=await import('node:crypto');
-const task=await taskSpace(options.space||'裝備提示精簡與倉庫改版'),page=task.page('p1'),reports=[];
+const task=await taskSpace(options.space ??'裝備提示精簡與倉庫改版'),page=task.page('p1'),reports=[];
 console.log({spaceId:task.spaceId});
 const sources={};
 for(const file of ['js/12-npc-quests.js','js/20-warehouse-window.js','assets/ui/warehouse-frame-v1.webp','assets/ui/warehouse-row-v1.webp','js/effect-details.js','js/14-craft-pandora.js','css/floating-ui.css','css/responsive.css','index.html','tests/warehouse-list.e2e.js','tests/effect-details.e2e.js'])sources[file]=crypto.createHash('sha256').update(await fs.readFile(options.root+'/'+file)).digest('hex');

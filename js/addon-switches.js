@@ -2,7 +2,7 @@
 (function () {
     const key = 'lineage_optional_addons_v1';
     const catalog = [
-        ['mobile','行動裝置版','行動支援','整合底部導覽、浮動日誌、技能快捷列、長按說明與觸控版面。'],
+        ['mobile','行動裝置版','行動支援','勾選或取消立即儲存並生效；整合底部導覽、浮動日誌、技能快捷列、長按說明與觸控版面。'],
         ['invlist','背包條列式','顯示偏好','武器、防具與道具改為一行一件。'],
         ['eqlist','主角裝備條列式','顯示偏好','主角裝備改為部位清單；隊友裝備浮窗維持原樣。'],
         ['npclist','村莊 NPC 清單','顯示偏好','村莊改以角色清單操作，關閉恢復地圖。'],
@@ -35,6 +35,7 @@
             registry.push(entry); byId.set(spec.id,entry);
         },
         enabled(id) {
+            if (mobile.has(id) && document.currentScript?.dataset.mobileRuntime) return true;
             if (overrides.has(id)) return overrides.get(id);
             if (mobile.has(id)) return active.mobile;
             return optional.has(id) ? active[id] : fixed.has(id);
@@ -44,16 +45,28 @@
         list() { return registry.slice(); }
     };
     for (const item of catalog) AFK_TOGGLES.register(item);
+    function persist(enabled) {
+        const before = _lsGet(key);
+        try {
+            const current = JSON.parse(before);
+            if (current?.v === 1 && current.enabled && typeof current.enabled === 'object' && !Array.isArray(current.enabled)) stored = current;
+        } catch (e) {}
+        const value = JSON.stringify({...stored,v:1,enabled:{...stored.enabled,...enabled}});
+        if (!_lsSet(key,value) || _lsGet(key) !== value) {
+            if (_lsGet(key) !== before) { if (before == null) _lsRemove(key); else _lsSet(key,before); }
+            throw Error('加掛設定儲存失敗，尚未套用，請重試。');
+        }
+        stored = JSON.parse(value);
+    }
     window.optionalAddons = {
         catalog, key,
         selection() { return {...active}; },
+        setMobile(on) {
+            persist({mobile:!!on});
+            active.mobile = !!on;
+        },
         save(selection) {
-            const value = JSON.stringify({...stored,v:1,enabled:{...stored.enabled,...Object.fromEntries(catalog.map(item => [item.id,selection[item.id] === true]))}});
-            const before = _lsGet(key);
-            if (!_lsSet(key,value) || _lsGet(key) !== value) {
-                if (_lsGet(key) !== before) { if (before == null) _lsRemove(key); else _lsSet(key,before); }
-                throw Error('加掛設定儲存失敗，尚未重新載入，請重試。');
-            }
+            persist(Object.fromEntries(catalog.map(item => [item.id,selection[item.id] === true])));
         }
     };
 })();

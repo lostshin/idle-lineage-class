@@ -115,6 +115,40 @@
 /* Embedded equipment must scroll with its panel, without covering tab controls. */
 #equipment-window.equipment-window-embedded { position: absolute; inset: 0; }
 
+#town-interaction-header { cursor:grab; touch-action:none; }
+
+/* Mobile windows use UI coordinates so device scaling cannot clip their contents. */
+body.m-mobile #item-modal:not(.hidden) {
+    inset:auto !important; left:8px !important; top:8px !important;
+    width:calc(var(--ui-width,100vw) - 16px) !important;
+    height:calc(var(--ui-height,100dvh) - var(--m-nav-h,0px) - 16px) !important;
+    transform:none !important; z-index:100 !important;
+}
+body.m-mobile #item-modal > div:is(#modal-compare,#modal-item-window) { max-height:100% !important; }
+body.m-mobile #item-modal > #modal-compare:not(.hidden) { flex:0 1 38%; max-height:38% !important; }
+body.m-mobile #item-modal > #modal-item-window { flex:1 1 0; }
+body.m-mobile #warehouse-window #warehouse-window-frame {
+    left:8px !important; top:8px !important; transform:none !important;
+    width:calc(var(--ui-width,100vw) - 16px) !important;
+    height:calc(var(--ui-height,100dvh) - var(--m-nav-h,0px) - 16px) !important;
+}
+body.m-mobile #warehouse-window :is(.wh-name,.wh-quantity-button) { font-size:calc(14px * var(--ui-scale-inverse,1)); }
+body.m-mobile #warehouse-window .wh-list { --wh-row-height:calc(46px * var(--ui-scale-inverse,1)); }
+body.m-mobile.mlog-open #m-log-sheet {
+    height:min(calc(var(--ui-height,100dvh) * .65),calc(var(--ui-height,100dvh) - var(--m-nav-h,0px) - 16px));
+}
+body.m-mobile #tab-content-panel > #tab-stats { overflow-x:auto !important; align-items:flex-start; }
+body.m-mobile #tab-stats .ability-window-shell { min-width:calc(560px * var(--ui-scale-inverse,1)); }
+body.m-mobile #tab-stats :is(.ability-detail-column,[data-ability-field]) { font-size:calc(14px * var(--ui-scale-inverse,1)) !important; }
+@media (max-width:768px), (max-height:520px) and (pointer:coarse) {
+    body.m-mobile #tab-content-panel .player-backpack-tab .classic-inventory-viewport { position:relative; inset:auto; width:100%; }
+}
+@media (min-width:640px) {
+    body.m-mobile #item-modal:not(.hidden) { flex-direction:row !important; }
+    body.m-mobile #item-modal > #modal-compare:not(.hidden) { flex:1 1 0; max-height:100% !important; }
+    body.m-mobile #item-modal > div:is(#modal-compare,#modal-item-window) { width:0 !important; }
+}
+
 /* Keep item actions scrollable and the close button visible on short screens. */
 /* A: two independent silver windows; native content scrolls below each title. */
 #item-modal { position:fixed; inset:auto; left:50%; top:50%; transform:translate(-50%,-50%); width:min(460px,calc(var(--ui-width,100vw) - 32px)); max-height:calc(var(--ui-height,100dvh) - 32px); gap:20px; align-items:flex-start; pointer-events:none; }

@@ -203,8 +203,14 @@
             if (item && data) {
                 slot.setAttribute('data-tip-uid', item.uid);
                 slot.setAttribute('data-tip-src', 'eq');
-                slot.onclick = function () { openModal(item, true, actualKey); };
+                slot.onclick = function () {
+                    if (!document.body.classList.contains('m-mobile')) return openModal(item, true, actualKey);
+                    // Let the second touch reach the slot before the item popup covers it.
+                    clearTimeout(window._invClickTimer);
+                    window._invClickTimer = setTimeout(() => openModal(item, true, actualKey), 230);
+                };
                 slot.ondblclick = function (event) {
+                    clearTimeout(window._invClickTimer);
                     event.preventDefault();
                     event.stopPropagation();
                     unequipItem(actualKey);
@@ -228,7 +234,7 @@
         if (!frame || !win || win.classList.contains('hidden')) return;
         const host = el('tab-content-panel');
         if (!host) return;
-        if (matchMedia('(max-width: 768px)').matches) {
+        if (document.body.classList.contains('m-mobile') || matchMedia('(max-width: 768px)').matches) {
             const mobileHeight = Math.ceil(host.clientWidth * 4 / 3) + 36;
             host.style.setProperty('--equipment-panel-height', mobileHeight + 'px');
         }
@@ -268,14 +274,14 @@
         if (host) {
             if (win.parentElement !== host) host.appendChild(win);
             host.classList.toggle('equipment-panel-host', visible);
-            if (!visible || !matchMedia('(max-width: 768px)').matches) host.style.removeProperty('--equipment-panel-height');
+            if (!visible || !(document.body.classList.contains('m-mobile') || matchMedia('(max-width: 768px)').matches)) host.style.removeProperty('--equipment-panel-height');
             else host.style.setProperty('--equipment-panel-height', (Math.ceil(host.clientWidth * 4 / 3) + 36) + 'px');
         }
         win.classList.add('equipment-window-embedded');
         win.classList.toggle('hidden', !visible);
         win.setAttribute('aria-hidden', visible ? 'false' : 'true');
         if (!visible) return;
-        if (matchMedia('(max-width: 768px)').matches) {
+        if (document.body.classList.contains('m-mobile') || matchMedia('(max-width: 768px)').matches) {
             const scroller = el('game-screen');
             if (scroller && host) {
                 const scrollerRect = scroller.getBoundingClientRect();

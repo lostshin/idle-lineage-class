@@ -90,7 +90,7 @@
         if (section.children.length > 1) div.firstElementChild.appendChild(section);
         return result;
     };
-    document.addEventListener('touchstart',() => { window.addonTouchTooltip = true; },{passive:true,capture:true});
+    document.addEventListener('touchstart',() => { window.addonTouchTooltip = !!window.mobileUi?.active(); },{passive:true,capture:true});
     document.addEventListener('pointermove',event => { if (event.pointerType === 'mouse') window.addonTouchTooltip = false; },{passive:true,capture:true});
     if (AFK_TOGGLES.enabled('dollcursor')) {
         document.body.classList.add('addon-no-doll-cursor');
@@ -100,12 +100,12 @@
     }
     const render = window.renderWarehouseNPC;
     let side = 'inv';
-    window.renderWarehouseNPC = function (div) {
-        const result = render.apply(this,arguments);
+    function syncWarehouseTabs() {
         const host = document.getElementById('warehouse-window-content');
-        if (!host || !host.querySelector('.wh-panel')) return result;
+        if (!host || !host.querySelector('.wh-panel')) return;
         host.dataset.mobileSide = side;
-        if (AFK_TOGGLES.enabled('mobile') && !host.querySelector('.warehouse-mobile-tabs')) {
+        if (!window.mobileUi.active()) { host.querySelector('.warehouse-mobile-tabs')?.remove(); return; }
+        if (!host.querySelector('.warehouse-mobile-tabs')) {
             const tabs = document.createElement('div'); tabs.className = 'warehouse-mobile-tabs'; tabs.setAttribute('role','tablist'); tabs.setAttribute('aria-label','倉庫清單');
             for (const [id,name] of [['inv','背包'],['wh','倉庫']]) {
                 const button = document.createElement('button'); button.className = 'btn'; button.type = 'button'; button.dataset.warehouseSide = id;
@@ -115,11 +115,15 @@
             }
             host.querySelector('.wh-columns').before(tabs);
         }
+    }
+    window.renderWarehouseNPC = function (div) {
+        const result = render.apply(this,arguments);
+        syncWarehouseTabs();
         return result;
     };
-    if (!AFK_TOGGLES.enabled('mobile')) return;
-    const home = document.getElementById('log-row').parentNode;
+    addEventListener('mobile-ui-change',syncWarehouseTabs);
     function fitMobileViewport() {
+        if (!window.mobileUi.active()) return;
         const root = document.documentElement, viewport = window.visualViewport, scale = getUiScale();
         const height = Math.min(root.clientHeight,viewport ? viewport.height : root.clientHeight);
         const bottom = Math.max(0,root.clientHeight-height-(viewport ? viewport.offsetTop : 0));
@@ -130,22 +134,19 @@
     }
     window.visualViewport?.addEventListener('resize',fitMobileViewport);
     window.visualViewport?.addEventListener('scroll',fitMobileViewport);
-    new MutationObserver(fitMobileViewport).observe(document.body,{childList:true});
+    const viewportObserver = new MutationObserver(fitMobileViewport);
     function sync() {
-        const mobile = matchMedia('(pointer:coarse)').matches || matchMedia('(max-width:820px)').matches;
-        document.body.classList.toggle('m-mobile',mobile);
-        if (!mobile) {
-            const row = document.getElementById('log-row'); if (row.parentNode !== home) home.appendChild(row);
-            document.getElementById('m-log-sheet')?.remove(); document.getElementById('m-nav')?.remove();
-            document.body.classList.remove('mview-left','mview-center','mview-right','mlog-open');
-            document.documentElement.style.setProperty('--m-nav-h','0px');
+        if (window.mobileUi.active()) { viewportObserver.observe(document.body,{childList:true}); fitMobileViewport(); }
+        else {
+            viewportObserver.disconnect();
+            for (const key of ['--addon-mobile-height','--addon-keyboard-bottom','--addon-nav-height']) document.documentElement.style.removeProperty(key);
         }
-        fitMobileViewport();
-        if (window.gameLayout) gameLayout.apply();
     }
     addEventListener('resize',sync);
+    addEventListener('mobile-ui-change',sync);
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded',sync); else sync();
     document.addEventListener('click',event => {
+        if (!window.mobileUi.active()) return;
         if (event.target.closest('[data-view="logout"]')) queueMicrotask(() => {
             const message = document.getElementById('m-logout-msg'); if (message) message.textContent = '回首頁或切換角色前會儲存進度。離線收益依本版資格與 12 小時上限計算。';
             for (const button of document.querySelectorAll('.m-logout-slot-go')) if (Number(button.dataset.slot) > visibleSaveSlotMax()) button.closest('.m-logout-slot').remove();

@@ -1,6 +1,6 @@
 // All browser storage is synthetic; personal characters and iCloud files are never used.
 const fs=await import('node:fs/promises');
-const task=await taskSpace(options.space || '天堂原版 RWD 驗證');
+const task=await taskSpace(options.space ?? '天堂原版 RWD 驗證');
 console.log({spaceId:task.spaceId});
 const page=task.page(options.page || 'p1');
 await page.cdp('Network.setCacheDisabled',{cacheDisabled:true});

@@ -1,6 +1,6 @@
 (async () => {
 const fs=await import('node:fs/promises');
-const task=await taskSpace(options.space || '遊玩功能修復驗證');console.log({spaceId:task.spaceId});
+const task=await taskSpace(options.space ?? '遊玩功能修復驗證');console.log({spaceId:task.spaceId});
 const page=task.page(options.page || 'p1');await page.cdp('Network.setCacheDisabled',{cacheDisabled:true});
 let initId;const reports=[];
 async function boot(seed={}){
