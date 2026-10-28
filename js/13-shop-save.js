@@ -415,9 +415,9 @@ function _roleSessionHeartbeat(){
     if(active && typeof syncMercenaryEmploymentRegistry === 'function') syncMercenaryEmploymentRegistry();
     if(active && typeof enforceMercenarySafeArea === 'function') enforceMercenarySafeArea();
 }
-function _roleOtherActiveSessions(){
+function _roleOtherActiveSessions(readOnly = false){
     let reg = _rolePruneSessions(_roleReadObject(ROLE_SESSION_REGISTRY_KEY));
-    _roleWriteObject(ROLE_SESSION_REGISTRY_KEY, reg);
+    if (!readOnly) _roleWriteObject(ROLE_SESSION_REGISTRY_KEY, reg);
     return Object.keys(reg).filter(id => id !== _roleSessionId).map(id => reg[id]);
 }
 function _roleMarkDeleted(fp){
@@ -1287,6 +1287,12 @@ function updateClassPotionRows() {
 //    會把靜態預設 UI 寫進存檔、永久洗掉玩家全部自動化設定。未就緒時保留既有 player.config 原樣入檔。
 let _uiConfigReady = false;
 let _saveFailureNotified = false;
+const saveHealth = new Map();
+function recordSaveAttempt(saved) {
+    const id = accountRoleId(player), previous = saveHealth.get(id) || {};
+    saveHealth.set(id,{at:saved ? Date.now() : previous.at || null,failed:!saved});
+    window.dispatchEvent(new Event('save-health-change'));
+}
 function normalizeFacingRefsForSave() {
     if(!player) return;
     if(player._faceTgt) {
@@ -1343,30 +1349,7 @@ function _mercMonotonicExpGuard() {
         try { logSys(`<span class="text-emerald-300">受僱中偵測到存檔經驗較新（Lv.${dLv}），已保留較高進度、不以舊經驗覆蓋。</span>`); } catch (e) {}
     } catch (e) {}
 }
-function saveGame() {
-    // 死亡狀態不寫檔：避免把 player.dead=true 存進去，導致下次讀檔卡在死亡狀態而不出怪。
-    // 死亡期間沒有可保存的進度，保留上一份「存活」存檔即可。
-    if (player && player.dead) return false;
-    // 🛡️ v3.3.14 防「空殼玩家覆蓋既有存檔」資料遺失：標題／載入畫面的 player 是 cls:null 的空殼（尚未載入/創建角色）。
-    //    5 分鐘自動存檔計時器（startGameTimers）在「返回主選單」後不會被清除、beforeunload／寵物名冊 dirty 也可能觸發 saveGame，
-    //    這些背景觸發會把空殼 player 寫進 currentSlot（預設 1）→ 毀掉該格真正的角色（顯示為 null／Lv.1／預設王族／資料不完整）。
-    //    無 cls＝不是進行中的遊戲角色 → 一律拒寫，確保空殼永遠不覆蓋既有存檔。（真正的角色必有職業；創角於選職業後才 saveGame，不受影響。）
-    if (!player || !player.cls) return false;
-    // ⏩ v3.7.30 補跑存檔延後（接上 v3.7.25 就設計好但漏接線的 deferCatchupSave）：真補跑會殺 BOSS（v3.7.24），
-    //    killMob 的頭目存檔點每殺必全量存檔（sanitize＋LZ＋寫入）拖慢補跑並造成卡頓尖峰；
-    //    補跑期間一律改記 _ffSavePending，還清後由 gameLoop 收尾的 takeCatchupSaveRequest 統一補存一次。
-    if (typeof catchupActive === 'function' && catchupActive() && typeof deferCatchupSave === 'function'
-        && !(typeof window !== 'undefined' && window.__fb5CloseFlush)) return deferCatchupSave();   // 🔚 v3.7.31 __fb5CloseFlush＝關頁/切背景的最終存檔（_flushSaveNow）不延後
-
-    if (!_roleSaveAllowed()) {
-        if(!_saveFailureNotified && typeof logSys === 'function') {
-            _saveFailureNotified = true;
-            logSys('<span class="text-red-400 font-bold">⚠ 此角色已被刪除或存檔位已更換角色，本分頁已停止寫入。請關閉此分頁。</span>');
-        }
-        return false;
-    }
-    try {
-    if (typeof sanitizeState === 'function') sanitizeState();   // 🛡️ 寫檔前合理性夾擠：把 runtime(Console)改出的不可能數值夾回合法範圍，連同簽章一起固化、不讓作弊值被存檔/匯出
+function syncSaveConfig() {
     // 收集目前的自動化設定 UI 狀態（🛡️ 僅在 UI 已同步時重建；否則沿用記憶體中既有 config）
     if (_uiConfigReady) {
     player.config = {
@@ -1400,19 +1383,48 @@ function saveGame() {
     });
     }   // ← _uiConfigReady 閘（審計#1）
 
+}
+function saveGame() {
+    // 死亡狀態不寫檔：避免把 player.dead=true 存進去，導致下次讀檔卡在死亡狀態而不出怪。
+    // 死亡期間沒有可保存的進度，保留上一份「存活」存檔即可。
+    if (player && player.dead) return false;
+    // 🛡️ v3.3.14 防「空殼玩家覆蓋既有存檔」資料遺失：標題／載入畫面的 player 是 cls:null 的空殼（尚未載入/創建角色）。
+    //    5 分鐘自動存檔計時器（startGameTimers）在「返回主選單」後不會被清除、beforeunload／寵物名冊 dirty 也可能觸發 saveGame，
+    //    這些背景觸發會把空殼 player 寫進 currentSlot（預設 1）→ 毀掉該格真正的角色（顯示為 null／Lv.1／預設王族／資料不完整）。
+    //    無 cls＝不是進行中的遊戲角色 → 一律拒寫，確保空殼永遠不覆蓋既有存檔。（真正的角色必有職業；創角於選職業後才 saveGame，不受影響。）
+    if (!player || !player.cls) return false;
+    // ⏩ v3.7.30 補跑存檔延後（接上 v3.7.25 就設計好但漏接線的 deferCatchupSave）：真補跑會殺 BOSS（v3.7.24），
+    //    killMob 的頭目存檔點每殺必全量存檔（sanitize＋LZ＋寫入）拖慢補跑並造成卡頓尖峰；
+    //    補跑期間一律改記 _ffSavePending，還清後由 gameLoop 收尾的 takeCatchupSaveRequest 統一補存一次。
+    if (typeof catchupActive === 'function' && catchupActive() && typeof deferCatchupSave === 'function'
+        && !(typeof window !== 'undefined' && window.__fb5CloseFlush)) return deferCatchupSave();   // 🔚 v3.7.31 __fb5CloseFlush＝關頁/切背景的最終存檔（_flushSaveNow）不延後
+
+    if (!_roleSaveAllowed()) {
+        if(!_saveFailureNotified && typeof logSys === 'function') {
+            _saveFailureNotified = true;
+            logSys('<span class="text-red-400 font-bold">⚠ 此角色已被刪除或存檔位已更換角色，本分頁已停止寫入。請關閉此分頁。</span>');
+        }
+        return false;
+    }
+    try {
+    if (typeof sanitizeState === 'function') sanitizeState();   // 🛡️ 寫檔前合理性夾擠：把 runtime(Console)改出的不可能數值夾回合法範圍，連同簽章一起固化、不讓作弊值被存檔/匯出
+    syncSaveConfig();
+
     _mercMonotonicExpGuard();   // 🤝 v3.8.2 受僱中經驗只增不減：序列化前吸收磁碟較高的等級/經驗，防舊快照覆蓋待領帳本領取的經驗
     if(!_lzSet('lineage_idle_save_' + currentSlot, _saveWrap(saveStateJson()))) throw new Error('persistent storage write failed');   // 🔧 寫入成功才回報；並由 saveStateJson 排除戰鬥面向暫存參照
     if(typeof petRosterSave === 'function' && !petRosterSave()) throw new Error('pet roster write failed');
     logSys(`遊戲進度已儲存。`);
     _saveFailureNotified = false;
+    recordSaveAttempt(true);
     return true;
     } catch(e) {
+        recordSaveAttempt(false);
         try { console.error('[saveGame] failed', e); } catch(_e) {}
         if(!_saveFailureNotified && typeof logSys === 'function') {
             _saveFailureNotified = true;
             // ⚠️ v3.5.92 原文案宣稱「倉庫存取將暫停」＝不存在的機制（唯一的倉庫暫停在 js/12 loadWarehouse 讀取失敗處，
             //    與存檔失敗無關）。寵物上限回滾會走到這裡並在下一拍補存成功，玩家等於被假警報趕去重新整理。
-            logSys('<span class="text-red-400 font-bold">⚠ 遊戲進度儲存失敗，本次進度未寫入。請重新整理後再試；若反覆失敗，請先用「匯出帳號」備份存檔。</span>');
+            logSys('<span class="text-red-400 font-bold">⚠ 遊戲進度未確認完整儲存。請勿重新整理或關閉頁面，請先按「匯出救援帳號」保留目前進度，再排除儲存問題並重試。</span>');
         }
         return false;
     }

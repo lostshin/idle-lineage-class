@@ -39,6 +39,7 @@ SUITES += ['same-batch-ux']
 SUITES += ['feedback-1022']
 SUITES += ['guild-poly','catchup-progress','catchup-equivalence','item-effects','item-breathing']
 SUITES += ['feedback-1023','player-poly','player-reports-1023','player-ui','player-ui-desktop','player-ui-touch','mobile-live','mobile-manual']
+SUITES += ['save-recovery']
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--desktop-only', action='store_true', help='Skip mobile and tablet viewport checks')

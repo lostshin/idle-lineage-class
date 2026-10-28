@@ -21,18 +21,29 @@ function accountRoleDoc(slot) {
     if (d != null && (!d.p || !d.p.cls || !Array.isArray(d.p.inv))) throw Error('角色 ' + slot + ' 資料無效。');
     return d;
 }
-function accountIdleRequired() {
-    if (_roleOtherActiveSessions().length) throw Error('其他角色分頁仍在遊玩，請先回到選角頁再操作。');
+function accountIdleRequired(readOnly = false) {
+    if (_roleOtherActiveSessions(readOnly).length) throw Error('其他角色分頁仍在遊玩，請先回到選角頁再操作。');
 }
-function buildAccountSnapshot() {
-    accountIdleRequired();
-    if (state.running && player.cls) {
+function buildAccountSnapshot() { return accountSnapshot(false); }
+function buildRecoveryAccountSnapshot() {
+    if (!player.cls || player.dead || document.getElementById('game-screen').classList.contains('hidden')) throw Error('請在存活角色的遊戲畫面匯出救援帳號。');
+    if (state.ff || catchupActive()) throw Error('正在結算，請完成後再匯出救援帳號。');
+    if (!_roleSaveAllowed()) throw Error('角色存檔位已變更，無法匯出此分頁的救援帳號。');
+    accountIdleRequired(true);
+    syncSaveConfig();
+    sanitizeState();
+    _mercMonotonicExpGuard();
+    return accountSnapshot(true);
+}
+function accountSnapshot(recovery) {
+    accountIdleRequired(recovery);
+    if (!recovery && state.running && player.cls) {
         window.__fb5CloseFlush = true;
         try { if (saveGame() !== true) throw Error('目前角色未能儲存，匯出已取消。'); }
         finally { window.__fb5CloseFlush = false; }
     }
-    if (_mercLedgerOutbox.length) { _mercLedgerFlush(); if (_mercLedgerOutbox.length) throw Error('傭兵經驗尚未寫入，請稍後重試。'); }
-    const roles = Array.from({length:SAVE_SLOT_MAX}, (_, i) => accountRoleDoc(i + 1));
+    if (!recovery && _mercLedgerOutbox.length) { _mercLedgerFlush(); if (_mercLedgerOutbox.length) throw Error('傭兵經驗尚未寫入，請稍後重試。'); }
+    const roles = Array.from({length:SAVE_SLOT_MAX}, (_, i) => recovery && i + 1 === currentSlot ? {...accountRoleDoc(i + 1),...JSON.parse(saveStateJson())} : accountRoleDoc(i + 1));
     const seen = new Set();
     roles.forEach((d, i) => {
         if (!d) return;
@@ -48,15 +59,26 @@ function buildAccountSnapshot() {
         d.p.accountParty = (d.p.allies || []).map(a => ({id:accountRoleId(a), auto:accountClone(a._autoBuff || {}), potPct:a.potPct, exp:a._expGained || 0, alignment:a._alignmentDelta || 0}));
         d.p.allies = []; d.p.summonsV2 = []; d.p.guardsV2 = [];
     });
+    const ledger = accountRead(MERC_LEDGER_KEY,false,[]);
+    if (recovery) {
+        const seen = new Set(ledger.map(row => row.uid));
+        for (const row of _mercLedgerOutbox) if (row?.uid && !seen.has(row.uid)) { ledger.push(accountClone(row)); seen.add(row.uid); }
+    }
     return validateAccount({format:ACCOUNT_FORMAT,schema:2,source:_FS?'desktop':'web',version:GAME_VERSION,exportedAt:new Date().toISOString(),roles,
-        shared:{modes:accountLocalModes(),market:accountRead(ACCOUNT_MARKET_KEY,true,null),raceClaims:accountRead(RACE_LEDGER_KEY,true,[]),diamonds:pandoraGetSharedDiamonds(),clan:clanExportSharedState(),ledger:accountRead(MERC_LEDGER_KEY,false,[]),autosell:accountRead(AUTOSELL_GLOBAL_KEY,false,null)}});
+        ...(recovery ? {importNotes:['救援帳號：目前角色取自未確認儲存的記憶體進度；其他角色與共用資料取自可讀取的本機存檔，寵物含目前名冊進度。請先保留原檔，再確認匯入。']} : {}),
+        shared:{modes:accountLocalModes(recovery),market:accountRead(ACCOUNT_MARKET_KEY,true,null),raceClaims:accountRead(RACE_LEDGER_KEY,true,[]),diamonds:pandoraGetSharedDiamonds(),clan:clanExportSharedState(),ledger,autosell:accountRead(AUTOSELL_GLOBAL_KEY,false,null)}});
 }
-function accountLocalModes() {
+function accountLocalModes(recovery = false) {
     const modes = {};
     for (const classicMode of [false, true]) {
         const p = {classicMode}, suffix = modeSuffix(classicMode, false);
         const warehouse = accountRead(whKey(p), false, {items:[],gold:0});
-        const pets = accountRead(PET_ROSTER_KEY + suffix, true, []);
+        let pets = accountRead(PET_ROSTER_KEY + suffix, true, []);
+        if (recovery && _petRosterKey === PET_ROSTER_KEY + suffix) {
+            const stored = new Map(pets.map(p => [p.uid,p])), tombs = {..._petTombsRead(PET_ROSTER_KEY + suffix),..._petReleasedUids};
+            for (const p of _petRoster) stored.set(p.uid,{...stored.get(p.uid),..._petPersist(p)});
+            pets = [...stored.values()].filter(p => !tombs[p.uid]);
+        }
         if (!Array.isArray(warehouse.items) || !Array.isArray(pets)) throw Error('共用倉庫或寵物名冊無效。');
         const dex = {};
         for (const key of [CARDDEX_KEY,EQUIPDEX_KEY,MISCDEX_KEY,RELICDEX_KEY]) dex[key] = accountRead(_dexKey(key,p),false,{});
@@ -268,9 +290,9 @@ document.addEventListener('keydown',event=>{
     if(event.key==='Escape'&&!event.defaultPrevented&&!event.isComposing){event.preventDefault();closeTransferDialog(d);}
     if(event.key==='Tab'){const focus=Array.from(d.querySelectorAll('input,button,select')).filter(e=>!e.disabled);const first=focus[0],last=focus[focus.length-1];if(event.shiftKey&&document.activeElement===first){event.preventDefault();last?.focus();}else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first?.focus();}}
 });
-async function exportAccount() {
+async function exportAccount(recovery = false) {
     try {
-        const a=buildAccountSnapshot(),raw=_saveWrap(JSON.stringify(a)),file=(_FS?'idle_lineage_desktop_account_':'fable5_account_')+new Date().toISOString().slice(0,10)+'.json';
+        const a=recovery ? buildRecoveryAccountSnapshot() : buildAccountSnapshot(),raw=_saveWrap(JSON.stringify(a)),file=(_FS?'idle_lineage_desktop_account_':'fable5_account_')+(recovery?'recovery_':'')+new Date().toISOString().slice(0,10)+'.json';
         if(window.showSaveFilePicker){try{const h=await window.showSaveFilePicker({suggestedName:file,types:[{description:'帳號存檔',accept:{'application/json':['.json']}}]});const w=await h.createWritable();await w.write(raw);await w.close();return;}catch(e){if(e.name==='AbortError')return;}}
         downloadSaveFile(raw,file);
     } catch(e) {alert('帳號匯出失敗：'+e.message);}

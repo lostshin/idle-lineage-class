@@ -1,0 +1,7 @@
+.storage-health-warning { max-width:30rem; margin:0 auto 10px; padding:12px; border:1px solid #a66542; background:#281a18; color:#ffe0c6; font-size:13px; line-height:1.7; overflow-wrap:anywhere; }
+#save-health-status { color:#d7c5a6; font-size:13px; line-height:1.6; margin-bottom:8px; }
+#save-recovery-notice { position:fixed; z-index:10050; top:8px; left:50%; transform:translateX(-50%); width:min(580px,calc(var(--ui-width,100vw) - 16px)); max-height:calc(var(--ui-height,100dvh) - 24px); overflow:auto; padding:12px; border:2px solid #a66542; background:#281a18; color:#ffe0c6; font-size:14px; line-height:1.6; }
+#save-recovery-notice[hidden] { display:none; }
+#save-recovery-notice p { margin:0 0 8px; }
+#save-recovery-notice > div { display:flex; flex-wrap:wrap; gap:8px; }
+#save-recovery-notice button { min-height:calc(44px * var(--ui-scale-inverse,1)); padding:8px 12px; }
