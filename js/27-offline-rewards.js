@@ -31,7 +31,7 @@
     //   （平均 HP 壓力為負時＝永不死），與線上仍有小機率翻車不符。改用實測 minHpPct 當風險代理：
     //   線上最低血量沒掉破 OFFLINE_LATENT_DEATH_HP_PCT 就維持 0（行為完全不變）；越接近 0 風險越高。
     //   ⚠️ 僅在「毫無實際死亡紀錄」時作為地板值套用——只要死過一次，實測值一律優先。
-    //   minHpPct 只取目前實戰視窗最低值；新視窗合格後取代舊值，避免歷史低血量永久累積風險。
+    //   ⚠️ minHpPct 是「取最小值」的棘輪、不會回升，故上限刻意壓低；要調手感改這兩個常數即可。
     //   實測校準（12 小時掛機存活率）：最低血 30%→98.8%／20%→89.6%／10%→74%／5%→64%。
     //   ⚠️ 0.5 曾試過＝10% 血時 12 小時只剩 4.7% 存活＝棘輪下的終身死刑，過兇，勿調回。
     const OFFLINE_LATENT_DEATH_HP_PCT = 0.35;
@@ -348,7 +348,8 @@
             map: String(map || ''), activeMs: 0, damage: 0, healing: 0,
             potionHealing: 0, potionUses: 0, potionCounts: Object.create(null), potionHeals: Object.create(null),
             deaths: 0, minHpPct: _offlineClamp(hp / mhp, 0, 1),
-            lastHp: hp, lastTick: -1, deathTick: -1
+            lastHp: hp, lastTick: -1, deathTick: -1,
+            baseSurvival: null, baseSet: false
         };
         _offlineSurvivalTickCtx = null;
     }
@@ -426,24 +427,37 @@
         let rt = _offlineSurvivalRuntime;
         previous = _offlineSurvivalProfile(previous);
         if (!rt || rt.map !== String(map || '')) return previous;
+        if (!rt.baseSet) {
+            rt.baseSurvival = previous;
+            rt.baseSet = true;
+        }
         if (!force && rt.activeMs < OFFLINE_SAMPLE_MIN_MS) return previous;
-        // 與收益取樣一致：新實戰視窗合格後取代舊樣本，不混入舊頭目戰或舊裝備的最低血量。
-        let sampleMs = Math.max(1, rt.activeMs);
-        let potionId = '', dominantPotionUses = 0;
+        let base = _offlineSurvivalProfile(rt.baseSurvival);
+        let baseMs = base ? Math.min(base.sampleMs, 30 * 60 * 1000) : 0;
+        let sampleMs = Math.max(1, baseMs + rt.activeMs);
+        let total = (rate, ms) => Math.max(0, Number(rate) || 0) * ms / 60000;
+        let damage = total(base && base.damagePerMin, baseMs) + rt.damage;
+        let healing = total(base && base.healingPerMin, baseMs) + rt.healing;
+        let potionId = base && base.potionId ? base.potionId : '';
+        let dominantPotionUses = base && base.potionId ? total(base.potionPerMin, baseMs) : 0;
         Object.keys(rt.potionCounts).forEach(id => {
             let count = Math.max(0, Number(rt.potionCounts[id]) || 0);
-            if (count > dominantPotionUses) { dominantPotionUses = count; potionId = id; }
+            let candidate = count + (base && base.potionId === id ? total(base.potionPerMin, baseMs) : 0);
+            if (candidate > dominantPotionUses) { dominantPotionUses = candidate; potionId = id; }
         });
+        let basePotionUses = base ? total(base.potionPerMin, baseMs) : 0;
+        let basePotionHeal = base ? total(base.potionHealPerMin, baseMs) : 0;
+        let deathEvents = (base ? base.deathRatePerHour * baseMs / 3600000 : 0) + rt.deaths;
         return _offlineSurvivalProfile({
             sampleMs: sampleMs,
-            damagePerMin: rt.damage * 60000 / sampleMs,
-            healingPerMin: rt.healing * 60000 / sampleMs,
-            potionHealPerMin: rt.potionHealing * 60000 / sampleMs,
-            potionPerMin: rt.potionUses * 60000 / sampleMs,
+            damagePerMin: damage * 60000 / sampleMs,
+            healingPerMin: healing * 60000 / sampleMs,
+            potionHealPerMin: (basePotionHeal + rt.potionHealing) * 60000 / sampleMs,
+            potionPerMin: (basePotionUses + rt.potionUses) * 60000 / sampleMs,
             potionId: potionId,
-            deathRatePerHour: rt.deaths * 3600000 / sampleMs,
-            deaths: rt.deaths,
-            minHpPct: rt.minHpPct,
+            deathRatePerHour: deathEvents * 3600000 / sampleMs,
+            deaths: Math.round(deathEvents),
+            minHpPct: Math.min(base ? base.minHpPct : 1, rt.minHpPct),
             updatedAt: now
         });
     }
@@ -952,6 +966,22 @@
         let nonPotionHealing = Math.max(0, healing - potionHealing);
         let potionRate = Math.max(0, survival.potionPerMin);
         let potionId = survival.potionId;
+        // 取樣尾端可能正好落在下一次自動喝水之前；固定沿用原頻率會把這段血差外推成永久失血。
+        // 只用同瓶藥水的實測有效治療量補足缺口，並遵守線上每秒一瓶的冷卻；額外瓶數仍須實際付費／扣庫存。
+        let cfg = player.config || {};
+        let potSelect = typeof document !== 'undefined' ? document.getElementById('set-pot') : null;
+        let potThreshold = typeof document !== 'undefined' ? document.getElementById('set-hp-pot') : null;
+        let selectedPotion = cfg.setPot === undefined ? potSelect && potSelect.value : cfg.setPot;
+        let threshold = Number(cfg.setHpPot === undefined ? potThreshold && potThreshold.value : cfg.setHpPot) || 0;
+        let automaticPotion = potionId !== 'new_item_141' && potionId === selectedPotion && threshold > 0;
+        if (automaticPotion && potionRate > 0 && potionHealing > 0 && damage > healing) {
+            let healPerPotion = potionHealing / potionRate;
+            let extraRate = Math.min(Math.max(0, 60 - potionRate), (damage - healing) / healPerPotion);
+            let extraHealing = extraRate * healPerPotion;
+            potionRate += extraRate;
+            potionHealing += extraHealing;
+            healing += extraHealing;
+        }
         let potionStock = potionId ? _offlineInventoryCount(potionId) : 0;
         // 🧪 v3.7.72 自動購買納入續戰力：有效庫存＝背包存量＋（離線開始時金幣 ÷ 單價）
         let autoBuy = _offlineAutoBuyPotionPlan(potionId);

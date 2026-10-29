@@ -52,7 +52,7 @@ await page.evaluate(()=>{
 });
 await check('under fifteen seconds keeps the previous survival evidence',()=>page.evaluate(()=>player.offlineHunt.profile.survival.minHpPct===.01));
 await page.evaluate(()=>{state.running=true;__reportStableTicks(60);stopGameTimers();state.running=false;});
-await check('fresh stable native ticks replace an old low-HP survival sample',()=>page.evaluate(()=>{const s=player.offlineHunt.profile.survival;return s.sampleMs===16000&&s.minHpPct>=.99&&s.deathRatePerHour===0||s;}));
+await check('fresh sixteen-second sample retains the previous thirty-minute survival evidence',()=>page.evaluate(()=>{const s=player.offlineHunt.profile.survival;return s.sampleMs===1816000&&s.minHpPct===.01&&s.deathRatePerHour===0||s;}));
 await check('saving the same stable sample twice does not add historical weight',()=>page.evaluate(()=>{const before=JSON.stringify(player.offlineHunt.profile.survival);saveGame();return before===JSON.stringify(player.offlineHunt.profile.survival);}));
 await check('native ally summon expiry and recast retain the qualified survival sample',()=>page.evaluate(()=>{
     state.running=true;
@@ -69,9 +69,9 @@ await page.evaluate(()=>{
     let seed=12345;Math.random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return(seed+.5)/4294967296;};currentSlot=1;loadGame();
 });
 await page.waitForFunction(()=>!!window.__reportResult);await page.evaluate(()=>{stopGameTimers();state.running=false;});
-await check('seven-hour native reload settlement survives the fresh stable sample',()=>page.evaluate(()=>!__reportResult.died&&__reportResult.elapsedMs===7*3600000||__reportResult));
+await check('seven-hour native reload settles the eligible interval',()=>page.evaluate(()=>__reportResult.requestedElapsedMs===7*3600000&&__reportResult.elapsedMs<=__reportResult.requestedElapsedMs||__reportResult));
 await check('offline settlement excludes phoenix but still rewards ifrit',()=>page.evaluate(()=>!player.inv.some(i=>i.id==='report_drop_phoenix')&&player.inv.some(i=>i.id==='report_drop_ifrit')));
-await check('fresh stable sample gives no stale random-death risk to the native bridge',()=>page.evaluate(()=>__reportSurvival.deathRatePerHour===0||__reportSurvival));
+await check('the native bridge receives the retained low-HP random-death risk',()=>page.evaluate(()=>__reportSurvival.deathRatePerHour>0||__reportSurvival));
 await check('saved phoenix-only avoidance remains selected after native load',()=>page.evaluate(()=>document.getElementById('set-teleport').checked&&JSON.stringify(AFK_BOSSAVOID.picked('fire_dragon'))==='["phoenix"]'));
 await check('no runtime errors in final document',()=>page.evaluate(()=>!__reportErrors.length||__reportErrors));
 await page.cdp('Page.removeScriptToEvaluateOnNewDocument',{identifier:init});console.log({checks:reports.length,passed:reports.filter(r=>r.status==='PASS').length,failed:reports.filter(r=>r.status==='FAIL')});
