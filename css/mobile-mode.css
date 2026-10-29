@@ -3,6 +3,13 @@ body.m-mobile {
     --mobile-frame-width:min(calc(600px * var(--ui-scale-inverse,1)),var(--ui-width,100vw));
     --mobile-frame-left:calc((var(--ui-width,100vw) - var(--mobile-frame-width)) / 2);
 }
+body.m-mobile #creation-screen { align-items:flex-start; }
+body.m-mobile #login-art-stage { min-height:var(--ui-height,100dvh); }
+body.m-mobile #login-art-stage #login-meta-layer {
+    width:calc(100% - 32px) !important; max-width:600px; min-width:0;
+}
+body.m-mobile #login-credits { width:100%; margin:0 0 6px; font-size:12px; }
+body.m-mobile #login-disclaimer { font-size:11px !important; }
 body.m-mobile #game-screen:not(.hidden) {
     position:fixed; inset:0 auto 0 var(--mobile-frame-left); display:flex !important;
     flex-direction:column; align-items:stretch; gap:8px !important;

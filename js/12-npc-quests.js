@@ -79,6 +79,8 @@ document.addEventListener('compositionend', e => { if (e.target && e.target.id =
 function whCategory(id){
     let d = DB.items[id];
     if(!d) return 'item';
+    if(d.remains) return 'remains';
+    if(isRelic(d)) return 'relic';
     if(d.type === 'wpn') return 'weapon';                       // 武器
     if(d.type === 'arm' || d.type === 'acc') return 'armor';    // 防具（含飾品）
     return 'item';                                              // 其餘皆道具
@@ -697,7 +699,7 @@ function renderWarehouseNPC(div){
     div.innerHTML = `
     <div class="wh-panel">
         <div class="wh-filters text-sm">
-            <div class="wh-category-tabs" role="tablist" aria-label="物品分類">${[['weapon','武器'],['armor','防具'],['item','道具'],['relic','遺物'],['remains','遺骸']].map(([key,name]) => `<button type="button" class="btn" role="tab" data-wh-filter="${key}" aria-selected="${_whFilter===key}" onclick="whSetFilter(this.dataset.whFilter)">${name}</button>`).join('')}</div>
+            <div class="wh-category-tabs" role="tablist" aria-label="物品分類">${[['weapon','武器'],['armor','防具'],['item','道具'],['relic','遺物'],['remains','席琳遺骸']].map(([key,name]) => `<button type="button" class="btn" role="tab" data-wh-filter="${key}" aria-selected="${_whFilter===key}" onclick="whSetFilter(this.dataset.whFilter)">${name}</button>`).join('')}</div>
             <select onchange="whSetFilter(this.value)" hidden aria-hidden="true" tabindex="-1">
                 <option value="weapon" ${_whFilter==='weapon'?'selected':''}>武器</option>
                 <option value="armor" ${_whFilter==='armor'?'selected':''}>防具</option>

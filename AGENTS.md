@@ -29,8 +29,7 @@
 
 ## 結構、載入順序與加掛來源
 
-- 前端為原生 JavaScript、共用全域狀態，無 npm 建置流程；`index.html` 是 script 載入順序的真相，不得按檔名排序。大廳後端獨立在 `backend/lobby/`（Workers／D1，有自己的 `package.json`），不把前端改成 Astro 或搬移單機存檔。
-- `js/00-data.js`～`js/32-threat.js` 與具名模組處理遊戲；`css/` 為樣式，`assets/` 為原版美術／音效，`public/assets/` 為登入素材；`tests/` 為 Ego E2E、`tests/artifacts/` 為驗收／合成預覽、`docs/` 為既有說明。
+- 前端為原生 JavaScript、共用全域狀態，無 npm 建置流程；`index.html` 是 script 載入順序的真相，不得按檔名排序。`js/00-data.js`～`js/32-threat.js` 與具名模組處理遊戲，`css/` 為樣式，`assets/` 為原版美術／音效，`public/assets/` 為登入素材，`tests/` 為 E2E，`tests/artifacts/` 為驗收素材，`docs/` 為說明。大廳後端獨立在 `backend/lobby/`（Workers／D1），不把前端改成 Astro 或搬移單機存檔。
 - 沿用附近排版，展開區塊通常為四個空白；變數／函式用 camelCase，常數用 UPPER_SNAKE_CASE。
 - 前端資源修改後，執行 `python3 scripts/update-cache.py` 更新對應 URL 的 SHA 快取版本。
 - 原版天堂美術、配色與按鈕風格是既定方向。已選設計須先找回原圖，比對比例、材質、圖示與控制列後再實作；功能測試通過不代表視覺還原。概念圖的圖示／數字不能當遊戲資料；選擇版型不等於授權更換原素材、部位或操作邏輯。
@@ -39,14 +38,8 @@
 - 開發產物：已採用美術與 prompts 在 `output/design-source/imagegen/`，`output/imagegen` 為舊引用連結；歷史驗收在 `tests/artifacts/archive/2026-10-17/`，`tmp/` 全部忽略。清除前看 metadata 的選擇、最終報告引用與現用腳本輸入；不要只按日期、檔名第一字或尺寸判斷過時。保留必要來源，刪除記錄舊路徑／SHA／原因；只歸檔不等於已清理。
 - 舊浮動開關面板已移除；`js/addon-switches.js` 明列固定基底與可選 catalog，不讀舊 `afk_toggle_*`；未知 ID 預設關閉。`statpts` 與主角點數來源面板維持移除。
 
-## 已確認的產品決策（更新至 2026-10-24）
-
+## 已確認的產品決策（更新至 2026-10-28）
 本檔下方為本次最新決策；其他細節見 [docs/agent-decisions.md](docs/agent-decisions.md)。**修改對應功能、樣式、素材或測試前，先讀該小節**（`rg -n '^### ' docs/agent-decisions.md` 取行號後只讀那段）。最新使用者指示優先，不恢復已否決／已移除的方案。
-
-- 版面／隊伍、加掛／角色分頁、裝置縮放：三欄與技能卡／裝備版型、開關／存檔格數／創角、60～100% 與座標換算。
-- 能力提示／隊友浮窗／技能條件、召喚物圖片／地圖名稱、裝備美術／負重／狀態圖示：來源 tooltip／寵物能力、`companionSpriteForm`／hit mask、槽位／背包 A／素材。
-- DPS／日誌、戰鬥／經驗／村莊增益、離線掛機：快照／篩選、寵物召喚加速／隊友 EXP、結算／補跑／歷史。
-- 傭兵公會、倉庫、強化／金額記憶、效能／線上人數：比較／強化／雙擊、外框／雙欄／交易、單件批次／modalguard、虛擬化／renderTabs／能力預覽／量測與登入動畫。
 
 ## 介面修正的範圍與驗收
 
@@ -56,6 +49,14 @@
 - 武器／防具／道具格以**螢幕實際至少 55×55px**為基準，正方形、每列均分填滿；沿用 `auto-fill/minmax` 與 `--ui-scale-inverse`。不可只看未縮放的 CSS 55px；驗證縮放後的 rect、相鄰間距與右側留白，不改回固定三欄。
 - 分類須與搜尋、快速強化／廢品共用篩選；批次操作時鎖住分類，避免操作隱藏物品。各頁獨立保存分類與橫向位置，重繪／切頁仍保留，換角色才重設。防具新增部位沿用原生 `slot`（內衣 `tshirt`、脛甲 `shin`、寵物裝備 `petarm`），不另造裝備種類。
 - 公會捲軸與比較區須對照無選取／已選取／搜尋無結果三態；預留固定軌道，核對畫布與清單寬度不跳動。幾何量測取扣除捲軸的 `clientWidth` 再換算 UI 縮放，不拿外框寬度當內容寬度。
+
+### 手機模式與即時開關（2026-10-28）
+
+- 「行動裝置版」checkbox 是唯一開關；勾選即儲存並生效，桌機寬窗也啟用，取消立即還原原版面。不得再加寬度／`pointer:coarse` 閘門，或把本機 file 的問題歸因於尚未發布。先核對使用者的實際 URL／checkbox／`mobileUi.active()`；寬窗驗收保持同一 document token、寬度與 fine pointer，不能縮窄或模擬觸控冒充切換成功。
+- `optionalAddons.setMobile()` 只保存 mobile，保留未知欄位及其他加掛草稿；取消不回退已生效的 mobile，其餘功能仍儲存後重載。11 模組經 `addon-mobile-bridge.js` 依原順序初始化一次，以 `type="text/plain" data-mobile-addon` 的靜態 `script[src]` 與 preload 保留 PWA 清單；不改 vendor／sw.js，也不據此延後載入其他核心 script。
+- 模組 context 供鏡像裝置判斷使用，不能擴大事件／計時器歸屬，把包裝 `loadGame` 內建立的遊戲計時器誤當手機 UI 而在取消時停掉。驗首次啟用、重複切換、失敗還原／重試、存讀後取消與 tick 繼續；切導覽後立即重排狀態列，停用還原日誌父層並清理手機 UI／監聽／observer。
+- `css/mobile-mode.css` 限定 `body.m-mobile`；寬窗單欄置中、最多實際 600px，短橫向可全寬。內容、導覽、日誌、物品雙窗與倉庫共用框及縮放換算，扣實際導覽／鍵盤高度；能力可橫捲、背包不得被工具列蓋住。驗 1330／1920px、60／75／80／100% 及取消後原三欄 rect。手機裝備單擊 230ms、雙擊先清待開窗 timer 再卸下；NPC／伊奧窗沿用 `bindClassicWindowDrag()`。離線戰利品維持原日誌字級，不另放大。
+- 登入頁鏡像流式排版的 `#login-meta-layer` 是 `container-type:inline-size`，auto 寬與 auto margin 可使其縮成 0，版權逐字直排；以本版 CSS 指定可用寬度並讓 `#creation-screen` 頂端對齊，保留美術。驗 390×844、844×390、1330×900 的文字 rect、開始按鈕實際點擊與原生選角，勿只看 CSS。
 
 ### 玩家回報與能力條列（2026-10-24）
 
@@ -110,9 +111,9 @@
 ### 離線結算與返回日誌（2026-10-22）
 
 - 地名解析先查 `HIDDEN_AREA_NAMES`，再查一般地圖；結算結果重新解析來源地圖，涵蓋舊樣本／快照的英文代碼，摘要與歷史共用中文結果。
-- 普通地圖離線頭目戰讀 `set-teleport` 與 `AFK_BOSSAVOID.picked(map)`：空清單全部迴避，指定清單只略過對象；原 ID 解析到最終變身名稱。保留完整遭遇池及原本其他頭目機率，純頭目房維持線上不迴避例外，不修改 vendor。
-- 使用者已選擇只將離線取樣回復 **v3.9.18**（`eda3c8f79`），保留大廳／5% 加成、雙效率摘要與死亡提示。`js/27-offline-rewards.js` 相對該 commit 只保留三處摘要／死亡文案差異；不回退整站、不重寫歷史。保留該版 15 秒／3 隻、最近擊殺檢查、最多 5 張地圖及原倍速／補跑閘門。
-- 取樣以目前實戰視窗累計，重新合格後取代舊視窗；不再使用 `profile.condition`、`_offlineConditionsMatch` 或五分鐘加權合併，換裝／換隊伍／改設定不立即清樣本，估算沿用舊版特性。不得依歷史規則恢復已撤回的機制。未來改取樣，先驗原生召喚到期／重召及完整關頁存讀；不能只測升級或靜態能力快照，不能靠降低門檻掩蓋樣本失效。
+- 普通地圖離線頭目戰讀 `set-teleport` 與 `AFK_BOSSAVOID.picked(map)`：空清單全部迴避，指定清單只略過對象；原 ID 解析到最終變身名稱。保留完整遭遇池及原本其他頭目機率，純頭目房維持線上不迴避例外，不修改 vendor。火龍窟單選不死鳥 E2E 驗不死鳥掉落排除、伊弗利特仍計算；頭目迴避與生存估算獨立，不能僅憑離線死亡認定迴避失效。
+- 收益取樣保留 **v3.9.18**（`eda3c8f79`）的 15 秒／3 隻、最近擊殺檢查、最多 5 張地圖及倍速／補跑閘門；另保留大廳 5%、雙效率摘要與死亡提示。生存取樣已依本輪回報另修，不再要求整個 `js/27-offline-rewards.js` 僅有三處文案差異。
+- 收益與生存各自累計目前實戰視窗；生存滿 15 秒才取代舊資料，未滿沿用舊值，實際死亡仍強制記錄。舊最低血量不跨新合格視窗永久棘輪，也不混合舊傷害／治療／藥水率；保留原風險與消耗公式。不使用 `profile.condition`／五分鐘加權合併，換裝／換隊伍／改設定不立即清樣本；改取樣先驗原生召喚到期／重召與完整關頁存讀，不能降低門檻掩蓋失效。
 - 離線 ≥10 分鐘時顯示「整段離線平均」；若死亡且實際狩獵時間 >0，再顯示「死亡前狩獵效率」與存活時間，兩者用同一份實得經驗／金幣，只換分母；0 時間不除、仍採 12 小時可結算上限。離線與批次補跑死亡均寫「不列入死亡經驗買回」，不新增扣經驗或買回紀錄。
 - 加掛選項共 19 個、預設全關。`keepview`「返回時保留日誌分頁」啟用後才停止返回時自動切 `sys`；涵蓋 focus／visibility／BFCache。新建／載入及真正離線摘要仍走原系統日誌流程；沿用既有草稿、取消、保存與重載，不另存偏好鍵。
 
@@ -180,9 +181,10 @@
 
 ## 開發與驗證
 
-- 預覽：`python3 -m http.server 8000 --bind 127.0.0.1`；E2E 選項：`python3 tests/run-rwd.py --help`。人類入門看 `README.md`，本檔只留代理規則。`.ignore` 讓 `rg` 略過 `assets/anim`、`classanim`、`morphanim` 的 20 萬張逐格圖、單行巨大的自動產生檔 `js/anim-manifest.js`／`anim-manifest.json` 與 `tests/artifacts/archive/`；要搜那裡時用 `rg --no-ignore`。
-- E2E 使用 Python 3、`ego-browser` CLI 與 Ego；runner 自行啟動 HTTP 伺服器。操作前讀 `ego-browser` 技能，只用記載的 API，不猜 Playwright 方法。
-- 每個任務只建一個 TaskSpace，所有 runner **逐批共用同一 space／p1**、不並行，失敗在原空間恢復。首輪可用 `--suite rwd --protocol http --desktop-only --keep-space` 取得 `spaceId`，後續帶 `--space`；多 suite／`--protocol both` 依序執行、自動 keep-space、遇錯即停，未帶 `--space` 會直接報錯。TaskSpace id 會被重新編號，跨 session 不以舊 id 判斷可否操作。
+- 預覽：`python3 -m http.server 8000 --bind 127.0.0.1`；E2E 使用 Python 3、`ego-browser` CLI 與 Ego，runner 自啟 HTTP；操作前讀 `ego-browser` 技能，只用記載 API，不猜 Playwright 方法，選項見 `tests/run-rwd.py --help`。`.ignore` 略過 20 萬張 `assets/anim`／`classanim`／`morphanim` 影格、巨型 `js/anim-manifest.js`／`anim-manifest.json` 與歷史驗收；要查那裡用 `rg --no-ignore`。人類入門見 README，本檔只留代理規則。
+- 手機專項：`mobile-manual` 驗寬窗強制／還原，`mobile-live` 驗生命週期，`player-ui`／`player-ui-touch` 驗閱讀與操作，`player-ui-desktop` 驗未勾選原版幾何；救援／容量用 `save-recovery`。Ego 觸控雙點可能被拉開約 2 秒，滑鼠 dblclick 只能證明手機模式的滑鼠流程，不能宣稱實機雙點通過。
+- HTTP 缺控制項或版本不符時先查 SW 是否回舊 HTML；一般行為 fixture 可明確設 `Network.setBypassServiceWorker`／停快取，PWA 測試仍須驗真實快取與離線。runner 外層逾時可能終止臨時 HTTP，接續前查程序／server／URL；長測用背景完成通知、等待設期限，僅接續未完成 suite，不反覆短 timeout 殺掉後全重跑。
+- 每個任務只建一個 TaskSpace，所有 runner **逐批共用同一 space／p1**、不並行，失敗在原空間恢復。首輪可用 `--suite rwd --protocol http --desktop-only --keep-space` 取得 `spaceId`，後續帶 `--space`；多 suite／`--protocol both` 依序執行、自動 keep-space、遇錯即停。space 0 有效，預設值用 `??`／`is None`，不得用真假判斷；跨 session 先核對目前 occupant，不沿用舊 id 猜測。
 - 測試報告預設寫入 `tmp/test-runs/`（不進 git）；要更新受追蹤的 `tests/artifacts/` 才加 `--record`（runner 與 `*.integration.js` 相同）；runner 可用 `--artifacts <目錄>` 指定其他輸出位置，與 `--record` 互斥。
 - 成功後只呼叫一次 `finish({keep:[]})` 並等待完成；耗時時用背景程序讀回結果，不用短 timeout 中止再反覆重送。有 `finished <id>` 與成功結束碼後，不再操作該空間；輸出遺失時用 `listTaskSpaces()` 唯讀確認，不重送 finish。
 - 必跑 `rwd`、`ui-scale`、`gameplay`、`account-gameplay`、`companion-commands` 的 HTTP／file：`--space <id> --suite required --protocol both --desktop-only`。
@@ -193,8 +195,7 @@
 - 狀態節點／控制項測試依 `data-*`／欄位語意定位，不假設職業為名稱的 `nextElementSibling`。創角 fixture 須明填合成 ID；舊未命名存檔另建 fixture，不繞過必填限制。需求已變就改舊斷言，不恢復已移除功能；找長單行斷言用 `rg --no-ignore -o '.{60}舊字串.{60}' tests`，不用 `grep -n | cut`。同簽章不含uid，換位不重建、強化可能換uid；存讀可能依完整簽章合併堆疊，須比欄位與簽章總件數，不要求原陣列／逐件uid不變。
 - 每個 suite 明確設定起始視窗；baseline 中原程式不會復原的狀態（如未關的窗）由下一步驟先重設，讓全部檢查都有結果。靜態 fixture 停計時器也設 `state.running=false`；離線讀檔須先等原生非同步結算回呼完成才停止 running，否則會誤擋結算；`loadGame()` 回村後若再次存狩獵設定，先重進目標圖並確認快照 eligible。
 - 縮放／切尺寸後等版面穩定；原生滾輪每輪先以目前目標 rect 的中心執行 `page.mouse.move()`，再 `wheel()`；不能假設 `hover()` 已把游標留在捲動區。scrollTop／scrollLeft 連續畫格穩定後再比對，避免把慣性誤判為兩側連動。
-- 原生命中須選目前可視控制項，不能固定取已捲出視窗的第一格；比例／不重疊仍檢查全體。橫向分類的邊界量 nav／箭頭及文字自身溢出，不把正常捲出可視範圍的按鈕當版面越界。
-- 原生點擊若被 sticky 欄／分類箭頭擋住，先看命中元素；橫向分類用可見左右箭頭移動、等 `scrollLeft` 連續畫格穩定，再核對 `elementFromPoint` 點擊。不要用全頁 `scrollIntoView` 或直接塞 scrollLeft 抵抗觸控慣性／位置還原；不強制穿透。
+- 原生點擊只選目前可視控制項，格子比例／不重疊仍驗全體；分類邊界量 nav／箭頭與文字溢出，不把正常捲出範圍當越界。被 sticky 欄／箭頭擋住先查 `elementFromPoint`，用可見箭頭移動並等 scrollLeft 連續畫格穩定再點；不可全頁 `scrollIntoView`／硬塞 scrollLeft 抵抗慣性或位置還原，不強制穿透。
 - 主角裝備單擊有230ms延遲，先等真正開窗，再等 `modalguard` 的 `Date.now()` 450ms保護達標；凍結時鐘 fixture 須推進合成時間，等牆鐘無效。先確認該入口是否應開窗；公會單擊比較不開窗，不等待或關閉不存在的資訊窗。
 - 懸浮測試先等 resize／scroll 與版面穩定；選不被其他 sprite 遮住、離透明邊緣足夠遠的像素，避免取點到送入滑鼠事件間角色已移動。可短暫固定合成場景的原生畫格，完成後還原；不冒充完整戰鬥驗證。
 - 不直接改寵物記憶體陣列充當已儲存名冊；用原生 dirty／save 流程，避免下一次查詢把測試寵物清掉。合成傭兵須用獨立 `enSeed`，不能複製隊長身分後被預覽去重。
@@ -202,10 +203,9 @@
 - `page.evaluate` 單次有 15 秒限制；原生 rAF 被節流時，將同一組逐格斷言拆成短批次，保留原總格數，先核對可見性／實際畫格進度，不改正式碼、不刪斷言或反覆原樣重跑。
 - 擷取圖片不可用／`Page.captureScreenshot` 逾時時，從失敗 suite 接續 `--skip-screenshots`，不重跑已通過的；用 Ego screen-media PDF 轉 PNG（`printToPDF` 前設 `setEmulatedMedia` 的 `media:'screen'`）。PDF 放 `tmp/pdfs/`、檔名加任務前綴、驗收後刪除；pypdfium2 `render(scale=1)` 是 72dpi，CSS 像素要 `scale=96/72`。標示協定、轉圖工具與實際 dpi，不宣稱直接截圖。
 - 實際檢查桌機 1330／1920px、60／75／80／100% 與 220／300／460px 側欄；倒地傭兵及寵物的所有控制項、標籤文字均須在邊界內，不能只量卡片高度。
-- 倉庫另跑 `warehouse-list` 與 `village-clan-warehouse`（HTTP／file）。驗證預設尺寸要清除測試調整並以 100% 量測；預設圖與已拖曳縮放圖分開命名。命中區留在外框內，實測縮放時 border 取整，不能假設 CSS 宣告值等於實際邊界。
+- 倉庫分類優先辨認 `d.remains`／`isRelic(d)`，再分類武器／防具／道具；「遺物」與「席琳遺骸」各自獨立，截圖的幻覺之心／之爪是遺骸。兩側、細分類、搜尋及實際存取均驗，維持搜尋跨分類；不改 vendor。另跑 `warehouse-list`／`village-clan-warehouse`（HTTP／file），預設尺寸清除測試調整並以 100% 量測；預設圖與拖曳圖分開，命中區留外框內，border 依實測取整。
 - 本地檢查一律跑 `python3 scripts/check-local.py`：JS 語法、`git diff --check`、`?v=` 資源 SHA、69 個鏡像檔 SHA 與全部 `tests/*.integration.js`。integration 只驗原生流程／幾何邊界，不等於瀏覽器 E2E；原生新增全域依賴時更新合成 fixture，不為缺少的測試替身增加正式環境 fallback。
-- 保留可重跑的 JSON 報告、來源雜湊及代表性預覽；完整驗證須對應實際程式 commit 與報告。交接要區分「本輪實跑」與「核對前人報告」；事後擷取的來源 SHA 不得冒充 runner 當時記錄的 SHA。
-- 報告檔名含自己的 suite／協定，複製測試時同步改名，避免覆寫其他套件；依 runner 實際輸出引用，引用前核對存在、方法、版本與結果，不用歷史報告／早期預覽充作後續驗證。HTTP／file 共用圖檔會被覆寫，須標明最終圖的協定與方法，不能當兩次獨立擷取。
+- 保留可重跑 JSON、runner 當時的來源 SHA 與代表預覽；交接區分本輪實跑／沿用報告／替身／未完成，不把事後 SHA 冒充 runner 紀錄。檔名含 suite／協定，複製套件同步改名；引用前核對存在、方法、版本、結果。HTTP／file 共用圖會覆寫，標明最終協定／方法，不作兩份擷取或跨輪加總。
 - 桌面橋接替身與 file 協定不等於安裝版實測；本機 iCloud 複製／雜湊相符不等於遠端同步完成。
 - 測試保持精簡：先選可重現需求的最小專項，完成後只跑必要核心；通過即停，不因增加信心而追加套件、長測或重複預覽。接手先核對來源 SHA 與報告；未變就沿用，失敗僅接續受影響套件，測試前置錯誤先修 fixture。僅改本檔不重跑遊戲 E2E；使用者縮短時長就依其指示收尾。
 - 背景 E2E 執行中不改程式；要改就先停 runner，改完 `update-cache.py` 後重跑，避免同一份報告混到兩版程式。使用者要求「做完再測」時，所有修改完成後只跑一次。等待長 runner 用背景程序與完成通知，不輪詢；期間只在 `tmp/` 準備素材或腳本。
@@ -215,14 +215,16 @@
 
 ## 存檔、隱私與提交
 
+- 存檔失敗不得建議先重整／關頁；一般匯出會先存檔，不能當持續寫入失敗的救援。`buildRecoveryAccountSnapshot()`／`exportAccount(true)` 沿用 schema 2、SIG1／SIG2、原預覽／確認；以當前記憶體角色搭可讀共用資料建副本，不依賴 localStorage 寫入，保留未知欄位、最新設定、寵物墓碑及 pending 帳本 uid 去重。死亡／補跑／角色更換／其他活躍分頁仍拒絕；共用資料不可讀則拒絕不完整匯出。
+- `saveHealth`／`save-recovery.js` 的上次成功時間只限本次開頁，角色檔與寵物完整寫入才更新；後段失敗可能已有部分寫入，提示用「未確認完整儲存」。救援匯出與取消不清失敗狀態，完整重試成功才清。驗全寫入失敗／寵物後段失敗、無儲存寫入的救援、原生匯入與重試，不能以檔案產生宣稱本機已存好。
+- 容量由 `storage-health.js` 唯讀計算 `Σ(key.length+value.length)×2` UTF-16 bytes，5 MiB 只是參考，明示估算及瀏覽器差異；警告／逐筆大小／診斷／複製／下載須一致，保留標籤、壓縮徽章及比例條，不保證固定壓縮倍數。指引為「設定 → 加掛版功能」，不恢復左上外掛面板；本版取代 quotawarn 載入引用，不改鏡像。事件後更新用 bubble／限定節點 observer，不能假設 capture 內 queueMicrotask 會等 target handler 完成。
 - 測試只用合成角色與隔離儲存；不得讀寫真實帳號或 iCloud 存檔。
 - 保留既有鍵名、未知欄位及網頁／桌面格式隔離；測試寫入失敗與回復流程。帳號匯入先以本版原生匯出→按鈕選檔→預覽→確認→重載驗證；SIG1／SIG2、舊角色檔、完整備份、衝突選擇與寫入回復均沿用原格式，重現解析失敗才修解析器。
 - `ADDON_ROLE_PREFS` 的四種角色偏好由鏡像用 `localStorage` 明文讀取，匯入不可走一般 `_lzSet`；用 `_lzSetStoredRaw` 寫入並核對原值，同時使舊壓縮 Worker 結果失效。一般角色／共用存檔仍走原壓縮流程，不移除匯入的逐筆驗證與整批回復。
 - 過去匯入可能讓 `afk_bossavoid_*` 等偏好變成 `LZ1:`，再匯出時又攜入壓縮內容；匯出讀解壓值、匯入正規化已知偏好，啟動遷移修回明文。只處理列明前綴，不改 vendor、未知欄位或帳號格式；「儲存失敗：key」先核對編碼與讀回內容，不直接歸因容量不足。
-- 此路徑至少驗連續兩次原生匯出→匯入、同步壓縮開／關、舊壓縮偏好與寫入失敗回復。Ego 檔案選擇器須先 arm；若反覆被取消，先查實際 input，只在合成 fixture 保留原生動態 input 後用 `setInputFiles`，保留原 onChange／預覽／確認流程，不改正式環境選檔行為或直接呼叫 apply 冒充 E2E。
+- 此路徑至少驗連續兩次原生匯出→匯入、同步壓縮開／關、舊壓縮偏好與失敗回復。Ego 選檔先 arm；反覆取消可在合成 fixture 保留動態 input 後 `setInputFiles`，保留原 onChange／預覽／確認。原生下載已兩次造成 `CrBrowserMain` 崩潰時不原樣第三試；可用簽章 file sink 接收、另存 `account-sink` 報告並明列未驗 OS 下載，不改正式碼或直接 apply 冒充原生 E2E。
 - 測試未知欄位時，在匯出快照建立前注入同一份來源資料；不要稍後又還原較早快照，再誤判欄位被匯入流程刪除。
 - 不提交玩家存檔、憑證、個資、`.DS_Store`、備份、快取或合成帳號匯出檔。發佈報告先移除本機／iCloud 的絕對路徑，改用專案相對路徑或中性標記。
-- 圖像生成概念與合成角色預覽是驗收素材，不得用概念圖的文字／數字替換遊戲資料。
 - 分批 commit 須處理全域依賴：定義、script 載入與呼叫端須在同一批可用；共用檔案按功能分段暫存，每批 `index.html` 快取版本須對應該批索引的資源內容，不能提前帶入下一批的 SHA。
 - commit 以單一功能範圍命名，例如 `fix: preserve village buffs across ally refresh`；不只寫 `1`／`q`。
 - push 前核對遠端／分支與差異，不 force push；未授權不推到 upstream 或改動別人的歷史。
@@ -231,19 +233,17 @@
 
 ## GitHub Pages 部署
 
-- GitHub CLI 查詢／操作明確加 `--repo lostshin/idle-lineage-class`，API 用完整 repo 路徑；fork 預設可能指向 upstream。部署以 HEAD SHA 與 run ID 核對，CLI `workflowName` 與 API `name` 不保證相同。
+- GitHub CLI 查詢／操作明確加 `--repo lostshin/idle-lineage-class`，API 用完整 repo 路徑；fork 預設可能指向 upstream。查部署用完整 40 字 HEAD SHA 與 run ID，`gh run list --commit` 短 SHA 可能查不到；CLI `workflowName` 與 API `name` 不保證相同。
 - 已確認入口：<https://lostshin.github.io/idle-lineage-class/>；`origin` 為 `lostshin/idle-lineage-class`，Pages 從 `main:/` 發布（`build_type:legacy`，GitHub 產生建置工作），不需新增本機建置或 workflow。
 - 使用者授權部署後，先 `git fetch origin`，核對分支、遠端、落後／超前與**全部待推送 commit**；確認本地驗證與工作樹後，以 `git push origin main` 發布。`tmp/` 素材／報告不可加入，不能誤推 `upstream`。功能／修正發布須同步 `FORK_VERSION`、README 與版本斷言，核對登入顯示與快取 SHA；原版 `GAME_VERSION` 維持獨立。純文件／名稱文案調整不升版，也不移動既有版本標籤。
 - push 成功不代表已上線；追蹤這次 HEAD 的 `pages build and deployment`，等 build／deploy 成功。長操作用背景程序並定期回報，不因正常等待重新推送或重建。
 - 發布後以公開 HTTPS 比對線上 `index.html`、本次改動的 JS／CSS／素材與本機已提交內容 SHA256；保存 commit、run URL、結果與時間。這是資源驗證，不等於線上瀏覽器 E2E，也不讀寫玩家儲存。
 
-## 最新進度與驗證基準（2026-10-24）
-
-- 本次 **v3.9.27**：爬塔關窗、條列字體、妖精舊 Buff、寵物來源與快速廢品上限。`tmp/test-runs/player-reports-1023/report.md`／`completion.json`：同份最終測試對原來源 23/42 預期失敗；7 suites×HTTP／file 14 次、714 項全通過，本地13/13；TaskSpace 7 已結束，HTTP 預覽為 screen-media PDF→pypdfium2 96dpi，未實測 Safari／手機／安裝版／真實存檔。發布補驗、commit／Pages／公開 SHA 見 `tmp/test-runs/session-release-3927/completion.json`；後端未改。
-- v3.9.26（原版 `v3.8.34` 不變）：指定物品介面加固定光暈（圖示背景漸層，零額外節點／動畫），資訊窗可外點關閉，主角無變戒自動續用原形態。發布commit／Pages／公開SHA見 `tmp/test-runs/session-release-3926/completion.json`；後端未改，不部署Worker／migration。
-- v3.9.26功能證據在 `tmp/test-runs/feedback-1023/report.md`：HEAD worktree baseline 12/24 預期失敗；13 suites×HTTP／file 26 次全通過（`final/`，提示框修正前來源）；提示框修正先重現 2 項失敗再修，`feedback-1023` HTTP／file 24/24（`final2/`）；本地13/13，空間27／28已結束。本機 Ego 截圖逾時，自 `party-equipment` 起 `--skip-screenshots`；預覽為 file 協定 screen-media PDF→pypdfium2 96dpi。主角變身 baseline 13/14、修正與發布補驗見 `session-release-3926/completion.json`。光暈未做效能量測；Safari、實體手機、安裝版、真實存檔未驗。
-- v3.9.25 物品頁少量呼吸光：證據 `item-breathing/completion.json`（18份、618項），發布 `session-release-3925/completion.json`；同一240件背包常駐288個動畫→開頁8個→離頁0個，短時主執行緒數據有雜訊，不當速度／耗電保證，OS背景與GPU耗電未驗。
-- v3.9.24 補跑重複工作最佳化：證據 `catchup-optimize/completion.json`（22份、776項，與 `c633073b2` 的狀態／RNG 一致），發布 `session-release-3924/completion.json`；配對吞吐中位61,287→89,522 tick/s（速度+46.1%、耗時−31.5%），未重現玩家五小時個案，未改倍率／債務／結算。
-- v3.9.23公會入口／連續強化／變戒選單與補跑時間說明已發布，見 `session-release-3923/completion.json`；前功能輪 `guild-controls` 916項（6份明列沿用）、48組版面，`catchup-progress` 622項。v3.9.22批次／能力對齊／法師召喚互斥見 `session-release/completion.json` 及 `same-batch-*`／`feedback-1022`／`guild-poly`；不跨輪加總成獨立案例。舊公會單擊自動開窗及傭兵取消自然到期已被新決策取代。
-- v3.9.21保留v3.9.18離線取樣：`offline-team/completion.json`、`rollback-scope.json` 716/716，發布在 `offline-team-release/completion.json`。單純更新七人未重現失敗，原生召喚到期才揭露樣本差異；不改結算／刷新順序，不聲稱補回歷史收益。更早發布見 [docs/agent-progress.md](docs/agent-progress.md)；既有預覽為screen-media PDF→pypdfium2 96dpi，不是新版本直接截圖。
+## 最新進度與驗證基準（2026-10-28）
+- **v3.9.29**：手機登入、倉庫遺物／遺骸分類及離線舊生存風險修正；證據 `tmp/test-runs/player-reports-1028/report.md`，baseline 7/21 預期失敗，最終專項 HTTP／file 各 21/21、必要核心各 252/252、倉庫各 96/96、離線各 36/36，本地 13/13。7 小時以控制時鐘和合成角色存讀驗證，非實掛；截圖無樣本／死因，不能確定當次死亡原因。file 預覽為 Ego PNG；實機、Safari、安裝版未驗。推送及公開資源驗證結果以本輪交接為準；後端未改。
+- **v3.9.28 已發布**（原版仍 `v3.8.34`）：手機與存檔救援；Pages run `40672404271`、公開 15/15 SHA 相符，證據 `tmp/test-runs/session-release-3928/completion.json`。
+- 手機證據：`tmp/test-runs/mobile-manual/report.md`（寬窗 HTTP／file 各 31/31、生命週期 HTTP 33/33／file 31/31、桌機還原 97/97；修改前 17/31 預期失敗）。這些是救援前來源，不能當後續所有改動的獨立驗收；TaskSpace 3 已結束，離線戰利品原字級保留。
+- 救援／容量證據：`tmp/test-runs/save-recovery/report.md`、同目錄 `completion.json`（修改前 24/26 預期失敗；final3 HTTP／file 各 26/26，account-sink 各 63/63，核心兩協定通過，本地 13/13；功能來源為升版前）。額外 mobile-live HTTP 只完成 32 項、最後重試未完成，file 加掛接續逾時，不得寫全通過。TaskSpace 11 已結束；預覽為 file screen-media PDF→pypdfium2 96dpi，OS 原生下載、實體手機、Safari、安裝版、真實存檔未驗。
+- 前版證據索引（相對 `tmp/test-runs/`）：v3.9.27 `session-release-3927/completion.json`、`player-reports-1023/report.md`；v3.9.26 `session-release-3926/completion.json`、`feedback-1023/report.md`；v3.9.25 `item-breathing/completion.json`；v3.9.24 `catchup-optimize/completion.json`（速度 +46.1%、耗時 −31.5%，未重現五小時個案）；v3.9.23 `session-release-3923/completion.json`；v3.9.22 `session-release/completion.json`；v3.9.21 `offline-team/completion.json`、`offline-team/rollback-scope.json`、`offline-team-release/completion.json`。更早見[歷史進度](docs/agent-progress.md)，不跨輪加總或把舊預覽當新驗收。
+- 檢視建議僅第 1、2 項（救援／容量）已實作；手機 X 點擊區、啟動載入失敗的可見提示、最新手機模式 PWA／實機補驗、大背包 profile、未開放攻城仍為後續候選，不視為實作授權。
 - 使用者已撤回統一v3.9.10，版號持續遞增；單一機制回復不降整體版號、不改既有commit／tag。歷史「先發布名片才在線／地圖子選單入口／隨機姿勢」已被取代。
