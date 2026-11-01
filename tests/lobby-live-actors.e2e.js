@@ -7,7 +7,7 @@ async function check(name,fn){try{const r=await fn();if(r!==true)throw Error(JSO
 const init=(await page.cdp('Page.addScriptToEvaluateOnNewDocument',{source:`(()=>{
  const data={};window.__actors={data,requests:[],timers:[],poses:[],errors:[],mine:null,actor:null};const storage={getItem:k=>data[k]??null,setItem:(k,v)=>data[k]=String(v),removeItem:k=>delete data[k],key:i=>Object.keys(data)[i]??null,get length(){return Object.keys(data).length}};
  for(const key of ['localStorage','sessionStorage'])Object.defineProperty(window,key,{value:storage,configurable:true});window.BroadcastChannel=undefined;addEventListener('error',e=>__actors.errors.push(e.message));
- const timer=setTimeout;window.setTimeout=function(fn,ms,...args){if(ms===300000)__actors.timers.push(()=>fn(...args));return timer.call(this,fn,ms,...args);};
+ const timer=setTimeout;window.setTimeout=function(fn,ms,...args){if(ms===600000)__actors.timers.push(()=>fn(...args));return timer.call(this,fn,ms,...args);};
  const nativeFetch=fetch;window.fetch=async(input,options={})=>{if(!String(input).startsWith('http://127.0.0.1:9998'))return nativeFetch(input,options);const u=new URL(input),path=u.pathname,body=options.body?JSON.parse(options.body):{};__actors.requests.push({path,method:options.method||'GET',body});
  const stamp=Date.now(),player={id:'00000000-0000-4000-8000-000000000002',actor:__actors.actor||{name:'未發名片女法師',cls:'mage',avatar:'女法師'},lastSeen:stamp,greetingAt:0,hasCard:false};let value={};
  if(path==='/v1/actions')value={actions:[],more:false};

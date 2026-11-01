@@ -7,7 +7,7 @@ async function check(name,fn){try{const r=await fn();if(r!==true)throw Error(JSO
 const init=(await page.cdp('Page.addScriptToEvaluateOnNewDocument',{source:`(()=>{
  const data={};window.__presenceCase={requests:[],timers:[],sockets:0,offline:false,serverNow:Date.now(),serverCount:27,authCount:0,errors:[],holdAuth:true};const storage={getItem:k=>data[k]??null,setItem:(k,v)=>data[k]=String(v),removeItem:k=>delete data[k],key:i=>Object.keys(data)[i]??null,get length(){return Object.keys(data).length}};for(const key of ['localStorage','sessionStorage'])Object.defineProperty(window,key,{value:storage,configurable:true});window.BroadcastChannel=undefined;
  const dateNow=Date.now;Date.now=()=>dateNow()+300000;addEventListener('error',e=>__presenceCase.errors.push(e.message));
- const timeout=setTimeout;window.setTimeout=function(fn,ms,...args){if(ms===300000)__presenceCase.timers.push(()=>fn(...args));return timeout.call(this,fn,ms,...args);};
+ const timeout=setTimeout;window.setTimeout=function(fn,ms,...args){if(ms===600000)__presenceCase.timers.push(()=>fn(...args));return timeout.call(this,fn,ms,...args);};
  const Socket=WebSocket;window.WebSocket=function(...args){__presenceCase.sockets++;return new Socket(...args);};
  const original=fetch;window.fetch=async(input,options={})=>{if(!String(input).startsWith('http://127.0.0.1:9998'))return original(input,options);const path=new URL(input).pathname;__presenceCase.requests.push({path,method:options.method||'GET'});if(__presenceCase.offline)throw TypeError('synthetic network outage');const serverTime=__presenceCase.serverNow;let value={};
  if(path==='/v1/actions')value={actions:[],more:false};

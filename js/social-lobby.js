@@ -83,7 +83,7 @@ const socialLobby = (() => {
             presenceFailures = 0;
             if (active) { updateRecentState(); await loadActions(); }
         } catch (error) { presenceFailures++; onlinePresence.unavailable(); if (active) status(error.message); }
-        finally { presenceTimer = setTimeout(heartbeat, Math.min(1800000, 300000 * 2 ** presenceFailures)); }
+        finally { presenceTimer = setTimeout(heartbeat, Math.min(1800000, 600000 * 2 ** presenceFailures)); }
     }
     function stop() {
         clearTimeout(poll); poll = null;
@@ -298,7 +298,7 @@ const socialLobby = (() => {
             }
             seat.style.left = seat.dataset.x+'%'; seat.style.top = seat.dataset.y+'%'; seat.style.zIndex = Math.round(Number(seat.dataset.y));
             seat.disabled = !item.self && !onlinePresence.canConnect();
-            seat.dataset.online = String(item.self ? !disconnected && selfSeen>0 && performance.now()-selfReceivedAt < 600000 : campNow()-item.lastSeen < 600000);
+            seat.dataset.online = String(item.self ? !disconnected && selfSeen>0 && performance.now()-selfReceivedAt < 900000 : campNow()-item.lastSeen < 900000);
             seat.title = item.self && disconnected ? '離線 · 已中斷連線' : visitorStatus(item.self ? selfSeen : item.lastSeen);
             seat.querySelector('.lobby-seat-name').textContent = actor.name + (item.self ? '（你）' : '');
             seat.setAttribute('aria-label', item.self ? '我的代表角色：'+actor.name : '查看 '+actor.name+' 的名片');
@@ -317,7 +317,7 @@ const socialLobby = (() => {
     }
     function visitorStatus(lastSeen) {
         if (!lastSeen) return '尚無回報紀錄';
-        return (campNow()-lastSeen < 600000 ? '在線' : '離線')+' · 最後回報：'+new Date(lastSeen).toLocaleString('zh-TW');
+        return (campNow()-lastSeen < 900000 ? '在線' : '離線')+' · 最後回報：'+new Date(lastSeen).toLocaleString('zh-TW');
     }
     function updateRecentState() {
         if (!live()) return;
@@ -338,7 +338,7 @@ const socialLobby = (() => {
         if (selfSeen) times.push(selfSeen);
         for (const row of $('lobby-visitors').children) if (row.dataset.lastSeen) times.push(Number(row.dataset.lastSeen));
         if (selected?.lastSeen) times.push(selected.lastSeen);
-        const remaining = times.flatMap(at => [at+600000-campNow(),at+86400000-campNow()]).filter(ms => ms>0);
+        const remaining = times.flatMap(at => [at+900000-campNow(),at+86400000-campNow()]).filter(ms => ms>0);
         if (remaining.length) stateTimer = setTimeout(updateRecentState, Math.min(...remaining)+1);
     }
     function animateActor(event) {
@@ -504,7 +504,7 @@ const socialLobby = (() => {
             campServerTime = camp.serverTime; campReceivedAt = performance.now();
             campGuests = camp.players; listReceivedAt = performance.now(); renderCamp(); onlinePresence.update(camp.siteRecentCount, camp.serverTime);
             const rows = view === 'online' ? result.players : result.cards;
-            const signature = JSON.stringify({ view, offset, cards: rows.map(({greetingAt, ...item}) => ({ ...item, lastSeen: !!item.lastSeen && campNow() - item.lastSeen < 600000 })) });
+            const signature = JSON.stringify({ view, offset, cards: rows.map(({greetingAt, ...item}) => ({ ...item, lastSeen: !!item.lastSeen && campNow() - item.lastSeen < 900000 })) });
             const list = $('lobby-visitors');
             if (signature !== visitorsSignature) {
                 visitorsSignature = signature; list.replaceChildren();
@@ -646,7 +646,7 @@ const socialLobby = (() => {
     });
     window.addEventListener('pagehide', () => { clearTimeout(presenceTimer); stop(); });
     window.addEventListener('pageshow', () => { heartbeat(); if (active) { animateSprites(); updateRecentState(); playAction(); } });
-    presenceTimer = setTimeout(heartbeat, 300000);
+    presenceTimer = setTimeout(heartbeat, 600000);
     matchMedia('(prefers-reduced-motion: reduce)').addEventListener('change', animateSprites);
     window.addEventListener('online', () => { heartbeat().then(() => { if (live() && session) perform(refresh); }); });
     new MutationObserver(() => { if (playing()) heartbeat(); else close(false); }).observe($('game-screen'), {attributes:true,attributeFilter:['class']});

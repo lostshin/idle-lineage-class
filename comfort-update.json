@@ -2,8 +2,8 @@
   "schema": 1,
   "product": "idle-lineage-comfort",
   "version": "v3.9.31",
-  "build": "6c899f194501a73fbe2e2fbfa3279247785eb8702b076a386f8aba693f231292",
-  "publishedAt": "2026-11-01T17:07:24.796Z",
+  "build": "1e23bb8b67e8027ebf03869b364537fdc856199c373f985e56a9eac9f959d30a",
+  "publishedAt": "2026-11-01T17:07:51.696Z",
   "notes": [
     "正式站發布新版時，在最上層顯示置頂橫幅，可直接儲存並更新或選擇稍後。",
     "手動更新前確認角色、寵物與傭兵經驗已儲存；寫入失敗保留目前頁面。"

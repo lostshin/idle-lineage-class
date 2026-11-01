@@ -40,7 +40,7 @@ const init = (await page.cdp('Page.addScriptToEvaluateOnNewDocument', { source: 
     for (const key of ['localStorage','sessionStorage']) Object.defineProperty(window,key,{value:storage,configurable:true});
     window.BroadcastChannel=undefined;
     addEventListener('error',event=>__lobbyErrors.push(event.message));
-    const nativeFetch=window.fetch, snapshotTime=Date.now();window.__lobbyTimers=[];const nativeTimeout=setTimeout;window.setTimeout=(fn,ms,...args)=>{if(ms===300000)__lobbyTimers.push(()=>fn(...args));return nativeTimeout(fn,ms,...args);};
+    const nativeFetch=window.fetch, snapshotTime=Date.now();window.__lobbyTimers=[];const nativeTimeout=setTimeout;window.setTimeout=(fn,ms,...args)=>{if(ms===600000)__lobbyTimers.push(()=>fn(...args));return nativeTimeout(fn,ms,...args);};
     window.fetch=async (input,options={})=>{
         if(!String(input).startsWith('${apiBase}'))return nativeFetch(input,options);
         const path=new URL(input).pathname;requests.push({path,method:options.method||'GET',body:options.body});
@@ -150,7 +150,7 @@ if (options.lobbyApi) {
     const expected=await page.evaluate(()=>{setMapSelectors(getHomeTown());changeMap(true);state.running=false;return mapEntryOf(mapState.current).t;});
     await page.evaluate(async()=>{await __lobbyTimers.at(-1)?.();});
     await page.waitForFunction(expected=>__lobbyRequests.some(r=>r.path==='/v1/presence'&&r.body&&JSON.parse(r.body).map===expected),expected,{timeout:40000});
-    await check('controlled five-minute heartbeat updates real D1 while the player is outside the lobby',async()=>
+    await check('controlled ten-minute heartbeat updates real D1 while the player is outside the lobby',async()=>
         (await worker('/cards?view=online','GET',undefined,visitor.token)).cards.some(row=>row.card.name==='合成大廳角色'&&row.currentMap===expected));
 }
 await page.click('#btn-social-lobby');

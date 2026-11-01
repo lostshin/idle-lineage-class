@@ -8,7 +8,7 @@ const init=(await page.cdp('Page.addScriptToEvaluateOnNewDocument',{source:`(()=
  const data={};window.__feedback={data,requests:[],errors:[],mine:null,presence:null,clock:Date.now(),fail:null,timers:[]};
  const s={getItem:k=>data[k]??null,setItem:(k,v)=>{if(k===__feedback.fail)throw Error('synthetic write failure');data[k]=String(v)},removeItem:k=>delete data[k],key:i=>Object.keys(data)[i]??null,get length(){return Object.keys(data).length}};
  for(const k of ['localStorage','sessionStorage'])Object.defineProperty(window,k,{value:s,configurable:true});window.BroadcastChannel=undefined;const inputClick=HTMLInputElement.prototype.click;HTMLInputElement.prototype.click=function(){if(this.type==='file'){document.getElementById('feedback-import')?.remove();this.id='feedback-import';this.hidden=true;document.body.appendChild(this);return;}return inputClick.call(this);};addEventListener('error',e=>__feedback.errors.push(e.message));
- const timeout=window.setTimeout;window.setTimeout=function(fn,ms,...args){if(ms===300000)__feedback.timers.push(()=>fn(...args));return timeout.call(this,fn,ms,...args);};
+ const timeout=window.setTimeout;window.setTimeout=function(fn,ms,...args){if(ms===600000)__feedback.timers.push(()=>fn(...args));return timeout.call(this,fn,ms,...args);};
  const nativeFetch=window.fetch;window.fetch=async(input,options={})=>{
   if(!String(input).startsWith('http://127.0.0.1:9998'))return nativeFetch(input,options);
   const u=new URL(input),p=u.pathname,b=options.body?JSON.parse(options.body):{};__feedback.requests.push({path:p,query:u.search,method:options.method||'GET',body:b});
