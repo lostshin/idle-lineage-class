@@ -7,7 +7,7 @@ async function check(name,fn){try{const r=await fn();if(r!==true)throw Error(JSO
 const init=(await page.cdp('Page.addScriptToEvaluateOnNewDocument',{source:`(()=>{
  const data={};window.__presenceCase={requests:[],timers:[],sockets:0,offline:false,serverNow:Date.now(),serverCount:27,authCount:0,errors:[],holdAuth:true};const storage={getItem:k=>data[k]??null,setItem:(k,v)=>data[k]=String(v),removeItem:k=>delete data[k],key:i=>Object.keys(data)[i]??null,get length(){return Object.keys(data).length}};for(const key of ['localStorage','sessionStorage'])Object.defineProperty(window,key,{value:storage,configurable:true});window.BroadcastChannel=undefined;
  const dateNow=Date.now;Date.now=()=>dateNow()+300000;addEventListener('error',e=>__presenceCase.errors.push(e.message));
- const timeout=setTimeout;window.setTimeout=function(fn,ms,...args){if(ms===600000)__presenceCase.timers.push(()=>fn(...args));return timeout.call(this,fn,ms,...args);};
+ const timeout=setTimeout;window.setTimeout=function(fn,ms,...args){if(ms>=60000)(__presenceCase.delays||=[]).push(ms);if(ms===600000)__presenceCase.timers.push(()=>fn(...args));return timeout.call(this,fn,ms,...args);};
  const Socket=WebSocket;window.WebSocket=function(...args){__presenceCase.sockets++;return new Socket(...args);};
  const original=fetch;window.fetch=async(input,options={})=>{if(!String(input).startsWith('http://127.0.0.1:9998'))return original(input,options);const path=new URL(input).pathname;__presenceCase.requests.push({path,method:options.method||'GET'});if(__presenceCase.offline)throw TypeError('synthetic network outage');const serverTime=__presenceCase.serverNow;let value={};
  if(path==='/v1/actions')value={actions:[],more:false};
@@ -26,6 +26,7 @@ await check('five-minute fast client clock does not hide a fresh server peer; ex
 await check('world count uses the server total including all pages, not displayed sprites',()=>page.evaluate(()=>{const label=document.getElementById('world-online-count');return !label.hidden&&label.dataset.state==='ready'&&label.textContent==='（近 30 分鐘活躍 27 人）'&&label.title.includes('後端')&&label.title.includes('30 分鐘');}));
 await page.click('#lobby-exit');await check('count remains visible during hunting with same presence transport',()=>page.evaluate(()=>!socialLobby.isOpen()&&!document.getElementById('world-online-count').hidden&&__presenceCase.sockets===0));
 await page.evaluate(async()=>{__presenceCase.offline=true;const pulse=__presenceCase.timers.at(-1);if(pulse)await pulse();});
+await check('a failed heartbeat retries within five minutes, inside the fifteen-minute online window',()=>page.evaluate(()=>__presenceCase.delays.at(-1)===300000||__presenceCase.delays.slice(-3)));
 await check('network failure retains the count with a stale warning',()=>page.evaluate(()=>{const e=document.getElementById('world-online-count');return e.dataset.state==='stale'&&e.title.includes('失敗')&&e.textContent.includes('27');}));
 await page.evaluate(()=>{__presenceCase.offline=false;__presenceCase.serverCount=3;dispatchEvent(new Event('online'));});
 await page.waitForFunction(()=>__presenceCase.requests.length>0);await page.evaluate(async()=>{const pulse=__presenceCase.timers.at(-1);if(pulse)await pulse();});

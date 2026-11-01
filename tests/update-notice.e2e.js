@@ -36,7 +36,7 @@ async function boot({enabled=true, response='new', data={}}={}) {
     await page.waitForFunction(()=>document.readyState==='complete'&&typeof startGame==='function');
     await page.evaluate(()=>{_bgHeartbeatWorker?.terminate();_bgHeartbeatWorker=null;_getLzWorker=()=>null;});
 }
-async function create() { await page.evaluate(()=>{selectClass('m_knight');document.getElementById('creation-name').value='合成更新驗證';startGame();stopGameTimers();state.running=false;player.gold=123456;saveGame();}); }
+async function create(slot=1) { await page.evaluate(slot=>{if(slot>1){openLoadSelect();loadSetPage(Math.ceil(slot/4));loadSelectSlot(slot);loadCreateSelected();}selectClass('m_knight');document.getElementById('creation-name').value='合成更新驗證';startGame();stopGameTimers();state.running=false;player.gold=123456;saveGame();},slot); }
 await page.cdp('Emulation.setDeviceMetricsOverride',{width:1330,height:900,deviceScaleFactor:1,mobile:false});
 await page.cdp('Network.setBypassServiceWorker',{bypass:true});
 await boot({enabled:false});
@@ -46,6 +46,8 @@ if(options.protocol==='http') {
         await boot({response});
         await check(response+': no update warning or runtime error',()=>page.evaluate(()=>!!window.comfortUpdate&&!document.querySelector('#update-notice')&&!__updateErrors.length));
     }
+    await page.evaluate(async()=>{__updateResponse='new';await comfortUpdate.check();});
+    await check('failed background check does not linger beside a detected release',()=>page.evaluate(()=>{const b=document.getElementById('update-notice'),m=document.getElementById('update-result');return !!b&&!b.hidden&&b.textContent.includes('v99.0.0')&&(m.hidden||!m.textContent.includes('無法檢查'));}));
     await boot();
     await check('first response detects a newer release against the running page',async()=>{await page.waitForFunction(()=>!!document.getElementById('update-notice'),undefined,{timeout:4000});return page.evaluate(()=>document.getElementById('update-notice').textContent.includes('v99.0.0'));});
     await check('embedded build matches the published metadata',async()=>{const d=JSON.parse(await fs.readFile(options.root+'/comfort-update.json','utf8'));return page.evaluate(d=>document.querySelector('meta[name="comfort-build"]')?.content===d.build&&FORK_VERSION===d.version,d);});
@@ -65,7 +67,7 @@ if(options.protocol==='http') {
         return paused&&throttled&&__updateRequests===before+1;
     }));
     await check('stale release responses cannot downgrade a detected newer release',()=>page.evaluate(async()=>{if(!window.comfortUpdate)return false;__updateResponse='old';await comfortUpdate.check();__updateResponse='new';return document.getElementById('update-settings-open').textContent.includes('v99.0.0');}));
-    await create();
+    await create(6);
     await check('checking for updates does not save or mutate the character',()=>page.evaluate(async()=>{if(!window.comfortUpdate)return false;const p=JSON.stringify(player),s=JSON.stringify(__updateData);await comfortUpdate.check();return JSON.stringify(player)===p&&JSON.stringify(__updateData)===s;}));
     await check('repeated checks share the pending request',()=>page.evaluate(async()=>{if(!window.comfortUpdate)return false;const before=__updateRequests;await Promise.all([comfortUpdate.check(),comfortUpdate.check(),comfortUpdate.check()]);return __updateRequests===before+1;}));
     await page.evaluate(()=>window.comfortUpdate?.open());
@@ -119,7 +121,7 @@ if(options.protocol==='http') {
         const before=await page.evaluate(()=>performance.timeOrigin);
         await page.click('#update-apply');
         await page.waitForFunction(before=>performance.timeOrigin!==before&&document.readyState==='complete',before,{timeout:15000});
-        await check('successful native update saves progress and returns to character selection',()=>page.evaluate(()=>accountRoleDoc(1).p.gold===987654&&accountRoleDoc(1).p.futureUpdate.kept&&!document.getElementById('load-select-panel').classList.contains('hidden')));
+        await check('successful native update saves progress and returns to character selection',()=>page.evaluate(()=>accountRoleDoc(6).p.gold===987654&&accountRoleDoc(6).p.futureUpdate.kept&&!document.getElementById('load-select-panel').classList.contains('hidden')&&_loadSelectedSlot===6&&!!document.querySelector('#load-slot-grid .load-slot-card.selected[data-slot="6"]')));
         await check('reload still on old build is reported without an automatic reload loop',()=>page.evaluate(()=>document.getElementById('update-result')?.textContent.includes('仍是')&&!__updateSession.comfort_update_pending));
         await page.cdp('Page.removeScriptToEvaluateOnNewDocument',{identifier:persist});await page.cdp('Page.removeScriptToEvaluateOnNewDocument',{identifier:restore});
     } else {

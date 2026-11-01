@@ -83,7 +83,8 @@ const socialLobby = (() => {
             presenceFailures = 0;
             if (active) { updateRecentState(); await loadActions(); }
         } catch (error) { presenceFailures++; onlinePresence.unavailable(); if (active) status(error.message); }
-        finally { presenceTimer = setTimeout(heartbeat, Math.min(1800000, 600000 * 2 ** presenceFailures)); }
+        // Retry failures sooner than the regular beat so one blip cannot outlast the 15-minute online window.
+        finally { presenceTimer = setTimeout(heartbeat, presenceFailures ? Math.min(600000, 300000 * 2 ** (presenceFailures - 1)) : 600000); }
     }
     function stop() {
         clearTimeout(poll); poll = null;

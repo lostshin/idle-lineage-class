@@ -119,8 +119,10 @@ const comfortUpdate = (() => {
                 const data = await response.json();
                 if (!validRelease(data)) throw Error('invalid release');
                 if (newer(data) && (!latest || compareVersions(data.version,latest.version) > 0 || data.version === latest.version && Date.parse(data.publishedAt) >= Date.parse(latest.publishedAt))) latest = data;
-                if (!latest && !result) result = '目前未查到較新的版本。';
-                else if (latest && result === '目前未查到較新的版本。') result = '';
+                // Check-status text is stale once a later check answers; reload and save messages stay.
+                const checkStatus = ['目前未查到較新的版本。','目前無法檢查更新，請確認連線後重試。'];
+                if (!latest && (!result || checkStatus.includes(result))) result = checkStatus[0];
+                else if (latest && checkStatus.includes(result)) result = '';
                 paint();
             } catch { if (!latest) result = '目前無法檢查更新，請確認連線後重試。'; }
             finally { clearTimeout(timeout); pending = null; schedule(); }
@@ -134,7 +136,7 @@ const comfortUpdate = (() => {
             const ticket = JSON.parse(raw);
             sessionStorage.removeItem(TICKET_KEY);
             if (!ticket || !/^[a-f0-9]{64}$/.test(ticket.to || '') || Date.now()-ticket.at < 0 || Date.now()-ticket.at > 3600000) return;
-            if (Number.isInteger(ticket.slot) && ticket.slot >= 1 && ticket.slot <= SAVE_SLOT_MAX) { openLoadSelect(); loadSelectSlot(ticket.slot); }
+            if (Number.isInteger(ticket.slot) && ticket.slot >= 1 && ticket.slot <= SAVE_SLOT_MAX) { openLoadSelect(); loadSetPage(Math.ceil(ticket.slot / 4)); loadSelectSlot(ticket.slot); }
             result = build === ticket.to ? '已載入新版 '+FORK_VERSION+'。' : '目前仍是原版本，更新尚未完成。請確認連線後再試，不會自動重新整理。';
             open();
         } catch { result = '更新狀態無法讀取；請確認目前版本。'; }
