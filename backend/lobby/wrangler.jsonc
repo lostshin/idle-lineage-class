@@ -17,6 +17,13 @@
       "migrations_dir": "migrations"
     }
   ],
+  "ratelimits": [
+    { "name": "RL_AUTH", "namespace_id": "2026110201", "simple": { "limit": 20, "period": 60 } },
+    { "name": "RL_READ", "namespace_id": "2026110202", "simple": { "limit": 120, "period": 60 } },
+    { "name": "RL_PRESENCE", "namespace_id": "2026110203", "simple": { "limit": 6, "period": 60 } },
+    { "name": "RL_PUBLISH", "namespace_id": "2026110204", "simple": { "limit": 12, "period": 60 } },
+    { "name": "RL_COMMENT", "namespace_id": "2026110205", "simple": { "limit": 5, "period": 60 } }
+  ],
   "triggers": {
     "crons": [
       "17 * * * *"

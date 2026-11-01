@@ -16,6 +16,7 @@ export function testDatabase() {
     sqlite.exec(readFileSync(new URL('../migrations/0005_site_presence.sql', import.meta.url), 'utf8'));
     sqlite.exec(readFileSync(new URL('../migrations/0006_comments_users.sql', import.meta.url), 'utf8'));
     sqlite.exec(readFileSync(new URL('../migrations/0007_lobby_actions.sql', import.meta.url), 'utf8'));
+    sqlite.exec(readFileSync(new URL('../migrations/0008_drop_users_recent.sql', import.meta.url), 'utf8'));
     return {
         sqlite,
         prepare(sql) {
@@ -36,9 +37,16 @@ export function testDatabase() {
     };
 }
 
+export function testLimiters() {
+    // Stand-in for Workers Rate Limiting bindings: per-key fixed one-minute windows.
+    const counts = new Map();
+    const make = limit => ({ async limit({ key }) { const bucket = key + ':' + Math.floor(Date.now() / 60000), n = (counts.get(bucket) || 0) + 1; counts.set(bucket, n); return { success: n <= limit }; } });
+    return { RL_AUTH: make(20), RL_READ: make(120), RL_PRESENCE: make(6), RL_PUBLISH: make(12), RL_COMMENT: make(5), reset: () => counts.clear() };
+}
+
 test('social API ownership, privacy, retry safety and lifecycle', async () => {
     const DB = testDatabase();
-    const env = { DB, ALLOWED_ORIGINS: 'https://game.test', ADMIN_USER_IDS: '' };
+    const env = { DB, ...testLimiters(), ALLOWED_ORIGINS: 'https://game.test', ADMIN_USER_IDS: '' };
     const api = createHandler();
     async function request(path, { method = 'GET', token, body, origin = 'https://game.test', ip = '127.0.0.1' } = {}) {
         const headers = { Origin: origin, 'CF-Connecting-IP': ip };
@@ -119,7 +127,7 @@ test('social API ownership, privacy, retry safety and lifecycle', async () => {
 });
 
 test('loopback and file clients get explicit CORS without allowing arbitrary websites',async()=>{
-    const api=createHandler(),env={DB:testDatabase(),ALLOWED_ORIGINS:'https://lostshin.github.io',ALLOW_LOCAL_CLIENTS:'true'};
+    const api=createHandler(),env={DB:testDatabase(),...testLimiters(),ALLOWED_ORIGINS:'https://lostshin.github.io',ALLOW_LOCAL_CLIENTS:'true'};
     for(const origin of ['http://localhost:8000','http://127.0.0.1:59321','http://[::1]:8000','null']){
         const response=await api.fetch(new Request('https://api.test/v1/me',{headers:{Origin:origin}}),env);
         assert.equal(response.status,401,origin);
@@ -133,7 +141,7 @@ test('loopback and file clients get explicit CORS without allowing arbitrary web
 });
 
 test('online list and live maps respect published cards, heartbeats and location consent', async () => {
-    const DB=testDatabase(),api=createHandler(),env={DB,ALLOWED_ORIGINS:'https://game.test'};
+    const DB=testDatabase(),api=createHandler(),env={DB,...testLimiters(),ALLOWED_ORIGINS:'https://game.test'};
     async function request(path,method='GET',data,token){
         const r=await api.fetch(new Request('https://api.test/v1'+path,{method,headers:{Origin:'https://game.test','CF-Connecting-IP':'synthetic',...(token?{Authorization:'Bearer '+token}:{}),...(data?{'Content-Type':'application/json'}:{})},body:data?JSON.stringify(data):undefined}),env);
         return {status:r.status,data:await r.json()};
@@ -166,7 +174,7 @@ test('online list and live maps respect published cards, heartbeats and location
 });
 
 test('live players do not need cards and class/sex always come from the latest actor heartbeat', async()=>{
-    const DB=testDatabase(),api=createHandler(),env={DB,ALLOWED_ORIGINS:'https://game.test'};
+    const DB=testDatabase(),api=createHandler(),env={DB,...testLimiters(),ALLOWED_ORIGINS:'https://game.test'};
     async function request(path,method='GET',data,token){const r=await api.fetch(new Request('https://api.test/v1'+path,{method,headers:{Origin:'https://game.test','CF-Connecting-IP':'synthetic-live',...(token?{Authorization:'Bearer '+token}:{}),...(data?{'Content-Type':'application/json'}:{})},body:data?JSON.stringify(data):undefined}),env);return{status:r.status,data:await r.json()};}
     const a=(await request('/auth/guest','POST',{deviceKey:'a'.repeat(64)})).data,b=(await request('/auth/guest','POST',{deviceKey:'b'.repeat(64)})).data;
     const actor={name:'合成女法師',cls:'mage',avatar:'女法師'};
@@ -181,9 +189,9 @@ test('live players do not need cards and class/sex always come from the latest a
     assert.equal((await request('/me/card','PUT',{card:{name:'舊騎士名片',cls:'knight',avatar:'男騎士'},version:0},a.token)).status,200);
     result=await request('/players','GET',undefined,b.token);assert.deepEqual(result.data.players[0].actor,{...actor,pose:'standing'});assert.equal(result.data.players[0].hasCard,true);
     assert.equal((await request('/cards/'+a.user.id,'GET',undefined,b.token)).data.card.name,'舊騎士名片');
-    DB.sqlite.prepare('DELETE FROM rate_limits').run();
+    env.reset();
     for(const [cls,avatars]of Object.entries({royal:['王子','公主'],knight:['男騎士','女騎士'],elf:['男妖精','女妖精'],mage:['男法師','女法師'],dark:['男黑暗妖精','女黑暗妖精'],dragon:['男龍騎士','女龍騎士'],illusion:['男幻術士','女幻術士'],warrior:['男戰士','女戰士']}))for(const avatar of avatars){
-        DB.sqlite.prepare('DELETE FROM rate_limits').run();const current={name:'當前'+avatar,cls,avatar};assert.equal((await request('/presence','POST',{actor:current},a.token)).status,200);assert.deepEqual((await request('/players','GET',undefined,b.token)).data.players[0].actor,{...current,pose:'standing'});
+        env.reset();const current={name:'當前'+avatar,cls,avatar};assert.equal((await request('/presence','POST',{actor:current},a.token)).status,200);assert.deepEqual((await request('/players','GET',undefined,b.token)).data.players[0].actor,{...current,pose:'standing'});
     }
     DB.sqlite.prepare('UPDATE users SET last_seen=? WHERE id=?').run(Date.now()-180000,a.user.id);assert.equal((await request('/players','GET',undefined,b.token)).data.players.length,0);
     assert.equal((await request('/players?offset=-1','GET',undefined,b.token)).status,400);
@@ -191,46 +199,46 @@ test('live players do not need cards and class/sex always come from the latest a
 });
 
 test('backend headcount uses the same fresh users as players and is not limited by pagination or session count', async()=>{
-    const DB=testDatabase(),api=createHandler(),env={DB,ALLOWED_ORIGINS:'https://game.test'};
-    async function request(path,method='GET',data,token){const r=await api.fetch(new Request('https://api.test/v1'+path,{method,headers:{Origin:'https://game.test','CF-Connecting-IP':'count-fixture',...(token?{Authorization:'Bearer '+token}:{}),...(data?{'Content-Type':'application/json'}:{})},body:data?JSON.stringify(data):undefined}),env);return{status:r.status,data:await r.json()};}
+    const DB=testDatabase(),api=createHandler(),env={DB,...testLimiters(),ALLOWED_ORIGINS:'https://lostshin.github.io'};
+    async function request(path,method='GET',data,token){const r=await api.fetch(new Request('https://api.test/v1'+path,{method,headers:{Origin:'https://lostshin.github.io','CF-Connecting-IP':'count-fixture',...(token?{Authorization:'Bearer '+token}:{}),...(data?{'Content-Type':'application/json'}:{})},body:data?JSON.stringify(data):undefined}),env);return{status:r.status,data:await r.json()};}
     const key='c'.repeat(64),a=(await request('/auth/guest','POST',{deviceKey:key})).data,b=(await request('/auth/guest','POST',{deviceKey:key})).data;
-    const actor={name:'合成人數',cls:'knight',avatar:'男騎士'};
-    let r=await request('/presence','POST',{actor},a.token);assert.equal(r.status,200);assert.equal(r.data.onlineCount,1);assert.ok(Math.abs(r.data.serverTime-Date.now())<1000);
-    r=await request('/presence','POST',{actor},b.token);assert.equal(r.data.onlineCount,1);
-    for(let i=0;i<24;i++)DB.sqlite.prepare('INSERT INTO users(id,subject,last_seen,presence_actor) VALUES(?,?,?,?)').run('fixture-'+i,'fixture-'+i,Date.now(),JSON.stringify(actor));
-    DB.sqlite.prepare('INSERT INTO users(id,subject,last_seen,presence_actor,suspended) VALUES(?,?,?,?,?)').run('suspended','suspended',Date.now(),JSON.stringify(actor),1);
-    DB.sqlite.prepare('INSERT INTO users(id,subject,last_seen,presence_actor) VALUES(?,?,?,?)').run('expired','expired',Date.now()-180000,JSON.stringify(actor));
-    r=await request('/players','GET',undefined,a.token);assert.equal(r.data.players.length,20);assert.equal(r.data.onlineCount,25);assert.equal(r.data.next,20);assert.ok(r.data.serverTime>0);
-    r=await request('/players?offset=20','GET',undefined,a.token);assert.equal(r.data.players.length,5);assert.equal(r.data.onlineCount,25);
-    r=await request('/presence','POST',{actor},a.token);assert.equal(r.data.onlineCount,25);
-    assert.equal((await request('/players','GET')).status,401);
+    const actor={name:'合成人數',cls:'knight',avatar:'男騎士'},page='/idle-lineage-class/';
+    let r=await request('/presence','POST',{actor,page},a.token);assert.equal(r.status,200);assert.equal(r.data.siteRecentCount,1);assert.ok(Math.abs(r.data.serverTime-Date.now())<1000);
+    r=await request('/presence','POST',{actor,page},b.token);assert.equal(r.data.siteRecentCount,1);
+    for(let i=0;i<24;i++)DB.sqlite.prepare('INSERT INTO users(id,subject,last_seen,site_seen,presence_actor) VALUES(?,?,?,?,?)').run('fixture-'+i,'fixture-'+i,Date.now(),Date.now(),JSON.stringify(actor));
+    DB.sqlite.prepare('INSERT INTO users(id,subject,last_seen,site_seen,presence_actor,suspended) VALUES(?,?,?,?,?,?)').run('suspended','suspended',Date.now(),Date.now(),JSON.stringify(actor),1);
+    DB.sqlite.prepare('INSERT INTO users(id,subject,last_seen,site_seen,presence_actor) VALUES(?,?,?,?,?)').run('expired','expired',Date.now()-86400001,Date.now()-86400001,JSON.stringify(actor));
+    r=await request('/players?view=recent','GET',undefined,a.token);assert.equal(r.data.players.length,20);assert.equal(r.data.siteRecentCount,25);assert.equal(r.data.next,20);assert.ok(r.data.serverTime>0);
+    r=await request('/players?view=recent&offset=20','GET',undefined,a.token);assert.equal(r.data.players.length,5);assert.equal(r.data.siteRecentCount,25);
+    r=await request('/presence','POST',{actor,page},a.token);assert.equal(r.data.siteRecentCount,25);
+    assert.equal((await request('/players?view=recent','GET')).status,401);
     DB.sqlite.close();
 });
 
 test('official site visitors are distinct from local/file and other GitHub project heartbeats',async()=>{
-    const DB=testDatabase(),api=createHandler(),env={DB,ALLOWED_ORIGINS:'https://lostshin.github.io',ALLOW_LOCAL_CLIENTS:'true'};
+    const DB=testDatabase(),api=createHandler(),env={DB,...testLimiters(),ALLOWED_ORIGINS:'https://lostshin.github.io',ALLOW_LOCAL_CLIENTS:'true'};
     async function request(path,method='GET',data,token,origin='https://lostshin.github.io'){
         const r=await api.fetch(new Request('https://api.test/v1'+path,{method,headers:{Origin:origin,'CF-Connecting-IP':'site-count-test',...(token?{Authorization:'Bearer '+token}:{}),...(data?{'Content-Type':'application/json'}:{})},body:data?JSON.stringify(data):undefined}),env);return{status:r.status,data:await r.json()};
     }
     const visitors=[];for(const key of ['d','e','f','1'])visitors.push((await request('/auth/guest','POST',{deviceKey:key.repeat(64)})).data);
     const[a,local,file,other]=visitors,actor={name:'合成來源計數',cls:'knight',avatar:'男騎士'};
-    let r=await request('/presence','POST',{actor,page:'/idle-lineage-class/'},a.token);assert.equal(r.status,200);assert.equal(r.data.siteOnlineCount,1);assert.equal(r.data.onlineCount,1);
-    r=await request('/presence','POST',{actor,page:'/idle-lineage-class/'},local.token,'http://localhost:8000');assert.equal(r.status,200);assert.equal(r.data.siteOnlineCount,1);assert.equal(r.data.onlineCount,2);
-    r=await request('/presence','POST',{actor,page:''},file.token,'null');assert.equal(r.status,200);assert.equal(r.data.siteOnlineCount,1);
-    r=await request('/presence','POST',{actor,page:'/another-game/'},other.token);assert.equal(r.status,200);assert.equal(r.data.siteOnlineCount,1);assert.equal(r.data.onlineCount,4);
+    let r=await request('/presence','POST',{actor,page:'/idle-lineage-class/'},a.token);assert.equal(r.status,200);assert.equal(r.data.siteRecentCount,1);
+    r=await request('/presence','POST',{actor,page:'/idle-lineage-class/'},local.token,'http://localhost:8000');assert.equal(r.status,200);assert.equal(r.data.siteRecentCount,1);
+    r=await request('/presence','POST',{actor,page:''},file.token,'null');assert.equal(r.status,200);assert.equal(r.data.siteRecentCount,1);
+    r=await request('/presence','POST',{actor,page:'/another-game/'},other.token);assert.equal(r.status,200);assert.equal(r.data.siteRecentCount,1);
     const same=(await request('/auth/guest','POST',{deviceKey:'d'.repeat(64)})).data;assert.equal(same.user.id,a.user.id);
-    r=await request('/presence','POST',{actor,page:'/idle-lineage-class/index.html'},same.token);assert.equal(r.data.siteOnlineCount,1);
-    DB.sqlite.prepare('UPDATE users SET site_seen=? WHERE id=?').run(Date.now()-180000,a.user.id);
-    r=await request('/presence','POST',{actor,page:'/idle-lineage-class/'},same.token,'http://localhost:8000');assert.equal(r.data.siteOnlineCount,0);
-    r=await request('/presence','POST',{actor},a.token);assert.equal(r.status,200);assert.equal(r.data.siteOnlineCount,0);
-    r=await request('/presence','POST',{actor,page:'/idle-lineage-class/'},a.token);assert.equal(r.data.siteOnlineCount,1);
-    r=await request('/players?offset=10000','GET',undefined,local.token,'http://localhost:8000');assert.equal(r.data.players.length,0);assert.equal(r.data.siteOnlineCount,1);assert.equal(r.data.onlineCount,4);
-    DB.sqlite.prepare('UPDATE users SET suspended=1 WHERE id=?').run(a.user.id);assert.equal((await request('/players','GET',undefined,local.token)).data.siteOnlineCount,0);
+    r=await request('/presence','POST',{actor,page:'/idle-lineage-class/index.html'},same.token);assert.equal(r.data.siteRecentCount,1);
+    DB.sqlite.prepare('UPDATE users SET site_seen=? WHERE id=?').run(Date.now()-1800001,a.user.id);
+    r=await request('/presence','POST',{actor,page:'/idle-lineage-class/'},same.token,'http://localhost:8000');assert.equal(r.data.siteRecentCount,0);
+    r=await request('/presence','POST',{actor},a.token);assert.equal(r.status,200);assert.equal(r.data.siteRecentCount,0);
+    r=await request('/presence','POST',{actor,page:'/idle-lineage-class/'},a.token);assert.equal(r.data.siteRecentCount,1);
+    r=await request('/players?offset=10000','GET',undefined,local.token,'http://localhost:8000');assert.equal(r.data.players.length,0);assert.equal(r.data.siteRecentCount,1);
+    DB.sqlite.prepare('UPDATE users SET suspended=1 WHERE id=?').run(a.user.id);assert.equal((await request('/players','GET',undefined,local.token)).data.siteRecentCount,0);
     assert.equal((await request('/presence','POST',{actor,page:123},local.token)).status,400);DB.sqlite.close();
 });
 
 test('recent official visitors survive 24 hours, count only 30 minutes and accept unpublished messages',async()=>{
-    const DB=testDatabase(),api=createHandler(),env={DB,ALLOWED_ORIGINS:'https://lostshin.github.io'};
+    const DB=testDatabase(),api=createHandler(),env={DB,...testLimiters(),ALLOWED_ORIGINS:'https://lostshin.github.io'};
     async function request(path,method='GET',data,token,origin='https://lostshin.github.io'){
         const r=await api.fetch(new Request('https://api.test/v1'+path,{method,headers:{Origin:origin,'CF-Connecting-IP':'recent-fixture',...(token?{Authorization:'Bearer '+token}:{}),...(data?{'Content-Type':'application/json'}:{})},body:data?JSON.stringify(data):undefined}),env);return{status:r.status,data:await r.json()};
     }
@@ -262,7 +270,7 @@ test('recent official visitors survive 24 hours, count only 30 minutes and accep
 });
 
 test('durable actions are ordered, retried once, acknowledged per visitor and resume across sessions',async()=>{
-    const DB=testDatabase(),api=createHandler(),env={DB,ALLOWED_ORIGINS:'https://lostshin.github.io'};
+    const DB=testDatabase(),api=createHandler(),env={DB,...testLimiters(),ALLOWED_ORIGINS:'https://lostshin.github.io'};
     async function req(path,method='GET',data,token){const r=await api.fetch(new Request('https://api.test/v1'+path,{method,headers:{Origin:'https://lostshin.github.io','CF-Connecting-IP':'actions-fixture',...(data?{'Content-Type':'application/json'}:{}),...(token?{Authorization:'Bearer '+token}:{})},body:data?JSON.stringify(data):undefined}),env);return{status:r.status,data:await r.json()};}
     const a=(await req('/auth/guest','POST',{deviceKey:'1'.repeat(64)})).data,b=(await req('/auth/guest','POST',{deviceKey:'2'.repeat(64)})).data;
     const actor={name:'動作旅人',cls:'mage',avatar:'女法師'};
@@ -289,7 +297,7 @@ test('durable actions are ordered, retried once, acknowledged per visitor and re
 });
 
 test('presence pose is shared, backwards compatible and strictly validated', async () => {
-    const env = { DB: testDatabase(), ALLOWED_ORIGINS: 'https://game.test', ADMIN_USER_IDS: '' };
+    const env = { DB: testDatabase(), ...testLimiters(), ALLOWED_ORIGINS: 'https://game.test', ADMIN_USER_IDS: '' };
     const handler = createHandler();
     async function request(path, body, token) {
         const response = await handler.fetch(new Request('https://api.test/v1' + path, {
@@ -311,4 +319,17 @@ test('presence pose is shared, backwards compatible and strictly validated', asy
     for (const pose of ['attack', '<script>', 5, null]) assert.equal((await request('/presence', { actor: { ...actor, pose } }, a.token)).status, 400);
     assert.equal((await request('/presence', { actor }, a.token)).status, 200);
     assert.equal(JSON.parse(env.DB.sqlite.prepare('SELECT presence_actor FROM users WHERE id=?').get(a.user.id).presence_actor).pose, 'standing');
+});
+
+test('heartbeats keep per-minute rate limits and unused indexes out of D1 writes',async()=>{
+    const DB=testDatabase(),api=createHandler(),env={DB,...testLimiters(),ALLOWED_ORIGINS:'https://lostshin.github.io'};
+    async function request(path,method='GET',data,token){const r=await api.fetch(new Request('https://api.test/v1'+path,{method,headers:{Origin:'https://lostshin.github.io','CF-Connecting-IP':'write-budget',...(token?{Authorization:'Bearer '+token}:{}),...(data?{'Content-Type':'application/json'}:{})},body:data?JSON.stringify(data):undefined}),env);return{status:r.status,data:await r.json()};}
+    const a=(await request('/auth/guest','POST',{deviceKey:'9'.repeat(64)})).data,actor={name:'合成心跳',cls:'knight',avatar:'男騎士'};
+    for(let i=0;i<6;i++){const r=await request('/presence','POST',{actor,page:'/idle-lineage-class/'},a.token);assert.equal(r.status,200);assert.equal(r.data.siteRecentCount,1);assert.equal('onlineCount' in r.data,false);assert.equal('siteOnlineCount' in r.data,false);}
+    assert.equal((await request('/presence','POST',{actor,page:'/idle-lineage-class/'},a.token)).status,429);
+    assert.equal(DB.sqlite.prepare("SELECT COUNT(*) n FROM rate_limits WHERE key NOT LIKE 'new-visitor:%'").get().n,0);
+    assert.equal(DB.sqlite.prepare("SELECT COUNT(*) n FROM rate_limits WHERE key LIKE 'new-visitor:%'").get().n,1);
+    assert.equal(DB.sqlite.prepare('PRAGMA index_list(users)').all().some(index=>index.name==='users_recent'),false);
+    assert.equal('onlineCount' in (await request('/players?view=recent','GET',undefined,a.token)).data,false);
+    DB.sqlite.close();
 });
