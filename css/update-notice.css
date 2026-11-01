@@ -1,0 +1,140 @@
+/* Forehead / notch banner at the top, matching the game's dark leather palette; no centered modal dialog. */
+#update-notice {
+    position: fixed;
+    top: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0 8px;
+    flex-wrap: wrap;
+    width: max-content;
+    max-width: min(680px, calc(var(--ui-width, 100vw) - 20px));
+    padding: 1px 8px;
+    border: 1px solid #a8823f;
+    border-radius: 4px;
+    background: linear-gradient(180deg, #2a2118 0%, #17120d 100%);
+    color: #e9cf98;
+    font-size: calc(13px * var(--ui-scale-inverse, 1));
+    line-height: 1.45;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.75);
+    text-shadow: 1px 1px 0 #000;
+    box-sizing: border-box;
+}
+
+#update-notice[hidden] {
+    display: none !important;
+}
+
+.update-notice-info {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.update-notice-title {
+    font-weight: 700;
+    color: #fde68a;
+}
+
+.update-notice-meta {
+    color: #a39a8e;
+    font-size: 0.9em;
+}
+
+.update-notice-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+#update-notice button {
+    font: inherit;
+    font-size: calc(12.5px * var(--ui-scale-inverse, 1));
+    font-weight: 700;
+    min-height: calc(24px * var(--ui-scale-inverse, 1));
+    padding: 1px 6px;
+    border-radius: 3px;
+    cursor: pointer;
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#update-notice button[hidden] {
+    display: none;
+}
+
+#update-apply {
+    border: 1px solid #a8823f;
+    background: #4a3820;
+    color: #fde68a;
+}
+
+#update-apply:hover:not(:disabled) {
+    background: #5c4628;
+    border-color: #d5b76d;
+}
+
+#update-apply:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+#update-notice-later {
+    border: 1px solid #5b4a33;
+    background: transparent;
+    color: #a39a8e;
+}
+
+#update-notice-later:hover:not(:disabled) {
+    color: #e2e8f0;
+    border-color: #8e8779;
+}
+
+#update-notice button:focus-visible {
+    outline: 2px solid #fde68a;
+    outline-offset: 1px;
+}
+
+#update-result {
+    flex-basis: 100%;
+    margin: 0;
+    text-align: center;
+    font-size: 0.9em;
+    color: #f87171;
+    overflow-wrap: anywhere;
+}
+
+#update-result[hidden] {
+    display: none;
+}
+
+#update-settings-open {
+    margin: 8px 0;
+    max-width: 100%;
+    white-space: normal;
+    min-height: calc(44px * var(--ui-scale-inverse, 1));
+}
+
+@media (max-width: 520px) {
+    #update-notice {
+        top: 4px;
+        max-width: calc(100vw - 12px);
+        padding: 1px 6px;
+        gap: 2px 6px;
+    }
+    .update-notice-info {
+        flex-basis: 100%;
+        justify-content: center;
+        text-align: center;
+    }
+    .update-notice-actions {
+        flex-basis: 100%;
+        justify-content: center;
+    }
+}

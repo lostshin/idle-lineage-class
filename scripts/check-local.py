@@ -43,6 +43,8 @@ for url in re.findall(r'(?:src|href)="([^" ]+\.(?:js|css)(?:\?[^" ]*)?)"', html)
     if url != url.split('?')[0] + '?v=' + hashlib.sha256(resource.read_bytes()).hexdigest()[:10]:
         stale.append(url.split('?')[0])
 check('index.html ?v= stamps', not stale, 'run python3 scripts/update-cache.py: ' + ', '.join(stale) if stale else '')
+r = run(['python3', 'scripts/update-cache.py', '--check'])
+check('comfort release identity', r.returncode == 0, r.stderr.strip() or r.stdout.strip() if r.returncode else '')
 
 source = json.loads((root / 'tests/addon-source.json').read_text())
 bad = []
