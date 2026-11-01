@@ -144,6 +144,8 @@ await page.evaluate(() => { window.__lobbyCombatTicks = state.ticks; state.runni
 await check('native combat still advances while the lobby remains open', () => page.evaluate(() => state.ticks === __lobbyCombatTicks + 10 && mapState.current === 'training' && !document.getElementById('social-lobby').hidden && state.running));
 await check('hidden battle effects do not accumulate in the social scene', () => page.evaluate(() => _vfxMute() && !document.querySelector('#vfx-layer > *')));
 await click('#lobby-exit');
+// mouse.click can resolve before the page finishes the click; wait for the closed state, the check still fails if it never closes.
+await page.waitForFunction(() => document.getElementById('social-lobby').hidden, undefined, { timeout: 3000 }).catch(() => {});
 await check('exit restores the current battle without restoring an old actor snapshot', () => page.evaluate(() => document.getElementById('social-lobby').hidden && !document.getElementById('map-view-panel').classList.contains('social-lobby-open') && player === __lobbyBefore.player && mapState.current === 'training' && document.getElementById('map-select').value === 'training' && !socialLobby.isPolling()));
 await page.evaluate(() => { state.running=false; });
 if (options.lobbyApi) {
