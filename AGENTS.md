@@ -25,6 +25,7 @@
 
 - 使用者指定 Herdr 時，先讀 `herdr` 技能並確認 `HERDR_ENV=1`；以目前 pane 的實際鄰居、agent 狀態與 cwd 辨識目標，不依 UI 焦點或舊名稱猜測。
 - 先讀 pane 的交接輸出；不足時依技能補讀，必要時只查對應的本機 session。核對最新需求、已選方案／授權、工作樹、進行中的 runner 與完成證據，再決定剩餘工作，不從頭重做。若終端輸出不足，依 session ID 或最新需求定位本機 session，核對 `request_user_input` 的實際回答；session 所在日期可能是開始日期，不以目前日期猜測。
+- 同一工作樹可能有其他 agent 同時修改（如 Pi）：長任務中與 commit 前重看 `git status` 和檔案 mtime；發現他人進行中的修改，先把自己的部分存成 patch 並還原，避免被對方一起 commit，再依使用者指示協調或接手。本機 session：Pi 在 `~/.pi/agent/sessions/--Users-lokunlim-projects-idle-lineage-class--/`，Codex 在 `~/.codex/sessions/`；接手先讀最後一則使用者指示（含提交／發布授權）與對方的停點。
 - pane 名稱可能被沿用；關閉前重新確認目前 occupant。若舊美術 pane 已成為本次接手的工作 pane，保留並說明，不套用舊的關閉選擇把自己關掉。
 
 ## 結構、載入順序與加掛來源
@@ -39,7 +40,7 @@
 - 舊浮動開關面板已移除；`js/addon-switches.js` 明列固定基底與可選 catalog，不讀舊 `afk_toggle_*`；未知 ID 預設關閉。`statpts` 與主角點數來源面板維持移除。
 
 ## 已確認的產品決策（更新至 2026-11-02）
-本檔下方為本次最新決策；其他細節見 [docs/agent-decisions.md](docs/agent-decisions.md)。**修改對應功能、樣式、素材或測試前，先讀該小節**（`rg -n '^### ' docs/agent-decisions.md` 取行號後只讀那段）。最新使用者指示優先，不恢復已否決／已移除的方案。
+本檔下方為本次最新決策；其他細節見 [docs/agent-decisions.md](docs/agent-decisions.md)。「同怪掉落與分類列」「齒輪加速器黑市搜尋」已移入該檔。**修改對應功能、樣式、素材或測試前，先讀該小節**（`rg -n '^### ' docs/agent-decisions.md` 取行號後只讀那段）。最新使用者指示優先，不恢復已否決／已移除的方案。
 
 ## 介面修正的範圍與驗收
 
@@ -137,11 +138,6 @@
 - 召喚物、傭兵召喚、死靈骷髏、城堡護衛沿用寵物精簡能力清單，只列實際支援的骰值、加值、命中、間隔、倍率、防禦與技能；不用主角六屬性、爆擊或「—」填滿。V2／舊式傭兵／屬性精靈依各自原生攻擊路徑顯示，間隔 ticks ÷10；不套寵物魅力／裝備公式，保留唯讀裝備、增益／異常及來源 tooltip，預覽只算副本。
 - 夥伴能力總值與括號加成同列靠右；`party-inspector` 重用節點須核對 `tagName`，不能把傭兵 artwork 的 span／strong 搬入寵物／護衛 dd 清單。驗「先看傭兵→再切每種夥伴」與效果刷新，量可見文字右緣；只測首次開窗或 dd 外框會漏掉置中問題。
 
-### 同怪掉落與分類列（2026-10-19）
-
-- 同次擊殺的非 silent 掉落先依原生 `sameItemSig` 彙整副本，再以「完整物品名 ×數量、…」寫一則系統日誌；名稱仍走 `getItemFullName`，傳入 `cnt:1` 避免括號數量與 ×數量重複。保留原生詞綴色、傳說／遺物亮點及未讀點；分次擊殺不合併、空掉落不寫，異常先清上下文再輸出已發放物品，不改 RNG／實得量或商店製作等獨立訊息。
-- 切分類用 `renderTabs()` 的分頁簽章更新，保留 `.backpack-category-nav` 原節點連續相連，不移入物品格或重建；同步更新 `aria-pressed`／disabled，保留搜尋、批次鎖定與橫向位置。手動點分類立即解除 wheel-idle 延後，不能把清單捲動保護變成點擊後 180ms 才換內容。
-
 ### 冒險者大廳（2026-10-21）
 
 - 黑市旁獨立「冒險者大廳」按鈕，同頁開啟／再按返回，維護 `aria-pressed`；左上角以「經驗 +5%／經驗加成未啟用」取代原「肝膽相照」可見標題，底部只留本機隊伍所在地；不恢復地圖分類／子選單入口。黑市／瞬移／回城與兩個真實地圖選單保留；場景仍為 `min(800px,100%)`／16:9，無永久資訊面板或上下捲軸。
@@ -161,14 +157,16 @@
 - 關頁不等於手動離開：大廳關頁快照的 `offlineHunt.lobbyExpMap` 僅對原圖該次合資格離線區間生效，舊檔缺值為無加成；載入先結算再沿用回村，不把加成帶到下次出征。取樣／頭目證明存未加成基準，結算只乘一次；主角、寵物、傭兵、統計與普通怪／純頭目房都須涵蓋。保留 70%／12 小時、存檔失敗與去重；切換加成前先等補跑完成，避免追溯加成。
 - 無註冊登入，匿名身分綁定瀏覽器隨機 device key 與 bearer token，不用角色名認證。角色名／職業／性別是在線外觀，介紹／裝備／地圖等仍須勾選、預覽、確認發布；角色存檔留本機，不把自報能力用於排名／交易。清除網站資料或換裝置不會自動恢復身分。
 - 公共 API 為 `https://idle-lineage-lobby.lostshinanalytics.workers.dev`；Cloudflare 帳號為 `lostshinanalytics`。依最新決策 `ALLOW_LOCAL_CLIENTS:false`：本機 HTTP／file 不自動認證、回報或參與正式大廳，顯示正式站連結、停用社交控制項。僅顯式設定 loopback 測試 API 的隔離 fixture 可連本機 workerd；正式站仍用 bearer，不開任意 Origin。
+- 心跳間隔、在線門檻、失敗重試與測試的 `ms===600000` 掛鉤要一起改，失敗重試間隔不得超過在線門檻（現為失敗後 5 分鐘、之後每 10 分鐘）。v3.9.30 以前的分頁沒有新版提示，舊心跳要等玩家手動重整才會消失；寫入量驗收以第 2 個完整 UTC 日為準。
+- D1 計費列數含索引：UPDATE 改到兩個有索引的欄位＝寫入 3 列，限流表 upsert 與 cron 刪除也照算。`d1 insights` 只給整天合計；部署前後比較用 GraphQL `d1AnalyticsAdaptiveGroups` 的 `datetimeMinute`（wrangler OAuth token，唯讀）。刪索引／欄位的 migration 要先部署不再依賴它的 Worker 再套用，舊前端對新後端也須相容。
 - 大廳無五秒輪詢；進入／手動刷新／返回前景且資料超過 10 分鐘才取列表。以伺服器時間＋`performance.now()`更新在線／24 小時到期，停止畫面時取消計時，保留未到期角色座位。`siteRecentCount` 為正式站 30 分鐘去重總數，與座位／分頁無關；顯示最多每 10 分鐘更新，斷線保留數字並註記，不能固定補成 18 或重啟 tracker。
 - 前端新增 `actor.pose` 須先部署相容新舊 payload 的 Worker，再 push Pages；否則舊 Worker 會回 400。姿勢只用既有 JSON，勿重跑 migration。後端驗證用 `npm test --prefix backend/lobby`；真實前後端串接用 `python3 tests/run-social-lobby.py --space <id> --keep-space --skip-screenshots`，runner 建隔離本機 D1，不碰正式玩家資料。後端來源未變不因前端發布重複部署。D1 寫入額度（免費每天 10 萬列）與 SmartCare 共用帳戶：每分鐘限流用 `RL_*` Workers Rate Limiting binding，只有每小時新訪客留在 D1 `rate_limits`；`users_recent` 已移除，presence／players 只回 `siteRecentCount`。心跳與每次請求路徑不得新增 D1 寫入或索引欄位；改後用 `wrangler d1 insights idle-lineage-lobby --sort-by writes` 驗，wrangler 遠端指令帶 `CLOUDFLARE_ACCOUNT_ID=15679658e5174601908932ce0751618c`。
 
-### 齒輪加速器黑市搜尋（2026-10-20）
+### 新版提示（2026-11-02，v3.9.31–v3.9.32）
 
-- `js/gear-accelerator.js` 是本版整合層；指定資格沿用原生 `gachaWeight > 0`，不為寒冰長靴／耳環等擴張商品池，不混用收購單的資格規則。
-- 輸入旁即時顯示提示與可點候選（最多 8 件）；完全同名優先，同名但不合資格不能退選較長名稱。部分相符多筆須選候選或補全，選取只填入、按刷新才換貨；**非空無效輸入不換貨，只有留空才隨機刷新**。
-- 候選名稱用 `textContent`，保留鍵盤操作與 `aria-describedby`／錯誤狀態；中文組字中的 Enter 不刷新。成功指定沿用原生價格、商品格數、公告與存檔流程，保留收購單／未知欄位，儲存失敗也就地提示。
+- `js/update-notice.js` 只在正式站（或明確設定的 loopback fixture）讀 `comfort-update.json`；`update-cache.py` 寫入 `comfort-build`／`comfort-published` 與 JSON 的 build。版號相同但 build 不同也會跳提示，功能／修正必須升版；`notes` 只驗證、不顯示。
+- 「儲存並更新」先完整存檔（含寵物、傭兵帳本），補跑／死亡／副本／其他分頁／存檔位變更都留在原頁；存檔失敗時隱藏橫幅，交給存檔救援。重載後依 ticket 先 `loadSetPage` 再選回原存檔位。
+- 輪詢只清「查無新版／無法檢查」兩種狀態訊息；更新重載與存檔失敗訊息不得被清掉（`update-notice` 有斷言）。
 
 ### 避免重複繞路的規則
 
@@ -184,7 +182,7 @@
 - 預覽：`python3 -m http.server 8000 --bind 127.0.0.1`；E2E 使用 Python 3、`ego-browser` CLI 與 Ego，runner 自啟 HTTP；操作前讀 `ego-browser` 技能，只用記載 API，不猜 Playwright 方法，選項見 `tests/run-rwd.py --help`。`.ignore` 略過 20 萬張 `assets/anim`／`classanim`／`morphanim` 影格、巨型 `js/anim-manifest.js`／`anim-manifest.json` 與歷史驗收；要查那裡用 `rg --no-ignore`。人類入門見 README，本檔只留代理規則。
 - 手機專項：`mobile-manual` 驗寬窗強制／還原，`mobile-live` 驗生命週期，`player-ui`／`player-ui-touch` 驗閱讀與操作，`player-ui-desktop` 驗未勾選原版幾何；救援／容量用 `save-recovery`。Ego 觸控雙點可能被拉開約 2 秒，滑鼠 dblclick 只能證明手機模式的滑鼠流程，不能宣稱實機雙點通過。
 - HTTP 缺控制項或版本不符時先查 SW 是否回舊 HTML；一般行為 fixture 可明確設 `Network.setBypassServiceWorker`／停快取，PWA 測試仍須驗真實快取與離線。runner 外層逾時可能終止臨時 HTTP，接續前查程序／server／URL；長測用背景完成通知、等待設期限，僅接續未完成 suite，不反覆短 timeout 殺掉後全重跑。
-- 每個任務只建一個 TaskSpace，所有 runner **逐批共用同一 space／p1**、不並行，失敗在原空間恢復。首輪可用 `--suite rwd --protocol http --desktop-only --keep-space` 取得 `spaceId`，後續帶 `--space`；多 suite／`--protocol both` 依序執行、自動 keep-space、遇錯即停。space 0 有效，預設值用 `??`／`is None`，不得用真假判斷；跨 session 先核對目前 occupant，不沿用舊 id 猜測。
+- 每個任務只建一個 TaskSpace，所有 runner **逐批共用同一 space／p1**、不並行，失敗在原空間恢復。首輪可用 `--suite rwd --protocol http --desktop-only --keep-space` 取得 `spaceId`，後續帶 `--space`；多 suite／`--protocol both` 依序執行、自動 keep-space、遇錯即停。space 0 有效，預設值用 `??`／`is None`，不得用真假判斷；跨 session 先核對目前 occupant，不沿用舊 id 猜測。`run-social-lobby.py` 必帶 `--space`，新一輪先用 `taskSpace(名稱)` 取得 id。兩個 runner 或 agent 同時用 Ego 會互搶前景，頁面轉背景會觸發 `_flushSaveNow` 與補跑狀態變化；遇到間歇失敗，先確認沒有並行 runner。
 - 測試報告預設寫入 `tmp/test-runs/`（不進 git）；要更新受追蹤的 `tests/artifacts/` 才加 `--record`（runner 與 `*.integration.js` 相同）；runner 可用 `--artifacts <目錄>` 指定其他輸出位置，與 `--record` 互斥。
 - 成功後只呼叫一次 `finish({keep:[]})` 並等待完成；耗時時用背景程序讀回結果，不用短 timeout 中止再反覆重送。有 `finished <id>` 與成功結束碼後，不再操作該空間；輸出遺失時用 `listTaskSpaces()` 唯讀確認，不重送 finish。
 - 必跑 `rwd`、`ui-scale`、`gameplay`、`account-gameplay`、`companion-commands` 的 HTTP／file：`--space <id> --suite required --protocol both --desktop-only`。
@@ -226,7 +224,7 @@
 - 此路徑至少驗連續兩次原生匯出→匯入、同步壓縮開／關、舊壓縮偏好與失敗回復。Ego 選檔先 arm；反覆取消可在合成 fixture 保留動態 input 後 `setInputFiles`，保留原 onChange／預覽／確認。原生下載已兩次造成 `CrBrowserMain` 崩潰時不原樣第三試；可用簽章 file sink 接收、另存 `account-sink` 報告並明列未驗 OS 下載，不改正式碼或直接 apply 冒充原生 E2E。
 - 測試未知欄位時，在匯出快照建立前注入同一份來源資料；不要稍後又還原較早快照，再誤判欄位被匯入流程刪除。
 - 不提交玩家存檔、憑證、個資、`.DS_Store`、備份、快取或合成帳號匯出檔。發佈報告先移除本機／iCloud 的絕對路徑，改用專案相對路徑或中性標記。
-- 分批 commit 須處理全域依賴：定義、script 載入與呼叫端須在同一批可用；共用檔案按功能分段暫存，每批 `index.html` 快取版本須對應該批索引的資源內容，不能提前帶入下一批的 SHA。
+- 分批 commit 須處理全域依賴：定義、script 載入與呼叫端須在同一批可用；共用檔案按功能分段暫存，每批 `index.html` 快取版本須對應該批索引的資源內容，不能提前帶入下一批的 SHA；兩批共用 `index.html` 時，先暫時還原後一批的來源，`update-cache.py` 後提交前一批，再恢復、重新蓋章並提交後一批。
 - commit 以單一功能範圍命名，例如 `fix: preserve village buffs across ally refresh`；不只寫 `1`／`q`。
 - push 前核對遠端／分支與差異，不 force push；未授權不推到 upstream 或改動別人的歷史。
 - 補歷史發行版時，先核對指定 commit，再建附註標籤（`git cat-file -t` 為 tag，`git rev-parse <tag>^{}` 符合目標）並推送。以 `gh release create --verify-tag --notes-file` 發布，明確指定 Latest，舊版用 `--latest=false`；不為補標籤新增程式提交或重寫已發布 tag。
@@ -241,10 +239,8 @@
 - 發布後以公開 HTTPS 比對線上 `index.html`、本次改動的 JS／CSS／素材與本機已提交內容 SHA256；保存 commit、run URL、結果與時間。這是資源驗證，不等於線上瀏覽器 E2E，也不讀寫玩家儲存。
 
 ## 最新進度與驗證基準（2026-11-02）
-- **v3.9.31 已發布**：新版提示橫幅（接手 Pi）＋大廳心跳 10／在線 15 分鐘；後端限流改 binding、0008 移除 `users_recent`（Worker `d5dc50ba`）。commits `0c336815e`／`14018dd71`／`56477c50c`，Pages run `41329915138`、公開 7/7 SHA 相符；證據 `tmp/test-runs/lobby-d1-writes/completion.json`。D1 寫入預估 8.85 萬→約 1.6 萬列／日，須以第 2 個完整 UTC 日的 insights 驗收。真實大廳「返回冒險」失敗為測試在 mouse.click 後未等待，已修測試（`tmp/test-runs/lobby-exit/`）。
-- **v3.9.29**：手機登入、倉庫遺物／遺骸分類及離線舊生存風險修正；證據 `tmp/test-runs/player-reports-1028/report.md`，baseline 7/21 預期失敗，最終專項 HTTP／file 各 21/21、必要核心各 252/252、倉庫各 96/96、離線各 36/36，本地 13/13。7 小時以控制時鐘和合成角色存讀驗證，非實掛；截圖無樣本／死因，不能確定當次死亡原因。file 預覽為 Ego PNG；實機、Safari、安裝版未驗。推送及公開資源驗證結果以本輪交接為準；後端未改。
-- 手機證據：`tmp/test-runs/mobile-manual/report.md`（寬窗 HTTP／file 各 31/31、生命週期 HTTP 33/33／file 31/31、桌機還原 97/97；修改前 17/31 預期失敗）。這些是救援前來源，不能當後續所有改動的獨立驗收；TaskSpace 3 已結束，離線戰利品原字級保留。
-- 救援／容量證據：`tmp/test-runs/save-recovery/report.md`、同目錄 `completion.json`（修改前 24/26 預期失敗；final3 HTTP／file 各 26/26，account-sink 各 63/63，核心兩協定通過，本地 13/13；功能來源為升版前）。額外 mobile-live HTTP 只完成 32 項、最後重試未完成，file 加掛接續逾時，不得寫全通過。TaskSpace 11 已結束；預覽為 file screen-media PDF→pypdfium2 96dpi，OS 原生下載、實體手機、Safari、安裝版、真實存檔未驗。
-- 前版證據索引（相對 `tmp/test-runs/`）：v3.9.28 `session-release-3928/completion.json`（Pages run `40672404271`，公開 15/15）；v3.9.27 `session-release-3927/completion.json`、`player-reports-1023/report.md`；v3.9.26 `session-release-3926/completion.json`、`feedback-1023/report.md`；v3.9.25 `item-breathing/completion.json`；v3.9.24 `catchup-optimize/completion.json`（速度 +46.1%、耗時 −31.5%，未重現五小時個案）；v3.9.23 `session-release-3923/completion.json`；v3.9.22 `session-release/completion.json`；v3.9.21 `offline-team/completion.json`、`offline-team/rollback-scope.json`、`offline-team-release/completion.json`。更早見[歷史進度](docs/agent-progress.md)，不跨輪加總或把舊預覽當新驗收。
+- **v3.9.32 已發布**（`e3853f777`，Pages run `41333014260`，公開 6/6）：心跳失敗改 5 分鐘重試、更新重載切回原存檔位分頁、查到新版清掉舊檢查狀態；原程式 3 項預期失敗，專項與必要核心兩種協定全過，證據 `tmp/test-runs/review-fixes-3932/completion.json`。審查 #7（按鈕重複觸發）、#3（notes 上限驗證）未做；`lobby-recent` 點 `[data-self]` 偶爾點到重疊角色而找不到 `#lobby-edit`，單獨重跑通過、未修。
+- **v3.9.31 已發布**：新版提示（接手 Pi）＋大廳心跳 10／在線 15 分鐘；後端限流改 binding、0008 移除 `users_recent`（Worker `d5dc50ba`）；Pages run `41329915138`，證據 `tmp/test-runs/lobby-d1-writes/completion.json`。D1 寫入每 10 分鐘約 600→160～200 列（部署當晚，舊分頁仍在），目標約 1.6 萬列／日，待 insights 驗收。大廳「返回冒險」失敗是測試沒等 mouse.click 處理完，已修測試。
+- 前版證據索引（相對 `tmp/test-runs/`）：v3.9.29 `player-reports-1028/report.md`；手機 `mobile-manual/report.md`；救援／容量 `save-recovery/report.md`（細節見歷史進度）；v3.9.28 `session-release-3928/completion.json`（Pages run `40672404271`，公開 15/15）；v3.9.27 `session-release-3927/completion.json`、`player-reports-1023/report.md`；v3.9.26 `session-release-3926/completion.json`、`feedback-1023/report.md`；v3.9.25 `item-breathing/completion.json`；v3.9.24 `catchup-optimize/completion.json`（速度 +46.1%、耗時 −31.5%，未重現五小時個案）；v3.9.23 `session-release-3923/completion.json`；v3.9.22 `session-release/completion.json`；v3.9.21 `offline-team/completion.json`、`offline-team/rollback-scope.json`、`offline-team-release/completion.json`。更早見[歷史進度](docs/agent-progress.md)，不跨輪加總或把舊預覽當新驗收。
 - 檢視建議僅第 1、2 項（救援／容量）已實作；手機 X 點擊區、啟動載入失敗的可見提示、最新手機模式 PWA／實機補驗、大背包 profile、未開放攻城仍為後續候選，不視為實作授權。
 - 使用者已撤回統一v3.9.10，版號持續遞增；單一機制回復不降整體版號、不改既有commit／tag。歷史「先發布名片才在線／地圖子選單入口／隨機姿勢」已被取代。

@@ -1,6 +1,12 @@
-# 進度與驗證歷史（更新至 2026-10-19）
+# 進度與驗證歷史（更新至 2026-11-02）
 
 由 `AGENTS.md` 移出；接手、發布或引用舊報告前讀。
+
+## 2026-10-28：手機模式、存檔救援與玩家回報（v3.9.28–v3.9.29）
+
+- **v3.9.29**：手機登入、倉庫遺物／遺骸分類及離線舊生存風險修正；證據 `tmp/test-runs/player-reports-1028/report.md`，baseline 7/21 預期失敗，最終專項 HTTP／file 各 21/21、必要核心各 252/252、倉庫各 96/96、離線各 36/36，本地 13/13。7 小時以控制時鐘和合成角色存讀驗證，非實掛；截圖無樣本／死因，不能確定當次死亡原因。file 預覽為 Ego PNG；實機、Safari、安裝版未驗。推送及公開資源驗證結果以本輪交接為準；後端未改。
+- 手機證據：`tmp/test-runs/mobile-manual/report.md`（寬窗 HTTP／file 各 31/31、生命週期 HTTP 33/33／file 31/31、桌機還原 97/97；修改前 17/31 預期失敗）。這些是救援前來源，不能當後續所有改動的獨立驗收；TaskSpace 3 已結束，離線戰利品原字級保留。
+- 救援／容量證據：`tmp/test-runs/save-recovery/report.md`、同目錄 `completion.json`（修改前 24/26 預期失敗；final3 HTTP／file 各 26/26，account-sink 各 63/63，核心兩協定通過，本地 13/13；功能來源為升版前）。額外 mobile-live HTTP 只完成 32 項、最後重試未完成，file 加掛接續逾時，不得寫全通過。TaskSpace 11 已結束；預覽為 file screen-media PDF→pypdfium2 96dpi，OS 原生下載、實體手機、Safari、安裝版、真實存檔未驗。
 
 ## 2026-10-19：同怪掉落與分類滑動（v3.9.8）
 
